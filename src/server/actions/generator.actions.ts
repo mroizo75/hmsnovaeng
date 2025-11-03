@@ -61,8 +61,9 @@ export async function createGeneratedDocument(data: z.infer<typeof completeGener
         // Step 4: Opplæring
         completedTraining: step4.completedTraining || [],
 
-        // Step 5: Marketing
+        // Step 5: Marketing & Newsletter
         marketingConsent: step5.marketingConsent,
+        newsletterSubscribed: step5.marketingConsent, // Auto-subscribe if marketing consent given
 
         // Status
         status: "PENDING",

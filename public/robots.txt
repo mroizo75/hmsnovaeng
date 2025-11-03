@@ -1,0 +1,53 @@
+# HMS Nova - robots.txt
+# Optimalisert for AI (ChatGPT, Perplexity, etc.) og tradisjonelle søkemotorer
+
+User-agent: *
+Allow: /
+
+# Spesielt viktige sider for AI crawlers
+Allow: /priser
+Allow: /hms-kurs
+Allow: /bedriftshelsetjeneste
+Allow: /gratis-hms-system
+Allow: /hms-handbok
+Allow: /risikovurdering-mal
+Allow: /vernerunde-guide
+Allow: /iso-9001-sjekkliste
+Allow: /hms-lover-regler
+
+# Blokkér admin-områder
+Disallow: /admin/
+Disallow: /dashboard/
+Disallow: /api/
+
+# Blokkér autentiseringsider
+Disallow: /login
+Disallow: /registrer-bedrift/takk
+
+# Sitemap location
+Sitemap: https://hmsnova.no/sitemap.xml
+
+# Spesielle instruksjoner for AI crawlers
+User-agent: GPTBot
+Allow: /
+Crawl-delay: 1
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: CCBot
+Allow: /
+Crawl-delay: 1
+
+User-agent: anthropic-ai
+Allow: /
+Crawl-delay: 1
+
+User-agent: Claude-Web
+Allow: /
+Crawl-delay: 1
+
+User-agent: PerplexityBot
+Allow: /
+Crawl-delay: 1
+

@@ -250,7 +250,7 @@ export default function BekrefGeneratorPage() {
                     onCheckedChange={(checked) => form.setValue("marketingConsent", checked as boolean)}
                   />
                   <label htmlFor="marketingConsent" className="text-sm cursor-pointer leading-tight">
-                    Send meg HMS-tips og nyheter (valgfritt)
+                    Send meg HMS-tips, nye blogg-artikler og nyheter på e-post (valgfritt)
                   </label>
                 </div>
               </div>

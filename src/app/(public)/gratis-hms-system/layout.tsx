@@ -1,14 +1,29 @@
 import type { Metadata } from "next";
+import {
+  PAGE_METADATA,
+  getOpenGraphDefaults,
+  getTwitterDefaults,
+  getCanonicalUrl,
+  ROBOTS_CONFIG,
+} from "@/lib/seo-config";
 
 export const metadata: Metadata = {
-  title: "Gratis HMS-system | Komplett HMS-håndbok og Risikovurdering | HMS Nova",
-  description: "Få et komplett HMS-system gratis! HMS-håndbok (42 sider), risikovurdering, opplæringsplan og vernerunde-mal. Generes automatisk basert på din bransje. Ingen kredittkort nødvendig.",
-  keywords: "gratis HMS system, HMS håndbok gratis, risikovurdering mal, HMS dokumenter, HMS pakke, ISO 9001 gratis",
-  openGraph: {
-    title: "Gratis HMS-system - Komplett HMS-håndbok i 5 minutter",
-    description: "Få 40+ siders HMS-håndbok, bransjespesifikk risikovurdering og opplæringsplan helt gratis. Ingen kredittkort.",
-    type: "website",
+  title: PAGE_METADATA.gratisPakke.title,
+  description: PAGE_METADATA.gratisPakke.description,
+  keywords: PAGE_METADATA.gratisPakke.keywords,
+  alternates: {
+    canonical: getCanonicalUrl("/gratis-hms-system"),
   },
+  robots: ROBOTS_CONFIG,
+  openGraph: getOpenGraphDefaults(
+    PAGE_METADATA.gratisPakke.title,
+    PAGE_METADATA.gratisPakke.description,
+    "/gratis-hms-system"
+  ),
+  twitter: getTwitterDefaults(
+    PAGE_METADATA.gratisPakke.title,
+    PAGE_METADATA.gratisPakke.description
+  ),
 };
 
 export default function GratisHMSLayout({
@@ -18,4 +33,3 @@ export default function GratisHMSLayout({
 }) {
   return children;
 }
-

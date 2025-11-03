@@ -63,6 +63,7 @@ model User {
   accounts      Account[]
   sessions      Session[]
   tenants       UserTenant[]
+  blogPosts     BlogPost[]   // Blogg-artikler skrevet av bruker
   createdAt     DateTime     @default(now())
   updatedAt     DateTime     @updatedAt
 
@@ -218,6 +219,10 @@ model GeneratedDocument {
   // Marketing consent
   marketingConsent Boolean @default(false)
   
+  // Newsletter tracking
+  newsletterSubscribed Boolean @default(false) // Hvis de ønsker nyhetsbrev
+  lastNewsletterSent  DateTime? // Siste nyhetsbrev sendt
+  
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
   
@@ -226,6 +231,7 @@ model GeneratedDocument {
   @@index([status])
   @@index([createdAt])
   @@index([convertedToTrial])
+  @@index([newsletterSubscribed])
 }
 
 enum GenerationStatus {
@@ -952,4 +958,81 @@ model FormFieldValue {
   
   @@index([submissionId])
   @@index([fieldId])
+}
+
+// ============================================
+// Blog & SEO
+// ============================================
+
+model BlogPost {
+  id              String        @id @default(cuid())
+  title           String
+  slug            String        @unique
+  excerpt         String        @db.Text // Kort beskrivelse (meta description)
+  content         String        @db.LongText // Markdown eller rich text
+  coverImage      String?       // URL til hovedbilde
+  
+  // SEO
+  metaTitle       String?       // Custom SEO title (default: title)
+  metaDescription String?       @db.Text // Custom meta description (default: excerpt)
+  keywords        String?       @db.Text // Kommaseparert liste med keywords
+  
+  // Organisering
+  category        BlogCategory? @relation(fields: [categoryId], references: [id])
+  categoryId      String?
+  tags            BlogTag[]
+  
+  // Publisering
+  status          PostStatus    @default(DRAFT)
+  publishedAt     DateTime?
+  scheduledFor    DateTime?     // Planlagt publisering
+  
+  // Forfatter
+  authorId        String
+  author          User          @relation(fields: [authorId], references: [id])
+  
+  // Analytics
+  viewCount       Int           @default(0)
+  
+  // Relaterte artikler (valgfritt)
+  relatedPosts    String?       @db.Text // JSON array med post IDs
+  
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  
+  @@index([slug])
+  @@index([status])
+  @@index([publishedAt])
+  @@index([categoryId])
+  @@index([authorId])
+}
+
+enum PostStatus {
+  DRAFT       // Kladd
+  PUBLISHED   // Publisert
+  SCHEDULED   // Planlagt
+  ARCHIVED    // Arkivert
+}
+
+model BlogCategory {
+  id          String      @id @default(cuid())
+  name        String      @unique
+  slug        String      @unique
+  description String?     @db.Text
+  color       String?     // Hex color for UI
+  posts       BlogPost[]
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  
+  @@index([slug])
+}
+
+model BlogTag {
+  id        String      @id @default(cuid())
+  name      String      @unique
+  slug      String      @unique
+  posts     BlogPost[]
+  createdAt DateTime    @default(now())
+  
+  @@index([slug])
 }

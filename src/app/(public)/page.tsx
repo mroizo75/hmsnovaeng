@@ -5,6 +5,17 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { ScrollReveal } from "@/components/scroll-reveal";
 import { RegisterDialog } from "@/components/register-dialog";
+import { MultipleStructuredData } from "@/components/seo/structured-data";
+import {
+  PAGE_METADATA,
+  getOpenGraphDefaults,
+  getTwitterDefaults,
+  getCanonicalUrl,
+  SOFTWARE_PRODUCT_SCHEMA,
+  FAQ_SCHEMA,
+  getBreadcrumbSchema,
+  ROBOTS_CONFIG,
+} from "@/lib/seo-config";
 import { 
   CheckCircle2, 
   Shield, 
@@ -19,33 +30,49 @@ import {
 } from "lucide-react";
 
 export const metadata: Metadata = {
-  title: "HMS Nova - Norges Beste HMS-system | ISO 9001 Compliance",
-  description: "Få kontroll på HMS med Norges mest intuitive HMS-system. Digital signatur, automatiske påminnelser, mobilapp og ISO 9001 compliance. Prøv gratis i 14 dager.",
-  keywords: "HMS system, HMS Norge, ISO 9001, risikovurdering, HMS håndbok, vernerunde, arbeidsmiljø, HSEQ",
-  openGraph: {
-    title: "HMS Nova - Norges Beste HMS-system",
-    description: "Digital HMS-løsning for moderne bedrifter. ISO 9001 compliance på autopilot.",
-    type: "website",
-    locale: "nb_NO",
+  title: PAGE_METADATA.home.title,
+  description: PAGE_METADATA.home.description,
+  keywords: PAGE_METADATA.home.keywords,
+  alternates: {
+    canonical: getCanonicalUrl("/"),
   },
+  robots: ROBOTS_CONFIG,
+  openGraph: getOpenGraphDefaults(
+    PAGE_METADATA.home.title,
+    PAGE_METADATA.home.description,
+    "/"
+  ),
+  twitter: getTwitterDefaults(
+    PAGE_METADATA.home.title,
+    PAGE_METADATA.home.description
+  ),
 };
 
 export default function HomePage() {
+  const structuredDataArray = [
+    SOFTWARE_PRODUCT_SCHEMA,
+    FAQ_SCHEMA,
+    getBreadcrumbSchema([{ name: "Hjem", url: "/" }]),
+  ];
+
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background to-muted/20">
+    <>
+      <MultipleStructuredData dataArray={structuredDataArray} />
+      <div className="min-h-screen bg-gradient-to-b from-background to-muted/20">
       {/* Hero Section - StoryBrand: Character */}
       <section className="container mx-auto px-4 py-20 text-center">
         <Badge variant="secondary" className="mb-6">
-          🌱 ISO 9001 Compliance på Autopilot
+          🛡️ HMS Nova Bygger Trygghet
         </Badge>
         <h1 className="text-5xl md:text-6xl font-bold mb-8 relative z-10">
-          <span className="bg-clip-text text-transparent bg-gradient-to-r from-primary to-accent">
-            HMS som faktisk<br />fungerer i praksis
+          <span className="bg-clip-text text-primary">
+            Norges mest moderne<br />HMS-system
           </span>
         </h1>
         <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto relative z-0">
-          Slutt med Excel-ark og papirrot. HMS Nova gir deg et komplett, digitalt HMS-system 
-          som følger deg overalt – på kontoret, byggeplassen eller i felten.
+          HMS Nova bygger trygghet gjennom digitalisering. Slutt med Excel-ark og papirrot. 
+          Få et komplett HMS-system med digital signatur, mobilapp og ISO 9001 compliance – 
+          som faktisk fungerer i praksis.
         </p>
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
           <RegisterDialog>
@@ -500,5 +527,6 @@ export default function HomePage() {
         </ScrollReveal>
       </section>
     </div>
+    </>
   );
 }

@@ -75,6 +75,11 @@ export function PublicFooter() {
             <h3 className="font-semibold mb-4">Ressurser</h3>
             <ul className="space-y-2 text-sm">
               <li>
+                <Link href="/blogg" className="text-muted-foreground hover:text-foreground transition-colors">
+                  HMS-blogg
+                </Link>
+              </li>
+              <li>
                 <Link href="/hms-handbok" className="text-muted-foreground hover:text-foreground transition-colors">
                   Gratis HMS-håndbok
                 </Link>

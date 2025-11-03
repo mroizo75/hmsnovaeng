@@ -2,10 +2,13 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import Script from "next/script";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { RegisterDialog } from "@/components/register-dialog";
+import { PRICING_SCHEMA } from "@/lib/seo-schemas";
+import { getBreadcrumbSchema } from "@/lib/seo-config";
 import { 
   CheckCircle2, 
   X,
@@ -23,6 +26,11 @@ import {
 
 export default function PriserPage() {
   const [billingInterval, setBillingInterval] = useState<"monthly" | "yearly">("yearly");
+
+  const breadcrumbSchema = getBreadcrumbSchema([
+    { name: "Hjem", url: "/" },
+    { name: "Priser", url: "/priser" },
+  ]);
 
   const plans = [
     {
@@ -101,7 +109,24 @@ export default function PriserPage() {
   };
 
   return (
-    <div className="bg-gradient-to-b from-background to-muted/20">
+    <>
+      <Script
+        id="pricing-schema"
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(PRICING_SCHEMA),
+        }}
+        strategy="beforeInteractive"
+      />
+      <Script
+        id="breadcrumb-schema"
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(breadcrumbSchema),
+        }}
+        strategy="beforeInteractive"
+      />
+      <div className="bg-gradient-to-b from-background to-muted/20">
       {/* Hero */}
       <section className="container mx-auto px-4 py-20 text-center">
         <Badge variant="secondary" className="mb-6">
@@ -626,5 +651,6 @@ export default function PriserPage() {
         </Card>
       </section>
     </div>
+    </>
   );
 }
