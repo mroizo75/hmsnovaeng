@@ -28,7 +28,7 @@ interface BlogPost {
   category: {
     name: string;
     slug: string;
-    color: string;
+    color: string | null;
   } | null;
   tags: Array<{
     name: string;
@@ -319,10 +319,10 @@ export default async function BlogPostPage({
               <Badge
                 variant="outline"
                 className="mb-4"
-                style={{
+                style={post.category.color ? {
                   borderColor: post.category.color,
                   color: post.category.color,
-                }}
+                } : undefined}
               >
                 {post.category.name}
               </Badge>

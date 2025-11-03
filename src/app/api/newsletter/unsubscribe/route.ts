@@ -17,7 +17,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Update subscriber
-    await db.freeSystemGeneration.update({
+    await db.generatedDocument.update({
       where: { id },
       data: {
         newsletterSubscribed: false,

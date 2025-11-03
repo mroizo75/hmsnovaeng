@@ -55,16 +55,13 @@ export async function POST(req: NextRequest) {
     }
 
     // Get all newsletter subscribers
-    const subscribers = await db.freeSystemGeneration.findMany({
+    const subscribers = await db.generatedDocument.findMany({
       where: {
         newsletterSubscribed: true,
-        email: {
-          not: null,
-        },
       },
       select: {
         email: true,
-        contactPersonName: true,
+        ceoName: true,
         id: true,
       },
     });
@@ -86,9 +83,9 @@ export async function POST(req: NextRequest) {
       try {
         const unsubscribeUrl = `${baseUrl}/newsletter/unsubscribe?id=${subscriber.id}`;
 
-        const emailHtml = render(
+        const emailHtml = await render(
           BlogNewsletterEmail({
-            recipientName: subscriber.contactPersonName || "der",
+            recipientName: subscriber.ceoName || "der",
             posts: posts.map((post) => ({
               title: post.title,
               excerpt: post.excerpt,
@@ -107,7 +104,7 @@ export async function POST(req: NextRequest) {
         });
 
         // Update lastNewsletterSent
-        await db.freeSystemGeneration.update({
+        await db.generatedDocument.update({
           where: { id: subscriber.id },
           data: {
             lastNewsletterSent: new Date(),
@@ -149,13 +146,13 @@ export async function GET(req: NextRequest) {
   }
 
   try {
-    const totalSubscribers = await db.freeSystemGeneration.count({
+    const totalSubscribers = await db.generatedDocument.count({
       where: {
         newsletterSubscribed: true,
       },
     });
 
-    const recentlySent = await db.freeSystemGeneration.findMany({
+    const recentlySent = await db.generatedDocument.findMany({
       where: {
         newsletterSubscribed: true,
         lastNewsletterSent: {

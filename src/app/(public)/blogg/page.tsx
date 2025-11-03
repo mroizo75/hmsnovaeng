@@ -38,7 +38,7 @@ interface BlogPost {
   category: {
     name: string;
     slug: string;
-    color: string;
+    color: string | null;
   } | null;
   author: {
     name: string;
@@ -142,10 +142,10 @@ export default async function BloggPage() {
                     <Badge
                       variant="outline"
                       className="w-fit mb-4"
-                      style={{
+                      style={featuredPost.category.color ? {
                         borderColor: featuredPost.category.color,
                         color: featuredPost.category.color,
-                      }}
+                      } : undefined}
                     >
                       {featuredPost.category.name}
                     </Badge>
@@ -203,10 +203,10 @@ export default async function BloggPage() {
                       <Badge
                         variant="outline"
                         className="w-fit mb-2"
-                        style={{
+                        style={post.category.color ? {
                           borderColor: post.category.color,
                           color: post.category.color,
-                        }}
+                        } : undefined}
                       >
                         {post.category.name}
                       </Badge>
