@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/db";
-import * as XLSX from "xlsx";
+import ExcelJS from "exceljs";
 
 export async function GET(
   request: NextRequest,
@@ -35,17 +35,34 @@ export async function GET(
       return NextResponse.json({ error: "Form not found" }, { status: 404 });
     }
 
-    // Lag Excel-data
-    const data: any[] = [];
+    // Opprett workbook med ExcelJS
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet("Svar");
 
-    // Header-rad
+    // Header-rad med styling
     const headers = [
       "Dato",
       "Status",
       ...form.fields.map((f) => f.label),
     ];
 
-    data.push(headers);
+    worksheet.addRow(headers);
+    
+    // Style headers
+    const headerRow = worksheet.getRow(1);
+    headerRow.font = { bold: true };
+    headerRow.fill = {
+      type: "pattern",
+      pattern: "solid",
+      fgColor: { argb: "FFE0E0E0" },
+    };
+    
+    // Auto-fit columns
+    worksheet.columns = headers.map((header) => ({
+      header,
+      key: header,
+      width: Math.max(header.length + 2, 15),
+    }));
 
     // Data-rader
     for (const submission of form.submissions) {
@@ -68,16 +85,11 @@ export async function GET(
         }
       }
 
-      data.push(row);
+      worksheet.addRow(row);
     }
 
-    // Opprett workbook
-    const worksheet = XLSX.utils.aoa_to_sheet(data);
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, "Svar");
-
     // Generer Excel-fil
-    const excelBuffer = XLSX.write(workbook, { type: "buffer", bookType: "xlsx" });
+    const excelBuffer = await workbook.xlsx.writeBuffer();
 
     return new NextResponse(excelBuffer, {
       headers: {
