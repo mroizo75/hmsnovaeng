@@ -16,6 +16,8 @@ import {
   ArrowRight
 } from "lucide-react";
 
+export const dynamic = 'force-dynamic';
+
 export const metadata = {
   title: "Nye registreringer | HMS Nova Admin",
   description: "Håndter nye bedriftsregistreringer",
