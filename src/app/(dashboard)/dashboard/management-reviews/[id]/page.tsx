@@ -11,7 +11,6 @@ import Link from "next/link";
 import { format } from "date-fns";
 import { nb } from "date-fns/locale";
 import { ArrowLeft, Edit, FileText, Calendar, Users, CheckCircle2, AlertCircle } from "lucide-react";
-import { ManagementReviewStatus } from "@prisma/client";
 
 async function getManagementReview(id: string, tenantId: string) {
   return await db.managementReview.findFirst({
@@ -22,7 +21,7 @@ async function getManagementReview(id: string, tenantId: string) {
   });
 }
 
-function getStatusBadge(status: ManagementReviewStatus) {
+function getStatusBadge(status: string) {
   switch (status) {
     case "PLANNED":
       return <Badge variant="secondary">Planlagt</Badge>;

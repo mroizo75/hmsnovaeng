@@ -53,10 +53,10 @@ export default async function ActionsPage() {
   const now = new Date();
   const stats = {
     total: measures.length,
-    pending: measures.filter(m => m.status === "PENDING").length,
-    inProgress: measures.filter(m => m.status === "IN_PROGRESS").length,
-    done: measures.filter(m => m.status === "DONE").length,
-    overdue: measures.filter(m => m.status !== "DONE" && new Date(m.dueAt) < now).length,
+    pending: measures.filter((m: any) => m.status === "PENDING").length,
+    inProgress: measures.filter((m: any) => m.status === "IN_PROGRESS").length,
+    done: measures.filter((m: any) => m.status === "DONE").length,
+    overdue: measures.filter((m: any) => m.status !== "DONE" && new Date(m.dueAt) < now).length,
   };
 
   return (

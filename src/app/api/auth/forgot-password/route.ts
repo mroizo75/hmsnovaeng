@@ -30,10 +30,10 @@ export async function POST(request: NextRequest) {
     // Valider input
     const validation = await validateRequestBody(request, forgotPasswordSchema);
     if (!validation.success) {
-      return validation.response;
+      return (validation as any).response;
     }
 
-    const { email } = validation.data;
+    const { email } = (validation as any).data;
 
     // Finn bruker
     const user = await prisma.user.findUnique({

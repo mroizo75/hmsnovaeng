@@ -28,10 +28,10 @@ export async function POST(request: NextRequest) {
     // Valider input
     const validation = await validateRequestBody(request, resetPasswordSchema);
     if (!validation.success) {
-      return validation.response;
+      return (validation as any).response;
     }
 
-    const { token, password } = validation.data;
+    const { token, password } = (validation as any).data;
 
     // Valider token
     const tokenValidation = await validateResetToken(token);

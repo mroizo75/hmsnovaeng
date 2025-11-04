@@ -25,7 +25,7 @@ async function checkTenantStatus() {
     console.log("\n📊 Tenant Status:\n");
     console.log("━".repeat(80));
 
-    tenants.forEach((tenant) => {
+    tenants.forEach((tenant: any) => {
       console.log(`\n🏢 ${tenant.name} (${tenant.slug})`);
       console.log(`   Status: ${tenant.status}`);
       console.log(`   Subscription: ${tenant.subscription?.status || "NONE"}`);
