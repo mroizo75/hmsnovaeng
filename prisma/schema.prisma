@@ -154,6 +154,9 @@ model Tenant {
   formSubmissions  FormSubmission[] // Digital forms
   kpiMeasurements  KpiMeasurement[] // KPI målinger
   inspections      Inspection[]     // Vernerunde/Inspeksjoner
+  managementReviews ManagementReview[] // Ledelsens gjennomgang
+  meetings         Meeting[]        // AMU/VO møter
+  whistleblowings  Whistleblowing[] // Varslinger
   createdAt        DateTime         @default(now())
   updatedAt        DateTime         @updatedAt
 
@@ -1137,4 +1140,280 @@ model BlogTag {
   createdAt DateTime    @default(now())
   
   @@index([slug])
+}
+
+// ============================================
+// Ledelsens Gjennomgang (Management Review)
+// ============================================
+
+model ManagementReview {
+  id                    String                @id @default(cuid())
+  tenantId              String
+  title                 String
+  reviewDate            DateTime
+  period                String                // "Q1 2025", "H1 2025", "2025"
+  conductedBy           String                // userId
+  participants          String?               @db.Text // JSON array of userIds
+  
+  // Input data (JSON)
+  hmsGoalsReview        String?               @db.Text // Gjennomgang av HMS-mål
+  incidentStatistics    String?               @db.Text // Avvik og hendelser statistikk
+  riskReview            String?               @db.Text // Risikovurderinger status
+  auditResults          String?               @db.Text // Revisjoner og funn
+  trainingStatus        String?               @db.Text // Opplæringsstatus
+  resourcesReview       String?               @db.Text // Ressurser og budsjett
+  externalChanges       String?               @db.Text // Eksterne endringer (lover, etc)
+  
+  // Output data
+  conclusions           String?               @db.Text // Konklusjoner
+  decisions             String?               @db.Text // JSON array of beslutninger
+  actionPlan            String?               @db.Text // JSON array of tiltak
+  nextReviewDate        DateTime?
+  
+  // Meta
+  status                ManagementReviewStatus @default(PLANNED)
+  approvedBy            String?               // userId
+  approvedAt            DateTime?
+  notes                 String?               @db.Text
+  attachments           String?               @db.Text // JSON array of file keys
+  
+  createdAt             DateTime              @default(now())
+  updatedAt             DateTime              @updatedAt
+  
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  
+  @@index([tenantId])
+  @@index([reviewDate])
+  @@index([status])
+}
+
+enum ManagementReviewStatus {
+  PLANNED
+  IN_PROGRESS
+  COMPLETED
+  APPROVED
+}
+
+// ============================================
+// AMU/VO (Arbeidsmiljøutvalg/Verneombud)
+// ============================================
+
+model Meeting {
+  id                String              @id @default(cuid())
+  tenantId          String
+  type              MeetingType         @default(AMU)
+  title             String
+  scheduledDate     DateTime
+  location          String?
+  meetingLink       String?             // Teams/Zoom link
+  
+  // Agenda
+  agenda            String?             @db.Text // JSON array of agenda items
+  
+  // Meeting notes
+  summary           String?             @db.Text
+  notes             String?             @db.Text
+  
+  // Meta
+  status            MeetingStatus       @default(PLANNED)
+  startedAt         DateTime?
+  completedAt       DateTime?
+  organizer         String              // userId
+  minuteTaker       String?             // Referent/protokollfører
+  
+  // Relations
+  participants      MeetingParticipant[]
+  decisions         MeetingDecision[]
+  attachments       String?             @db.Text // JSON array of file keys
+  
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
+  
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  
+  @@index([tenantId])
+  @@index([scheduledDate])
+  @@index([type])
+  @@index([status])
+}
+
+model MeetingParticipant {
+  id              String   @id @default(cuid())
+  meetingId       String
+  userId          String?  // Kan være null for eksterne
+  externalName    String?  // For eksterne deltakere
+  externalEmail   String?
+  role            ParticipantRole @default(MEMBER)
+  attended        Boolean  @default(false)
+  notes           String?  @db.Text
+  
+  meeting Meeting @relation(fields: [meetingId], references: [id], onDelete: Cascade)
+  
+  @@index([meetingId])
+  @@index([userId])
+}
+
+model MeetingDecision {
+  id              String          @id @default(cuid())
+  meetingId       String
+  decisionNumber  String          // "2025-01", "2025-02", etc.
+  title           String
+  description     String          @db.Text
+  responsibleId   String?         // userId
+  dueDate         DateTime?
+  status          DecisionStatus  @default(PENDING)
+  completedAt     DateTime?
+  notes           String?         @db.Text
+  
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+  
+  meeting Meeting @relation(fields: [meetingId], references: [id], onDelete: Cascade)
+  
+  @@index([meetingId])
+  @@index([responsibleId])
+  @@index([status])
+  @@index([dueDate])
+}
+
+enum MeetingType {
+  AMU             // Arbeidsmiljøutvalg
+  VO              // Verneombud møte
+  BHT             // Bedriftshelsetjeneste møte
+  HMS_COMMITTEE   // HMS-utvalg
+  OTHER
+}
+
+enum MeetingStatus {
+  PLANNED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+enum ParticipantRole {
+  CHAIR           // Møteleder
+  SECRETARY       // Referent
+  MEMBER          // Medlem
+  OBSERVER        // Observatør
+}
+
+enum DecisionStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+// ============================================
+// Varsling (Whistleblowing)
+// ============================================
+
+model Whistleblowing {
+  id              String              @id @default(cuid())
+  tenantId        String
+  caseNumber      String              @unique // "VAR-2025-001"
+  accessCode      String              @unique // Tilgangskode for anonym oppfølging
+  
+  // Report details
+  category        WhistleblowCategory
+  title           String
+  description     String              @db.Text
+  occurredAt      DateTime?
+  location        String?
+  
+  // Involved parties (anonymized)
+  involvedPersons String?             @db.Text // Beskrivelse uten navn
+  witnesses       String?             @db.Text
+  
+  // Reporter info (optional - kan være helt anonym)
+  reporterName    String?
+  reporterEmail   String?
+  reporterPhone   String?
+  isAnonymous     Boolean             @default(true)
+  
+  // Case handling
+  status          WhistleblowStatus   @default(RECEIVED)
+  severity        WhistleblowSeverity @default(MEDIUM)
+  handledBy       String?             // userId
+  assignedTo      String?             // userId
+  
+  // Investigation
+  investigationNotes String?          @db.Text
+  actions         String?             @db.Text // JSON array of actions taken
+  outcome         String?             @db.Text
+  closedReason    String?
+  
+  // Communication
+  messages        WhistleblowMessage[]
+  attachments     String?             @db.Text // JSON array of encrypted file keys
+  
+  // Meta
+  receivedAt      DateTime            @default(now())
+  acknowledgedAt  DateTime?
+  investigatedAt  DateTime?
+  closedAt        DateTime?
+  
+  createdAt       DateTime            @default(now())
+  updatedAt       DateTime            @updatedAt
+  
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  
+  @@index([tenantId])
+  @@index([caseNumber])
+  @@index([accessCode])
+  @@index([status])
+  @@index([category])
+  @@index([handledBy])
+}
+
+model WhistleblowMessage {
+  id                String          @id @default(cuid())
+  whistleblowingId  String
+  sender            MessageSender   // REPORTER, HANDLER, SYSTEM
+  senderUserId      String?         // Kun hvis sender er HANDLER
+  message           String          @db.Text
+  isInternal        Boolean         @default(false) // Kun synlig for admin
+  readByReporter    Boolean         @default(false)
+  
+  createdAt         DateTime        @default(now())
+  
+  whistleblowing Whistleblowing @relation(fields: [whistleblowingId], references: [id], onDelete: Cascade)
+  
+  @@index([whistleblowingId])
+  @@index([createdAt])
+}
+
+enum WhistleblowCategory {
+  HARASSMENT          // Trakassering
+  DISCRIMINATION      // Diskriminering
+  WORK_ENVIRONMENT    // Arbeidsmiljø
+  SAFETY              // HMS/Sikkerhet
+  CORRUPTION          // Korrupsjon/Underslag
+  ETHICS              // Etikk
+  LEGAL               // Lovbrudd
+  OTHER               // Annet
+}
+
+enum WhistleblowStatus {
+  RECEIVED            // Mottatt
+  ACKNOWLEDGED        // Bekreftet mottatt
+  UNDER_INVESTIGATION // Under etterforskning
+  ACTION_TAKEN        // Tiltak iverksatt
+  RESOLVED            // Løst
+  CLOSED              // Avsluttet
+  DISMISSED           // Avvist
+}
+
+enum WhistleblowSeverity {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+enum MessageSender {
+  REPORTER
+  HANDLER
+  SYSTEM
 }

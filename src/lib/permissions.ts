@@ -72,6 +72,22 @@ export interface RolePermissions {
   canUpdateGoals: boolean;
   canMeasureGoals: boolean;
   
+  // Ledelsens gjennomgang (Management Review)
+  canReadManagementReviews: boolean;
+  canCreateManagementReviews: boolean;
+  canApproveManagementReviews: boolean;
+  
+  // AMU/VO Møter
+  canReadMeetings: boolean;
+  canCreateMeetings: boolean;
+  canOrganizeMeetings: boolean;
+  canViewAllMeetings: boolean;
+  
+  // Varsling (Whistleblowing)
+  canSubmitWhistleblowing: boolean; // Alle kan sende inn
+  canViewWhistleblowing: boolean; // Kun Admin/HMS
+  canHandleWhistleblowing: boolean; // Kun Admin/HMS
+  
   // Brukeradministrasjon (tenant)
   canReadUsers: boolean;
   canInviteUsers: boolean;
@@ -136,6 +152,16 @@ export const rolePermissions: Record<Role, RolePermissions> = {
     canCreateGoals: true,
     canUpdateGoals: true,
     canMeasureGoals: true,
+    canReadManagementReviews: true,
+    canCreateManagementReviews: true,
+    canApproveManagementReviews: true,
+    canReadMeetings: true,
+    canCreateMeetings: true,
+    canOrganizeMeetings: true,
+    canViewAllMeetings: true,
+    canSubmitWhistleblowing: true,
+    canViewWhistleblowing: true,
+    canHandleWhistleblowing: true,
     canReadUsers: true,
     canInviteUsers: true,
     canManageUsers: true,
@@ -191,6 +217,16 @@ export const rolePermissions: Record<Role, RolePermissions> = {
     canCreateGoals: true,
     canUpdateGoals: true,
     canMeasureGoals: true,
+    canReadManagementReviews: true,
+    canCreateManagementReviews: true,
+    canApproveManagementReviews: false, // Kun Admin
+    canReadMeetings: true,
+    canCreateMeetings: true,
+    canOrganizeMeetings: true,
+    canViewAllMeetings: true,
+    canSubmitWhistleblowing: true,
+    canViewWhistleblowing: true,
+    canHandleWhistleblowing: true,
     canReadUsers: true,
     canInviteUsers: true,
     canManageUsers: true,
@@ -246,6 +282,16 @@ export const rolePermissions: Record<Role, RolePermissions> = {
     canCreateGoals: true,
     canUpdateGoals: true,
     canMeasureGoals: true,
+    canReadManagementReviews: true,
+    canCreateManagementReviews: false,
+    canApproveManagementReviews: false,
+    canReadMeetings: true,
+    canCreateMeetings: true,
+    canOrganizeMeetings: true,
+    canViewAllMeetings: false, // Kun egne møter
+    canSubmitWhistleblowing: true,
+    canViewWhistleblowing: false,
+    canHandleWhistleblowing: false,
     canReadUsers: true,
     canInviteUsers: false,
     canManageUsers: false,
@@ -301,6 +347,16 @@ export const rolePermissions: Record<Role, RolePermissions> = {
     canCreateGoals: false,
     canUpdateGoals: false,
     canMeasureGoals: false,
+    canReadManagementReviews: false,
+    canCreateManagementReviews: false,
+    canApproveManagementReviews: false,
+    canReadMeetings: true,
+    canCreateMeetings: false,
+    canOrganizeMeetings: false,
+    canViewAllMeetings: false,
+    canSubmitWhistleblowing: true,
+    canViewWhistleblowing: false,
+    canHandleWhistleblowing: false,
     canReadUsers: false,
     canInviteUsers: false,
     canManageUsers: false,
@@ -356,6 +412,16 @@ export const rolePermissions: Record<Role, RolePermissions> = {
     canCreateGoals: false,
     canUpdateGoals: false,
     canMeasureGoals: false,
+    canReadManagementReviews: false,
+    canCreateManagementReviews: false,
+    canApproveManagementReviews: false,
+    canReadMeetings: false,
+    canCreateMeetings: false,
+    canOrganizeMeetings: false,
+    canViewAllMeetings: false,
+    canSubmitWhistleblowing: true, // Alle ansatte kan varsle
+    canViewWhistleblowing: false,
+    canHandleWhistleblowing: false,
     canReadUsers: false,
     canInviteUsers: false,
     canManageUsers: false,
@@ -411,6 +477,16 @@ export const rolePermissions: Record<Role, RolePermissions> = {
     canCreateGoals: false,
     canUpdateGoals: false,
     canMeasureGoals: false,
+    canReadManagementReviews: true,
+    canCreateManagementReviews: false,
+    canApproveManagementReviews: false,
+    canReadMeetings: true,
+    canCreateMeetings: false,
+    canOrganizeMeetings: false,
+    canViewAllMeetings: true,
+    canSubmitWhistleblowing: true,
+    canViewWhistleblowing: false,
+    canHandleWhistleblowing: false,
     canReadUsers: false,
     canInviteUsers: false,
     canManageUsers: false,
@@ -466,6 +542,16 @@ export const rolePermissions: Record<Role, RolePermissions> = {
     canCreateGoals: false,
     canUpdateGoals: false,
     canMeasureGoals: false,
+    canReadManagementReviews: true,
+    canCreateManagementReviews: false,
+    canApproveManagementReviews: false,
+    canReadMeetings: true,
+    canCreateMeetings: false,
+    canOrganizeMeetings: false,
+    canViewAllMeetings: true,
+    canSubmitWhistleblowing: false,
+    canViewWhistleblowing: false,
+    canHandleWhistleblowing: false,
     canReadUsers: true,
     canInviteUsers: false,
     canManageUsers: false,

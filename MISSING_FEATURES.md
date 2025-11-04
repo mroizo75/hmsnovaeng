@@ -15,16 +15,16 @@
 | **Avvik & Hendelser** | 🟢 90% | Kritisk | 5t |
 | **Opplæring** | 🟢 75% | Høy | 12t |
 | **HMS-Mål** | 🟢 70% | Høy | 10t |
-| **Revisjoner (Audits)** | 🟡 50% | Høy | 24t |
-| **Vernerunde** | 🟢 80% | Høy | 4t |
-| **Stoffkartotek** | 🟢 100% | Medium | 0t |
-| **Ledelsens gjennomgang** | 🔴 0% | Medium | 24t |
-| **AMU/VO** | 🔴 0% | Medium | 16t |
-| **Varsling (anonymous)** | 🔴 0% | Medium | 20t |
+| **Revisjoner (Audits)** | ✅ 100% | Høy | 0t (Komplett) |
+| **Vernerunde** | ✅ 100% | Høy | 0t (Komplett) |
+| **Stoffkartotek** | ✅ 100% | Medium | 0t (Komplett) |
+| **Ledelsens gjennomgang** | 🟡 70% (API ferdig, UI mangler) | Medium | 6t |
+| **AMU/VO** | 🟡 70% (API ferdig, UI mangler) | Medium | 5t |
+| **Varsling (anonymous)** | 🟡 80% (API ferdig, UI mangler) | Medium | 4t |
 | **Mobile app** | ✅ 100% (Responsiv) | Høy | 0t (Komplett) |
 
-**Totalt implementert:** ~70%  
-**Gjenstående arbeid:** ~318 timer
+**Totalt implementert:** ~85%  
+**Gjenstående arbeid:** ~102 timer (inkl. polishing av eksisterende moduler)
 
 ---
 

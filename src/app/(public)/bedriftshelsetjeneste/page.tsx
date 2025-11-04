@@ -63,7 +63,7 @@ export default function BHTPage() {
             </div>
             <p className="text-sm text-muted-foreground mt-6">
               ✓ Lovpålagt for bedrifter med <strong>5+ ansatte</strong> (2024-regelverk)<br/>
-              ✓ Full digital løsning integrert i HMS Nova<br/>
+              ✓ Mål sykefravær digitalt i HMS Nova<br/>
               ✓ <strong>10% rabatt</strong> på BHT hos Dr. Dropin<br/>
               ✓ <strong>20% rabatt</strong> på alle HMS-kurs (KKS AS)<br/>
               ✓ AMO-kurs (Arbeidsmiljøopplæring) inkludert
@@ -86,7 +86,7 @@ export default function BHTPage() {
                     <CheckCircle2 className="h-5 w-5 text-primary mt-0.5" />
                     <div>
                       <p className="font-semibold">Digital helsejournal</p>
-                      <p className="text-sm text-muted-foreground">Automatisk synkronisering med HMS Nova</p>
+                      <p className="text-sm text-muted-foreground">Automatisk sporingsfunksjon i HMS Nova</p>
                     </div>
                   </div>
                   <div className="flex items-start gap-3">
@@ -100,7 +100,7 @@ export default function BHTPage() {
                     <CheckCircle2 className="h-5 w-5 text-primary mt-0.5" />
                     <div>
                       <p className="font-semibold">10% HMS Nova-rabatt</p>
-                      <p className="text-sm text-muted-foreground">Eksklusiv avtale for våre kunder</p>
+                      <p className="text-sm text-muted-foreground">Eksklusiv avtale for våre kunder hos Dr Dropin</p>
                     </div>
                   </div>
                 </div>
