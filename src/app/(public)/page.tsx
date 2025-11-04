@@ -102,15 +102,15 @@ export default function HomePage() {
           </ScrollReveal>
           <div className="grid md:grid-cols-3 gap-8">
             <ScrollReveal delay={100}>
-              <Card className="border-destructive/20">
+              <Card className="border-orange-200 bg-gradient-to-br from-orange-50 to-white">
                 <CardHeader>
-                <div className="h-12 w-12 rounded-full bg-destructive/10 flex items-center justify-center mb-4">
-                  <span className="text-2xl">📄</span>
+                <div className="h-12 w-12 rounded-full bg-orange-100 flex items-center justify-center mb-4">
+                  <span className="text-2xl" role="img" aria-label="Dokument">📄</span>
                 </div>
                 <CardTitle>Papirrot overalt</CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-muted-foreground">
+                <p className="text-gray-700">
                   Du bruker timer på å lete etter riktig versjon av dokumenter. 
                   Excel-ark forsvinner, og ingen vet hva som er gjeldende prosedyre.
                 </p>
@@ -119,15 +119,15 @@ export default function HomePage() {
             </ScrollReveal>
 
             <ScrollReveal delay={200}>
-              <Card className="border-destructive/20">
+              <Card className="border-orange-200 bg-gradient-to-br from-orange-50 to-white">
                 <CardHeader>
-                  <div className="h-12 w-12 rounded-full bg-destructive/10 flex items-center justify-center mb-4">
-                    <span className="text-2xl">⏰</span>
+                  <div className="h-12 w-12 rounded-full bg-orange-100 flex items-center justify-center mb-4">
+                    <span className="text-2xl" role="img" aria-label="Klokke">⏰</span>
                   </div>
                   <CardTitle>Revisjonsangst</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-muted-foreground">
+                  <p className="text-gray-700">
                     Hver revisjon er en mareritt. Du vet ikke om dere er compliant, 
                     og håper bare dere kommer gjennom uten merknader.
                   </p>
@@ -136,15 +136,15 @@ export default function HomePage() {
             </ScrollReveal>
 
             <ScrollReveal delay={300}>
-              <Card className="border-destructive/20">
+              <Card className="border-orange-200 bg-gradient-to-br from-orange-50 to-white">
                 <CardHeader>
-                  <div className="h-12 w-12 rounded-full bg-destructive/10 flex items-center justify-center mb-4">
-                    <span className="text-2xl">😰</span>
+                  <div className="h-12 w-12 rounded-full bg-orange-100 flex items-center justify-center mb-4">
+                    <span className="text-2xl" role="img" aria-label="Bekymret">😰</span>
                   </div>
                   <CardTitle>Ingen deltar</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-muted-foreground">
+                  <p className="text-gray-700">
                     De ansatte gidder ikke fylle ut skjemaer. HMS blir bare noe 
                     "du må gjøre", ikke noe som faktisk skaper verdi.
                   </p>
