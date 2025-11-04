@@ -453,7 +453,7 @@ export default function HomePage() {
       {/* Compliance Section */}
       <section className="container mx-auto px-4 py-20 bg-muted/30">
         <div className="max-w-4xl mx-auto text-center">
-          <Badge variant="default" className="mb-4">
+          <Badge variant="default" className="mb-4 bg-green-700 text-white border-green-800">
             100% Compliant
           </Badge>
           <h2 className="text-3xl md:text-4xl font-bold mb-6">

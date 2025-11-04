@@ -122,15 +122,15 @@ export function CookieConsent() {
           <CardContent className="pt-6">
             <div className="flex items-start gap-4">
               <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-                <Cookie className="h-6 w-6 text-primary" />
+                <Cookie className="h-6 w-6 text-primary" aria-hidden="true" />
               </div>
               
               <div className="flex-1">
                 <h3 className="font-bold text-lg mb-2">Vi bruker cookies 🍪</h3>
-                <p className="text-sm text-muted-foreground mb-4">
+                <p className="text-sm text-foreground mb-4">
                   HMS Nova bruker cookies for å forbedre din opplevelse, holde deg innlogget og analysere 
                   bruken av nettstedet. Strengt nødvendige cookies kan ikke avslås.{" "}
-                  <Link href="/cookies" className="text-primary hover:underline font-semibold">
+                  <Link href="/cookies" className="text-primary hover:underline font-bold underline">
                     Les mer
                   </Link>
                 </p>
@@ -150,8 +150,9 @@ export function CookieConsent() {
                     onClick={() => setShowSettings(true)} 
                     variant="ghost"
                     className="flex-1 sm:flex-initial"
+                    aria-label="Tilpass cookie-innstillinger"
                   >
-                    <SettingsIcon className="h-4 w-4 mr-2" />
+                    <SettingsIcon className="h-4 w-4 mr-2" aria-hidden="true" />
                     Tilpass
                   </Button>
                 </div>
@@ -162,6 +163,7 @@ export function CookieConsent() {
                 size="icon"
                 className="flex-shrink-0"
                 onClick={() => setShowBanner(false)}
+                aria-label="Lukk cookie-banner"
               >
                 <X className="h-4 w-4" />
               </Button>
