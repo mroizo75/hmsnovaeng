@@ -9,6 +9,10 @@ import { nb } from "date-fns/locale";
 import { getCanonicalUrl, ROBOTS_CONFIG } from "@/lib/seo-config";
 import { db } from "@/lib/db";
 
+// Tving siden til å være dynamisk (ikke pre-rendret under bygging)
+export const dynamic = 'force-dynamic';
+export const revalidate = 3600; // Revalidate hver time
+
 export const metadata: Metadata = {
   title: "HMS-blogg - Artikler om Arbeidsmiljø og Sikkerhet | HMS Nova",
   description: "Les våre ekspertartikler om HMS, arbeidsmiljø, ISO 9001, risikovurdering og mer. Praktiske tips og råd fra HMS Nova - vi bygger trygghet.",

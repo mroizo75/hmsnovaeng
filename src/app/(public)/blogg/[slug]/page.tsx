@@ -13,6 +13,10 @@ import Script from "next/script";
 import { db } from "@/lib/db";
 import { TableOfContents } from "@/components/blog/table-of-contents";
 
+// Tving siden til å være dynamisk (ikke pre-rendret under bygging)
+export const dynamic = 'force-dynamic';
+export const revalidate = 3600; // Revalidate hver time
+
 interface BlogPost {
   id: string;
   title: string;
