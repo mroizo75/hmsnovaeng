@@ -208,50 +208,71 @@ export async function generateMetadata({
 }: {
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
-  const { slug } = await params;
-  const post = await getBlogPost(slug);
+  try {
+    const { slug } = await params;
+    
+    // Ikke hent fra database under bygging - returner generisk metadata
+    if (!db || !db.blogPost) {
+      return {
+        title: "HMS-artikkel | HMS Nova",
+        description: "Les mer om HMS, arbeidsmiljø og sikkerhet",
+        alternates: {
+          canonical: getCanonicalUrl(`/blogg/${slug}`),
+        },
+        robots: ROBOTS_CONFIG,
+      };
+    }
 
-  if (!post) {
+    const post = await getBlogPost(slug).catch(() => null);
+
+    if (!post) {
+      return {
+        title: "Artikkel ikke funnet",
+      };
+    }
+
     return {
-      title: "Artikkel ikke funnet",
+      title: post.metaTitle || post.title,
+      description: post.metaDescription || post.excerpt,
+      keywords: post.keywords || undefined,
+      authors: [{ name: post.author.name }],
+      alternates: {
+        canonical: getCanonicalUrl(`/blogg/${post.slug}`),
+      },
+      robots: ROBOTS_CONFIG,
+      openGraph: {
+        title: post.metaTitle || post.title,
+        description: post.metaDescription || post.excerpt,
+        url: getCanonicalUrl(`/blogg/${post.slug}`),
+        type: "article",
+        publishedTime: post.publishedAt,
+        modifiedTime: post.updatedAt,
+        authors: [post.author.name],
+        images: post.coverImage
+          ? [
+              {
+                url: post.coverImage,
+                width: 1200,
+                height: 630,
+                alt: post.title,
+              },
+            ]
+          : [],
+      },
+      twitter: {
+        card: "summary_large_image",
+        title: post.metaTitle || post.title,
+        description: post.metaDescription || post.excerpt,
+        images: post.coverImage ? [post.coverImage] : [],
+      },
+    };
+  } catch (error) {
+    console.error("Error generating metadata:", error);
+    return {
+      title: "HMS-artikkel | HMS Nova",
+      description: "Les mer om HMS, arbeidsmiljø og sikkerhet",
     };
   }
-
-  return {
-    title: post.metaTitle || post.title,
-    description: post.metaDescription || post.excerpt,
-    keywords: post.keywords || undefined,
-    authors: [{ name: post.author.name }],
-    alternates: {
-      canonical: getCanonicalUrl(`/blogg/${post.slug}`),
-    },
-    robots: ROBOTS_CONFIG,
-    openGraph: {
-      title: post.metaTitle || post.title,
-      description: post.metaDescription || post.excerpt,
-      url: getCanonicalUrl(`/blogg/${post.slug}`),
-      type: "article",
-      publishedTime: post.publishedAt,
-      modifiedTime: post.updatedAt,
-      authors: [post.author.name],
-      images: post.coverImage
-        ? [
-            {
-              url: post.coverImage,
-              width: 1200,
-              height: 630,
-              alt: post.title,
-            },
-          ]
-        : [],
-    },
-    twitter: {
-      card: "summary_large_image",
-      title: post.metaTitle || post.title,
-      description: post.metaDescription || post.excerpt,
-      images: post.coverImage ? [post.coverImage] : [],
-    },
-  };
 }
 
 export default async function BlogPostPage({
