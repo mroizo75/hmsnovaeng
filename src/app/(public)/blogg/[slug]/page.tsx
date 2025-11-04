@@ -15,7 +15,13 @@ import { TableOfContents } from "@/components/blog/table-of-contents";
 
 // Tving siden til å være dynamisk (ikke pre-rendret under bygging)
 export const dynamic = 'force-dynamic';
-export const revalidate = 3600; // Revalidate hver time
+export const dynamicParams = true;
+export const revalidate = 0;
+
+// Forhindre statisk generering under bygging
+export async function generateStaticParams() {
+  return [];
+}
 
 // Statisk metadata for å unngå database-kall under bygging
 export const metadata: Metadata = {
