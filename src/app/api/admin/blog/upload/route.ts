@@ -1,7 +1,20 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
-import { getStorage, generateFileKey } from "@/lib/storage";
+import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
+import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
+import { GetObjectCommand } from "@aws-sdk/client-s3";
+
+const s3Client = new S3Client({
+  region: "auto",
+  endpoint: process.env.R2_ENDPOINT,
+  credentials: {
+    accessKeyId: process.env.R2_ACCESS_KEY_ID!,
+    secretAccessKey: process.env.R2_SECRET_ACCESS_KEY!,
+  },
+});
+
+const BUCKET_NAME = process.env.R2_BUCKET_NAME!;
 
 export async function POST(request: NextRequest) {
   try {
@@ -42,13 +55,30 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Upload to R2
-    const storage = getStorage();
-    const key = generateFileKey("blog", "images", file.name);
-    await storage.upload(key, file);
+    // Convert file to buffer
+    const buffer = Buffer.from(await file.arrayBuffer());
+    
+    // Generate unique key
+    const timestamp = Date.now();
+    const sanitizedFileName = file.name.replace(/[^a-zA-Z0-9.-]/g, "_");
+    const key = `blog/images/${timestamp}-${sanitizedFileName}`;
 
-    // Get public URL
-    const url = await storage.getUrl(key, 31536000); // 1 year expiry
+    // Upload to R2
+    await s3Client.send(
+      new PutObjectCommand({
+        Bucket: BUCKET_NAME,
+        Key: key,
+        Body: buffer,
+        ContentType: file.type,
+      })
+    );
+
+    // Generate signed URL for public access (1 year expiry)
+    const getCommand = new GetObjectCommand({
+      Bucket: BUCKET_NAME,
+      Key: key,
+    });
+    const url = await getSignedUrl(s3Client, getCommand, { expiresIn: 31536000 });
 
     return NextResponse.json({
       url,
@@ -56,7 +86,7 @@ export async function POST(request: NextRequest) {
       success: true,
     });
   } catch (error) {
-    console.error("Image upload error:", error);
+    console.error("[Blog Upload] Error:", error);
     return NextResponse.json(
       { error: "Bildeopplasting feilet" },
       { status: 500 }
