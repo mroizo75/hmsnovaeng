@@ -14,11 +14,36 @@ export default async function AnsattDokumenter() {
     redirect("/login");
   }
 
-  // Hent godkjente dokumenter
+  // Hent brukerens rolle for denne tenanten
+  const userTenant = await prisma.userTenant.findUnique({
+    where: {
+      userId_tenantId: {
+        userId: session.user.id,
+        tenantId: session.user.tenantId,
+      },
+    },
+    select: {
+      role: true,
+    },
+  });
+
+  const userRole = userTenant?.role || "ANSATT";
+
+  // Hent godkjente dokumenter som brukeren har tilgang til
   const documents = await prisma.document.findMany({
     where: {
       tenantId: session.user.tenantId,
       status: "APPROVED", // Kun godkjente dokumenter for ansatte
+      OR: [
+        { visibleToRoles: null }, // Dokumenter synlige for alle
+        { visibleToRoles: { equals: null } }, // Eksplisitt null
+        {
+          visibleToRoles: {
+            path: "$",
+            array_contains: userRole, // Dokumenter der brukerens rolle er inkludert
+          },
+        },
+      ],
     },
     orderBy: {
       updatedAt: "desc",

@@ -15,6 +15,7 @@ export const updateDocumentSchema = z.object({
   kind: z.nativeEnum(DocumentKind).optional(),
   version: z.string().optional(),
   status: z.nativeEnum(DocStatus).optional(),
+  visibleToRoles: z.array(z.string()).nullable().optional(),
 });
 
 export const approveDocumentSchema = z.object({

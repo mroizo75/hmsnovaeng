@@ -15,11 +15,12 @@ import {
 } from "@/components/ui/select";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
-import { createDocument } from "@/server/actions/document.actions";
-import { Upload } from "lucide-react";
+import { updateDocument } from "@/server/actions/document.actions";
+import { Save } from "lucide-react";
+import { Document } from "@prisma/client";
 
-interface DocumentFormProps {
-  tenantId: string;
+interface DocumentEditFormProps {
+  document: Document;
 }
 
 const documentKinds = [
@@ -42,33 +43,46 @@ const userRoles = [
   { value: "REVISOR", label: "Revisor" },
 ];
 
-export function DocumentForm({ tenantId }: DocumentFormProps) {
+export function DocumentEditForm({ document }: DocumentEditFormProps) {
   const router = useRouter();
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [selectedRoles, setSelectedRoles] = useState<string[]>([]);
+  
+  // Parse existing visibleToRoles
+  const initialRoles = (() => {
+    try {
+      if (!document.visibleToRoles) return [];
+      const roles = typeof document.visibleToRoles === "string" 
+        ? JSON.parse(document.visibleToRoles) 
+        : document.visibleToRoles;
+      return Array.isArray(roles) ? roles : [];
+    } catch {
+      return [];
+    }
+  })();
+
+  const [selectedRoles, setSelectedRoles] = useState<string[]>(initialRoles);
+  const [title, setTitle] = useState(document.title);
+  const [kind, setKind] = useState(document.kind);
+  const [version, setVersion] = useState(document.version);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
 
-    const formData = new FormData(e.currentTarget);
-    formData.append("tenantId", tenantId);
-    formData.append("changeComment", "Første versjon opprettet");
-    
-    // Legg til roller hvis noen er valgt
-    if (selectedRoles.length > 0) {
-      formData.append("visibleToRoles", JSON.stringify(selectedRoles));
-    }
-
     try {
-      const result = await createDocument(formData);
+      const result = await updateDocument({
+        id: document.id,
+        title,
+        kind,
+        version,
+        visibleToRoles: selectedRoles.length > 0 ? selectedRoles : null,
+      });
       
       if (result.success) {
         toast({
-          title: "📄 Dokument opprettet",
-          description: "Dokumentet er lastet opp og venter på godkjenning",
+          title: "✅ Dokument oppdatert",
+          description: "Endringene er lagret",
           className: "bg-green-50 border-green-200",
         });
         router.push("/dashboard/documents");
@@ -76,15 +90,15 @@ export function DocumentForm({ tenantId }: DocumentFormProps) {
       } else {
         toast({
           variant: "destructive",
-          title: "Opplasting feilet",
-          description: result.error || "Kunne ikke laste opp dokument",
+          title: "Oppdatering feilet",
+          description: result.error || "Kunne ikke oppdatere dokument",
         });
       }
     } catch (error) {
       toast({
         variant: "destructive",
         title: "Uventet feil",
-        description: "Noe gikk galt ved opplasting av dokument",
+        description: "Noe gikk galt ved oppdatering av dokument",
       });
     } finally {
       setLoading(false);
@@ -94,9 +108,9 @@ export function DocumentForm({ tenantId }: DocumentFormProps) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Last opp nytt dokument</CardTitle>
+        <CardTitle>Rediger dokument</CardTitle>
         <CardDescription>
-          Dokumentet vil få status UTKAST og må godkjennes før bruk
+          Oppdater metadata og tilgangskontroll. For å endre fil, bruk "Last opp ny versjon".
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -106,6 +120,8 @@ export function DocumentForm({ tenantId }: DocumentFormProps) {
             <Input
               id="title"
               name="title"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
               placeholder="F.eks. HMS-håndbok 2025"
               required
               disabled={loading}
@@ -115,14 +131,18 @@ export function DocumentForm({ tenantId }: DocumentFormProps) {
           <div className="grid gap-4 md:grid-cols-2">
             <div className="space-y-2">
               <Label htmlFor="kind">Type dokument *</Label>
-              <Select name="kind" required disabled={loading}>
+              <Select 
+                value={kind} 
+                onValueChange={(value: any) => setKind(value)}
+                disabled={loading}
+              >
                 <SelectTrigger>
                   <SelectValue placeholder="Velg type" />
                 </SelectTrigger>
                 <SelectContent>
-                  {documentKinds.map((kind) => (
-                    <SelectItem key={kind.value} value={kind.value}>
-                      {kind.label}
+                  {documentKinds.map((k) => (
+                    <SelectItem key={k.value} value={k.value}>
+                      {k.label}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -134,34 +154,12 @@ export function DocumentForm({ tenantId }: DocumentFormProps) {
               <Input
                 id="version"
                 name="version"
+                value={version}
+                onChange={(e) => setVersion(e.target.value)}
                 placeholder="v1.0"
-                defaultValue="v1.0"
                 disabled={loading}
               />
             </div>
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="file">Fil *</Label>
-            <div className="flex items-center gap-4">
-              <Input
-                id="file"
-                name="file"
-                type="file"
-                required
-                disabled={loading}
-                onChange={(e) => setSelectedFile(e.target.files?.[0] || null)}
-                accept=".pdf,.doc,.docx,.xls,.xlsx,.txt"
-              />
-            </div>
-            {selectedFile && (
-              <p className="text-sm text-muted-foreground">
-                Valgt: {selectedFile.name} ({(selectedFile.size / 1024).toFixed(2)} KB)
-              </p>
-            )}
-            <p className="text-xs text-muted-foreground">
-              Støttede formater: PDF, Word, Excel, TXT
-            </p>
           </div>
 
           <div className="space-y-3">
@@ -195,9 +193,13 @@ export function DocumentForm({ tenantId }: DocumentFormProps) {
                 </div>
               ))}
             </div>
-            {selectedRoles.length > 0 && (
+            {selectedRoles.length > 0 ? (
               <p className="text-sm text-blue-600">
                 ✓ Valgt: {selectedRoles.map(r => userRoles.find(ur => ur.value === r)?.label).join(", ")}
+              </p>
+            ) : (
+              <p className="text-sm text-muted-foreground">
+                📢 Synlig for alle roller
               </p>
             )}
           </div>
@@ -205,20 +207,20 @@ export function DocumentForm({ tenantId }: DocumentFormProps) {
           <div className="rounded-lg bg-muted/50 p-4">
             <p className="text-sm font-medium mb-2">ℹ️ Viktig informasjon</p>
             <ul className="text-sm text-muted-foreground space-y-1 list-disc list-inside">
-              <li>Dokumentet får status <strong>UTKAST</strong> etter opplasting</li>
-              <li>Må <strong>godkjennes</strong> av HMS-leder/Admin før bruk</li>
-              <li>Alle versjoner lagres permanent for sporbarhet</li>
+              <li>Endringer påvirker kun metadata og tilgangskontroll</li>
+              <li>For å endre selve filen, bruk <strong>"Last opp ny versjon"</strong></li>
+              <li>Status og godkjenning endres ikke her</li>
             </ul>
           </div>
 
           <div className="flex gap-4">
             <Button type="submit" disabled={loading}>
               {loading ? (
-                <>Laster opp...</>
+                <>Lagrer...</>
               ) : (
                 <>
-                  <Upload className="mr-2 h-4 w-4" />
-                  Last opp dokument
+                  <Save className="mr-2 h-4 w-4" />
+                  Lagre endringer
                 </>
               )}
             </Button>
@@ -236,3 +238,4 @@ export function DocumentForm({ tenantId }: DocumentFormProps) {
     </Card>
   );
 }
+

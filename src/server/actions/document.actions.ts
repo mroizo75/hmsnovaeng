@@ -90,6 +90,7 @@ export async function createDocument(formData: FormData) {
 
     const file = formData.get("file") as File | null;
     const changeComment = formData.get("changeComment") as string | null;
+    const visibleToRolesStr = formData.get("visibleToRoles") as string | null;
     const data = {
       tenantId: formData.get("tenantId") as string,
       kind: formData.get("kind") as string,
@@ -133,6 +134,16 @@ export async function createDocument(formData: FormData) {
     const fileKey = generateFileKey(validated.tenantId, "documents", file.name);
     await storage.upload(fileKey, file);
 
+    // Parse visibleToRoles
+    let visibleToRoles: string[] | null = null;
+    if (visibleToRolesStr) {
+      try {
+        visibleToRoles = JSON.parse(visibleToRolesStr);
+      } catch (e) {
+        console.error("Failed to parse visibleToRoles:", e);
+      }
+    }
+
     // Opprett nytt dokument med første versjon
     const document = await prisma.document.create({
       data: {
@@ -145,6 +156,7 @@ export async function createDocument(formData: FormData) {
         fileKey,
         updatedBy: context.userEmail,
         nextReviewDate: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000), // 1 år
+        visibleToRoles: visibleToRoles || null,
         versions: {
           create: {
             tenantId: validated.tenantId,
@@ -288,13 +300,23 @@ export async function updateDocument(input: any) {
 
     const validated = updateDocumentSchema.parse(input);
 
+    // Prepare update data
+    const updateData: any = {
+      ...validated,
+      updatedBy: context.userEmail,
+      updatedAt: new Date(),
+    };
+
+    // Handle visibleToRoles - convert empty array to null
+    if ('visibleToRoles' in validated) {
+      updateData.visibleToRoles = validated.visibleToRoles && validated.visibleToRoles.length > 0 
+        ? validated.visibleToRoles 
+        : null;
+    }
+
     const document = await prisma.document.update({
       where: { id: validated.id },
-      data: {
-        ...validated,
-        updatedBy: context.userEmail,
-        updatedAt: new Date(),
-      },
+      data: updateData,
     });
 
     await logAudit(

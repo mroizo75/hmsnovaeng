@@ -395,6 +395,7 @@ model Document {
   approvedAt DateTime?
   updatedBy  String?
   nextReviewDate DateTime? // Når skal dokumentet gjennomgås igjen?
+  visibleToRoles Json?    // Array av roller som skal se dokumentet ["ANSATT", "LEDER"]. Null = alle
   createdAt  DateTime     @default(now())
   updatedAt  DateTime     @updatedAt
 

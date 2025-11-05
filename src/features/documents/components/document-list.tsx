@@ -12,7 +12,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { FileText, Download, CheckCircle, Trash2, Upload, Calendar } from "lucide-react";
+import { FileText, Download, CheckCircle, Trash2, Upload, Calendar, Edit } from "lucide-react";
 import Link from "next/link";
 import { deleteDocument, getDocumentDownloadUrl, approveDocument } from "@/server/actions/document.actions";
 import { useRouter } from "next/navigation";
@@ -45,6 +45,16 @@ const statusLabels: Record<string, string> = {
   DRAFT: "Utkast",
   APPROVED: "Godkjent",
   ARCHIVED: "Arkivert",
+};
+
+const roleLabels: Record<string, string> = {
+  ADMIN: "Admin",
+  HMS: "HMS",
+  LEDER: "Leder",
+  VERNEOMBUD: "Verneombud",
+  ANSATT: "Ansatt",
+  BHT: "BHT",
+  REVISOR: "Revisor",
 };
 
 export function DocumentList({ documents, tenantId, currentUserId }: DocumentListProps) {
@@ -146,6 +156,7 @@ export function DocumentList({ documents, tenantId, currentUserId }: DocumentLis
             <TableHead>Type</TableHead>
             <TableHead>Versjon</TableHead>
             <TableHead>Status</TableHead>
+            <TableHead>Synlig for</TableHead>
             <TableHead>Godkjent</TableHead>
             <TableHead>Opprettet</TableHead>
             <TableHead className="text-right">Handlinger</TableHead>
@@ -170,6 +181,30 @@ export function DocumentList({ documents, tenantId, currentUserId }: DocumentLis
                 </Badge>
               </TableCell>
               <TableCell>
+                {(() => {
+                  try {
+                    const roles = doc.visibleToRoles ? (typeof doc.visibleToRoles === "string" ? JSON.parse(doc.visibleToRoles) : doc.visibleToRoles) : null;
+                    if (!roles || roles.length === 0) {
+                      return <span className="text-sm text-muted-foreground">Alle</span>;
+                    }
+                    return (
+                      <div className="flex flex-wrap gap-1">
+                        {roles.slice(0, 2).map((role: string) => (
+                          <Badge key={role} variant="outline" className="text-xs">
+                            {roleLabels[role] || role}
+                          </Badge>
+                        ))}
+                        {roles.length > 2 && (
+                          <span className="text-xs text-muted-foreground">+{roles.length - 2}</span>
+                        )}
+                      </div>
+                    );
+                  } catch {
+                    return <span className="text-sm text-muted-foreground">Alle</span>;
+                  }
+                })()}
+              </TableCell>
+              <TableCell>
                 {doc.approvedAt ? (
                   <div>
                     <span className="text-sm text-muted-foreground">
@@ -192,6 +227,17 @@ export function DocumentList({ documents, tenantId, currentUserId }: DocumentLis
                     title="Last ned"
                   >
                     <Download className="h-4 w-4" />
+                  </Button>
+
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    asChild
+                    title="Rediger dokument"
+                  >
+                    <Link href={`/dashboard/documents/${doc.id}/edit`}>
+                      <Edit className="h-4 w-4" />
+                    </Link>
                   </Button>
                   
                   {doc.status === "DRAFT" && (
@@ -269,6 +315,38 @@ export function DocumentList({ documents, tenantId, currentUserId }: DocumentLis
                   )}
                 </div>
 
+                {/* Synlig for roller */}
+                <div className="mt-2">
+                  {(() => {
+                    try {
+                      const roles = doc.visibleToRoles ? (typeof doc.visibleToRoles === "string" ? JSON.parse(doc.visibleToRoles) : doc.visibleToRoles) : null;
+                      if (!roles || roles.length === 0) {
+                        return (
+                          <span className="text-xs text-muted-foreground">
+                            👥 Synlig for alle
+                          </span>
+                        );
+                      }
+                      return (
+                        <div className="flex flex-wrap gap-1">
+                          <span className="text-xs text-muted-foreground">👥</span>
+                          {roles.map((role: string, idx: number) => (
+                            <Badge key={idx} variant="outline" className="text-xs">
+                              {roleLabels[role] || role}
+                            </Badge>
+                          ))}
+                        </div>
+                      );
+                    } catch {
+                      return (
+                        <span className="text-xs text-muted-foreground">
+                          👥 Synlig for alle
+                        </span>
+                      );
+                    }
+                  })()}
+                </div>
+
                 <div className="flex gap-2 pt-2 border-t">
                   <Button
                     variant="outline"
@@ -278,6 +356,13 @@ export function DocumentList({ documents, tenantId, currentUserId }: DocumentLis
                   >
                     <Download className="h-4 w-4 mr-2" />
                     Last ned
+                  </Button>
+
+                  <Button variant="outline" size="sm" asChild>
+                    <Link href={`/dashboard/documents/${doc.id}/edit`}>
+                      <Edit className="h-4 w-4 mr-2" />
+                      Rediger
+                    </Link>
                   </Button>
                   
                   {doc.status === "DRAFT" && (
