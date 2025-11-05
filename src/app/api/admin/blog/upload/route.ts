@@ -1,9 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
-import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
+import { S3Client, PutObjectCommand, GetObjectCommand } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
-import { GetObjectCommand } from "@aws-sdk/client-s3";
 
 const s3Client = new S3Client({
   region: "auto",
@@ -14,7 +13,7 @@ const s3Client = new S3Client({
   },
 });
 
-const BUCKET_NAME = process.env.R2_BUCKET_NAME!;
+const BUCKET_NAME = process.env.R2_BUCKET_NAME || process.env.R2_BUCKET || "hmsnova";
 
 export async function POST(request: NextRequest) {
   try {
@@ -28,18 +27,24 @@ export async function POST(request: NextRequest) {
     }
 
     const formData = await request.formData();
-    const file = formData.get("file") as File;
+    const file = formData.get("file");
 
-    if (!file) {
+    if (!file || typeof file === "string") {
       return NextResponse.json(
         { error: "Ingen fil lastet opp" },
         { status: 400 }
       );
     }
 
+    // Get file properties
+    const fileBuffer = Buffer.from(await file.arrayBuffer());
+    const fileName = file.name || "unknown";
+    const fileType = file.type || "application/octet-stream";
+    const fileSize = fileBuffer.length;
+
     // Validate file type
     const allowedTypes = ["image/jpeg", "image/jpg", "image/png", "image/webp", "image/gif"];
-    if (!allowedTypes.includes(file.type)) {
+    if (!allowedTypes.includes(fileType)) {
       return NextResponse.json(
         { error: "Ugyldig filtype. Kun JPEG, PNG, WebP og GIF er tillatt." },
         { status: 400 }
@@ -48,19 +53,16 @@ export async function POST(request: NextRequest) {
 
     // Validate file size (max 5MB)
     const maxSize = 5 * 1024 * 1024;
-    if (file.size > maxSize) {
+    if (fileSize > maxSize) {
       return NextResponse.json(
         { error: "Filen er for stor. Maksimal størrelse er 5MB." },
         { status: 400 }
       );
     }
 
-    // Convert file to buffer
-    const buffer = Buffer.from(await file.arrayBuffer());
-    
     // Generate unique key
     const timestamp = Date.now();
-    const sanitizedFileName = file.name.replace(/[^a-zA-Z0-9.-]/g, "_");
+    const sanitizedFileName = fileName.replace(/[^a-zA-Z0-9.-]/g, "_");
     const key = `blog/images/${timestamp}-${sanitizedFileName}`;
 
     // Upload to R2
@@ -68,8 +70,8 @@ export async function POST(request: NextRequest) {
       new PutObjectCommand({
         Bucket: BUCKET_NAME,
         Key: key,
-        Body: buffer,
-        ContentType: file.type,
+        Body: fileBuffer,
+        ContentType: fileType,
       })
     );
 
