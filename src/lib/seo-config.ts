@@ -7,11 +7,14 @@
  * - Optimalisert for både tradisjonelle søkemotorer og AI (ChatGPT, Perplexity, etc.)
  */
 
+const rawBaseUrl = process.env.NEXT_PUBLIC_APP_URL || "https://hmsnova.no";
+const normalizedBaseUrl = rawBaseUrl.startsWith("http") ? rawBaseUrl : `https://${rawBaseUrl}`;
+
 export const SITE_CONFIG = {
   name: "HMS Nova",
   tagline: "HMS Nova bygger trygghet",
   description: "Norges mest moderne HMS-system. Byggjer trygghet gjennom digitalisering, automatisering og ISO 9001 compliance. Fra små bedrifter til store konsern.",
-  url: process.env.NEXT_PUBLIC_APP_URL || "https://hmsnova.no",
+  url: normalizedBaseUrl,
   locale: "nb_NO",
   contactPhone: "+47 99 11 29 16",
   contactEmail: "post@hmsnova.no",

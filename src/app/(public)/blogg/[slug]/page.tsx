@@ -156,7 +156,7 @@ export default async function BlogPostPage({
         dangerouslySetInnerHTML={{
           __html: JSON.stringify(articleSchema),
         }}
-        strategy="beforeInteractive"
+        strategy="afterInteractive"
       />
       <Script
         id="breadcrumb-schema"
@@ -164,7 +164,7 @@ export default async function BlogPostPage({
         dangerouslySetInnerHTML={{
           __html: JSON.stringify(breadcrumbSchema),
         }}
-        strategy="beforeInteractive"
+        strategy="afterInteractive"
       />
 
       <article className="min-h-screen bg-gradient-to-b from-background to-muted/20">
