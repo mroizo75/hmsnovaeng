@@ -36,30 +36,52 @@ export function ChemicalForm({ chemical, mode = "create" }: ChemicalFormProps) {
     e.preventDefault();
     setLoading(true);
 
-    const formData = new FormData(e.currentTarget);
-    const data = {
-      productName: formData.get("productName") as string,
-      supplier: formData.get("supplier") as string || undefined,
-      casNumber: formData.get("casNumber") as string || undefined,
-      hazardClass: formData.get("hazardClass") as string || undefined,
-      hazardStatements: formData.get("hazardStatements") as string || undefined,
-      warningPictograms: formData.get("warningPictograms") as string || undefined,
-      requiredPPE: formData.get("requiredPPE") as string || undefined,
-      sdsVersion: formData.get("sdsVersion") as string || undefined,
-      sdsDate: formData.get("sdsDate") as string || undefined,
-      nextReviewDate: formData.get("nextReviewDate") as string || undefined,
-      location: formData.get("location") as string || undefined,
-      quantity: formData.get("quantity") as string || undefined,
-      unit: formData.get("unit") as string || undefined,
-      status: formData.get("status") as string,
-      notes: formData.get("notes") as string || undefined,
-    };
-
     try {
+      const formData = new FormData(e.currentTarget);
+
+      // Last opp SDS-fil først hvis den finnes
+      let sdsKey: string | undefined;
+      if (sdsFile) {
+        const uploadFormData = new FormData();
+        uploadFormData.append("file", sdsFile);
+
+        const uploadRes = await fetch("/api/chemicals/upload", {
+          method: "POST",
+          body: uploadFormData,
+        });
+
+        if (!uploadRes.ok) {
+          const errorData = await uploadRes.json();
+          throw new Error(errorData.error || "Filopplasting feilet");
+        }
+
+        const uploadData = await uploadRes.json();
+        sdsKey = uploadData.key;
+      }
+
+      const data = {
+        productName: formData.get("productName") as string,
+        supplier: formData.get("supplier") as string || undefined,
+        casNumber: formData.get("casNumber") as string || undefined,
+        hazardClass: formData.get("hazardClass") as string || undefined,
+        hazardStatements: formData.get("hazardStatements") as string || undefined,
+        warningPictograms: formData.get("warningPictograms") as string || undefined,
+        requiredPPE: formData.get("requiredPPE") as string || undefined,
+        sdsKey: sdsKey || undefined,
+        sdsVersion: formData.get("sdsVersion") as string || undefined,
+        sdsDate: formData.get("sdsDate") as string || undefined,
+        nextReviewDate: formData.get("nextReviewDate") as string || undefined,
+        location: formData.get("location") as string || undefined,
+        quantity: formData.get("quantity") as string || undefined,
+        unit: formData.get("unit") as string || undefined,
+        status: formData.get("status") as string,
+        notes: formData.get("notes") as string || undefined,
+      };
+
       const result =
         mode === "edit" && chemical
-          ? await updateChemical(chemical.id, data, sdsFile || undefined)
-          : await createChemical(data, sdsFile || undefined);
+          ? await updateChemical(chemical.id, data)
+          : await createChemical(data);
 
       if (result.success) {
         toast({
@@ -76,11 +98,11 @@ export function ChemicalForm({ chemical, mode = "create" }: ChemicalFormProps) {
           description: result.error || "Kunne ikke lagre kjemikalie",
         });
       }
-    } catch (error) {
+    } catch (error: any) {
       toast({
         variant: "destructive",
-        title: "Uventet feil",
-        description: "Noe gikk galt",
+        title: "Feil",
+        description: error.message || "Noe gikk galt",
       });
     } finally {
       setLoading(false);

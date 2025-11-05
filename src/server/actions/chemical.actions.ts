@@ -64,18 +64,9 @@ export async function getChemical(chemicalId: string) {
   }
 }
 
-export async function createChemical(input: any, sdsFile?: File) {
+export async function createChemical(input: any) {
   try {
     const { user, tenantId } = await getSessionContext();
-
-    let sdsKey: string | undefined;
-
-    // Last opp sikkerhetsdatablad hvis det finnes
-    if (sdsFile) {
-      const storage = getStorage();
-      sdsKey = generateFileKey(tenantId, "chemicals/sds", sdsFile.name);
-      await storage.upload(sdsKey, sdsFile);
-    }
 
     // Beregn neste revisjonsdato (1 år frem hvis ikke oppgitt)
     const nextReviewDate = input.nextReviewDate
@@ -92,7 +83,7 @@ export async function createChemical(input: any, sdsFile?: File) {
         hazardStatements: input.hazardStatements,
         warningPictograms: input.warningPictograms,
         requiredPPE: input.requiredPPE,
-        sdsKey,
+        sdsKey: input.sdsKey,
         sdsVersion: input.sdsVersion,
         sdsDate: input.sdsDate ? new Date(input.sdsDate) : undefined,
         nextReviewDate,
@@ -116,7 +107,7 @@ export async function createChemical(input: any, sdsFile?: File) {
   }
 }
 
-export async function updateChemical(chemicalId: string, input: any, sdsFile?: File) {
+export async function updateChemical(chemicalId: string, input: any) {
   try {
     const { user, tenantId } = await getSessionContext();
 
@@ -128,46 +119,43 @@ export async function updateChemical(chemicalId: string, input: any, sdsFile?: F
       return { success: false, error: "Kjemikalie ikke funnet" };
     }
 
-    let sdsKey = existingChemical.sdsKey;
-
-    // Last opp nytt sikkerhetsdatablad hvis det finnes
-    if (sdsFile) {
-      const storage = getStorage();
-      
-      // Slett gammelt datablad hvis det finnes
-      if (sdsKey) {
-        try {
-          await storage.delete(sdsKey);
-        } catch (error) {
-          console.error("Failed to delete old SDS:", error);
-        }
+    // Slett gammelt datablad hvis nytt er lastet opp
+    if (input.sdsKey && existingChemical.sdsKey && input.sdsKey !== existingChemical.sdsKey) {
+      try {
+        const storage = getStorage();
+        await storage.delete(existingChemical.sdsKey);
+      } catch (error) {
+        console.error("Failed to delete old SDS:", error);
       }
-      
-      sdsKey = generateFileKey(tenantId, "chemicals/sds", sdsFile.name);
-      await storage.upload(sdsKey, sdsFile);
+    }
+
+    const updateData: any = {
+      productName: input.productName,
+      supplier: input.supplier,
+      casNumber: input.casNumber,
+      hazardClass: input.hazardClass,
+      hazardStatements: input.hazardStatements,
+      warningPictograms: input.warningPictograms,
+      requiredPPE: input.requiredPPE,
+      sdsVersion: input.sdsVersion,
+      sdsDate: input.sdsDate ? new Date(input.sdsDate) : undefined,
+      nextReviewDate: input.nextReviewDate ? new Date(input.nextReviewDate) : undefined,
+      location: input.location,
+      quantity: input.quantity ? parseFloat(input.quantity) : undefined,
+      unit: input.unit,
+      status: input.status,
+      notes: input.notes,
+      updatedAt: new Date(),
+    };
+
+    // Oppdater sdsKey kun hvis ny er sendt
+    if (input.sdsKey) {
+      updateData.sdsKey = input.sdsKey;
     }
 
     const chemical = await prisma.chemical.update({
       where: { id: chemicalId },
-      data: {
-        productName: input.productName,
-        supplier: input.supplier,
-        casNumber: input.casNumber,
-        hazardClass: input.hazardClass,
-        hazardStatements: input.hazardStatements,
-        warningPictograms: input.warningPictograms,
-        requiredPPE: input.requiredPPE,
-        ...(sdsFile && { sdsKey }),
-        sdsVersion: input.sdsVersion,
-        sdsDate: input.sdsDate ? new Date(input.sdsDate) : undefined,
-        nextReviewDate: input.nextReviewDate ? new Date(input.nextReviewDate) : undefined,
-        location: input.location,
-        quantity: input.quantity ? parseFloat(input.quantity) : undefined,
-        unit: input.unit,
-        status: input.status,
-        notes: input.notes,
-        updatedAt: new Date(),
-      },
+      data: updateData,
     });
 
     await AuditLog.log(tenantId, user.id, "CHEMICAL_UPDATED", "Chemical", chemical.id, {
