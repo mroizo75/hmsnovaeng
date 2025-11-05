@@ -469,17 +469,17 @@ export default function MeetingDetailPage() {
                   <div className="space-y-2">
                     <Label htmlFor="userId">Bruker (intern)</Label>
                     <Select
-                      value={participantForm.userId}
+                      value={participantForm.userId || "NONE"}
                       onValueChange={(value) =>
-                        setParticipantForm({ ...participantForm, userId: value })
+                        setParticipantForm({ ...participantForm, userId: value === "NONE" ? "" : value })
                       }
                       disabled={loadingUsers}
                     >
                       <SelectTrigger>
-                        <SelectValue placeholder={loadingUsers ? "Laster brukere..." : "Velg bruker (la stå tom for ekstern)"} />
+                        <SelectValue placeholder={loadingUsers ? "Laster brukere..." : "Velg bruker"} />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="">Ingen (ekstern deltaker)</SelectItem>
+                        <SelectItem value="NONE">Ingen (ekstern deltaker)</SelectItem>
                         {users.map((u) => (
                           <SelectItem key={u.user.id} value={u.user.id}>
                             {u.user.name || u.user.email}
