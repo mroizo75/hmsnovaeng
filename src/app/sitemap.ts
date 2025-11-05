@@ -95,43 +95,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: "yearly",
       priority: 0.3,
     },
-    {
-      url: `${baseUrl}/blogg`,
-      lastModified: currentDate,
-      changeFrequency: "weekly",
-      priority: 0.8,
-    },
+    // Blogg er fjernet
   ];
 
-  // Fetch blogg-poster fra database
-  try {
-    const { db } = await import("@/lib/db");
-    const blogPosts = await db.blogPost.findMany({
-      where: {
-        status: "PUBLISHED",
-      },
-      select: {
-        slug: true,
-        updatedAt: true,
-      },
-      orderBy: {
-        publishedAt: "desc",
-      },
-    });
-
-    // Legg til blogg-poster i sitemap
-    const blogRoutes: MetadataRoute.Sitemap = blogPosts.map((post) => ({
-      url: `${baseUrl}/blogg/${post.slug}`,
-      lastModified: post.updatedAt,
-      changeFrequency: "monthly" as const,
-      priority: 0.7,
-    }));
-
-    routes.push(...blogRoutes);
-  } catch (error) {
-    console.error("Kunne ikke hente blogg-poster for sitemap:", error);
-    // Continue without blog posts if DB is not available
-  }
+  // Blogg-poster er fjernet fra sitemap
 
   return routes;
 }

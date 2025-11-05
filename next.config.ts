@@ -9,9 +9,6 @@ const nextConfig: NextConfig = {
       bodySizeLimit: "10mb",
     },
   },
-  // Unngå statisk optimalisering av dynamiske sider
-  staticPageGenerationTimeout: 0,
-  // Ikke generer statiske sider automatisk
   output: 'standalone',
 };
 

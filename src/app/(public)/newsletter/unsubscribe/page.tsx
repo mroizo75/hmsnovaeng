@@ -95,7 +95,7 @@ function UnsubscribeContent() {
                   Du vil ikke lenger motta nyhetsbrev fra oss. Vi håper å se deg igjen!
                 </p>
                 <div className="flex flex-col gap-3">
-                  <Link href="/blogg">
+                  <Link href="/">
                     <Button variant="outline" className="w-full">
                       <Mail className="mr-2 h-4 w-4" />
                       Besøk bloggen vår
