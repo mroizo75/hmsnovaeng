@@ -52,12 +52,6 @@ interface BlogPost {
 
 async function getBlogPosts(): Promise<BlogPost[]> {
   try {
-    // Skip database calls during build phase
-    if (process.env.NEXT_PHASE === 'phase-production-build') {
-      return [];
-    }
-
-    // Check if db is available
     if (!db || !db.blogPost) {
       console.error("Database connection not available");
       return [];
