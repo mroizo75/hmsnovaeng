@@ -37,7 +37,7 @@ import {
   AlignRight,
   Loader2,
 } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 
 interface TipTapEditorProps {
@@ -54,6 +54,7 @@ export function TipTapEditor({
   className,
 }: TipTapEditorProps) {
   const [isUploadingImage, setIsUploadingImage] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
 
   const editor = useEditor({
     extensions: [
@@ -99,8 +100,20 @@ export function TipTapEditor({
     },
   });
 
-  if (!editor) {
-    return null;
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  if (!isMounted || !editor) {
+    return (
+      <div className={cn("border rounded-lg overflow-hidden", className)}>
+        <div className="bg-muted/50 border-b p-2 h-[52px]" />
+        <div className="bg-background min-h-[400px] p-4 flex items-center justify-center text-muted-foreground">
+          <Loader2 className="h-6 w-6 animate-spin mr-2" />
+          Laster editor...
+        </div>
+      </div>
+    );
   }
 
   const handleImageUpload = async () => {
