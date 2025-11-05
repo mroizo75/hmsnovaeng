@@ -1075,7 +1075,7 @@ model BlogPost {
   slug            String        @unique
   excerpt         String        @db.Text // Kort beskrivelse (meta description)
   content         String        @db.LongText // Markdown eller rich text
-  coverImage      String?       // URL til hovedbilde
+  coverImage      String?       @db.Text // URL til hovedbilde (signerte URLs kan være lange)
   
   // SEO
   metaTitle       String?       // Custom SEO title (default: title)
