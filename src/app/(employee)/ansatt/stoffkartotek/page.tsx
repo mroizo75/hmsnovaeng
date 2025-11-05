@@ -112,25 +112,29 @@ export default async function AnsattStoffkartotek() {
                       })()}
 
                       {/* PPE */}
-                      {chemical.requiredPPE && Array.isArray(chemical.requiredPPE) && chemical.requiredPPE.length > 0 && (() => {
-                        const ppe = chemical.requiredPPE as unknown as string[];
-                        return (
-                          <div className="flex items-center gap-1 text-xs">
-                            <span className="text-muted-foreground">Verneutstyr:</span>
-                            <div className="flex gap-1">
-                              {ppe.slice(0, 3).map((ppeItem, idx) => (
-                                <div key={idx} className="h-6 w-6 relative">
-                                  <Image
-                                    src={`/ppe-icons/${ppeItem}`}
-                                    alt="PPE"
-                                    fill
-                                    className="object-contain"
-                                  />
-                                </div>
-                              ))}
+                      {chemical.requiredPPE && (() => {
+                        try {
+                          const ppe = JSON.parse(chemical.requiredPPE);
+                          return Array.isArray(ppe) && ppe.length > 0 ? (
+                            <div className="flex items-center gap-1 text-xs">
+                              <span className="text-muted-foreground">Verneutstyr:</span>
+                              <div className="flex gap-1">
+                                {ppe.slice(0, 3).map((ppeItem: string, idx: number) => (
+                                  <div key={idx} className="h-6 w-6 relative">
+                                    <Image
+                                      src={`/ppe/${ppeItem}`}
+                                      alt="PPE"
+                                      fill
+                                      className="object-contain"
+                                    />
+                                  </div>
+                                ))}
+                              </div>
                             </div>
-                          </div>
-                        );
+                          ) : null;
+                        } catch {
+                          return null;
+                        }
                       })()}
                     </div>
 
