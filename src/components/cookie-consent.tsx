@@ -118,38 +118,41 @@ export function CookieConsent() {
     <>
       {/* Cookie Banner */}
       <div className="fixed bottom-0 left-0 right-0 z-50 p-4 md:p-6">
-        <Card className="max-w-4xl mx-auto shadow-2xl border-2">
+        <Card className="max-w-4xl mx-auto shadow-2xl border-2 bg-white dark:bg-gray-950">
           <CardContent className="pt-6">
             <div className="flex items-start gap-4">
-              <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-                <Cookie className="h-6 w-6 text-primary" aria-hidden="true" />
+              <div className="h-12 w-12 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center flex-shrink-0">
+                <Cookie className="h-6 w-6 text-green-700 dark:text-green-400" aria-hidden="true" />
               </div>
               
               <div className="flex-1">
-                <h3 className="font-bold text-lg mb-2">Vi bruker cookies 🍪</h3>
-                <p className="text-sm text-foreground mb-4">
+                <h3 className="font-bold text-lg mb-2 text-gray-900 dark:text-gray-100">Vi bruker cookies 🍪</h3>
+                <p className="text-sm text-gray-700 dark:text-gray-300 mb-4">
                   HMS Nova bruker cookies for å forbedre din opplevelse, holde deg innlogget og analysere 
                   bruken av nettstedet. Strengt nødvendige cookies kan ikke avslås.{" "}
-                  <Link href="/cookies" className="text-primary hover:underline font-bold underline">
+                  <Link href="/cookies" className="text-green-700 dark:text-green-400 hover:underline font-bold underline">
                     Les mer
                   </Link>
                 </p>
 
                 <div className="flex flex-col sm:flex-row gap-2">
-                  <Button onClick={acceptAll} className="flex-1 sm:flex-initial">
+                  <Button 
+                    onClick={acceptAll} 
+                    className="flex-1 sm:flex-initial bg-green-600 hover:bg-green-700 text-white"
+                  >
                     Aksepter alle
                   </Button>
                   <Button 
                     onClick={rejectAll} 
                     variant="outline"
-                    className="flex-1 sm:flex-initial"
+                    className="flex-1 sm:flex-initial border-gray-300 dark:border-gray-700 text-gray-900 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-800"
                   >
                     Kun nødvendige
                   </Button>
                   <Button 
                     onClick={() => setShowSettings(true)} 
-                    variant="ghost"
-                    className="flex-1 sm:flex-initial"
+                    variant="outline"
+                    className="flex-1 sm:flex-initial border-gray-300 dark:border-gray-700 text-gray-900 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-800"
                     aria-label="Tilpass cookie-innstillinger"
                   >
                     <SettingsIcon className="h-4 w-4 mr-2" aria-hidden="true" />
@@ -161,7 +164,7 @@ export function CookieConsent() {
               <Button
                 variant="ghost"
                 size="icon"
-                className="flex-shrink-0"
+                className="flex-shrink-0 text-gray-900 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-800"
                 onClick={() => setShowBanner(false)}
                 aria-label="Lukk cookie-banner"
               >
