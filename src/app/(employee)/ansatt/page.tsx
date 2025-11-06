@@ -2,9 +2,10 @@ import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import Link from "next/link";
-import { FileText, AlertCircle, Beaker, GraduationCap, Shield, Bell } from "lucide-react";
+import { FileText, AlertCircle, Beaker, GraduationCap, Shield, Bell, ClipboardList, ShieldAlert } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { prisma } from "@/lib/db";
 
 export default async function AnsattDashboard() {
   const session = await getServerSession(authOptions);
@@ -12,6 +13,16 @@ export default async function AnsattDashboard() {
   if (!session?.user?.tenantId) {
     redirect("/login");
   }
+
+  // Hent tenant settings for HMS-kontakt
+  const tenant = await prisma.tenant.findUnique({
+    where: { id: session.user.tenantId },
+    select: {
+      hmsContactName: true,
+      hmsContactPhone: true,
+      hmsContactEmail: true,
+    },
+  });
 
   return (
     <div className="space-y-6">
@@ -104,6 +115,36 @@ export default async function AnsattDashboard() {
             </CardContent>
           </Card>
         </Link>
+
+        {/* Skjemaer */}
+        <Link href="/ansatt/skjemaer">
+          <Card className="h-full hover:shadow-lg transition-shadow cursor-pointer border-2 hover:border-green-500">
+            <CardContent className="flex flex-col items-center justify-center p-6 text-center">
+              <div className="h-16 w-16 rounded-full bg-green-100 flex items-center justify-center mb-3">
+                <ClipboardList className="h-8 w-8 text-green-600" />
+              </div>
+              <h3 className="font-semibold text-lg mb-1">Skjemaer</h3>
+              <p className="text-xs text-muted-foreground">
+                Fyll ut skjemaer
+              </p>
+            </CardContent>
+          </Card>
+        </Link>
+
+        {/* Varsling */}
+        <Link href="/ansatt/varsling">
+          <Card className="h-full hover:shadow-lg transition-shadow cursor-pointer border-2 hover:border-orange-500">
+            <CardContent className="flex flex-col items-center justify-center p-6 text-center">
+              <div className="h-16 w-16 rounded-full bg-orange-100 flex items-center justify-center mb-3">
+                <ShieldAlert className="h-8 w-8 text-orange-600" />
+              </div>
+              <h3 className="font-semibold text-lg mb-1">Varsling</h3>
+              <p className="text-xs text-muted-foreground">
+                Anonymt varslingssystem
+              </p>
+            </CardContent>
+          </Card>
+        </Link>
       </div>
 
       {/* Mine oppgaver */}
@@ -160,12 +201,32 @@ export default async function AnsattDashboard() {
               113
             </a>
           </div>
-          <div className="flex justify-between items-center border-t pt-2 mt-2">
-            <span className="font-medium">HMS-ansvarlig:</span>
-            <a href="tel:+4799112916" className="text-primary font-bold">
-              +47 991 12 916
-            </a>
-          </div>
+          {tenant?.hmsContactName && (
+            <div className="border-t pt-2 mt-2 space-y-1">
+              <div className="flex justify-between items-center">
+                <span className="font-medium">HMS-ansvarlig:</span>
+                <span className="text-primary font-medium">
+                  {tenant.hmsContactName}
+                </span>
+              </div>
+              {tenant.hmsContactPhone && (
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-muted-foreground">Telefon:</span>
+                  <a href={`tel:${tenant.hmsContactPhone}`} className="text-primary font-bold">
+                    {tenant.hmsContactPhone}
+                  </a>
+                </div>
+              )}
+              {tenant.hmsContactEmail && (
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-muted-foreground">E-post:</span>
+                  <a href={`mailto:${tenant.hmsContactEmail}`} className="text-primary text-sm">
+                    {tenant.hmsContactEmail}
+                  </a>
+                </div>
+              )}
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>

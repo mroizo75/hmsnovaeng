@@ -139,6 +139,11 @@ model Tenant {
   onboardingCompletedAt DateTime?
   salesRep         String?          // Selger/support ansvarlig
   
+  // HMS-kontaktinformasjon (dynamisk visning for ansatte)
+  hmsContactName   String?          // Navn på HMS-ansvarlig
+  hmsContactPhone  String?          // Telefon til HMS-ansvarlig
+  hmsContactEmail  String?          // E-post til HMS-ansvarlig
+  
   users            UserTenant[]
   documents        Document[]
   documentVersions DocumentVersion[]

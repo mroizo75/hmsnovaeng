@@ -1,7 +1,7 @@
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import { redirect } from "next/navigation";
-import { Home, FileText, AlertCircle, Beaker, ShieldAlert, GraduationCap } from "lucide-react";
+import { Home, FileText, AlertCircle, Beaker, ClipboardList, GraduationCap } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import { prisma } from "@/lib/db";
@@ -117,11 +117,11 @@ export default async function EmployeeLayout({
           </Link>
           
           <Link
-            href="/ansatt/varsling"
+            href="/ansatt/skjemaer"
             className="flex flex-col items-center justify-center flex-1 h-full hover:bg-gray-50 transition-colors"
           >
-            <ShieldAlert className="h-5 w-5 text-gray-600" />
-            <span className="text-xs mt-1 text-gray-600">Varsling</span>
+            <ClipboardList className="h-5 w-5 text-gray-600" />
+            <span className="text-xs mt-1 text-gray-600">Skjemaer</span>
           </Link>
           
           <Link

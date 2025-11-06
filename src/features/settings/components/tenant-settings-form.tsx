@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { updateTenantSettings } from "@/server/actions/settings.actions";
 import { useToast } from "@/hooks/use-toast";
-import { Building2 } from "lucide-react";
+import { Building2, ShieldAlert } from "lucide-react";
 import type { Tenant } from "@prisma/client";
 
 interface TenantSettingsFormProps {
@@ -43,6 +43,9 @@ export function TenantSettingsForm({ tenant, isAdmin }: TenantSettingsFormProps)
       address: formData.get("address") as string || undefined,
       city: formData.get("city") as string || undefined,
       postalCode: formData.get("postalCode") as string || undefined,
+      hmsContactName: formData.get("hmsContactName") as string || undefined,
+      hmsContactPhone: formData.get("hmsContactPhone") as string || undefined,
+      hmsContactEmail: formData.get("hmsContactEmail") as string || undefined,
     };
 
     const result = await updateTenantSettings(data);
@@ -157,6 +160,57 @@ export function TenantSettingsForm({ tenant, isAdmin }: TenantSettingsFormProps)
                 placeholder="Oslo"
                 disabled={loading || !isAdmin}
                 defaultValue={tenant.city || ""}
+              />
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* HMS-ansvarlig kontaktinformasjon */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <ShieldAlert className="h-5 w-5 text-orange-600" />
+            HMS-ansvarlig kontaktinformasjon
+          </CardTitle>
+          <CardDescription>
+            Dette vises for alle ansatte på deres dashboard under "Nødkontakter"
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="hmsContactName">Navn på HMS-ansvarlig</Label>
+            <Input
+              id="hmsContactName"
+              name="hmsContactName"
+              placeholder="Navn Navnesen"
+              disabled={loading || !isAdmin}
+              defaultValue={tenant.hmsContactName || ""}
+            />
+          </div>
+
+          <div className="grid gap-4 md:grid-cols-2">
+            <div className="space-y-2">
+              <Label htmlFor="hmsContactPhone">Telefonnummer</Label>
+              <Input
+                id="hmsContactPhone"
+                name="hmsContactPhone"
+                type="tel"
+                placeholder="+47 123 45 678"
+                disabled={loading || !isAdmin}
+                defaultValue={tenant.hmsContactPhone || ""}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="hmsContactEmail">E-postadresse</Label>
+              <Input
+                id="hmsContactEmail"
+                name="hmsContactEmail"
+                type="email"
+                placeholder="hms@bedrift.no"
+                disabled={loading || !isAdmin}
+                defaultValue={tenant.hmsContactEmail || ""}
               />
             </div>
           </div>

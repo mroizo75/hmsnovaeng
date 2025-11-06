@@ -37,6 +37,9 @@ export async function updateTenantSettings(data: {
   address?: string;
   city?: string;
   postalCode?: string;
+  hmsContactName?: string;
+  hmsContactPhone?: string;
+  hmsContactEmail?: string;
 }) {
   try {
     const { user, tenantId } = await getSessionContext();
@@ -57,6 +60,9 @@ export async function updateTenantSettings(data: {
         address: data.address,
         city: data.city,
         postalCode: data.postalCode,
+        hmsContactName: data.hmsContactName,
+        hmsContactPhone: data.hmsContactPhone,
+        hmsContactEmail: data.hmsContactEmail,
       },
     });
 
