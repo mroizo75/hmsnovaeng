@@ -151,11 +151,10 @@ export function CookieConsent() {
                   </Button>
                   <Button 
                     onClick={() => setShowSettings(true)} 
-                    variant="outline"
-                    className="flex-1 sm:flex-initial border-2 border-gray-400 dark:border-gray-600 text-gray-900 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-800 hover:border-gray-500 transition-all"
+                    className="flex-1 sm:flex-initial bg-gray-100 hover:bg-gray-200 border-2 border-gray-500 dark:border-gray-600 text-gray-900 dark:text-gray-100 dark:bg-gray-800 dark:hover:bg-gray-700 transition-all"
                     aria-label="Tilpass cookie-innstillinger"
                   >
-                    <SettingsIcon className="h-4 w-4 mr-2" aria-hidden="true" />
+                    <SettingsIcon className="h-4 w-4 mr-2 text-gray-900 dark:text-gray-100" aria-hidden="true" />
                     Tilpass
                   </Button>
                 </div>
