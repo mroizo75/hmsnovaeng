@@ -183,6 +183,54 @@ export default async function AnsattStoffkartotek() {
               </div>
             </div>
 
+            {/* Eksplosjonsfarlig */}
+            <div className="flex items-start gap-3 bg-white p-3 rounded-lg border border-blue-200">
+              <div className="relative w-12 h-12 flex-shrink-0">
+                <Image
+                  src="/faremerker/explosive.webp"
+                  alt="Eksplosjonsfarlig"
+                  fill
+                  className="object-contain"
+                />
+              </div>
+              <div>
+                <p className="font-medium text-sm text-gray-900">Eksplosjonsfarlig</p>
+                <p className="text-xs text-gray-600">Kan eksplodere</p>
+              </div>
+            </div>
+
+            {/* Etsende */}
+            <div className="flex items-start gap-3 bg-white p-3 rounded-lg border border-blue-200">
+              <div className="relative w-12 h-12 flex-shrink-0">
+                <Image
+                  src="/faremerker/etsende.webp"
+                  alt="Etsende"
+                  fill
+                  className="object-contain"
+                />
+              </div>
+              <div>
+                <p className="font-medium text-sm text-gray-900">Etsende</p>
+                <p className="text-xs text-gray-600">Kan brenne hud og øyne</p>
+              </div>
+            </div>
+
+            {/* Gasser under trykk */}
+            <div className="flex items-start gap-3 bg-white p-3 rounded-lg border border-blue-200">
+              <div className="relative w-12 h-12 flex-shrink-0">
+                <Image
+                  src="/faremerker/gass_under_trykk.webp"
+                  alt="Gasser under trykk"
+                  fill
+                  className="object-contain"
+                />
+              </div>
+              <div>
+                <p className="font-medium text-sm text-gray-900">Gasser under trykk</p>
+                <p className="text-xs text-gray-600">Kan eksplodere ved varme</p>
+              </div>
+            </div>
+
             {/* Giftig */}
             <div className="flex items-start gap-3 bg-white p-3 rounded-lg border border-blue-200">
               <div className="relative w-12 h-12 flex-shrink-0">
@@ -203,7 +251,7 @@ export default async function AnsattStoffkartotek() {
             <div className="flex items-start gap-3 bg-white p-3 rounded-lg border border-blue-200">
               <div className="relative w-12 h-12 flex-shrink-0">
                 <Image
-                  src="/faremerker/helsefare.webp"
+                  src="/faremerker/helserisiko.webp"
                   alt="Helsefare"
                   fill
                   className="object-contain"
@@ -211,23 +259,39 @@ export default async function AnsattStoffkartotek() {
               </div>
               <div>
                 <p className="font-medium text-sm text-gray-900">Helsefare</p>
-                <p className="text-xs text-gray-600">Kan skade organer/kreftfremkallende</p>
+                <p className="text-xs text-gray-600">Kan irritere hud/øyne/luftveier</p>
               </div>
             </div>
 
-            {/* Etsende */}
+            {/* Kronisk helsefare */}
             <div className="flex items-start gap-3 bg-white p-3 rounded-lg border border-blue-200">
               <div className="relative w-12 h-12 flex-shrink-0">
                 <Image
-                  src="/faremerker/etsende.webp"
-                  alt="Etsende"
+                  src="/faremerker/kronisk_helsefarlig.webp"
+                  alt="Kronisk helsefare"
                   fill
                   className="object-contain"
                 />
               </div>
               <div>
-                <p className="font-medium text-sm text-gray-900">Etsende</p>
-                <p className="text-xs text-gray-600">Kan brenne hud og øyne</p>
+                <p className="font-medium text-sm text-gray-900">Kronisk helsefare</p>
+                <p className="text-xs text-gray-600">Kan skade organer/kreftfremkallende</p>
+              </div>
+            </div>
+
+            {/* Miljøfare */}
+            <div className="flex items-start gap-3 bg-white p-3 rounded-lg border border-blue-200">
+              <div className="relative w-12 h-12 flex-shrink-0">
+                <Image
+                  src="/faremerker/miljofare.webp"
+                  alt="Miljøfare"
+                  fill
+                  className="object-contain"
+                />
+              </div>
+              <div>
+                <p className="font-medium text-sm text-gray-900">Miljøfare</p>
+                <p className="text-xs text-gray-600">Skadelig for miljøet</p>
               </div>
             </div>
 
@@ -244,70 +308,6 @@ export default async function AnsattStoffkartotek() {
               <div>
                 <p className="font-medium text-sm text-gray-900">Oksiderende</p>
                 <p className="text-xs text-gray-600">Kan øke brannfare</p>
-              </div>
-            </div>
-
-            {/* Miljøfarlig */}
-            <div className="flex items-start gap-3 bg-white p-3 rounded-lg border border-blue-200">
-              <div className="relative w-12 h-12 flex-shrink-0">
-                <Image
-                  src="/faremerker/miljofarlig.webp"
-                  alt="Miljøfarlig"
-                  fill
-                  className="object-contain"
-                />
-              </div>
-              <div>
-                <p className="font-medium text-sm text-gray-900">Miljøfarlig</p>
-                <p className="text-xs text-gray-600">Skadelig for miljøet</p>
-              </div>
-            </div>
-
-            {/* Irriterende */}
-            <div className="flex items-start gap-3 bg-white p-3 rounded-lg border border-blue-200">
-              <div className="relative w-12 h-12 flex-shrink-0">
-                <Image
-                  src="/faremerker/irriterende.webp"
-                  alt="Irriterende"
-                  fill
-                  className="object-contain"
-                />
-              </div>
-              <div>
-                <p className="font-medium text-sm text-gray-900">Irriterende</p>
-                <p className="text-xs text-gray-600">Kan irritere hud/øyne/luftveier</p>
-              </div>
-            </div>
-
-            {/* Eksplosjonsfarlig */}
-            <div className="flex items-start gap-3 bg-white p-3 rounded-lg border border-blue-200">
-              <div className="relative w-12 h-12 flex-shrink-0">
-                <Image
-                  src="/faremerker/eksplosjonsfarlig.webp"
-                  alt="Eksplosjonsfarlig"
-                  fill
-                  className="object-contain"
-                />
-              </div>
-              <div>
-                <p className="font-medium text-sm text-gray-900">Eksplosjonsfarlig</p>
-                <p className="text-xs text-gray-600">Kan eksplodere</p>
-              </div>
-            </div>
-
-            {/* Trykkgass */}
-            <div className="flex items-start gap-3 bg-white p-3 rounded-lg border border-blue-200">
-              <div className="relative w-12 h-12 flex-shrink-0">
-                <Image
-                  src="/faremerker/trykkgass.webp"
-                  alt="Trykkgass"
-                  fill
-                  className="object-contain"
-                />
-              </div>
-              <div>
-                <p className="font-medium text-sm text-gray-900">Trykkgass</p>
-                <p className="text-xs text-gray-600">Kan eksplodere ved varme</p>
               </div>
             </div>
           </div>

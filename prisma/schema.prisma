@@ -72,6 +72,7 @@ model User {
   passwordResetTokens PasswordResetToken[]
   meetingParticipants MeetingParticipant[] @relation("MeetingParticipants")
   meetingDecisions    MeetingDecision[]    @relation("MeetingDecisions")
+  documentsApproved   Document[]           @relation("DocumentApprovedBy")
   createdAt           DateTime     @default(now())
   updatedAt           DateTime     @updatedAt
 
@@ -399,8 +400,9 @@ model Document {
   createdAt  DateTime     @default(now())
   updatedAt  DateTime     @updatedAt
 
-  tenant   Tenant            @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  versions DocumentVersion[] // Historikk av alle versjoner
+  tenant          Tenant            @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  versions        DocumentVersion[] // Historikk av alle versjoner
+  approvedByUser  User?             @relation("DocumentApprovedBy", fields: [approvedBy], references: [id], onDelete: SetNull)
 
   @@unique([tenantId, slug]) // Slug må være unik per tenant
   @@index([tenantId])

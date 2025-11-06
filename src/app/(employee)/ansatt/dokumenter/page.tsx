@@ -35,6 +35,14 @@ export default async function AnsattDokumenter() {
       tenantId: session.user.tenantId,
       status: "APPROVED", // Kun godkjente dokumenter for ansatte
     },
+    include: {
+      approvedByUser: {
+        select: {
+          name: true,
+          email: true,
+        },
+      },
+    },
     orderBy: {
       updatedAt: "desc",
     },
@@ -124,9 +132,9 @@ export default async function AnsattDokumenter() {
                         <Badge variant="secondary" className="text-xs bg-green-100 text-green-700">
                           ✓ Godkjent
                         </Badge>
-                        {doc.approvedBy && (
+                        {doc.approvedByUser && (
                           <span className="text-xs text-muted-foreground">
-                            av {doc.approvedBy}
+                            av {doc.approvedByUser.name || doc.approvedByUser.email}
                           </span>
                         )}
                       </div>
