@@ -36,9 +36,10 @@ interface FormFillerProps {
   };
   userId: string;
   tenantId: string;
+  returnUrl?: string;
 }
 
-export function FormFiller({ form, userId, tenantId }: FormFillerProps) {
+export function FormFiller({ form, userId, tenantId, returnUrl = "/dashboard/forms" }: FormFillerProps) {
   const router = useRouter();
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -141,7 +142,7 @@ export function FormFiller({ form, userId, tenantId }: FormFillerProps) {
             : "Takk for at du fylte ut skjemaet",
       });
 
-      router.push("/dashboard/forms");
+      router.push(returnUrl);
       router.refresh();
     } catch (error) {
       toast({
@@ -158,7 +159,7 @@ export function FormFiller({ form, userId, tenantId }: FormFillerProps) {
     <div className="max-w-3xl mx-auto space-y-6">
       {/* Header */}
       <div className="flex items-center gap-4">
-        <Link href="/dashboard/forms">
+        <Link href={returnUrl}>
           <Button variant="ghost" size="icon">
             <ArrowLeft className="h-5 w-5" />
           </Button>
