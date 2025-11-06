@@ -307,10 +307,12 @@ export default function WhistleblowingDetailPage() {
 
   const updateAssignedTo = async (userId: string) => {
     try {
+      const actualUserId = userId === "NONE" ? null : userId;
+      
       const response = await fetch(`/api/admin/whistleblowing/${params.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ assignedTo: userId || null }),
+        body: JSON.stringify({ assignedTo: actualUserId }),
       });
 
       const data = await response.json();
@@ -320,8 +322,8 @@ export default function WhistleblowingDetailPage() {
       }
 
       toast({
-        title: "Sak tildelt",
-        description: "Saken er tildelt valgt person",
+        title: actualUserId ? "Sak tildelt" : "Tildeling fjernet",
+        description: actualUserId ? "Saken er tildelt valgt person" : "Saken er ikke lenger tildelt noen",
       });
 
       fetchCase();
@@ -643,7 +645,7 @@ export default function WhistleblowingDetailPage() {
               <div className="space-y-2">
                 <Label htmlFor="assignedTo">Tildelt til</Label>
                 <Select
-                  value={caseData.assignedTo || ""}
+                  value={caseData.assignedTo || "NONE"}
                   onValueChange={(value) => updateAssignedTo(value)}
                   disabled={loadingUsers}
                 >
@@ -651,7 +653,7 @@ export default function WhistleblowingDetailPage() {
                     <SelectValue placeholder={loadingUsers ? "Laster brukere..." : "Ingen valgt"} />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">Ingen</SelectItem>
+                    <SelectItem value="NONE">Ingen</SelectItem>
                     {users.map((u) => (
                       <SelectItem key={u.user.id} value={u.user.id}>
                         {u.user.name || u.user.email}
