@@ -1,5 +1,6 @@
 import { MetadataRoute } from "next";
 import { SITE_CONFIG } from "@/lib/seo-config";
+import { prisma } from "@/lib/db";
 
 /**
  * Dynamisk sitemap for HMS Nova
@@ -95,10 +96,40 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: "yearly",
       priority: 0.3,
     },
-    // Blogg er fjernet
+    {
+      url: `${baseUrl}/blogg`,
+      lastModified: currentDate,
+      changeFrequency: "daily",
+      priority: 0.8,
+    },
   ];
 
-  // Blogg-poster er fjernet fra sitemap
+  // Legg til publiserte blogginnlegg
+  try {
+    const blogPosts = await prisma.blogPost.findMany({
+      where: {
+        status: "PUBLISHED",
+        publishedAt: { lte: currentDate },
+      },
+      select: {
+        slug: true,
+        updatedAt: true,
+      },
+      orderBy: { publishedAt: "desc" },
+      take: 1000, // Begrens til 1000 siste poster
+    });
+
+    blogPosts.forEach((post) => {
+      routes.push({
+        url: `${baseUrl}/blogg/${post.slug}`,
+        lastModified: post.updatedAt,
+        changeFrequency: "monthly",
+        priority: 0.7,
+      });
+    });
+  } catch (error) {
+    console.error("Feil ved henting av blogginnlegg for sitemap:", error);
+  }
 
   return routes;
 }
