@@ -138,21 +138,21 @@ export function CookieConsent() {
                 <div className="flex flex-col sm:flex-row gap-2">
                   <Button 
                     onClick={acceptAll} 
-                    className="flex-1 sm:flex-initial bg-green-600 hover:bg-green-700 text-white"
+                    className="flex-1 sm:flex-initial bg-green-600 hover:bg-green-700 text-white border-0 shadow-md hover:shadow-lg transition-all"
                   >
                     Aksepter alle
                   </Button>
                   <Button 
                     onClick={rejectAll} 
                     variant="outline"
-                    className="flex-1 sm:flex-initial border-gray-300 dark:border-gray-700 text-gray-900 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-800"
+                    className="flex-1 sm:flex-initial border-2 border-gray-400 dark:border-gray-600 text-gray-900 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-800 hover:border-gray-500 transition-all"
                   >
                     Kun nødvendige
                   </Button>
                   <Button 
                     onClick={() => setShowSettings(true)} 
                     variant="outline"
-                    className="flex-1 sm:flex-initial border-gray-300 dark:border-gray-700 text-gray-900 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-800"
+                    className="flex-1 sm:flex-initial border-2 border-gray-400 dark:border-gray-600 text-gray-900 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-800 hover:border-gray-500 transition-all"
                     aria-label="Tilpass cookie-innstillinger"
                   >
                     <SettingsIcon className="h-4 w-4 mr-2" aria-hidden="true" />
@@ -275,24 +275,35 @@ export function CookieConsent() {
           </div>
 
           <div className="flex flex-col sm:flex-row gap-2 mt-6">
-            <Button onClick={saveCustomPreferences} className="flex-1">
+            <Button 
+              onClick={saveCustomPreferences} 
+              className="flex-1 bg-green-600 hover:bg-green-700 text-white border-0 shadow-md hover:shadow-lg transition-all"
+            >
               Lagre innstillinger
             </Button>
-            <Button onClick={acceptAll} variant="outline" className="flex-1">
+            <Button 
+              onClick={acceptAll} 
+              variant="outline" 
+              className="flex-1 border-2 border-gray-400 dark:border-gray-600 text-gray-900 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-800 hover:border-gray-500 transition-all"
+            >
               Aksepter alle
             </Button>
-            <Button onClick={rejectAll} variant="ghost" className="flex-1">
+            <Button 
+              onClick={rejectAll} 
+              variant="outline" 
+              className="flex-1 border-2 border-gray-400 dark:border-gray-600 text-gray-900 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-800 hover:border-gray-500 transition-all"
+            >
               Kun nødvendige
             </Button>
           </div>
 
-          <p className="text-xs text-center text-muted-foreground mt-4">
+          <p className="text-xs text-center text-gray-600 dark:text-gray-400 mt-4">
             Les vår{" "}
-            <Link href="/cookies" className="text-primary hover:underline">
+            <Link href="/cookies" className="text-green-700 dark:text-green-400 hover:underline font-medium">
               cookie-policy
             </Link>
             {" "}og{" "}
-            <Link href="/personvern" className="text-primary hover:underline">
+            <Link href="/personvern" className="text-green-700 dark:text-green-400 hover:underline font-medium">
               personvernerklæring
             </Link>
             {" "}for mer informasjon.
