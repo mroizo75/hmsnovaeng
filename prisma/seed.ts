@@ -100,7 +100,12 @@ async function main() {
 
   const hms = await prisma.user.upsert({
     where: { email: "hms@test.no" },
-    update: {},
+    update: {
+      password: hmsPassword,
+      emailVerified: new Date(),
+      failedLoginAttempts: 0,
+      lockedUntil: null,
+    },
     create: {
       email: "hms@test.no",
       name: "HMS-ansvarlig Hansen",
@@ -122,7 +127,12 @@ async function main() {
 
   const leader = await prisma.user.upsert({
     where: { email: "leder@test.no" },
-    update: {},
+    update: {
+      password: leaderPassword,
+      emailVerified: new Date(),
+      failedLoginAttempts: 0,
+      lockedUntil: null,
+    },
     create: {
       email: "leder@test.no",
       name: "Leder Larsen",
@@ -144,7 +154,12 @@ async function main() {
 
   const vern = await prisma.user.upsert({
     where: { email: "vern@test.no" },
-    update: {},
+    update: {
+      password: vernPassword,
+      emailVerified: new Date(),
+      failedLoginAttempts: 0,
+      lockedUntil: null,
+    },
     create: {
       email: "vern@test.no",
       name: "Verneombud Viken",
@@ -166,7 +181,12 @@ async function main() {
 
   const employee = await prisma.user.upsert({
     where: { email: "ansatt@test.no" },
-    update: {},
+    update: {
+      password: employeePassword,
+      emailVerified: new Date(),
+      failedLoginAttempts: 0,
+      lockedUntil: null,
+    },
     create: {
       email: "ansatt@test.no",
       name: "Ansatt Olsen",
@@ -188,7 +208,12 @@ async function main() {
 
   const bht = await prisma.user.upsert({
     where: { email: "bht@test.no" },
-    update: {},
+    update: {
+      password: bhtPassword,
+      emailVerified: new Date(),
+      failedLoginAttempts: 0,
+      lockedUntil: null,
+    },
     create: {
       email: "bht@test.no",
       name: "BHT Bruker",
@@ -210,7 +235,12 @@ async function main() {
 
   const auditor = await prisma.user.upsert({
     where: { email: "revisor@test.no" },
-    update: {},
+    update: {
+      password: auditorPassword,
+      emailVerified: new Date(),
+      failedLoginAttempts: 0,
+      lockedUntil: null,
+    },
     create: {
       email: "revisor@test.no",
       name: "Revisor Revidersen",
