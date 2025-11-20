@@ -1,281 +1,519 @@
 "use server";
 
-import { z } from "zod";
+import { z, ZodError } from "zod";
 import { prisma } from "@/lib/db";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
-import { FikenClient } from "@/lib/fiken";
+import { revalidatePath } from "next/cache";
+import bcrypt from "bcryptjs";
+import { sendEmail } from "@/lib/email";
 import { deleteTenantFiles } from "@/lib/storage";
-import { TenantStatus, SubscriptionPlan, BillingInterval, PricingTier } from "@prisma/client";
-import { calculatePricingTier, getPriceForEmployeeCount } from "@/lib/pricing";
-import { AuditLog } from "@/lib/audit-log";
 
-const createTenantSchema = z.object({
+// Valideringsskjemaer
+const updateTenantSchema = z.object({
+  tenantId: z.string(),
   name: z.string().min(2, "Navn må være minst 2 tegn"),
+  slug: z.string().min(2, "Slug må være minst 2 tegn").regex(/^[a-z0-9-]+$/, "Slug kan kun inneholde små bokstaver, tall og bindestrek"),
   orgNumber: z.string().optional(),
-  contactEmail: z.string().email(),
-  contactPhone: z.string().optional(),
-  contactPerson: z.string().min(2, "Kontaktperson er påkrevd"),
   address: z.string().optional(),
-  city: z.string().optional(),
   postalCode: z.string().optional(),
-  employeeCount: z.number().min(1),
-  pricingTier: z.nativeEnum(PricingTier).optional(),
-  industry: z.string(),
+  city: z.string().optional(),
+  contactPerson: z.string().optional(),
+  contactEmail: z.string().email("Ugyldig e-postadresse").optional(),
+  contactPhone: z.string().optional(),
+  employeeCount: z.number().int().positive("Antall ansatte må være positivt").optional(),
+  industry: z.string().optional(),
   notes: z.string().optional(),
-  salesRep: z.string(),
-  createInFiken: z.boolean().default(false),
 });
 
-export async function createTenant(input: z.infer<typeof createTenantSchema>) {
-  try {
-    const session = await getServerSession(authOptions);
-    if (!session?.user?.email) {
-      return { success: false, error: "Ikke autentisert" };
-    }
+const updateAdminEmailSchema = z.object({
+  tenantId: z.string(),
+  oldEmail: z.string().email(),
+  newEmail: z.string().email("Ugyldig e-postadresse"),
+});
 
-    const user = await prisma.user.findUnique({
-      where: { email: session.user.email },
+const resendActivationSchema = z.object({
+  tenantId: z.string(),
+  adminEmail: z.string().email(),
+  adminPassword: z.string().min(8, "Passord må være minst 8 tegn"),
+});
+
+const createTenantSchema = z.object({
+  name: z.string().min(2, "Bedriftsnavn må være minst 2 tegn"),
+  orgNumber: z.string().optional(),
+  contactPerson: z.string().min(2, "Kontaktperson er påkrevd"),
+  contactEmail: z.string().email("Ugyldig e-postadresse"),
+  contactPhone: z.string().optional(),
+  address: z.string().optional(),
+  postalCode: z.string().optional(),
+  city: z.string().optional(),
+  employeeCount: z.number().int().positive("Antall ansatte må være positivt"),
+  industry: z.string().optional(),
+  notes: z.string().optional(),
+  pricingTier: z.enum(["MICRO", "SMALL", "MEDIUM", "LARGE"]),
+  salesRep: z.string().optional(),
+  createInFiken: z.boolean().optional(),
+});
+
+/**
+ * Hent detaljert tenant-informasjon
+ */
+export async function getTenantDetails(tenantId: string) {
+  try {
+    const tenant = await prisma.tenant.findUnique({
+      where: { id: tenantId },
+      include: {
+        subscription: true,
+        users: {
+          include: {
+            user: {
+              select: {
+                id: true,
+                name: true,
+                email: true,
+                emailVerified: true,
+                createdAt: true,
+              },
+            },
+          },
+          orderBy: {
+            createdAt: "desc",
+          },
+        },
+        invoices: {
+          orderBy: {
+            createdAt: "desc",
+          },
+          take: 10,
+        },
+        _count: {
+          select: {
+            users: true,
+            documents: true,
+            incidents: true,
+            risks: true,
+          },
+        },
+      },
     });
 
-    if (!user?.isSuperAdmin && !user?.isSupport) {
-      return { success: false, error: "Ingen tilgang" };
+    if (!tenant) {
+      return { success: false, error: "Bedrift ikke funnet" };
     }
 
+    return { success: true, data: tenant };
+  } catch (error) {
+    console.error("Get tenant details error:", error);
+    return { success: false, error: "Kunne ikke hente bedriftsinformasjon" };
+  }
+}
+
+/**
+ * Oppdater tenant-informasjon
+ */
+export async function updateTenant(input: z.infer<typeof updateTenantSchema>) {
+  try {
+    const validated = updateTenantSchema.parse(input);
+
+    // Sjekk at slug er unik (unntatt for denne tenanten)
+    const existingSlug = await prisma.tenant.findFirst({
+      where: {
+        slug: validated.slug,
+        id: {
+          not: validated.tenantId,
+        },
+      },
+    });
+
+    if (existingSlug) {
+      return { success: false, error: "Denne slugen er allerede i bruk" };
+    }
+
+    const updatedTenant = await prisma.tenant.update({
+      where: { id: validated.tenantId },
+      data: {
+        name: validated.name,
+        slug: validated.slug,
+        orgNumber: validated.orgNumber,
+        address: validated.address,
+        postalCode: validated.postalCode,
+        city: validated.city,
+        contactPerson: validated.contactPerson,
+        contactEmail: validated.contactEmail,
+        contactPhone: validated.contactPhone,
+        employeeCount: validated.employeeCount,
+        industry: validated.industry,
+        notes: validated.notes,
+      },
+    });
+
+    revalidatePath(`/admin/tenants/${validated.tenantId}`);
+    revalidatePath("/admin/tenants");
+
+    return { success: true, data: updatedTenant };
+  } catch (error) {
+    console.error("Update tenant error:", error);
+    if (error instanceof ZodError) {
+      return { success: false, error: error.issues[0].message };
+    }
+    return { success: false, error: "Kunne ikke oppdatere bedriftsinformasjon" };
+  }
+}
+
+/**
+ * Oppdater admin-brukerens e-post
+ */
+export async function updateTenantAdminEmail(input: z.infer<typeof updateAdminEmailSchema>) {
+  try {
+    const validated = updateAdminEmailSchema.parse(input);
+
+    // Finn admin-brukeren
+    const userTenant = await prisma.userTenant.findFirst({
+      where: {
+        tenantId: validated.tenantId,
+        role: "ADMIN",
+        user: {
+          email: validated.oldEmail,
+        },
+      },
+      include: {
+        user: true,
+      },
+    });
+
+    if (!userTenant) {
+      return { success: false, error: "Admin-bruker ikke funnet" };
+    }
+
+    // Sjekk at ny e-post ikke er i bruk
+    const existingUser = await prisma.user.findUnique({
+      where: { email: validated.newEmail },
+    });
+
+    if (existingUser && existingUser.id !== userTenant.userId) {
+      return { success: false, error: "E-postadressen er allerede i bruk av en annen bruker" };
+    }
+
+    // Oppdater e-post
+    const updatedUser = await prisma.user.update({
+      where: { id: userTenant.userId },
+      data: {
+        email: validated.newEmail,
+        emailVerified: new Date(), // Automatisk verifiser admin
+      },
+    });
+
+    // Send bekreftelse på e-post
+    await sendEmail({
+      to: validated.newEmail,
+      subject: "E-postadresse oppdatert - HMS Nova",
+      html: `
+        <h1>E-postadresse oppdatert</h1>
+        <p>Hei ${updatedUser.name},</p>
+        <p>Din e-postadresse for HMS Nova har blitt oppdatert til: <strong>${validated.newEmail}</strong></p>
+        <p>Du kan nå logge inn med denne e-postadressen.</p>
+        <br>
+        <p>Hilsen HMS Nova teamet</p>
+      `,
+    });
+
+    revalidatePath(`/admin/tenants/${validated.tenantId}`);
+
+    return { success: true, data: updatedUser };
+  } catch (error) {
+    console.error("Update admin email error:", error);
+    if (error instanceof ZodError) {
+      return { success: false, error: error.issues[0].message };
+    }
+    return { success: false, error: "Kunne ikke oppdatere e-postadresse" };
+  }
+}
+
+/**
+ * Send aktivering på nytt
+ */
+export async function resendActivationEmail(input: z.infer<typeof resendActivationSchema>) {
+  try {
+    const validated = resendActivationSchema.parse(input);
+
+    const tenant = await prisma.tenant.findUnique({
+      where: { id: validated.tenantId },
+    });
+
+    if (!tenant) {
+      return { success: false, error: "Bedrift ikke funnet" };
+    }
+
+    // Finn eller opprett admin-bruker
+    let user = await prisma.user.findUnique({
+      where: { email: validated.adminEmail },
+      include: {
+        tenants: {
+          where: {
+            tenantId: validated.tenantId,
+          },
+        },
+      },
+    });
+
+    const hashedPassword = await bcrypt.hash(validated.adminPassword, 10);
+
+    if (!user) {
+      // Opprett ny bruker
+      user = await prisma.user.create({
+        data: {
+          email: validated.adminEmail,
+          name: tenant.contactPerson || "Admin",
+          password: hashedPassword,
+          emailVerified: new Date(),
+          tenants: {
+            create: {
+              tenantId: validated.tenantId,
+              role: "ADMIN",
+            },
+          },
+        },
+        include: {
+          tenants: {
+            where: {
+              tenantId: validated.tenantId,
+            },
+          },
+        },
+      });
+    } else if (user.tenants.length === 0) {
+      // Koble eksisterende bruker til tenant
+      await prisma.userTenant.create({
+        data: {
+          userId: user.id,
+          tenantId: validated.tenantId,
+          role: "ADMIN",
+        },
+      });
+
+      // Oppdater passord
+      await prisma.user.update({
+        where: { id: user.id },
+        data: {
+          password: hashedPassword,
+          emailVerified: new Date(),
+        },
+      });
+    } else {
+      // Oppdater eksisterende bruker
+      await prisma.user.update({
+        where: { id: user.id },
+        data: {
+          password: hashedPassword,
+          emailVerified: new Date(),
+        },
+      });
+    }
+
+    // Send aktiverings-e-post
+    await sendEmail({
+      to: validated.adminEmail,
+      subject: `Velkommen til HMS Nova - ${tenant.name}`,
+      html: `
+        <h1>Velkommen til HMS Nova!</h1>
+        <p>Din bedrift, <strong>${tenant.name}</strong>, er nå aktivert.</p>
+        
+        <h2>Påloggingsinformasjon</h2>
+        <p>
+          <strong>URL:</strong> ${process.env.NEXT_PUBLIC_APP_URL}/login<br>
+          <strong>E-post:</strong> ${validated.adminEmail}<br>
+          <strong>Passord:</strong> (det du nettopp satte)
+        </p>
+
+        <p>Du har nå tilgang til systemet og kan begynne å bruke HMS Nova.</p>
+        
+        <p style="margin-top: 20px;">
+          <a href="${process.env.NEXT_PUBLIC_APP_URL}/login" style="background-color: #0070f3; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; display: inline-block;">
+            Logg inn nå
+          </a>
+        </p>
+
+        <p style="margin-top: 30px; color: #666; font-size: 14px;">
+          Hvis du har spørsmål, kontakt oss på support@hmsnova.no
+        </p>
+        
+        <p>Hilsen HMS Nova teamet</p>
+      `,
+    });
+
+    revalidatePath(`/admin/tenants/${validated.tenantId}`);
+
+    return { success: true };
+  } catch (error) {
+    console.error("Resend activation error:", error);
+    if (error instanceof ZodError) {
+      return { success: false, error: error.issues[0].message };
+    }
+    return { success: false, error: "Kunne ikke sende aktiverings-e-post" };
+  }
+}
+
+/**
+ * Endre tenant-status
+ */
+export async function toggleTenantStatus(tenantId: string, newStatus: "ACTIVE" | "SUSPENDED" | "CANCELLED") {
+  try {
+    const updatedTenant = await prisma.tenant.update({
+      where: { id: tenantId },
+      data: { status: newStatus },
+    });
+
+    revalidatePath(`/admin/tenants/${tenantId}`);
+    revalidatePath("/admin/tenants");
+
+    return { success: true, data: updatedTenant };
+  } catch (error) {
+    console.error("Toggle tenant status error:", error);
+    return { success: false, error: "Kunne ikke endre status" };
+  }
+}
+
+/**
+ * Opprett ny tenant (CRM/Onboarding)
+ */
+export async function createTenant(input: z.infer<typeof createTenantSchema>) {
+  try {
     const validated = createTenantSchema.parse(input);
 
-    // Generer slug fra bedriftsnavn
+    // Generer slug fra navn
     const slug = validated.name
       .toLowerCase()
       .replace(/[^a-z0-9]+/g, "-")
-      .replace(/(^-|-$)/g, "");
+      .replace(/^-|-$/g, "");
 
-    // Sjekk om slug allerede eksisterer
-    const existing = await prisma.tenant.findUnique({
+    // Sjekk at slug er unik
+    const existingSlug = await prisma.tenant.findUnique({
       where: { slug },
     });
 
-    if (existing) {
-      // Legg til timestamp for å gjøre den unik
-      const uniqueSlug = `${slug}-${Date.now()}`;
-      return { success: false, error: `Slug "${slug}" er allerede i bruk. Foreslår: ${uniqueSlug}` };
+    if (existingSlug) {
+      return { 
+        success: false, 
+        error: `En bedrift med slug "${slug}" eksisterer allerede. Vennligst endre bedriftsnavnet litt.` 
+      };
     }
 
-    // Beregn pricing tier og pris
-    const pricingTier = validated.pricingTier || calculatePricingTier(validated.employeeCount);
-    const yearlyPrice = getPriceForEmployeeCount(validated.employeeCount, true);
-
-    let fikenCompanyId: string | undefined;
-
-    // Opprett kunde i Fiken hvis ønsket
-    if (validated.createInFiken && process.env.FIKEN_API_TOKEN && process.env.FIKEN_COMPANY_SLUG) {
-      try {
-        const fikenClient = new FikenClient({
-          apiToken: process.env.FIKEN_API_TOKEN,
-          companySlug: process.env.FIKEN_COMPANY_SLUG,
-        });
-
-        const fikenCustomer = await fikenClient.createCustomer({
-          name: validated.name,
-          organizationNumber: validated.orgNumber,
-          email: validated.contactEmail,
-          phone: validated.contactPhone,
-          address: {
-            streetAddress: validated.address,
-            city: validated.city,
-            postalCode: validated.postalCode,
-            country: "NO",
-          },
-        }) as any;
-
-        fikenCompanyId = fikenCustomer?.contactId;
-      } catch (error) {
-        console.error("Fiken error:", error);
-        // Fortsett selv om Fiken feiler
-      }
-    }
-
-    // Opprett tenant med subscription og CRM-data
+    // Opprett tenant med subscription
     const tenant = await prisma.tenant.create({
       data: {
         name: validated.name,
         slug,
         orgNumber: validated.orgNumber,
+        address: validated.address,
+        postalCode: validated.postalCode,
+        city: validated.city,
+        contactPerson: validated.contactPerson,
         contactEmail: validated.contactEmail,
         contactPhone: validated.contactPhone,
-        contactPerson: validated.contactPerson,
-        address: validated.address,
-        city: validated.city,
-        postalCode: validated.postalCode,
-        fikenCompanyId,
-        // CRM/Onboarding fields
         employeeCount: validated.employeeCount,
-        pricingTier,
         industry: validated.industry,
         notes: validated.notes,
+        pricingTier: validated.pricingTier,
         salesRep: validated.salesRep,
-        onboardingStatus: "NOT_STARTED",
         status: "TRIAL",
+        onboardingStatus: "NOT_STARTED",
         trialEndsAt: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000), // 14 dager
-        subscription: {
-          create: {
-            plan: pricingTier === "MICRO" || pricingTier === "SMALL" ? "STARTER" : pricingTier === "MEDIUM" ? "PROFESSIONAL" : "ENTERPRISE",
-            price: yearlyPrice,
-            billingInterval: "YEARLY",
-            status: "TRIAL",
-            currentPeriodStart: new Date(),
-            currentPeriodEnd: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000),
+        // Subscription opprettes når tenant aktiveres
+      },
+    });
+
+    revalidatePath("/admin/tenants");
+    revalidatePath("/admin/registrations");
+
+    return { 
+      success: true, 
+      data: tenant,
+      message: "Bedrift opprettet. Du kan nå aktivere den ved å sende påloggingsinformasjon til admin." 
+    };
+  } catch (error) {
+    console.error("Create tenant error:", error);
+    if (error instanceof ZodError) {
+      return { success: false, error: error.issues[0].message };
+    }
+    return { success: false, error: "Kunne ikke opprette bedrift" };
+  }
+}
+
+/**
+ * Slett tenant permanent (inkludert alle filer i R2 Cloud)
+ * ADVARSEL: Denne operasjonen kan ikke angres!
+ */
+export async function deleteTenant(tenantId: string, confirmationText: string) {
+  try {
+    // Hent tenant først for å verifisere navn
+    const tenant = await prisma.tenant.findUnique({
+      where: { id: tenantId },
+      include: {
+        _count: {
+          select: {
+            users: true,
+            documents: true,
+            incidents: true,
+            risks: true,
+            trainings: true,
+            audits: true,
+            goals: true,
+            chemicals: true,
+            formTemplates: true,
+            invoices: true,
           },
         },
       },
-      include: {
-        subscription: true,
-      },
     });
 
-    // Audit log
-    await AuditLog.log(
-      "superadmin",
-      user.id,
-      "TENANT_CREATED",
-      "Tenant",
-      tenant.id,
-      {
-        name: tenant.name,
-        employeeCount: validated.employeeCount,
-        pricingTier,
-        yearlyPrice,
-        salesRep: validated.salesRep,
-      }
-    );
-
-    return { success: true, data: tenant };
-  } catch (error: any) {
-    if (error instanceof z.ZodError) {
-      return { success: false, error: "Ugyldig data: " + error.issues.map((e: any) => e.message).join(", ") };
-    }
-    console.error("Create tenant error:", error);
-    return { success: false, error: error.message || "Noe gikk galt" };
-  }
-}
-
-const updateTenantStatusSchema = z.object({
-  tenantId: z.string().cuid(),
-  status: z.nativeEnum(TenantStatus),
-});
-
-export async function updateTenantStatus(input: z.infer<typeof updateTenantStatusSchema>) {
-  try {
-    const session = await getServerSession(authOptions);
-    if (!session?.user?.email) {
-      return { success: false, error: "Ikke autentisert" };
+    if (!tenant) {
+      return { success: false, error: "Bedrift ikke funnet" };
     }
 
-    const user = await prisma.user.findUnique({
-      where: { email: session.user.email },
-    });
-
-    if (!user?.isSuperAdmin) {
-      return { success: false, error: "Ingen tilgang" };
+    // SIKKERHET: Verifiser at confirmationText matcher tenant.name
+    if (confirmationText !== tenant.name) {
+      return { 
+        success: false, 
+        error: `Bekreftelse mislyktes. Skriv inn bedriftsnavnet nøyaktig: "${tenant.name}"` 
+      };
     }
 
-    const validated = updateTenantStatusSchema.parse(input);
-
-    const tenant = await prisma.tenant.update({
-      where: { id: validated.tenantId },
-      data: { status: validated.status },
-    });
-
-    return { success: true, data: tenant };
-  } catch (error) {
-    if (error instanceof z.ZodError) {
-      return { success: false, error: "Ugyldig data" };
-    }
-    console.error("Update tenant status error:", error);
-    return { success: false, error: "Noe gikk galt" };
-  }
-}
-
-export async function deleteTenant(tenantId: string) {
-  try {
-    const session = await getServerSession(authOptions);
-    if (!session?.user?.email) {
-      return { success: false, error: "Ikke autentisert" };
+    // SIKKERHET: Bare tillat sletting hvis status er CANCELLED eller SUSPENDED
+    if (tenant.status === "ACTIVE" || tenant.status === "TRIAL") {
+      return {
+        success: false,
+        error: "Kan ikke slette en aktiv bedrift. Endre status til CANCELLED eller SUSPENDED først.",
+      };
     }
 
-    const user = await prisma.user.findUnique({
-      where: { email: session.user.email },
-    });
+    console.log(`[DELETE TENANT] Starter sletting av tenant: ${tenant.name} (${tenantId})`);
+    console.log(`[DELETE TENANT] Antall relaterte records:`, tenant._count);
 
-    if (!user?.isSuperAdmin) {
-      return { success: false, error: "Ingen tilgang" };
-    }
-
-    // Slett alle filer fra storage (R2/lokal)
-    console.log(`Sletter filer for tenant ${tenantId}...`);
+    // Steg 1: Slett alle filer i R2 Cloud
+    console.log(`[DELETE TENANT] Sletter filer fra R2 Cloud...`);
     const fileResult = await deleteTenantFiles(tenantId);
-    console.log(`Slettet ${fileResult.deleted} filer, ${fileResult.errors} feil`);
+    console.log(`[DELETE TENANT] R2 Cloud: ${fileResult.deleted} filer slettet, ${fileResult.errors} feil`);
 
-    // Slett tenant fra database (cascade vil slette relaterte data)
+    // Steg 2: Slett tenant fra database (Prisma onDelete: Cascade håndterer alle relasjoner)
+    console.log(`[DELETE TENANT] Sletter tenant fra database...`);
     await prisma.tenant.delete({
       where: { id: tenantId },
     });
 
-    return { 
-      success: true, 
-      data: { 
-        filesDeleted: fileResult.deleted,
-        fileErrors: fileResult.errors,
-      } 
+    console.log(`[DELETE TENANT] ✅ Tenant slettet: ${tenant.name}`);
+
+    revalidatePath("/admin/tenants");
+    revalidatePath("/admin/registrations");
+
+    return {
+      success: true,
+      message: `Bedrift "${tenant.name}" og alle tilhørende data er permanent slettet. ${fileResult.deleted} filer fjernet fra R2 Cloud.`,
+      filesDeleted: fileResult.deleted,
+      fileErrors: fileResult.errors,
     };
   } catch (error) {
     console.error("Delete tenant error:", error);
-    return { success: false, error: "Kunne ikke slette tenant" };
-  }
-}
-
-export async function syncAllInvoices() {
-  try {
-    const session = await getServerSession(authOptions);
-    if (!session?.user?.email) {
-      return { success: false, error: "Ikke autentisert" };
-    }
-
-    const user = await prisma.user.findUnique({
-      where: { email: session.user.email },
-    });
-
-    if (!user?.isSuperAdmin) {
-      return { success: false, error: "Ingen tilgang" };
-    }
-
-    const tenants = await prisma.tenant.findMany({
-      where: {
-        fikenCompanyId: { not: null },
-      },
-    });
-
-    const { syncInvoiceStatus } = await import("@/lib/fiken");
-
-    let syncedCount = 0;
-    for (const tenant of tenants) {
-      try {
-        await syncInvoiceStatus(tenant.id);
-        syncedCount++;
-      } catch (error) {
-        console.error(`Failed to sync tenant ${tenant.id}:`, error);
-      }
-    }
-
     return { 
-      success: true, 
-      data: { 
-        syncedCount, 
-        totalCount: tenants.length 
-      } 
+      success: false, 
+      error: "Kunne ikke slette bedrift. Se server-logg for detaljer." 
     };
-  } catch (error) {
-    console.error("Sync all invoices error:", error);
-    return { success: false, error: "Noe gikk galt" };
   }
 }

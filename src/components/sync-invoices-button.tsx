@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { RefreshCw } from "lucide-react";
-import { syncAllInvoices } from "@/server/actions/tenant.actions";
+import { syncInvoicesWithFiken } from "@/server/actions/invoice.actions";
 import { useRouter } from "next/navigation";
 
 export function SyncInvoicesButton() {
@@ -13,9 +13,9 @@ export function SyncInvoicesButton() {
   const handleSync = async () => {
     setLoading(true);
     try {
-      const result = await syncAllInvoices();
+      const result = await syncInvoicesWithFiken();
       if (result.success) {
-        alert(`Synkronisert ${result.data?.syncedCount} av ${result.data?.totalCount} bedrifter`);
+        alert(`Synkronisert: ${result.updated} oppdatert, ${result.reactivated} reaktivert`);
         router.refresh();
       } else {
         alert(`Feil: ${result.error}`);
