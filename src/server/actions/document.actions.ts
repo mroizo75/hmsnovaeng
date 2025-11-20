@@ -88,7 +88,7 @@ export async function createDocument(formData: FormData) {
     // Sjekk tilgang
     const context = await requirePermission("canCreateDocuments");
 
-    const file = formData.get("file") as File | null;
+    const fileEntry = formData.get("file");
     const changeComment = formData.get("changeComment") as string | null;
     const visibleToRolesStr = formData.get("visibleToRoles") as string | null;
     const data = {
@@ -98,11 +98,13 @@ export async function createDocument(formData: FormData) {
       version: formData.get("version") as string || "v1.0",
     };
 
-    const validated = createDocumentSchema.parse({ ...data, file: file || undefined });
-
-    if (!file) {
+    // Valider at fil er en Blob (File extends Blob)
+    if (!fileEntry || typeof fileEntry === "string") {
       return { success: false, error: "Fil er påkrevd" };
     }
+
+    const file = fileEntry as Blob & { name: string };
+    const validated = createDocumentSchema.parse({ ...data, file });
 
     // Generer slug fra tittel
     const baseSlug = validated.title
@@ -199,13 +201,16 @@ export async function uploadNewVersion(formData: FormData) {
     const context = await requirePermission("canCreateDocuments");
 
     const documentId = formData.get("documentId") as string;
-    const file = formData.get("file") as File | null;
+    const fileEntry = formData.get("file");
     const version = formData.get("version") as string;
     const changeComment = formData.get("changeComment") as string;
 
-    if (!file || !version || !changeComment) {
+    // Valider at fil er en Blob (File extends Blob)
+    if (!fileEntry || typeof fileEntry === "string" || !version || !changeComment) {
       return { success: false, error: "Fil, versjon og endringskommentar er påkrevd" };
     }
+
+    const file = fileEntry as Blob & { name: string };
 
     const document = await prisma.document.findUnique({
       where: { id: documentId },

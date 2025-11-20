@@ -6,7 +6,7 @@ export const createDocumentSchema = z.object({
   kind: z.nativeEnum(DocumentKind),
   title: z.string().min(3, "Tittel må være minst 3 tegn"),
   version: z.string().min(1, "Versjon er påkrevd").default("v1.0"),
-  file: z.instanceof(File).optional(),
+  file: z.any().optional(), // Blob | File - valideres ved runtime
 });
 
 export const updateDocumentSchema = z.object({

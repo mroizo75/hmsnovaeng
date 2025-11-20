@@ -4,7 +4,7 @@ import fs from "fs/promises";
 import path from "path";
 
 export interface StorageAdapter {
-  upload(key: string, file: File | Buffer, metadata?: Record<string, string>): Promise<string>;
+  upload(key: string, file: Blob | Buffer, metadata?: Record<string, string>): Promise<string>;
   getUrl(key: string, expiresIn?: number): Promise<string>;
   delete(key: string): Promise<void>;
 }
@@ -27,8 +27,8 @@ export class R2Storage implements StorageAdapter {
     this.bucket = process.env.R2_BUCKET || process.env.S3_BUCKET || "hmsnova";
   }
 
-  async upload(key: string, file: File | Buffer, metadata?: Record<string, string>): Promise<string> {
-    const buffer = file instanceof File ? Buffer.from(await file.arrayBuffer()) : file;
+  async upload(key: string, file: Blob | Buffer, metadata?: Record<string, string>): Promise<string> {
+    const buffer = file instanceof Buffer ? file : Buffer.from(await (file as Blob).arrayBuffer());
     
     // Fjern metadata for å unngå encoding-problemer med norske tegn
     await this.client.send(
@@ -36,7 +36,7 @@ export class R2Storage implements StorageAdapter {
         Bucket: this.bucket,
         Key: key,
         Body: buffer,
-        ContentType: file instanceof File ? file.type : "application/octet-stream",
+        ContentType: file instanceof Buffer ? "application/octet-stream" : (file as Blob).type || "application/octet-stream",
       })
     );
 
@@ -70,8 +70,8 @@ export class LocalStorage implements StorageAdapter {
     this.basePath = process.env.LOCAL_STORAGE_PATH || path.join(process.cwd(), "storage");
   }
 
-  async upload(key: string, file: File | Buffer): Promise<string> {
-    const buffer = file instanceof File ? Buffer.from(await file.arrayBuffer()) : file;
+  async upload(key: string, file: Blob | Buffer): Promise<string> {
+    const buffer = file instanceof Buffer ? file : Buffer.from(await (file as Blob).arrayBuffer());
     const filePath = path.join(this.basePath, key);
     
     // Opprett mapper hvis de ikke eksisterer

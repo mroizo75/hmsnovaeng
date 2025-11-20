@@ -308,7 +308,7 @@ export async function resendActivationEmail(input: z.infer<typeof resendActivati
       });
     }
 
-    // Send aktiverings-e-post
+    // Send aktiverings-e-post med klartekst-passord
     await sendEmail({
       to: validated.adminEmail,
       subject: `Velkommen til HMS Nova - ${tenant.name}`,
@@ -317,11 +317,24 @@ export async function resendActivationEmail(input: z.infer<typeof resendActivati
         <p>Din bedrift, <strong>${tenant.name}</strong>, er nå aktivert.</p>
         
         <h2>Påloggingsinformasjon</h2>
-        <p>
-          <strong>URL:</strong> ${process.env.NEXT_PUBLIC_APP_URL}/login<br>
-          <strong>E-post:</strong> ${validated.adminEmail}<br>
-          <strong>Passord:</strong> (det du nettopp satte)
-        </p>
+        <div style="background-color: #f5f5f5; padding: 20px; border-radius: 8px; margin: 20px 0;">
+          <p style="margin: 0 0 10px 0;">
+            <strong>URL:</strong> <a href="${process.env.NEXT_PUBLIC_APP_URL}/login">${process.env.NEXT_PUBLIC_APP_URL}/login</a>
+          </p>
+          <p style="margin: 0 0 10px 0;">
+            <strong>E-post:</strong> ${validated.adminEmail}
+          </p>
+          <p style="margin: 0;">
+            <strong>Passord:</strong> <code style="background-color: #fff; padding: 4px 8px; border-radius: 4px; font-size: 16px;">${validated.adminPassword}</code>
+          </p>
+        </div>
+
+        <div style="background-color: #fff3cd; border-left: 4px solid #ffc107; padding: 15px; margin: 20px 0;">
+          <p style="margin: 0; font-size: 14px;">
+            <strong>⚠️ Viktig:</strong> Vi anbefaler at du endrer dette passordet etter første innlogging. 
+            Du kan gjøre dette under "Min profil" når du er logget inn.
+          </p>
+        </div>
 
         <p>Du har nå tilgang til systemet og kan begynne å bruke HMS Nova.</p>
         
