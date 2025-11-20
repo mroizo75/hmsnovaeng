@@ -70,9 +70,9 @@ export default function LoginPage() {
     <div className="flex min-h-screen items-center justify-center bg-secondary p-4">
       <Card className="w-full max-w-md">
         <CardHeader className="space-y-1">
-          <CardTitle className="text-2xl font-bold">HMS Nova logg inn</CardTitle>
-          <Image src="/logo-nova.png" alt="HMS Nova" width={100} height={100} />
-          <CardDescription>
+          {/* <CardTitle className="text-2xl font-bold">HMS Nova logg inn</CardTitle> */}
+          <Image src="/logo-nova.png" alt="HMS Nova" width={150} height={150} className="mx-auto" />
+          <CardDescription className="text-center text-xl md:text-lg">
             Logg inn med din e-post og passord
           </CardDescription>
         </CardHeader>
