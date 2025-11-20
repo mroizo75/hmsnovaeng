@@ -29,17 +29,17 @@ export default async function AdminUsersPage({
   const currentPage = Number(params.page) || 1;
   const searchTerm = params.search || "";
 
-  // Bygg søkefilter
+  // Bygg søkefilter (MySQL bruker contains uten mode parameter)
   const searchFilter = searchTerm
     ? {
         OR: [
-          { email: { contains: searchTerm, mode: "insensitive" as const } },
-          { name: { contains: searchTerm, mode: "insensitive" as const } },
+          { email: { contains: searchTerm } },
+          { name: { contains: searchTerm } },
           {
             tenants: {
               some: {
                 tenant: {
-                  name: { contains: searchTerm, mode: "insensitive" as const },
+                  name: { contains: searchTerm },
                 },
               },
             },
