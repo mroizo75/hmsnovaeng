@@ -10,7 +10,13 @@ import { authOptions } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { SessionUser } from "@/types";
 
-export default async function AdminUsersPage() {
+const ITEMS_PER_PAGE = 20;
+
+export default async function AdminUsersPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ page?: string; search?: string }>;
+}) {
   const session = await getServerSession(authOptions);
   const user = session?.user as SessionUser;
 
@@ -18,7 +24,38 @@ export default async function AdminUsersPage() {
   if (!user?.isSuperAdmin) {
     redirect("/admin");
   }
+
+  const params = await searchParams;
+  const currentPage = Number(params.page) || 1;
+  const searchTerm = params.search || "";
+
+  // Bygg søkefilter
+  const searchFilter = searchTerm
+    ? {
+        OR: [
+          { email: { contains: searchTerm, mode: "insensitive" as const } },
+          { name: { contains: searchTerm, mode: "insensitive" as const } },
+          {
+            tenants: {
+              some: {
+                tenant: {
+                  name: { contains: searchTerm, mode: "insensitive" as const },
+                },
+              },
+            },
+          },
+        ],
+      }
+    : {};
+
+  // Tell totalt antall brukere (med filter)
+  const totalUsers = await prisma.user.count({
+    where: searchFilter,
+  });
+
+  // Hent brukere med paginering (og filter)
   const users = await prisma.user.findMany({
+    where: searchFilter,
     include: {
       tenants: {
         include: {
@@ -27,7 +64,11 @@ export default async function AdminUsersPage() {
       },
     },
     orderBy: { createdAt: "desc" },
+    skip: (currentPage - 1) * ITEMS_PER_PAGE,
+    take: ITEMS_PER_PAGE,
   });
+
+  const totalPages = Math.ceil(totalUsers / ITEMS_PER_PAGE);
 
   const stats = {
     total: users.length,
@@ -99,11 +140,15 @@ export default async function AdminUsersPage() {
         <CardHeader>
           <CardTitle>Alle brukere</CardTitle>
           <CardDescription>
-            Oversikt over alle brukere i systemet
+            Oversikt over alle brukere i systemet • Side {currentPage} av {totalPages}
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <AdminUserList users={users} />
+          <AdminUserList 
+            users={users} 
+            currentPage={currentPage}
+            totalPages={totalPages}
+          />
         </CardContent>
       </Card>
     </div>
