@@ -15,13 +15,13 @@ const hasUpstashConfig =
 if (hasUpstashConfig) {
   try {
     redis = Redis.fromEnv();
-    console.log('[Notifications] Upstash Redis initialized (REST mode - database-only, no real-time)');
+    console.log('✅ [Notifications] Upstash Redis connected - Varsler lagres i database');
   } catch (error) {
-    console.warn('[Notifications] Upstash Redis initialization failed:', error);
+    console.warn('⚠️ [Notifications] Upstash Redis feilet - varsler lagres fortsatt i database');
     redis = null;
   }
 } else {
-  console.log('[Notifications] No Redis config - using database-only mode');
+  console.log('ℹ️ [Notifications] Varsler lagres i MySQL database');
 }
 
 interface CreateNotificationInput {

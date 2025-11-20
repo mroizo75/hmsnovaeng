@@ -186,6 +186,7 @@ export async function activateTenant(input: z.infer<typeof activateTenantSchema>
           email: validated.adminEmail,
           name: validated.adminName,
           password: hashedPassword,
+          emailVerified: new Date(), // Admin-bruker er automatisk verifisert
           tenants: {
             create: {
               tenantId: validated.tenantId,
