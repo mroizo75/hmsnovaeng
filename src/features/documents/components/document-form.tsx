@@ -49,8 +49,22 @@ export function DocumentForm({ tenantId }: DocumentFormProps) {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [selectedRoles, setSelectedRoles] = useState<string[]>([]);
 
+  // Maks 50MB for dokumenter
+  const MAX_FILE_SIZE = 50 * 1024 * 1024; // 50MB
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+
+    // Valider filstørrelse før opplasting
+    if (selectedFile && selectedFile.size > MAX_FILE_SIZE) {
+      toast({
+        variant: "destructive",
+        title: "⚠️ Filen er for stor",
+        description: `Maksimal filstørrelse er 50 MB. Din fil er ${(selectedFile.size / (1024 * 1024)).toFixed(2)} MB.`,
+      });
+      return;
+    }
+
     setLoading(true);
 
     const formData = new FormData(e.currentTarget);
@@ -80,12 +94,21 @@ export function DocumentForm({ tenantId }: DocumentFormProps) {
           description: result.error || "Kunne ikke laste opp dokument",
         });
       }
-    } catch (error) {
-      toast({
-        variant: "destructive",
-        title: "Uventet feil",
-        description: "Noe gikk galt ved opplasting av dokument",
-      });
+    } catch (error: any) {
+      // Håndter 413 Content Too Large spesifikt
+      if (error?.message?.includes("413") || error?.status === 413) {
+        toast({
+          variant: "destructive",
+          title: "⚠️ Filen er for stor",
+          description: "Maksimal filstørrelse er 50 MB. Prøv å komprimere filen eller last opp en mindre versjon.",
+        });
+      } else {
+        toast({
+          variant: "destructive",
+          title: "Uventet feil",
+          description: "Noe gikk galt ved opplasting av dokument. Prøv igjen senere.",
+        });
+      }
     } finally {
       setLoading(false);
     }
@@ -156,11 +179,11 @@ export function DocumentForm({ tenantId }: DocumentFormProps) {
             </div>
             {selectedFile && (
               <p className="text-sm text-muted-foreground">
-                Valgt: {selectedFile.name} ({(selectedFile.size / 1024).toFixed(2)} KB)
+                Valgt: {selectedFile.name} ({(selectedFile.size / (1024 * 1024)).toFixed(2)} MB)
               </p>
             )}
             <p className="text-xs text-muted-foreground">
-              Støttede formater: PDF, Word, Excel, TXT
+              Støttede formater: PDF, Word, Excel, TXT • Maks 50 MB
             </p>
           </div>
 
