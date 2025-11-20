@@ -169,6 +169,21 @@ export function UserManagement({ users, currentUserId, isAdmin, pricingTier, max
     }
   };
 
+  // Finn pakkenavn basert på pricing tier
+  const getPlanName = (tier: string | null) => {
+    switch (tier) {
+      case "MICRO":
+        return "Små bedrifter (1-20 ansatte)";
+      case "SMALL":
+        return "Mellomstore bedrifter (21-50 ansatte)";
+      case "MEDIUM":
+      case "LARGE":
+        return "Store bedrifter (51+ ansatte)";
+      default:
+        return "Standard pakke";
+    }
+  };
+
   return (
     <Card>
       <CardHeader>
@@ -176,25 +191,30 @@ export function UserManagement({ users, currentUserId, isAdmin, pricingTier, max
           <div>
             <CardTitle className="flex items-center gap-2">
               <User className="h-5 w-5" />
-              Brukere ({currentUserCount} / {maxUsers})
+              Brukere ({currentUserCount} / {maxUsers === 999 ? "∞" : maxUsers})
             </CardTitle>
             <CardDescription>
-              Administrer brukere og deres tilgang
+              Administrer brukere og deres tilgang • {getPlanName(pricingTier)}
             </CardDescription>
           </div>
         </div>
 
           {isAdmin && (
             <div className="flex flex-col items-end gap-2">
-              {remainingSlots <= 3 && remainingSlots > 0 && (
+              {remainingSlots <= 3 && remainingSlots > 0 && maxUsers !== 999 && (
                 <div className="flex items-center gap-1 text-xs text-amber-600">
                   <AlertCircle className="h-3 w-3" />
                   <span>{remainingSlots} ledig{remainingSlots === 1 ? '' : 'e'} plass{remainingSlots === 1 ? '' : 'er'}</span>
                 </div>
               )}
+              {maxUsers === 999 && (
+                <div className="flex items-center gap-1 text-xs text-green-600">
+                  <span>Ubegrenset brukere ✓</span>
+                </div>
+              )}
               <Dialog open={inviteOpen} onOpenChange={setInviteOpen}>
                 <DialogTrigger asChild>
-                  <Button disabled={hasReachedLimit}>
+                  <Button disabled={hasReachedLimit && maxUsers !== 999}>
                     <UserPlus className="mr-2 h-4 w-4" />
                     Inviter bruker
                   </Button>

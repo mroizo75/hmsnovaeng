@@ -16,49 +16,50 @@ export interface SubscriptionLimits {
 
 /**
  * Hent grenser og info for en gitt pricing tier
- * Speiler prisene fra /priser siden
+ * Speiler prisene fra /priser siden (hmsnova.no/priser)
  */
 export function getSubscriptionLimits(tier: PricingTier | null): SubscriptionLimits {
   switch (tier) {
     case "MICRO":
-      // Micro/Trial pakke (ikke brukt i produksjon, kun for testing)
-      return {
-        maxUsers: 5,
-        price: 0,
-        name: "Trial",
-        description: "Prøveperiode (maks 5 brukere)",
-      };
-    case "SMALL":
-      // Liten bedrift: 1-20 ansatte
+      // Små bedrifter: 1-20 ansatte
       return {
         maxUsers: 20,
         price: 6000,
-        name: "Liten bedrift",
-        description: "1-20 ansatte",
+        name: "Små bedrifter",
+        description: "Opptil 20 brukere inkludert",
       };
-    case "MEDIUM":
-      // Medium bedrift: 21-50 ansatte
+    case "SMALL":
+      // Mellomstore bedrifter: 21-50 ansatte
       return {
         maxUsers: 50,
         price: 8000,
-        name: "Medium bedrift",
-        description: "21-50 ansatte",
+        name: "Mellomstore bedrifter",
+        description: "Opptil 50 brukere inkludert",
+      };
+    case "MEDIUM":
+      // Store bedrifter: 51+ ansatte (ubegrenset)
+      return {
+        maxUsers: 999, // "Ubegrenset" i praksis
+        price: 12000,
+        name: "Store bedrifter",
+        description: "Ubegrenset brukere",
       };
     case "LARGE":
-      // Stor bedrift: 51+ ansatte
+      // DEPRECATED: Bruk MEDIUM for store bedrifter
+      // Beholdt for bakoverkompatibilitet
       return {
-        maxUsers: 999, // "Ubegrenset" for store bedrifter
+        maxUsers: 999,
         price: 12000,
-        name: "Stor bedrift",
-        description: "51+ ansatte",
+        name: "Store bedrifter",
+        description: "Ubegrenset brukere",
       };
     default:
-      // Default til SMALL hvis ikke satt (standard pakke)
+      // Default til MICRO hvis ikke satt (standard pakke)
       return {
         maxUsers: 20,
         price: 6000,
-        name: "Liten bedrift",
-        description: "1-20 ansatte",
+        name: "Små bedrifter",
+        description: "Opptil 20 brukere inkludert",
       };
   }
 }
@@ -73,10 +74,11 @@ export function hasReachedUserLimit(currentUsers: number, tier: PricingTier | nu
 
 /**
  * Få anbefalt tier basert på antall ansatte
+ * Matcher prisstruktur fra hmsnova.no/priser
  */
 export function getRecommendedTier(employeeCount: number): PricingTier {
-  if (employeeCount <= 20) return "SMALL";
-  if (employeeCount <= 50) return "MEDIUM";
-  return "LARGE";
+  if (employeeCount <= 20) return "MICRO";  // Små bedrifter
+  if (employeeCount <= 50) return "SMALL";  // Mellomstore bedrifter
+  return "MEDIUM";  // Store bedrifter (51+)
 }
 

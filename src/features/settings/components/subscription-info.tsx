@@ -38,12 +38,15 @@ export function SubscriptionInfo({ tenant }: SubscriptionInfoProps) {
 
   const getPlanLabel = (plan: string) => {
     switch (plan) {
-      case "BASIC":
-        return "Basic";
+      case "STARTER":
+        return "Små bedrifter (1-20 ansatte)";
       case "PROFESSIONAL":
-        return "Professional";
+        return "Mellomstore bedrifter (21-50 ansatte)";
       case "ENTERPRISE":
-        return "Enterprise";
+        return "Store bedrifter (51+ ansatte)";
+      // Legacy mappings
+      case "BASIC":
+        return "Små bedrifter";
       default:
         return plan;
     }
