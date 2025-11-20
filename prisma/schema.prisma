@@ -73,6 +73,8 @@ model User {
   meetingParticipants MeetingParticipant[] @relation("MeetingParticipants")
   meetingDecisions    MeetingDecision[]    @relation("MeetingDecisions")
   documentsApproved   Document[]           @relation("DocumentApprovedBy")
+  measures            Measure[]            @relation("MeasureResponsible")
+  notifications       Notification[]
   createdAt           DateTime     @default(now())
   updatedAt           DateTime     @updatedAt
 
@@ -159,6 +161,7 @@ model Tenant {
   subscription     Subscription?
   invoices         Invoice[]
   formTemplates    FormTemplate[]   // Digital forms
+  notifications    Notification[]
   formSubmissions  FormSubmission[] // Digital forms
   kpiMeasurements  KpiMeasurement[] // KPI målinger
   inspections      Inspection[]     // Vernerunde/Inspeksjoner
@@ -182,10 +185,10 @@ enum TenantStatus {
 }
 
 enum PricingTier {
-  MICRO      // 1-5 ansatte
-  SMALL      // 6-15 ansatte
-  MEDIUM     // 16-50 ansatte
-  LARGE      // 51+ ansatte
+  MICRO      // 1-20 ansatte (Små bedrifter: 6.000 kr/år)
+  SMALL      // 21-50 ansatte (Mellomstore bedrifter: 8.000 kr/år)
+  MEDIUM     // 51+ ansatte (Store bedrifter: 12.000 kr/år)
+  LARGE      // Legacy tier (ikke i bruk)
 }
 
 enum OnboardingStatus {
@@ -506,11 +509,12 @@ model Measure {
   createdAt     DateTime     @default(now())
   updatedAt     DateTime     @updatedAt
 
-  tenant   Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  risk     Risk?     @relation(fields: [riskId], references: [id])
-  incident Incident? @relation(fields: [incidentId], references: [id])
-  audit    Audit?    @relation(fields: [auditId], references: [id])
-  goal     Goal?     @relation(fields: [goalId], references: [id])
+  tenant      Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  risk        Risk?     @relation(fields: [riskId], references: [id])
+  incident    Incident? @relation(fields: [incidentId], references: [id])
+  audit       Audit?    @relation(fields: [auditId], references: [id])
+  goal        Goal?     @relation(fields: [goalId], references: [id])
+  responsible User      @relation("MeasureResponsible", fields: [responsibleId], references: [id], onDelete: Cascade)
 
   @@index([tenantId])
   @@index([status])
@@ -1428,4 +1432,44 @@ enum MessageSender {
   REPORTER
   HANDLER
   SYSTEM
+}
+
+// ============================================
+// Notifications (Real-time varsler)
+// ============================================
+
+model Notification {
+  id        String           @id @default(cuid())
+  tenantId  String
+  userId    String
+  type      NotificationType
+  title     String
+  message   String           @db.Text
+  link      String?
+  isRead    Boolean          @default(false)
+  readAt    DateTime?
+  createdAt DateTime         @default(now())
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId])
+  @@index([userId])
+  @@index([isRead])
+  @@index([createdAt])
+}
+
+enum NotificationType {
+  NEW_INCIDENT         // Nytt avvik
+  INCIDENT_UPDATED     // Avvik oppdatert
+  INCIDENT_CLOSED      // Avvik lukket
+  FORM_SUBMITTED       // Skjema sendt inn
+  FORM_APPROVED        // Skjema godkjent
+  FORM_REJECTED        // Skjema avvist
+  WHISTLEBLOWING       // Ny varsling
+  WHISTLEBLOWING_MSG   // Ny melding i varslingssak
+  MEASURE_OVERDUE      // Tiltak forfalt
+  MEASURE_ASSIGNED     // Tiltak tildelt deg
+  AUDIT_SCHEDULED      // Revisjon planlagt
+  TRAINING_DUE         // Opplæring forfaller snart
 }

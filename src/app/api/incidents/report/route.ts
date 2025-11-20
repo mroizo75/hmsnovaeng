@@ -4,6 +4,7 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { AuditLog } from "@/lib/audit-log";
 import { getStorage, generateFileKey } from "@/lib/storage";
+import { createNotification, notifyUsersByRole } from "@/server/actions/notification.actions";
 
 export async function POST(request: NextRequest) {
   try {
@@ -79,6 +80,24 @@ export async function POST(request: NextRequest) {
         imageCount: images.filter((img) => img && img.size > 0).length,
       }
     );
+
+    // Send bekreftelse til den ansatte som rapporterte
+    await createNotification({
+      tenantId,
+      userId: session.user.id,
+      type: "NEW_INCIDENT",
+      title: "Avvik mottatt",
+      message: `Takk for rapporten! Ditt avvik "${title}" er registrert og vil bli behandlet av HMS-ansvarlig.`,
+      link: `/ansatt/avvik`,
+    });
+
+    // Send varsling til HMS-ansvarlige
+    await notifyUsersByRole(tenantId, "HMS", {
+      type: "NEW_INCIDENT",
+      title: "Nytt avvik rapportert av ansatt",
+      message: `${type}: ${title} - Rapportert av ${reportedBy}`,
+      link: `/dashboard/incidents/${incident.id}`,
+    });
 
     return NextResponse.json({ success: true, incident }, { status: 201 });
   } catch (error: any) {

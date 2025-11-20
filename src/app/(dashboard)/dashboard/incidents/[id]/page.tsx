@@ -10,6 +10,7 @@ import { MeasureList } from "@/features/measures/components/measure-list";
 import { InvestigationForm } from "@/features/incidents/components/investigation-form";
 import { CloseIncidentForm } from "@/features/incidents/components/close-incident-form";
 import { IncidentTreatmentForm } from "@/components/incidents/incident-treatment-form";
+import { IncidentPDFExport } from "@/components/incidents/incident-pdf-export";
 import {
   getIncidentTypeLabel,
   getIncidentTypeColor,
@@ -44,6 +45,14 @@ export default async function IncidentDetailPage({ params }: { params: Promise<{
     include: {
       measures: {
         orderBy: { createdAt: "desc" },
+        include: {
+          responsible: {
+            select: {
+              name: true,
+              email: true,
+            },
+          },
+        },
       },
       attachments: true,
     },
@@ -86,15 +95,55 @@ export default async function IncidentDetailPage({ params }: { params: Promise<{
   const allMeasuresCompleted = incident.measures.length > 0 && incident.measures.every(m => m.status === "DONE");
   const canClose = incident.rootCause && allMeasuresCompleted && incident.status !== "CLOSED";
 
+  const pdfIncidentData = {
+    title: incident.title,
+    type: incident.type,
+    severity: String(incident.severity),
+    status: incident.status,
+    description: incident.description,
+    occurredAt: incident.occurredAt,
+    location: incident.location,
+    witnessName: incident.witnessName,
+    immediateAction: incident.immediateAction,
+    rootCause: incident.rootCause,
+    contributingFactors: incident.contributingFactors,
+    effectivenessReview: incident.effectivenessReview,
+    lessonsLearned: incident.lessonsLearned,
+    attachments: incident.attachments.map(a => ({
+      id: a.id,
+      fileKey: a.fileKey,
+      name: a.name,
+      mime: a.mime,
+    })),
+    measures: incident.measures.map(m => ({
+      id: m.id,
+      description: m.description || m.title,
+      responsibleName: m.responsible?.name || m.responsible?.email,
+      deadline: m.dueAt,
+      status: m.status,
+      completedAt: m.completedAt,
+    })),
+    createdAt: incident.createdAt,
+    closedAt: incident.closedAt,
+  };
+
   return (
     <div className="space-y-6">
       <div>
-        <Button variant="ghost" asChild className="mb-4">
-          <Link href="/dashboard/incidents">
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Tilbake til avvik
-          </Link>
-        </Button>
+        <div className="flex items-center justify-between mb-4">
+          <Button variant="ghost" asChild>
+            <Link href="/dashboard/incidents">
+              <ArrowLeft className="mr-2 h-4 w-4" />
+              Tilbake til avvik
+            </Link>
+          </Button>
+          <IncidentPDFExport
+            incident={pdfIncidentData}
+            typeLabel={typeLabel}
+            severityLabel={severityLabel}
+            statusLabel={statusLabel}
+          />
+        </div>
         <div className="flex items-start justify-between">
           <div className="flex-1">
             <h1 className="text-3xl font-bold">{incident.title}</h1>

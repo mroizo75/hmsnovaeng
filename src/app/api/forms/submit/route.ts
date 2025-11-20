@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { getStorage, generateFileKey } from "@/lib/storage";
+import { notifyUsersByRole } from "@/server/actions/notification.actions";
 
 export async function POST(request: NextRequest) {
   try {
@@ -77,6 +78,16 @@ export async function POST(request: NextRequest) {
           },
         });
       }
+    }
+
+    // Send varsling til HMS-ansvarlige hvis skjemaet sendes inn (ikke kladd)
+    if (status === "SUBMITTED" && form.requiresApproval) {
+      await notifyUsersByRole(tenantId, "HMS", {
+        type: "FORM_SUBMITTED",
+        title: "Nytt skjema sendt inn",
+        message: `${form.title} - venter på godkjenning`,
+        link: `/dashboard/forms/submissions/${submission.id}`,
+      });
     }
 
     return NextResponse.json({ success: true, submission }, { status: 201 });

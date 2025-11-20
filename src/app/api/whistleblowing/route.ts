@@ -3,6 +3,7 @@ import { db } from "@/lib/db";
 import { z } from "zod";
 import { nanoid } from "nanoid";
 import { strictRateLimiter, getClientIp } from "@/lib/rate-limit";
+import { notifyUsersByRole } from "@/server/actions/notification.actions";
 
 export const dynamic = "force-dynamic";
 
@@ -96,6 +97,21 @@ export async function POST(req: NextRequest) {
         sender: "SYSTEM",
         message: `Varsling mottatt med saksnummer ${caseNumber}. Bruk tilgangskoden din for å følge opp saken.`,
       },
+    });
+
+    // Send varsling til HMS-ansvarlige og ledelse
+    await notifyUsersByRole(validatedData.tenantId, "HMS", {
+      type: "WHISTLEBLOWING",
+      title: "Ny varsling mottatt",
+      message: `${report.category}: ${report.title} - Saksnummer: ${caseNumber}`,
+      link: `/dashboard/whistleblowing/${report.id}`,
+    });
+    
+    await notifyUsersByRole(validatedData.tenantId, "LEDER", {
+      type: "WHISTLEBLOWING",
+      title: "Ny varsling mottatt",
+      message: `${report.category}: ${report.title} - Saksnummer: ${caseNumber}`,
+      link: `/dashboard/whistleblowing/${report.id}`,
     });
 
     return NextResponse.json(

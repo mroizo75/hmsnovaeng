@@ -6,6 +6,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { prisma } from "@/lib/db";
 import { LogoutButton } from "@/components/ansatt/logout-button";
+import { NotificationBell } from "@/components/notifications/notification-bell";
 
 export default async function EmployeeLayout({
   children,
@@ -50,6 +51,9 @@ export default async function EmployeeLayout({
                 <p className="text-sm font-medium text-gray-900">{session.user.name}</p>
                 <p className="text-xs text-gray-500">Ansatt</p>
               </div>
+              
+              {/* Varsler */}
+              <NotificationBell />
               
               {/* Avatar - klikk for profil */}
               <Link

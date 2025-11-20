@@ -25,133 +25,108 @@ export interface PricingPlan {
 }
 
 /**
- * HMS Nova 2.0 Prisplan
+ * HMS Nova Prisplan
  * 
- * Samme pris som Grønn Jobb, men MER innhold!
+ * Transparent prising. Ingen skjulte kostnader.
  * 
- * HMS Nova vs Grønn Jobb:
- * - Samme pris: 8.000 kr / 12.000 kr / 16.000 kr
- * - MER funksjonalitet: Digital signatur, 7 roller, ISO 9001 100%, KPI-måling, 5 Whys, API
- * - MER support: Chat, e-post, telefon (Grønn Jobb: kun e-post)
- * - MER gratis innhold: 50+ skjemaer, guider, maler (Grønn Jobb: HMS-håndbok)
- * - MER bransjemaler: 10 bransjer med 150+ maler (Grønn Jobb: generiske)
+ * HMS Nova fordeler:
+ * - Ingen oppstartskostnader: 0 kr (konkurrenter: 20.000-50.000 kr)
+ * - Ingen binding: Si opp når du vil
+ * - Alt inkludert: Alle funksjoner i prisen
+ * - Norsk support: E-post, telefon (prioritert), 24/7 (store bedrifter)
+ * - Gratis HMS-håndbok: Ferdig mal klar til bruk
+ * - Digital signatur: Inkludert (konkurrenter: ekstrakostnad)
  */
 export const PRICING_PLANS: PricingPlan[] = [
   {
     tier: "MICRO",
-    name: "Starter",
-    employeeRange: "0-20 ansatte",
+    name: "Små bedrifter",
+    employeeRange: "1-20 ansatte",
     minEmployees: 1,
     maxEmployees: 20,
-    yearlyPrice: 8000,
-    monthlyPrice: 800,
+    yearlyPrice: 6000,
+    monthlyPrice: 500,
     features: [
-      "✅ Komplett HMS-system",
-      "✅ Avvikshåndtering",
-      "✅ Risikovurderinger",
-      "✅ Digital signatur på skjemaer",
-      "✅ Stoffkartotek",
-      "✅ Mobilapp inkludert",
-      "✅ Bransjespesifikke maler",
+      "✅ Opptil 20 brukere inkludert",
+      "✅ Dokumenthåndtering med versjonskontroll",
+      "✅ Risikovurdering (5x5 matrise)",
+      "✅ Hendelsesrapportering & 5-Whys analyse",
+      "✅ Digital signaturer (pålogging)",
+      "✅ Ferdig HMS-håndbok",
+      "✅ Opplæringsmodul & kompetansematrise",
+      "✅ Revisjoner & Audits (ISO 9001)",
+      "✅ Mål & KPI-oppfølging",
+      "✅ Stoffkartotek med sikkerhetsdatablad",
       "✅ E-post support",
-      "✅ Opplæring & oppfølging",
-      "✅ ISO 9001 kompatibel",
+      "✅ 10 GB lagring",
     ],
     popularFeatures: [
       "Digital signatur",
-      "Mobilapp",
-      "Bransjemaler",
+      "Ferdig HMS-håndbok",
+      "ISO 9001",
     ],
   },
   {
     tier: "SMALL",
-    name: "Professional",
+    name: "Mellomstore bedrifter",
     employeeRange: "21-50 ansatte",
     minEmployees: 21,
     maxEmployees: 50,
-    yearlyPrice: 12000,
-    monthlyPrice: 1200,
+    yearlyPrice: 8000,
+    monthlyPrice: 667,
     features: [
-      "✅ Alt i Mikro +",
-      "✅ Avansert rapportering",
-      "✅ Revisjonsmodul",
-      "✅ Opplæringsmatrise",
-      "✅ Mål & KPI-oppfølging",
-      "✅ Integrert BHT-samarbeid",
-      "✅ Telefon support",
-      "✅ Prioritert oppfølging",
-      "✅ Månedlig HMS-rapporter",
-      "✅ Tilpassede skjemaer",
+      "✅ Alt i Små bedrifter, pluss:",
+      "✅ Opptil 50 brukere inkludert",
+      "✅ Automatiske påminnelser & varsler",
+      "✅ Avansert rapportering & analytics",
+      "✅ Prioritert support (telefon + e-post)",
+      "✅ Dedikert onboarding-samtale",
+      "✅ 50 GB lagring",
+      "✅ API-tilgang for integrasjoner",
     ],
     popularFeatures: [
-      "Revisjonsmodul",
-      "KPI-oppfølging",
+      "Automatiske varsler",
+      "API-tilgang",
       "Telefon support",
     ],
   },
   {
     tier: "MEDIUM",
-    name: "Enterprise",
+    name: "Store bedrifter",
     employeeRange: "51+ ansatte",
     minEmployees: 51,
-    maxEmployees: 200,
-    yearlyPrice: 16000,
-    monthlyPrice: 1600,
-    features: [
-      "✅ Alt i Små bedrifter +",
-      "✅ Multi-lokasjon støtte",
-      "✅ Avansert rollestyring (7 roller)",
-      "✅ API-tilgang",
-      "✅ Fiken integrasjon",
-      "✅ Egendefinerte dashboards",
-      "✅ Dedikert kundekonsulent",
-      "✅ Kvartalsvis HMS-gjennomgang",
-      "✅ Prioritert support (4t responstid)",
-      "✅ Tilpassbar fakturering",
-    ],
-    popularFeatures: [
-      "Multi-lokasjon",
-      "API-tilgang",
-      "Dedikert konsulent",
-    ],
-  },
-  {
-    tier: "LARGE",
-    name: "Enterprise Plus",
-    employeeRange: "200+ ansatte",
-    minEmployees: 201,
     maxEmployees: null,
-    yearlyPrice: 29990,
-    monthlyPrice: 2999,
+    yearlyPrice: 12000,
+    monthlyPrice: 1000,
     features: [
-      "✅ Alt i Mellomstore bedrifter +",
-      "✅ Enterprise SLA",
-      "✅ Ubegrenset antall brukere",
-      "✅ White-label mulighet",
+      "✅ Alt i Mellomstore bedrifter, pluss:",
+      "✅ Ubegrenset brukere",
+      "✅ Ubegrenset lagring",
+      "✅ Dedikert kundekonsulent",
       "✅ On-premise deployment (valgfritt)",
-      "✅ Dedikert HMS-rådgiver",
-      "✅ Månedlige strategi-møter",
-      "✅ Skreddersydde integrasjoner",
-      "✅ 1t responstid support",
-      "✅ Årlig HMS-audit inkludert",
+      "✅ SLA med 99.9% oppetid",
+      "✅ 24/7 prioritert support",
+      "✅ Egendefinerte integrasjoner",
+      "✅ Avansert bruker- og rollestyring",
+      "✅ Hvitelabeling (ekstra kostnad)",
+      "✅ Årlig revisjon av HMS-systemet",
     ],
     popularFeatures: [
-      "Enterprise SLA",
-      "Dedikert rådgiver",
-      "White-label",
+      "Ubegrenset brukere",
+      "Dedikert konsulent",
+      "24/7 support",
     ],
   },
 ];
 
 /**
  * Beregn pricing tier basert på antall ansatte
- * Matcher Grønn Jobb sine kategorier
+ * Matcher HMS Nova sine offisielle priser
  */
 export function calculatePricingTier(employeeCount: number): PricingTier {
-  if (employeeCount <= 20) return "MICRO";    // 0-20 = Starter (8.000 kr)
-  if (employeeCount <= 50) return "SMALL";    // 21-50 = Professional (12.000 kr)
-  if (employeeCount <= 200) return "MEDIUM";  // 51-200 = Enterprise (16.000 kr)
-  return "LARGE";                              // 200+ = Enterprise Plus (29.990 kr)
+  if (employeeCount <= 20) return "MICRO";    // 1-20 = Små bedrifter (6.000 kr)
+  if (employeeCount <= 50) return "SMALL";    // 21-50 = Mellomstore bedrifter (8.000 kr)
+  return "MEDIUM";                            // 51+ = Store bedrifter (12.000 kr)
 }
 
 /**

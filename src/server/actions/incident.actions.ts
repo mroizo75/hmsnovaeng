@@ -10,6 +10,7 @@ import {
   investigateIncidentSchema,
   closeIncidentSchema,
 } from "@/features/incidents/schemas/incident.schema";
+import { createNotification, notifyUsersByRole } from "./notification.actions";
 
 async function getSessionContext() {
   const session = await getServerSession(authOptions);
@@ -131,6 +132,14 @@ export async function createIncident(input: any) {
       },
     });
     
+    // Send varsling til HMS-ansvarlige
+    await notifyUsersByRole(tenantId, "HMS", {
+      type: "NEW_INCIDENT",
+      title: "Nytt avvik registrert",
+      message: `${incident.type}: ${incident.title}`,
+      link: `/dashboard/incidents/${incident.id}`,
+    });
+    
     revalidatePath("/dashboard/incidents");
     return { success: true, data: incident };
   } catch (error: any) {
@@ -173,6 +182,16 @@ export async function updateIncident(input: any) {
         metadata: JSON.stringify({ title: incident.title }),
       },
     });
+    
+    // Send varsling hvis status endres
+    if (existingIncident.status !== incident.status) {
+      await notifyUsersByRole(tenantId, "HMS", {
+        type: "INCIDENT_UPDATED",
+        title: "Avvik oppdatert",
+        message: `${incident.type}: ${incident.title} - Status endret til ${incident.status}`,
+        link: `/dashboard/incidents/${incident.id}`,
+      });
+    }
     
     revalidatePath("/dashboard/incidents");
     revalidatePath(`/dashboard/incidents/${incident.id}`);
@@ -266,6 +285,14 @@ export async function closeIncident(input: any) {
           effectivenessReview: validated.effectivenessReview,
         }),
       },
+    });
+    
+    // Send varsling om lukket avvik
+    await notifyUsersByRole(tenantId, "HMS", {
+      type: "INCIDENT_CLOSED",
+      title: "Avvik lukket",
+      message: `${incident.type}: ${incident.title} er nå lukket`,
+      link: `/dashboard/incidents/${incident.id}`,
     });
     
     revalidatePath("/dashboard/incidents");

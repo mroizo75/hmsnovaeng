@@ -28,6 +28,7 @@ import {
 import { usePermissions } from "@/hooks/use-permissions";
 import { getRoleDisplayName } from "@/lib/permissions";
 import Image from "next/image";
+import { NotificationBell } from "@/components/notifications/notification-bell";
 
 const navItems = [
   { href: "/dashboard", label: "nav.dashboard", icon: LayoutDashboard, permission: "dashboard" as const },
@@ -60,7 +61,10 @@ export function DashboardNav() {
     <aside className="hidden lg:block w-64 border-r bg-card">
       <div className="flex h-full flex-col">
         <div className="border-b p-6">
-          <Image src="/logo-nova.png" alt="HMS Nova" width={155} height={100} />
+          <div className="flex items-start justify-between mb-2">
+            <Image src="/logo-nova.png" alt="HMS Nova" width={155} height={100} />
+            <NotificationBell />
+          </div>
           {role && (
             <Badge variant="outline" className="mt-2 text-xs">
               {getRoleDisplayName(role)}

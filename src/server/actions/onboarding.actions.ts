@@ -153,12 +153,25 @@ export async function activateTenant(input: z.infer<typeof activateTenantSchema>
     // Sjekk om admin-bruker allerede eksisterer
     const existingUser = await prisma.user.findUnique({
       where: { email: validated.adminEmail },
+      include: {
+        tenants: {
+          where: { tenantId: validated.tenantId },
+        },
+      },
     });
 
     if (existingUser) {
+      // Hvis brukeren allerede er koblet til denne tenanten, returner suksess
+      if (existingUser.tenants.length > 0) {
+        return {
+          success: false,
+          error: "Denne bedriften er allerede aktivert med denne admin-brukeren",
+        };
+      }
+      // Hvis brukeren eksisterer men ikke er koblet til denne tenanten
       return {
         success: false,
-        error: "En bruker med denne e-postadressen eksisterer allerede",
+        error: "En bruker med denne e-postadressen eksisterer allerede. Bruk en annen e-postadresse.",
       };
     }
 
@@ -182,28 +195,47 @@ export async function activateTenant(input: z.infer<typeof activateTenantSchema>
         },
       });
 
-      // 2. Beregn pris basert på antall ansatte
+      // 2. Beregn pris basert på antall ansatte (offisielle HMS Nova priser)
       const yearlyPrice = 
-        tenant.pricingTier === "MICRO" ? 6000 :
-        tenant.pricingTier === "SMALL" ? 8000 :
-        tenant.pricingTier === "MEDIUM" ? 12000 : 12000;
+        tenant.pricingTier === "MICRO" ? 6000 :      // 1-20 ansatte: Små bedrifter
+        tenant.pricingTier === "SMALL" ? 8000 :      // 21-50 ansatte: Mellomstore bedrifter
+        tenant.pricingTier === "MEDIUM" ? 12000 :    // 51+ ansatte: Store bedrifter
+        12000;
 
       const plan: any = 
-        tenant.pricingTier === "MICRO" || tenant.pricingTier === "SMALL" ? "STARTER" :
-        tenant.pricingTier === "MEDIUM" ? "PROFESSIONAL" : "ENTERPRISE";
+        tenant.pricingTier === "MICRO" ? "STARTER" :
+        tenant.pricingTier === "SMALL" ? "PROFESSIONAL" :
+        "ENTERPRISE";
 
-      // 3. Opprett subscription (FØRST NÅ får de tilgang!)
-      const subscription = await tx.subscription.create({
-        data: {
-          tenantId: validated.tenantId,
-          plan,
-          price: yearlyPrice,
-          billingInterval: "YEARLY",
-          status: "TRIAL",
-          currentPeriodStart: new Date(),
-          currentPeriodEnd: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000), // 14 dager
-        },
-      });
+      // 3. Opprett eller oppdater subscription (FØRST NÅ får de tilgang!)
+      let subscription;
+      if (tenant.subscription) {
+        // Subscription eksisterer allerede - oppdater den
+        subscription = await tx.subscription.update({
+          where: { tenantId: validated.tenantId },
+          data: {
+            plan,
+            price: yearlyPrice,
+            billingInterval: "YEARLY",
+            status: "TRIAL",
+            currentPeriodStart: new Date(),
+            currentPeriodEnd: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000), // 14 dager
+          },
+        });
+      } else {
+        // Opprett ny subscription
+        subscription = await tx.subscription.create({
+          data: {
+            tenantId: validated.tenantId,
+            plan,
+            price: yearlyPrice,
+            billingInterval: "YEARLY",
+            status: "TRIAL",
+            currentPeriodStart: new Date(),
+            currentPeriodEnd: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000), // 14 dager
+          },
+        });
+      }
 
       // 4. Oppdater tenant status og aktiver prøveperiode
       const updatedTenant = await tx.tenant.update({

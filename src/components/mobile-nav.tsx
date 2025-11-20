@@ -29,6 +29,7 @@ import {
 import { usePermissions } from "@/hooks/use-permissions";
 import { getRoleDisplayName } from "@/lib/permissions";
 import Image from "next/image";
+import { NotificationBell } from "@/components/notifications/notification-bell";
 
 const navItems = [
   { href: "/dashboard", label: "nav.dashboard", icon: LayoutDashboard, permission: "dashboard" as const },
@@ -61,7 +62,9 @@ export function MobileNav() {
       <div className="sticky top-0 z-50 border-b bg-card">
         <div className="flex items-center justify-between px-4 py-3">
           <Image src="/logo-nova.png" alt="HMS Nova" width={100} height={65} />
-          <Sheet open={open} onOpenChange={setOpen}>
+          <div className="flex items-center gap-2">
+            <NotificationBell />
+            <Sheet open={open} onOpenChange={setOpen}>
             <SheetTrigger asChild>
               <Button variant="ghost" size="icon">
                 <Menu className="h-6 w-6" />
@@ -121,6 +124,7 @@ export function MobileNav() {
               </div>
             </SheetContent>
           </Sheet>
+          </div>
         </div>
       </div>
     </div>
