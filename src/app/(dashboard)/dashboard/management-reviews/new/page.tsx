@@ -9,7 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
-import { ArrowLeft, Save } from "lucide-react";
+import { ArrowLeft, Save, Sparkles, Loader2 } from "lucide-react";
 import Link from "next/link";
 import {
   Select,
@@ -18,6 +18,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 interface TenantUser {
   user: {
@@ -34,6 +35,7 @@ export default function NewManagementReviewPage() {
   const [loading, setLoading] = useState(false);
   const [users, setUsers] = useState<TenantUser[]>([]);
   const [loadingUsers, setLoadingUsers] = useState(true);
+  const [loadingPrefill, setLoadingPrefill] = useState(false);
   const [formData, setFormData] = useState({
     title: "",
     period: "",
@@ -70,6 +72,42 @@ export default function NewManagementReviewPage() {
 
     fetchUsers();
   }, [session?.user?.tenantId]);
+
+  const handlePrefillData = async () => {
+    setLoadingPrefill(true);
+
+    try {
+      const response = await fetch("/api/management-reviews/prefill-data?months=3");
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Kunne ikke hente data");
+      }
+
+      // Oppdater form med forhåndsutfylt data
+      setFormData((prev) => ({
+        ...prev,
+        hmsGoalsReview: data.data.hmsGoalsReview || prev.hmsGoalsReview,
+        incidentStatistics: data.data.incidentStatistics || prev.incidentStatistics,
+        riskReview: data.data.riskReview || prev.riskReview,
+        auditResults: data.data.auditResults || prev.auditResults,
+        trainingStatus: data.data.trainingStatus || prev.trainingStatus,
+      }));
+
+      toast({
+        title: "Data hentet",
+        description: "Feltene er forhåndsutfylt med data fra systemet. Du kan redigere og justere etter behov.",
+      });
+    } catch (error: any) {
+      toast({
+        title: "Feil",
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setLoadingPrefill(false);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -210,10 +248,41 @@ export default function NewManagementReviewPage() {
         {/* Input data - HMS gjennomgang */}
         <Card>
           <CardHeader>
-            <CardTitle>Gjennomgang av HMS-systemet</CardTitle>
-            <CardDescription>
-              Fyll inn status og resultater fra ulike HMS-områder
-            </CardDescription>
+            <div className="flex items-center justify-between">
+              <div>
+                <CardTitle>Gjennomgang av HMS-systemet</CardTitle>
+                <CardDescription>
+                  Fyll inn status og resultater fra ulike HMS-områder
+                </CardDescription>
+              </div>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={handlePrefillData}
+                disabled={loadingPrefill}
+              >
+                {loadingPrefill ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Henter data...
+                  </>
+                ) : (
+                  <>
+                    <Sparkles className="mr-2 h-4 w-4" />
+                    Forhåndsutfyll fra systemet
+                  </>
+                )}
+              </Button>
+            </div>
+            {!loadingPrefill && (
+              <Alert className="mt-4">
+                <Sparkles className="h-4 w-4" />
+                <AlertDescription>
+                  Klikk på knappen over for å automatisk hente data fra siste 3 måneder. 
+                  Du kan redigere teksten etterpå.
+                </AlertDescription>
+              </Alert>
+            )}
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">

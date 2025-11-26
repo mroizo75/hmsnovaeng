@@ -52,6 +52,12 @@ export function PublicNav() {
               Om HMS Nova
             </Link>
             <Link 
+              href="/blogg" 
+              className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+            >
+              HMS-blogg
+            </Link>
+            <Link 
               href="/gratis-hms-system" 
               className="text-sm font-medium text-primary hover:text-primary/80 transition-colors flex items-center gap-1"
             >
@@ -122,6 +128,13 @@ export function PublicNav() {
               onClick={() => setMobileMenuOpen(false)}
             >
               Om HMS Nova
+            </Link>
+            <Link 
+              href="/blogg" 
+              className="block py-2 text-sm font-medium text-muted-foreground hover:text-foreground"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              HMS-blogg
             </Link>
             <Link 
               href="/gratis-hms-system" 
