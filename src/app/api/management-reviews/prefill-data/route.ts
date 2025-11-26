@@ -47,12 +47,9 @@ export async function GET(req: NextRequest) {
       db.incident.findMany({
         where: {
           tenantId,
-          incidentDate: { gte: startDate },
+          occurredAt: { gte: startDate },
         },
-        include: {
-          investigation: true,
-        },
-        orderBy: { incidentDate: "desc" },
+        orderBy: { occurredAt: "desc" },
       }),
 
       // Risikovurderinger
@@ -89,9 +86,9 @@ export async function GET(req: NextRequest) {
       db.training.findMany({
         where: {
           tenantId,
-          date: { gte: startDate },
+          completedAt: { gte: startDate },
         },
-        orderBy: { date: "desc" },
+        orderBy: { completedAt: "desc" },
       }),
 
       // Tiltak
@@ -259,7 +256,7 @@ function generateIncidentStatistics(incidents: any[]): string {
   text += `- ✅ Lukket: ${statuses.CLOSED}\n\n`;
 
   // Hendelser med etterforskning
-  const investigated = incidents.filter(i => i.investigation).length;
+  const investigated = incidents.filter(i => i.rootCause && i.rootCause.trim().length > 0).length;
   text += `### Etterforskning\n`;
   text += `- ${investigated} av ${incidents.length} hendelser har gjennomført etterforskning (${((investigated / incidents.length) * 100).toFixed(0)}%)\n\n`;
 
@@ -434,78 +431,79 @@ function generateTrainingStatus(trainings: any[]): string {
   }
 
   let text = `## Opplæring og kompetanse\n\n`;
-  text += `Totalt antall opplæringer: ${trainings.length}\n\n`;
+  text += `Totalt antall registrerte opplæringer: ${trainings.length}\n\n`;
 
-  // Gruppér etter type
-  const types = {
-    HMS_INTRODUCTION: 0,
-    FIRST_AID: 0,
-    FIRE_SAFETY: 0,
-    SAFETY_REPRESENTATIVE: 0,
-    SPECIFIC_TASK: 0,
-    REFRESHER: 0,
-    EXTERNAL_COURSE: 0,
-    OTHER: 0,
-  };
-
+  // Gruppér etter courseKey (type kurs)
+  const courseTypes: { [key: string]: number } = {};
   trainings.forEach((training) => {
-    if (training.type in types) {
-      types[training.type as keyof typeof types]++;
-    }
+    const key = training.courseKey || "other";
+    courseTypes[key] = (courseTypes[key] || 0) + 1;
   });
 
   text += `### Opplæring per type\n`;
-  text += `- HMS-introduksjon: ${types.HMS_INTRODUCTION}\n`;
-  text += `- Førstehjelp: ${types.FIRST_AID}\n`;
-  text += `- Brannsikkerhet: ${types.FIRE_SAFETY}\n`;
-  text += `- Verneombud: ${types.SAFETY_REPRESENTATIVE}\n`;
-  text += `- Spesifikk oppgave: ${types.SPECIFIC_TASK}\n`;
-  text += `- Oppfriskningskurs: ${types.REFRESHER}\n`;
-  text += `- Eksternt kurs: ${types.EXTERNAL_COURSE}\n`;
-  text += `- Annet: ${types.OTHER}\n\n`;
+  Object.entries(courseTypes)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 10)
+    .forEach(([key, count]) => {
+      text += `- ${key}: ${count}\n`;
+    });
+  text += `\n`;
 
-  // Status
-  const statuses = {
-    PLANNED: 0,
-    COMPLETED: 0,
-    CANCELLED: 0,
-  };
-
-  trainings.forEach((training) => {
-    if (training.status in statuses) {
-      statuses[training.status as keyof typeof statuses]++;
-    }
-  });
+  // Status basert på completedAt
+  const completed = trainings.filter(t => t.completedAt).length;
+  const notCompleted = trainings.length - completed;
 
   text += `### Status\n`;
-  text += `- ✅ Gjennomført: ${statuses.COMPLETED}\n`;
-  text += `- 📅 Planlagt: ${statuses.PLANNED}\n`;
-  text += `- ❌ Kansellert: ${statuses.CANCELLED}\n\n`;
+  text += `- ✅ Gjennomført: ${completed}\n`;
+  text += `- ⏳ Ikke gjennomført: ${notCompleted}\n\n`;
 
-  // Totalt antall deltakere
-  const totalParticipants = trainings.reduce((sum, t) => {
-    try {
-      const participants = JSON.parse(t.participants || "[]");
-      return sum + participants.length;
-    } catch {
-      return sum;
-    }
-  }, 0);
+  // Opplæringer med utløpsdato
+  const withExpiry = trainings.filter(t => t.validUntil);
+  const now = new Date();
+  const expired = withExpiry.filter(t => new Date(t.validUntil) < now).length;
+  const expiringSoon = withExpiry.filter(t => {
+    const expiryDate = new Date(t.validUntil);
+    const threeMonthsFromNow = new Date();
+    threeMonthsFromNow.setMonth(threeMonthsFromNow.getMonth() + 3);
+    return expiryDate >= now && expiryDate <= threeMonthsFromNow;
+  }).length;
 
-  text += `### Deltakelse\n`;
-  text += `- Totalt antall opplæringsdeltakelser: ${totalParticipants}\n\n`;
+  if (withExpiry.length > 0) {
+    text += `### Sertifikater med utløpsdato\n`;
+    text += `- Totalt: ${withExpiry.length}\n`;
+    text += `- ❌ Utløpt: ${expired}\n`;
+    text += `- ⚠️ Utløper snart (3 mnd): ${expiringSoon}\n\n`;
+  }
+
+  // Obligatoriske kurs
+  const required = trainings.filter(t => t.isRequired);
+  if (required.length > 0) {
+    text += `### Obligatoriske kurs\n`;
+    text += `- ${required.length} av ${trainings.length} er markert som obligatoriske\n\n`;
+  }
+
+  // Evaluering av effektivitet (ISO 9001)
+  const evaluated = trainings.filter(t => t.effectiveness && t.effectiveness.trim().length > 0).length;
+  if (trainings.length > 0) {
+    text += `### Effektivitetsevaluering (ISO 9001)\n`;
+    text += `- ${evaluated} av ${trainings.length} opplæringer har effektivitetsevaluering (${((evaluated / trainings.length) * 100).toFixed(0)}%)\n\n`;
+  }
 
   // Anbefalinger
-  if (types.FIRST_AID === 0) {
-    text += `⚠️ ANBEFALING: Ingen førstehjelpsopplæring registrert. Dette er ofte lovpålagt.\n`;
+  if (expired > 0) {
+    text += `🚨 KRITISK: ${expired} sertifikater har utløpt og må fornyes.\n`;
   }
 
-  if (types.FIRE_SAFETY === 0) {
-    text += `⚠️ ANBEFALING: Ingen brannsikkerhetsopplæring registrert. Dette er ofte lovpålagt.\n`;
+  if (expiringSoon > 0) {
+    text += `⚠️ VIKTIG: ${expiringSoon} sertifikater utløper innen 3 måneder.\n`;
   }
 
-  if (statuses.PLANNED > 0) {
-    text += `\n📅 INFO: ${statuses.PLANNED} planlagte opplæringer bør gjennomføres snarest.\n`;
+  if (notCompleted > 0) {
+    text += `📅 INFO: ${notCompleted} opplæringer er ikke fullført ennå.\n`;
+  }
+
+  if (evaluated < trainings.length * 0.5) {
+    text += `⚠️ ANBEFALING: Kun ${((evaluated / trainings.length) * 100).toFixed(0)}% av opplæringene har effektivitetsevaluering. ISO 9001 krever dette.\n`;
   }
 
   return text;
