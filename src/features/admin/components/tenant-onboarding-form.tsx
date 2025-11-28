@@ -482,7 +482,7 @@ export function TenantOnboardingForm({ salesRep }: TenantOnboardingFormProps) {
             <CardHeader>
               <CardTitle>Hvorfor HMS Nova 2.0 er bedre enn konkurrentene</CardTitle>
               <CardDescription>
-                Sammenligning med Grønn Jobb og andre HMS-systemer
+                Sammenligning med andre HMS-systemer
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -498,7 +498,7 @@ export function TenantOnboardingForm({ salesRep }: TenantOnboardingFormProps) {
                         <p className="font-medium">{advantage.hmsNova}</p>
                       </div>
                       <div>
-                        <p className="text-muted-foreground mb-1">Grønn Jobb:</p>
+                        <p className="text-muted-foreground mb-1">Andre HMS-systemer:</p>
                         <p>{advantage.gronnJobb}</p>
                       </div>
                     </div>

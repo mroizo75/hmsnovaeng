@@ -169,27 +169,26 @@ export default function BesteHMSSystemHelsePage() {
             <Card>
               <CardHeader>
                 <div className="flex items-center justify-between mb-2">
-                  <Badge variant="secondary">🥉 Tredjeplassen</Badge>
+                  <Badge variant="outline">Tilsvarende systemer</Badge>
                 </div>
-                <CardTitle className="text-2xl">Grønn Jobb</CardTitle>
+                <CardTitle className="text-2xl">Generiske HMS-systemer</CardTitle>
                 <CardDescription className="text-lg">
-                  Generelt HMS-system, ikke helse-spesifikt
+                  Ikke tilpasset helsesektoren
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
                   <div>
-                    <div className="text-3xl font-bold mb-1">12.000-20.000 kr/år</div>
-                    <div className="text-sm text-muted-foreground">Middels pris</div>
+                    <div className="text-sm text-muted-foreground">Varierende priser</div>
                   </div>
                   <div className="space-y-2">
                     {[
                       { text: 'Grunnleggende HMS', icon: '✅' },
-                      { text: 'God kundeservice', icon: '✅' },
                       { text: 'Ingen smittevern-maler', icon: '❌' },
                       { text: 'Ingen legemiddel-modul', icon: '❌' },
-                      { text: 'Ikke tilpasset helse', icon: '❌' },
-                      { text: 'Mangler IPLoS-integrasjon', icon: '❌' },
+                      { text: 'Ikke tilpasset helsesektoren', icon: '❌' },
+                      { text: 'Mangler spesialiserte sjekklister', icon: '❌' },
+                      { text: 'Ikke norsk språk', icon: '❌' },
                     ].map((item, index) => (
                       <div key={index} className="flex items-start gap-2">
                         <span className="text-lg">{item.icon}</span>
@@ -197,11 +196,6 @@ export default function BesteHMSSystemHelsePage() {
                       </div>
                     ))}
                   </div>
-                  <Button className="w-full" variant="outline" asChild>
-                    <Link href="https://gronn-jobb.no" target="_blank" rel="noopener">
-                      Besøk Grønn Jobb
-                    </Link>
-                  </Button>
                 </div>
               </CardContent>
             </Card>
@@ -366,7 +360,7 @@ export default function BesteHMSSystemHelsePage() {
                   <th className="p-4 text-left font-semibold">Funksjon</th>
                   <th className="p-4 text-center font-semibold">HMS Nova</th>
                   <th className="p-4 text-center font-semibold">Avonova</th>
-                  <th className="p-4 text-center font-semibold">Grønn Jobb</th>
+                  <th className="p-4 text-center font-semibold">Andre systemer</th>
                 </tr>
               </thead>
               <tbody>

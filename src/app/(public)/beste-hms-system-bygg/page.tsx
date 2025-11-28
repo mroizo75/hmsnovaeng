@@ -280,7 +280,7 @@ export default function BesteHMSSystemByggPage() {
                         <span>HMS Nova</span>
                       </div>
                     </th>
-                    <th className="text-center p-4">Grønn Jobb</th>
+                    <th className="text-center p-4">Andre systemer</th>
                     <th className="text-center p-4">Avonova</th>
                   </tr>
                 </thead>
@@ -389,23 +389,19 @@ export default function BesteHMSSystemByggPage() {
             <Card className="border-amber-600/50">
               <CardHeader>
                 <div className="flex items-center gap-3 mb-4">
-                  <Medal className="h-6 w-6 text-amber-600" />
-                  <Badge variant="outline" className="border-amber-600 text-amber-600">
-                    🥉 Tredjeplassen
+                  <Medal className="h-6 w-6 text-muted-foreground" />
+                  <Badge variant="outline">
+                    Tilsvarende systemer
                   </Badge>
                 </div>
-                <CardTitle className="text-2xl">Grønn Jobb</CardTitle>
-                <CardDescription>OK for mindre byggeprosjekter</CardDescription>
+                <CardTitle className="text-2xl">Andre HMS-systemer</CardTitle>
+                <CardDescription>Ikke spesialisert på bygg</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
                   <div className="flex items-center gap-2">
-                    <CheckCircle2 className="h-4 w-4 text-green-600" />
-                    <span className="text-sm">Rimelig pris</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <CheckCircle2 className="h-4 w-4 text-green-600" />
-                    <span className="text-sm">BHT tilgjengelig</span>
+                    <XCircle className="h-4 w-4 text-amber-600" />
+                    <span className="text-sm">Mangler SHA-plan maler</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <XCircle className="h-4 w-4 text-amber-600" />
@@ -414,6 +410,10 @@ export default function BesteHMSSystemByggPage() {
                   <div className="flex items-center gap-2">
                     <XCircle className="h-4 w-4 text-amber-600" />
                     <span className="text-sm">Ingen offline-modus</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <XCircle className="h-4 w-4 text-amber-600" />
+                    <span className="text-sm">Ikke byggebransje-fokusert</span>
                   </div>
                 </div>
               </CardContent>
@@ -436,8 +436,8 @@ export default function BesteHMSSystemByggPage() {
             <HardHat className="h-16 w-16 mx-auto mb-6" />
             <h2 className="text-3xl font-bold mb-4">Klar for HMS Nova på byggeplassen?</h2>
             <p className="text-lg mb-8 text-primary-foreground/90">
-              150+ byggefirma bruker HMS Nova daglig. Mobiloptimalisert system med SHA-plan maler
-              og bygg-spesifikke funksjoner. Offline-modus Q1 2026, mobilapp Q2 2026.
+              Mobiloptimalisert system med SHA-plan maler og bygg-spesifikke funksjoner. 
+              Utviklet for norsk byggebransje. Offline-modus planlagt Q1 2026, mobilapp Q2 2026.
             </p>
             <Link href="/registrer-bedrift">
               <Button size="lg" variant="secondary">

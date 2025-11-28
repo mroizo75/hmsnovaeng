@@ -564,8 +564,8 @@ export default function PriserPage() {
                     <div className="text-sm text-muted-foreground">Fra 500 kr/mnd</div>
                   </th>
                   <th className="text-center p-4">
-                    <div className="font-bold">Grønn Jobb</div>
-                    <div className="text-sm text-muted-foreground">Fra 590 kr/mnd</div>
+                    <div className="font-bold">Andre systemer</div>
+                    <div className="text-sm text-muted-foreground">Varierende priser</div>
                   </th>
                   <th className="text-center p-4">
                     <div className="font-bold">Andre</div>

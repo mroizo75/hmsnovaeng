@@ -8,14 +8,14 @@ import { FAQSection } from '@/components/faq-section';
 import { getFAQsForPage } from '@/lib/faq-data';
 
 export const metadata: Metadata = {
-  title: 'Beste HMS-system for små bedrifter (0-20 ansatte) 2025',
+  title: 'HMS-system for små bedrifter (0-20 ansatte) | HMS Nova',
   description:
-    'Sammenligning av HMS Nova, Grønn Jobb og Kuba for små bedrifter. HMS Nova vinner med best pris/ytelse, digital signatur og ISO 9001 compliance.',
+    'HMS Nova - norsk HMS-system utviklet for små bedrifter. Enkel å bruke, rimelig pris, digital signatur og støtte for ISO 9001. Norsk språk og support.',
   keywords:
-    'beste hms system, hms system små bedrifter, hms nova vs grønn jobb, billig hms system, hms system pris',
+    'hms system små bedrifter, hms for små bedrifter, billig hms system, hms system pris',
   openGraph: {
-    title: 'Beste HMS-system for små bedrifter 2025',
-    description: 'HMS Nova vs Grønn Jobb vs Kuba - Komplett sammenligning',
+    title: 'HMS-system for små bedrifter | HMS Nova',
+    description: 'Enkelt, rimelig og norsk HMS-system for små bedrifter',
     type: 'article',
   },
   other: {
@@ -106,8 +106,8 @@ export default function BesteHMSSystemSmaBedrifterPage() {
                   <h3 className="font-semibold text-lg mb-4">Ikke perfekt for:</h3>
                   <ul className="space-y-2">
                     {[
-                      'Bedrifter som trenger BHT (velg Grønn Jobb)',
                       'Bedrifter med kun 1-2 ansatte (kanskje overkill)',
+                      'Bedrifter som kun trenger papirbasert HMS',
                     ].map((item, index) => (
                       <li key={index} className="flex items-center gap-2">
                         <XCircle className="h-4 w-4 text-muted-foreground" />
@@ -142,24 +142,23 @@ export default function BesteHMSSystemSmaBedrifterPage() {
           <Card className="border-orange-500/50">
             <CardHeader>
               <div className="flex items-center gap-3 mb-4">
-                <Medal className="h-7 w-7 text-orange-500" />
-                <Badge variant="outline" className="border-orange-500 text-orange-500">
-                  🥈 Andreplassen
+                <Medal className="h-7 w-7 text-muted-foreground" />
+                <Badge variant="outline">
+                  Tilsvarende systemer
                 </Badge>
               </div>
-              <CardTitle className="text-2xl">Grønn Jobb</CardTitle>
-              <CardDescription>Best hvis du også trenger BHT</CardDescription>
+              <CardTitle className="text-2xl">Andre HMS-systemer</CardTitle>
+              <CardDescription>Generiske løsninger</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="grid md:grid-cols-2 gap-8">
                 <div>
-                  <h3 className="font-semibold mb-4">Hvorfor Grønn Jobb er bra:</h3>
+                  <h3 className="font-semibold mb-4">Hva de ofte har:</h3>
                   <ul className="space-y-2">
                     {[
-                      'Kombinasjon HMS + BHT',
-                      'Etablert aktør',
-                      'Lignende pris (7.890 kr/år)',
-                      'God kundeservice',
+                      'Grunnleggende HMS',
+                      'Noen maler',
+                      'Varierende pris',
                     ].map((item, index) => (
                       <li key={index} className="flex items-start gap-2">
                         <CheckCircle2 className="h-5 w-5 text-green-600 flex-shrink-0 mt-0.5" />
@@ -168,16 +167,16 @@ export default function BesteHMSSystemSmaBedrifterPage() {
                     ))}
                   </ul>
 
-                  <h3 className="font-semibold mt-6 mb-4">Hvorfor ikke førsteplass:</h3>
+                  <h3 className="font-semibold mt-6 mb-4">Hva de ofte mangler:</h3>
                   <ul className="space-y-2">
                     {[
-                      'Mangler digital signatur',
-                      'Færre brukerroller (3 vs 7)',
-                      'Mindre moderne UI',
-                      'Ikke fullt ISO 9001 compliant',
+                      'Digital signatur',
+                      'Moderne UI',
+                      'Fullt norsk språk',
+                      'ISO 9001-støtte',
                     ].map((item, index) => (
                       <li key={index} className="flex items-start gap-2">
-                        <XCircle className="h-5 w-5 text-orange-500 flex-shrink-0 mt-0.5" />
+                        <XCircle className="h-5 w-5 text-amber-600 flex-shrink-0 mt-0.5" />
                         <span>{item}</span>
                       </li>
                     ))}
@@ -185,24 +184,9 @@ export default function BesteHMSSystemSmaBedrifterPage() {
                 </div>
 
                 <div>
-                  <h3 className="font-semibold mb-4">Perfekt for:</h3>
-                  <ul className="space-y-2">
-                    {[
-                      'Bedrifter som trenger BHT',
-                      'Bedrifter som vil ha ett kontaktpunkt',
-                      'Bedrifter med enkle HMS-behov',
-                    ].map((item, index) => (
-                      <li key={index} className="flex items-center gap-2">
-                        <CheckCircle2 className="h-4 w-4 text-orange-500" />
-                        <span className="text-sm">{item}</span>
-                      </li>
-                    ))}
-                  </ul>
-
-                  <div className="mt-6 p-4 bg-muted rounded-lg">
-                    <div className="text-2xl font-bold mb-1">7.890 kr/år</div>
+                  <div className="p-4 bg-muted rounded-lg">
                     <div className="text-sm text-muted-foreground">
-                      HMS-system • BHT tilgjengelig
+                      Varierende priser og funksjoner
                     </div>
                   </div>
                 </div>
@@ -302,8 +286,8 @@ export default function BesteHMSSystemSmaBedrifterPage() {
                         <span>HMS Nova</span>
                       </div>
                     </th>
-                    <th className="text-center p-4">Grønn Jobb</th>
-                    <th className="text-center p-4">Kuba</th>
+                    <th className="text-center p-4">Andre systemer</th>
+                    <th className="text-center p-4">Excel</th>
                   </tr>
                 </thead>
                 <tbody>

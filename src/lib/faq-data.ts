@@ -31,9 +31,9 @@ export const faqDatabase = {
 
   comparison: [
     {
-      question: 'HMS Nova vs Grønn Jobb: Hvilken er best?',
+      question: 'HMS Nova vs Tilsvarende HMS Systemer: Hvilken er best?',
       answer:
-        '<strong>HMS Nova</strong> er best for digitalisering og ISO 9001 (digital signatur, 7 roller, moderne app), mens <strong>Grønn Jobb</strong> er best hvis du også trenger bedriftshelsetjeneste (BHT). Pris er lik (HMS Nova 8.000 kr vs Grønn Jobb 7.890 kr for 0-20 ansatte). HMS Nova har mer avansert teknologi, mens Grønn Jobb har lengre historie.',
+        '<strong>HMS Nova</strong> er best for digitalisering og ISO 9001 (digital signatur, 7 roller, moderne app), mens <strong>Tilsvarende HMS Systemer</strong> er best hvis du også trenger bedriftshelsetjeneste (BHT). Pris er lik (HMS Nova 8.000 kr vs Tilsvarende HMS Systemer 7.890 kr for 0-20 ansatte). HMS Nova har mer avansert teknologi, mens Tilsvarende HMS Systemer har lengre historie.',
     },
     {
       question: 'Hvorfor velge HMS Nova fremfor Excel?',

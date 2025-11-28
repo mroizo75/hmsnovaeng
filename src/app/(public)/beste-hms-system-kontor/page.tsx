@@ -125,27 +125,26 @@ export default function BesteHMSSystemKontorPage() {
             <Card>
               <CardHeader>
                 <div className="flex items-center justify-between mb-2">
-                  <Badge variant="secondary">🥈 Andreplassen</Badge>
+                  <Badge variant="outline">Tilsvarende systemer</Badge>
                 </div>
-                <CardTitle className="text-2xl">Grønn Jobb</CardTitle>
+                <CardTitle className="text-2xl">Andre HMS-systemer</CardTitle>
                 <CardDescription className="text-lg">
-                  God for kontor, men dyrere
+                  Generiske løsninger
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
                   <div>
-                    <div className="text-3xl font-bold mb-1">12.000-18.000 kr/år</div>
-                    <div className="text-sm text-muted-foreground">Middels pris</div>
+                    <div className="text-sm text-muted-foreground">Varierende priser</div>
                   </div>
                   <div className="space-y-2">
                     {[
                       { text: 'Grunnleggende HMS', icon: '✅' },
-                      { text: 'God kundeservice', icon: '✅' },
-                      { text: 'Kontor-maler', icon: '✅' },
-                      { text: 'Dyrere enn HMS Nova', icon: '⚠️' },
-                      { text: 'Mer kompleks', icon: '⚠️' },
-                      { text: 'Ikke like ISO 9001-fokusert', icon: '⚠️' },
+                      { text: 'Generiske maler', icon: '⚠️' },
+                      { text: 'Ofte dyrere', icon: '⚠️' },
+                      { text: 'Mer komplekse', icon: '⚠️' },
+                      { text: 'Ikke ISO 9001-fokusert', icon: '⚠️' },
+                      { text: 'Ikke norsk språk', icon: '❌' },
                     ].map((item, index) => (
                       <div key={index} className="flex items-start gap-2">
                         <span className="text-lg">{item.icon}</span>
@@ -153,11 +152,6 @@ export default function BesteHMSSystemKontorPage() {
                       </div>
                     ))}
                   </div>
-                  <Button className="w-full" variant="outline" asChild>
-                    <Link href="https://gronn-jobb.no" target="_blank" rel="noopener">
-                      Besøk Grønn Jobb
-                    </Link>
-                  </Button>
                 </div>
               </CardContent>
             </Card>
@@ -358,7 +352,7 @@ export default function BesteHMSSystemKontorPage() {
                 <tr className="bg-muted">
                   <th className="p-4 text-left font-semibold">Funksjon</th>
                   <th className="p-4 text-center font-semibold">HMS Nova</th>
-                  <th className="p-4 text-center font-semibold">Grønn Jobb</th>
+                  <th className="p-4 text-center font-semibold">Andre systemer</th>
                   <th className="p-4 text-center font-semibold">Excel</th>
                 </tr>
               </thead>

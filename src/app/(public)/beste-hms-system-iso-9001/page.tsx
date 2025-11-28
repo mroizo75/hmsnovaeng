@@ -7,14 +7,14 @@ import { CheckCircle2, XCircle, ArrowRight, Trophy, Medal, Award, FileCheck, Shi
 import { FAQSection } from '@/components/faq-section';
 
 export const metadata: Metadata = {
-  title: 'Beste HMS-system for ISO 9001 sertifisering 2025',
+  title: 'HMS-system bygget for ISO 9001 sertifisering | HMS Nova',
   description:
-    'HMS Nova er det beste HMS-systemet for ISO 9001 sertifisering. 100% compliant, alle påkrevde dokumenter inkludert, og gjennomsnittlig 3-6 måneder til sertifisering.',
+    'HMS Nova er utviklet etter ISO 9001:2015 standarder. Støtter dokumenthåndtering, risikovurderinger, internrevisjoner og ledelsens gjennomgang for kvalitetsledelse.',
   keywords:
-    'iso 9001 hms system, iso 9001 sertifisering, kvalitetsledelse, iso 9001 compliant, hms nova iso 9001',
+    'iso 9001 hms system, iso 9001 sertifisering, kvalitetsledelse, dokumenthåndtering, hms nova',
   openGraph: {
-    title: 'Beste HMS-system for ISO 9001 sertifisering',
-    description: 'HMS Nova - 100% ISO 9001 compliant fra dag 1',
+    title: 'HMS-system bygget for ISO 9001 sertifisering',
+    description: 'HMS Nova - Utviklet etter ISO 9001:2015 standarder',
     type: 'article',
   },
 };
@@ -22,19 +22,19 @@ export const metadata: Metadata = {
 export default function BesteHMSSystemISO9001Page() {
   const faqs = [
     {
-      question: 'Er HMS Nova ISO 9001 compliant?',
+      question: 'Støtter HMS Nova ISO 9001:2015 kravene?',
       answer:
-        'Ja, HMS Nova er <strong>100% ISO 9001:2015 compliant</strong>. Systemet dekker alle krav inkludert dokumenthåndtering, risikovurderinger, korrigerende tiltak, internrevisjoner, ledelsens gjennomgang, og kontinuerlig forbedring.',
+        'Ja, HMS Nova er <strong>utviklet etter ISO 9001:2015 standarder</strong>. Systemet støtter sentrale krav inkludert dokumenthåndtering med versjonskontroll, risikovurderinger, korrigerende tiltak, internrevisjoner, ledelsens gjennomgang, og kontinuerlig forbedring.',
     },
     {
-      question: 'Hvor lang tid tar det å få ISO 9001 med HMS Nova?',
+      question: 'Hvor lang tid tar det å få ISO 9001 sertifisering?',
       answer:
-        'Gjennomsnittlig <strong>3-6 måneder</strong> med HMS Nova, sammenlignet med 12-18 måneder tradisjonelt. Over 150 av våre kunder har fått ISO 9001 sertifisering, med 95% suksessrate på første revisjon.',
+        'Tiden varierer fra bedrift til bedrift, typisk <strong>6-18 måneder</strong> avhengig av organisasjonens størrelse og modenhet. HMS Nova forenkler prosessen ved å ha strukturer og verktøy for dokumentasjon på plass fra dag én.',
     },
     {
       question: 'Hva inkluderer HMS Nova for ISO 9001?',
       answer:
-        'HMS Nova inkluderer: Dokumenthåndtering med versjonskontroll, digital godkjenning, risikovurderinger, avvikshåndtering, korrigerende tiltak, internrevisjon-modul, ledelsens gjennomgang, mål og KPI-sporing, og alle påkrevde prosedyrer.',
+        'HMS Nova inkluderer verktøy for: Dokumenthåndtering med versjonskontroll, digital godkjenning, risikovurderinger, avvikshåndtering, korrigerende tiltak, internrevisjon-modul, ledelsens gjennomgang, og mål/KPI-sporing.',
     },
   ];
 
@@ -48,11 +48,11 @@ export default function BesteHMSSystemISO9001Page() {
             ISO 9001:2015
           </Badge>
           <h1 className="text-4xl md:text-5xl font-bold mb-6">
-            Beste HMS-system for ISO 9001 sertifisering
+            HMS-system bygget for ISO 9001 sertifisering
           </h1>
           <p className="text-xl text-muted-foreground mb-8">
-            HMS Nova er 100% ISO 9001 compliant fra dag 1. Alle påkrevde dokumenter inkludert, og
-            gjennomsnittlig 3-6 måneder til sertifisering.
+            HMS Nova er utviklet etter ISO 9001:2015 standarder. Verktøy og struktur for dokumenthåndtering, 
+            risikovurdering og kvalitetsledelse på plass fra dag én.
           </p>
         </div>
       </section>
@@ -63,14 +63,14 @@ export default function BesteHMSSystemISO9001Page() {
           <Card className="border-primary border-2 shadow-xl">
             <CardHeader className="bg-primary/5">
               <div className="flex items-center gap-3 mb-4">
-                <Trophy className="h-8 w-8 text-primary" />
+                <Shield className="h-8 w-8 text-primary" />
                 <Badge variant="default" className="text-lg px-4 py-1">
-                  🏆 Beste valg for ISO 9001
+                  Utviklet for ISO 9001
                 </Badge>
               </div>
               <CardTitle className="text-3xl">HMS Nova</CardTitle>
               <CardDescription className="text-lg">
-                100% ISO 9001:2015 compliant • 3-6 måneder til sertifisering
+                Bygget etter ISO 9001:2015 standarder • Norsk kvalitetsledelse
               </CardDescription>
             </CardHeader>
             <CardContent className="pt-6">
@@ -78,20 +78,20 @@ export default function BesteHMSSystemISO9001Page() {
                 <div>
                   <h3 className="font-semibold text-lg mb-4 flex items-center gap-2">
                     <FileCheck className="h-5 w-5 text-primary" />
-                    Hvorfor HMS Nova er best for ISO 9001:
+                    HMS Nova støtter ISO 9001:2015 krav:
                   </h3>
                   <ul className="space-y-3">
                     {[
-                      '100% ISO 9001:2015 compliant ut av boksen',
-                      'Alle påkrevde dokumenter inkludert',
-                      'Automatisk versjonskontroll (krav 7.5)',
+                      'Utviklet etter ISO 9001:2015 standarder',
+                      'Dokumentmaler for sentrale prosedyrer',
+                      'Automatisk versjonskontroll (støtter krav 7.5)',
                       'Digital godkjenning og signatur',
-                      'Ledelsens gjennomgang-modul (krav 9.3)',
-                      'Internrevisjon-modul (krav 9.2)',
-                      'Korrigerende tiltak-sporing (krav 10.2)',
-                      'Risikobasert tilnærming (krav 6.1)',
-                      'Mål og KPI-sporing (krav 6.2)',
-                      'Kompetansestyring (krav 7.2)',
+                      'Ledelsens gjennomgang-modul (støtter krav 9.3)',
+                      'Internrevisjon-modul (støtter krav 9.2)',
+                      'Korrigerende tiltak-sporing (støtter krav 10.2)',
+                      'Risikobasert tilnærming (støtter krav 6.1)',
+                      'Mål og KPI-sporing (støtter krav 6.2)',
+                      'Kompetansestyring (støtter krav 7.2)',
                     ].map((item, index) => (
                       <li key={index} className="flex items-start gap-2">
                         <CheckCircle2 className="h-5 w-5 text-green-600 flex-shrink-0 mt-0.5" />
@@ -110,12 +110,12 @@ export default function BesteHMSSystemISO9001Page() {
                         <span className="font-bold text-2xl">3-6 mnd</span>
                       </div>
                       <div className="flex justify-between items-center">
-                        <span>Suksessrate første revisjon:</span>
-                        <span className="font-bold text-2xl text-green-600">95%</span>
+                        <span>Lansert:</span>
+                        <span className="font-bold">2025</span>
                       </div>
                       <div className="flex justify-between items-center">
-                        <span>Totalt ISO 9001 sertifiseringer:</span>
-                        <span className="font-bold text-2xl">150+</span>
+                        <span>Norsk språk og support:</span>
+                        <span className="font-bold">✅ Ja</span>
                       </div>
                     </div>
                     <p className="text-xs text-muted-foreground mt-4">
@@ -246,17 +246,17 @@ export default function BesteHMSSystemISO9001Page() {
                   <Badge variant="default">Beste valg</Badge>
                 </div>
                 <CardTitle>HMS Nova</CardTitle>
-                <CardDescription>100% compliant</CardDescription>
+                <CardDescription>Støtter ISO 9001:2015</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
                   <div className="flex items-center gap-2">
                     <CheckCircle2 className="h-4 w-4 text-green-600" />
-                    <span className="text-sm">100% ISO 9001 compliant</span>
+                    <span className="text-sm">Utviklet etter ISO 9001:2015</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <CheckCircle2 className="h-4 w-4 text-green-600" />
-                    <span className="text-sm">3-6 måneder til sertifisering</span>
+                    <span className="text-sm">Forenkler sertifiseringsprosessen</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <CheckCircle2 className="h-4 w-4 text-green-600" />
@@ -288,13 +288,13 @@ export default function BesteHMSSystemISO9001Page() {
                   </Badge>
                 </div>
                 <CardTitle>Avonova</CardTitle>
-                <CardDescription>Også 100% compliant</CardDescription>
+                <CardDescription>Støtter ISO 9001</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
                   <div className="flex items-center gap-2">
                     <CheckCircle2 className="h-4 w-4 text-green-600" />
-                    <span className="text-sm">100% ISO 9001 compliant</span>
+                    <span className="text-sm">Støtter ISO 9001</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <CheckCircle2 className="h-4 w-4 text-green-600" />
@@ -320,23 +320,23 @@ export default function BesteHMSSystemISO9001Page() {
               </CardContent>
             </Card>
 
-            {/* Grønn Jobb */}
-            <Card className="border-amber-600/50">
+            {/* Andre HMS-systemer */}
+            <Card className="border-muted">
               <CardHeader>
                 <div className="flex items-center gap-2 mb-2">
-                  <Award className="h-6 w-6 text-amber-600" />
-                  <Badge variant="outline" className="border-amber-600 text-amber-600">
-                    Tredjeplassen
+                  <Award className="h-6 w-6 text-muted-foreground" />
+                  <Badge variant="outline">
+                    Tilsvarende systemer
                   </Badge>
                 </div>
-                <CardTitle>Grønn Jobb</CardTitle>
-                <CardDescription>Delvis compliant</CardDescription>
+                <CardTitle>Andre HMS-systemer</CardTitle>
+                <CardDescription>Generiske løsninger</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
                   <div className="flex items-center gap-2">
                     <XCircle className="h-4 w-4 text-amber-600" />
-                    <span className="text-sm">Kun delvis ISO 9001 compliant</span>
+                    <span className="text-sm">Ofte kun delvis ISO 9001-støtte</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <XCircle className="h-4 w-4 text-amber-600" />
@@ -347,17 +347,14 @@ export default function BesteHMSSystemISO9001Page() {
                     <span className="text-sm">Begrenset versjonskontroll</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <CheckCircle2 className="h-4 w-4 text-green-600" />
-                    <span className="text-sm">Rimelig pris</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <CheckCircle2 className="h-4 w-4 text-green-600" />
-                    <span className="text-sm">BHT tilgjengelig</span>
+                    <XCircle className="h-4 w-4 text-amber-600" />
+                    <span className="text-sm">Ikke norsk språk og støtte</span>
                   </div>
                 </div>
                 <div className="mt-4 p-3 bg-muted rounded">
-                  <div className="font-bold">7.890 kr/år</div>
-                  <div className="text-xs text-muted-foreground">0-20 ansatte</div>
+                  <div className="text-sm text-muted-foreground">
+                    Varierende priser og funksjoner
+                  </div>
                 </div>
               </CardContent>
             </Card>
@@ -379,8 +376,8 @@ export default function BesteHMSSystemISO9001Page() {
             <Shield className="h-16 w-16 mx-auto mb-6" />
             <h2 className="text-3xl font-bold mb-4">Klar for ISO 9001 sertifisering?</h2>
             <p className="text-lg mb-8 text-primary-foreground/90">
-              Start med HMS Nova i dag og få ISO 9001 på 3-6 måneder. 95% suksessrate på første
-              revisjon.
+              HMS Nova forenkler ISO 9001-prosessen med strukturer og verktøy på plass fra dag én.
+              Norsk system utviklet etter ISO 9001:2015 standarder.
             </p>
             <Link href="/registrer-bedrift">
               <Button size="lg" variant="secondary">
