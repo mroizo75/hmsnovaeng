@@ -198,7 +198,7 @@ export default function BekrefGeneratorPage() {
               </ul>
               <div className="pt-2 border-t border-primary/20 mt-3">
                 <div className="text-sm font-semibold flex items-center gap-2">
-                  <span>Verdi: <span className="line-through">25.000 kr</span></span>
+                  <span>Verdi: <span className="line-through">15.000 kr</span></span>
                   <Badge variant="default">GRATIS</Badge>
                 </div>
               </div>

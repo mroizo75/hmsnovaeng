@@ -13,14 +13,14 @@ export const faqDatabase = {
         'HMS Nova koster <strong>8.000 kr/år</strong> for bedrifter med 0-20 ansatte, <strong>12.000 kr/år</strong> for 21-50 ansatte, og <strong>18.000 kr/år</strong> for 51+ ansatte. Prisen inkluderer ALT: ubegrenset antall brukere, alle funksjoner, digital signatur, mobilapp, og norsk support. Ingen skjulte kostnader eller oppsettsgebyr.',
     },
     {
-      question: 'Er HMS Nova ISO 9001 compliant?',
+      question: 'Støtter HMS Nova ISO 9001?',
       answer:
-        'Ja, HMS Nova er <strong>100% ISO 9001 compliant</strong>. Systemet dekker alle krav i ISO 9001:2015, inkludert: dokumenthåndtering med versjonskontroll, risikovurderinger, korrigerende tiltak, internrevisjoner, ledelsens gjennomgang, og kontinuerlig forbedring. Over 150 av våre kunder har fått ISO 9001 sertifisering med HMS Nova.',
+        'Ja, HMS Nova er <strong>utviklet etter ISO 9001:2015 standarder</strong>. Systemet støtter alle sentrale krav inkludert: dokumenthåndtering med versjonskontroll, risikovurderinger, korrigerende tiltak, internrevisjoner, ledelsens gjennomgang, og kontinuerlig forbedring. Vi har strukturene på plass for å forenkle sertifiseringsprosessen.',
     },
     {
       question: 'Hvor lang tid tar det å komme i gang?',
       answer:
-        'De fleste kunder er operasjonelle på <strong>2-4 timer</strong>. Prosessen: 1) Registrer bedrift (5 min), 2) Velg bransjemaler (30 min), 3) Last opp eksisterende dokumenter (1 time), 4) Inviter team (30 min). Vi tilbyr gratis onboarding-hjelp for alle nye kunder.',
+        'Med vår <strong><a href="https://www.hmsnova.no/gratis-hms-system" target="_blank">gratis HMS-dokumentgenerator</a></strong> får du ferdig startpakke på 20 minutter. Deretter importerer du dokumentene til HMS Nova (30-60 min). Totalt: <strong>1-2 timer</strong> til du er operasjonell. Alternativt kan vi gjøre alt for deg med implementeringspakke fra 6.900 kr.',
     },
     {
       question: 'Kan jeg teste HMS Nova gratis?',
@@ -31,9 +31,9 @@ export const faqDatabase = {
 
   comparison: [
     {
-      question: 'HMS Nova vs Tilsvarende HMS Systemer: Hvilken er best?',
+      question: 'HMS Nova vs andre HMS Systemer: Hvilken er best?',
       answer:
-        '<strong>HMS Nova</strong> er best for digitalisering og ISO 9001 (digital signatur, 7 roller, moderne app), mens <strong>Tilsvarende HMS Systemer</strong> er best hvis du også trenger bedriftshelsetjeneste (BHT). Pris er lik (HMS Nova 8.000 kr vs Tilsvarende HMS Systemer 7.890 kr for 0-20 ansatte). HMS Nova har mer avansert teknologi, mens Tilsvarende HMS Systemer har lengre historie.',
+        '<strong>HMS Nova</strong> er utviklet i tråd med prinsippene i ISO 9001 og setter standarden for moderne HMS-styring. Systemet er utviklet <strong>internt i Norge</strong> og videreutvikles kontinuerlig i samarbeid med våre kunder – slik at løsningen til enhver tid gjenspeiler behovene i virkeligheten. Med <strong>digital signatur, 7 tydelig definerte roller</strong> og en intuitiv, moderne løsning, får du et system som kombinerer kvalitet, sikkerhet og brukervennlighet på en måte som eldre løsninger ikke kan matche.',
     },
     {
       question: 'Hvorfor velge HMS Nova fremfor Excel?',
@@ -67,14 +67,24 @@ export const faqDatabase = {
 
   implementation: [
     {
+      question: 'Hva koster implementeringshjelp?',
+      answer:
+        '<strong>40% billigere enn tradisjonelle HMS-konsulenter:</strong><br><br>• <strong>Mikro (0-20 ansatte):</strong> 6.900 kr<br>• <strong>Små (21-50 ansatte):</strong> 9.900 kr<br>• <strong>Medium (51+ ansatte):</strong> 14.900 kr<br><br><strong>Inkludert:</strong> Oppsett av HMS Nova, import av eksisterende HMS-dokumenter, bransjespesifikke maler, digital organisasjonskart, og 2 timers live opplæring for ditt team.<br><br><strong>ELLER gjør det selv GRATIS:</strong> Bruk vår <a href="https://www.hmsnova.no/gratis-hms-system" target="_blank">gratis HMS-dokumentgenerator</a> og få ferdig startpakke på 20 minutter!',
+    },
+    {
       question: 'Hjelper dere med migrering fra gammelt system?',
       answer:
-        'Ja! Vi tilbyr <strong>gratis migrering</strong> for alle nye kunder. Vi hjelper med å: 1) Eksportere data fra gammelt system, 2) Importere til HMS Nova, 3) Verifisere at alt er korrekt, 4) Trene teamet. Prosessen tar vanligvis 2-4 timer.',
+        'Ja! Migrering fra eksisterende HMS-system er inkludert i våre implementeringspakker (fra 6.900 kr). Vi hjelper med å: 1) Eksportere data fra gammelt system, 2) Importere til HMS Nova, 3) Verifisere at alt er korrekt, 4) Opplære teamet. Prosessen tar vanligvis 2-4 timer. Alternativt kan du gjøre det selv med vår <a href="https://www.hmsnova.no/gratis-hms-system" target="_blank">gratis dokumentgenerator</a>.',
     },
     {
       question: 'Trenger vi opplæring?',
       answer:
-        'HMS Nova er designet for å være intuitivt, men vi tilbyr <strong>gratis opplæring</strong>: 1) Onboarding-video (30 min), 2) Live demo med oss (1 time), 3) Dokumentasjon og guider, 4) Chat-support under oppstart. De fleste lærer systemet på 1-2 timer.',
+        'HMS Nova er designet for å være intuitivt og de fleste lærer systemet på 1-2 timer. Vi tilbyr: 1) Dokumentasjon og guider, 2) Support via e-post og telefon, 3) Valgfri implementeringshjelp (se priser under). For småbedrifter anbefaler vi å bruke vår <strong><a href="https://www.hmsnova.no/gratis-hms-system" target="_blank">gratis HMS-dokumentgenerator</a></strong> for å få en ferdig startpakke.',
+    },
+    {
+      question: 'Er implementering og opplæring inkludert?',
+      answer:
+        '<strong>Nei, men du har to alternativer:</strong><br><br><strong>1) Gjør det selv (GRATIS):</strong> Bruk vår <a href="https://www.hmsnova.no/gratis-hms-system" target="_blank">gratis HMS-dokumentgenerator</a> som gir deg startpakke med HMS-håndbok (styrende dokument), prosedyrer og maler. Komplett startpakke på 20 minutter. Helt gratis!<br><br><strong>2) Vi gjør det for deg:</strong> Implementeringstjenester fra <strong>6.900 kr</strong> (0-20 ansatte) til 14.900 kr (51+ ansatte). 40% billigere enn tradisjonelle HMS-konsulenter. Inkluderer: komplett oppsett av systemet, import av eksisterende dokumenter, og 2 timers opplæring for teamet.',
     },
     {
       question: 'Hva skjer hvis vi vil slutte?',
@@ -87,17 +97,17 @@ export const faqDatabase = {
     {
       question: 'Passer HMS Nova for byggebransjen?',
       answer:
-        'Ja! HMS Nova er perfekt for bygg. Vi har: SHA-plan maler, fallsikring-sjekklister, stillasinspeksjon, maskinkontroll, mobiloptimalisert design, bildeopptak, og underentreprenør-håndtering. Offline-modus kan komme Q1 2026, dedikert mobilapp Q2 2026. <strong>150+ byggefirma</strong> bruker HMS Nova.',
+        'Ja! HMS Nova er utviklet med fokus på bygg. Vi har: SHA-plan maler, fallsikring-sjekklister, stillasinspeksjon, maskinkontroll, mobiloptimalisert design, bildeopptak, og underentreprenør-håndtering. Offline-modus planlagt Q1 2026, dedikert mobilapp Q2 2026.',
     },
     {
       question: 'Kan HMS Nova brukes i helsesektoren?',
       answer:
-        'Ja! HMS Nova passer utmerket for helse. Vi har: biologisk eksponering-modul, vold og trusler-rapportering, ergonomi-sjekklister, stikkskade-rapportering, smittevern, og GDPR-compliance (kritisk i helse!). <strong>80+ helsebedrifter</strong> bruker HMS Nova.',
+        'Ja! HMS Nova passer utmerket for helse. Vi har: biologisk eksponering-modul, vold og trusler-rapportering, ergonomi-sjekklister, stikkskade-rapportering, smittevern-maler, og full GDPR-compliance (kritisk i helsesektoren).',
     },
     {
       question: 'Fungerer HMS Nova for transport?',
       answer:
-        'Ja! HMS Nova er god for transport. Vi har: kjøretøysikkerhet-sjekklister, sjåføropplæring-sporing, farlig gods-dokumentasjon, arbeidsulykker i transport, og mobiloptimalisert design (sjåfører kan rapportere fra mobilen). <strong>60+ transportfirma</strong> bruker HMS Nova.',
+        'Ja! HMS Nova er tilpasset transport. Vi har: kjøretøysikkerhet-sjekklister, sjåføropplæring-sporing, farlig gods-dokumentasjon (ADR), arbeidsulykker i transport, og mobiloptimalisert design (sjåfører kan rapportere fra mobilen).',
     },
   ],
 };

@@ -17,8 +17,8 @@ import {
 } from "lucide-react";
 
 export const metadata: Metadata = {
-  title: "Få ferdig HMS-system GRATIS | HMS Nova Document Generator",
-  description: "Svar på 10 spørsmål → Vi genererer komplett HMS-system med håndbok, risikovurdering, opplæringsplan og 40+ dokumenter. Klar på 20 minutter. Helt gratis!",
+  title: "Få ferdig HMS-startpakke GRATIS | HMS Nova Document Generator",
+  description: "Svar på 10 spørsmål → Vi genererer HMS-håndbok, risikovurdering, opplæringsplan og prosedyrer. ISO 9001-struktur på 20 minutter. Helt gratis!",
   keywords: [
     "HMS system gratis",
     "HMS håndbok generator",
@@ -28,8 +28,8 @@ export const metadata: Metadata = {
     "HMS mal",
   ],
   openGraph: {
-    title: "Få ferdig HMS-system GRATIS på 20 minutter",
-    description: "Svar på 10 spørsmål → Vi genererer ALT du trenger. 40+ dokumenter bransjespesifikke.",
+    title: "Få ferdig HMS-startpakke GRATIS på 20 minutter",
+    description: "Svar på 10 spørsmål → Vi genererer HMS-håndbok og prosedyrer. ISO 9001-struktur bransjespesifikt.",
     url: "https://hmsnova.no/gratis-hms-system",
     type: "website",
   },
@@ -43,20 +43,20 @@ export default function GratisHMSSystemPage() {
         <div className="max-w-4xl mx-auto text-center">
           <Badge className="mb-4 text-base px-4 py-2" variant="secondary">
             <Gift className="mr-2 h-5 w-5" />
-            Verdi: 25.000 kr → Din pris: GRATIS
+            Verdi: 15.000 kr → Din pris: GRATIS
           </Badge>
           
           <h1 className="text-4xl md:text-6xl font-bold tracking-tight mb-6">
-            Få ferdig HMS-system på{" "}
+            Få ferdig HMS-startpakke på{" "}
             <span className="text-primary">20 minutter</span>
           </h1>
           
           <p className="text-xl md:text-2xl text-muted-foreground mb-4">
-            Svar på 10 spørsmål → Vi genererer ALT du trenger
+            Svar på 10 spørsmål → Vi genererer startpakken din
           </p>
           
           <p className="text-lg text-muted-foreground mb-8">
-            Komplett HMS-håndbok, risikovurdering, opplæringsplan og 40+ dokumenter<br />
+            HMS-håndbok, risikovurdering, opplæringsplan og prosedyrer (ISO 9001)<br />
             <strong>Bransjespesifikt for DIN bedrift</strong>
           </p>
           
@@ -135,7 +135,7 @@ export default function GratisHMSSystemPage() {
               Dette får du GRATIS
             </h2>
             <p className="text-xl text-muted-foreground">
-              Verdi: 25.000 kr (konsulentpris) → Din pris: <span className="text-primary font-bold">0 kr</span>
+              Verdi: 15.000 kr (konsulentpris for startdokumenter) → Din pris: <span className="text-primary font-bold">0 kr</span>
             </p>
           </div>
 
@@ -144,11 +144,11 @@ export default function GratisHMSSystemPage() {
               <CardHeader>
                 <div className="flex items-start justify-between">
                   <FileText className="h-8 w-8 text-primary" />
-                  <Badge variant="secondary">40-50 sider</Badge>
+                  <Badge variant="secondary">HMS-01</Badge>
                 </div>
-                <CardTitle>HMS-håndbok</CardTitle>
+                <CardTitle>HMS-håndbok (Styrende dokument)</CardTitle>
                 <CardDescription>
-                  Komplett håndbok for DIN bedrift og DIN bransje
+                  Hoveddokument med 11 punkter (ISO 9001-struktur)
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -159,15 +159,15 @@ export default function GratisHMSSystemPage() {
                   </li>
                   <li className="flex items-start gap-2">
                     <CheckCircle2 className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
-                    <span>Bransjespesifikke risikoer og prosedyrer</span>
+                    <span>Definerer ansvar, roller og HMS-organisering</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <CheckCircle2 className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
-                    <span>Organisasjonskart auto-generert</span>
+                    <span>HMS-policy og målsettinger ferdig skrevet</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <CheckCircle2 className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
-                    <span>HMS-policy ferdig skrevet</span>
+                    <span>Referanser til lover og standarder</span>
                   </li>
                 </ul>
               </CardContent>
@@ -177,30 +177,30 @@ export default function GratisHMSSystemPage() {
               <CardHeader>
                 <div className="flex items-start justify-between">
                   <Shield className="h-8 w-8 text-primary" />
-                  <Badge variant="secondary">15-25 risikoer</Badge>
+                  <Badge variant="secondary">HMS-02</Badge>
                 </div>
-                <CardTitle>Risikovurdering (5x5)</CardTitle>
+                <CardTitle>Risikovurdering (Prosedyre)</CardTitle>
                 <CardDescription>
-                  Forhåndsutfylt med bransjespesifikke risikoer
+                  Mal for 5x5-matrise med bransjespesifikke eksempler
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 <ul className="space-y-2 text-sm">
                   <li className="flex items-start gap-2">
                     <CheckCircle2 className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
-                    <span><strong>Bygg:</strong> 25 risikoer (fall, maskiner, kjemikalier)</span>
+                    <span>Beskriver fremgangsmåte for risikovurdering</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <CheckCircle2 className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
-                    <span><strong>Helse:</strong> 18 risikoer (smitte, ergonomi, vold)</span>
+                    <span>Bransjespesifikke eksempler på risikoer</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <CheckCircle2 className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
-                    <span><strong>Transport:</strong> 15 risikoer (trafikk, last, tretthet)</span>
+                    <span>5x5-matrise for sannsynlighet × konsekvens</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <CheckCircle2 className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
-                    <span>Alle med S/P/R scoring og tiltak</span>
+                    <span>Fylles ut i HMS Nova systemet</span>
                   </li>
                 </ul>
               </CardContent>
@@ -210,30 +210,30 @@ export default function GratisHMSSystemPage() {
               <CardHeader>
                 <div className="flex items-start justify-between">
                   <TrendingUp className="h-8 w-8 text-primary" />
-                  <Badge variant="secondary">Bransjespesifikk</Badge>
+                  <Badge variant="secondary">HMS-03</Badge>
                 </div>
-                <CardTitle>Opplæringsplan</CardTitle>
+                <CardTitle>Opplæringsplan (Prosedyre)</CardTitle>
                 <CardDescription>
-                  Komplett oversikt over påkrevd opplæring
+                  Mal for kompetansestyring og opplæringsbehov
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 <ul className="space-y-2 text-sm">
                   <li className="flex items-start gap-2">
                     <CheckCircle2 className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
-                    <span><strong>Bygg:</strong> HMS-kort, Arbeid i høyden, Stillas</span>
+                    <span>Beskriver fremgangsmåte for opplæring</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <CheckCircle2 className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
-                    <span><strong>Helse:</strong> Smittevern, Vold/trusler, Ergonomi</span>
+                    <span>Bransjespesifikke eksempler på kurs</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <CheckCircle2 className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
-                    <span>Opplæringsmatrise (Excel)</span>
+                    <span>Krav til dokumentasjon</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <CheckCircle2 className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
-                    <span>Vi legger til det du mangler!</span>
+                    <span>Administreres i HMS Nova systemet</span>
                   </li>
                 </ul>
               </CardContent>
@@ -243,30 +243,30 @@ export default function GratisHMSSystemPage() {
               <CardHeader>
                 <div className="flex items-start justify-between">
                   <Sparkles className="h-8 w-8 text-primary" />
-                  <Badge variant="secondary">30+ filer</Badge>
+                  <Badge variant="secondary">HMS-00, 04, 05</Badge>
                 </div>
-                <CardTitle>Og mye mer...</CardTitle>
+                <CardTitle>+ 3 ekstra dokumenter</CardTitle>
                 <CardDescription>
-                  Alt du trenger for komplett HMS-system
+                  Støttedokumenter og maler
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 <ul className="space-y-2 text-sm">
                   <li className="flex items-start gap-2">
                     <CheckCircle2 className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
-                    <span>Vernerunde-plan 2025 (årshjul)</span>
+                    <span><strong>HMS-00:</strong> Register over HMS-dokumenter</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <CheckCircle2 className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
-                    <span>AMU-møteplan og referat-maler</span>
+                    <span><strong>HMS-04:</strong> Vernerunde sjekkliste og prosedyre</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <CheckCircle2 className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
-                    <span>Beredskapsplan (bransjescenarier)</span>
+                    <span><strong>HMS-05:</strong> AMU møteprotokoll mal</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <CheckCircle2 className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
-                    <span>Avviksrutine og introduksjonsprogram</span>
+                    <span>Alle i Word-format (redigerbare)</span>
                   </li>
                 </ul>
               </CardContent>
@@ -377,8 +377,8 @@ export default function GratisHMSSystemPage() {
                   <div className="text-sm text-primary-foreground/80">minutter</div>
                 </div>
                 <div>
-                  <div className="text-4xl font-bold">40+</div>
-                  <div className="text-sm text-primary-foreground/80">dokumenter</div>
+                  <div className="text-4xl font-bold">6</div>
+                  <div className="text-sm text-primary-foreground/80">startdokumenter</div>
                 </div>
                 <div>
                   <div className="text-4xl font-bold">0</div>

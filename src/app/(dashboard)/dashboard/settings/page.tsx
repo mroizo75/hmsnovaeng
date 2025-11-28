@@ -8,7 +8,8 @@ import { UserProfileForm } from "@/features/settings/components/user-profile-for
 import { UserManagement } from "@/features/settings/components/user-management";
 import { SubscriptionInfo } from "@/features/settings/components/subscription-info";
 import { AzureAdIntegration } from "@/features/settings/components/azure-ad-integration";
-import { Building2, User, Users, CreditCard, Cloud } from "lucide-react";
+import { NotificationSettings } from "@/features/settings/components/notification-settings";
+import { Building2, User, Users, CreditCard, Cloud, Bell } from "lucide-react";
 
 export default async function SettingsPage() {
   const session = await getServerSession(authOptions);
@@ -76,7 +77,7 @@ export default async function SettingsPage() {
 
       {/* Tabs */}
       <Tabs defaultValue="company" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-5">
+        <TabsList className="grid w-full grid-cols-6">
           <TabsTrigger value="company" className="flex items-center gap-2">
             <Building2 className="h-4 w-4" />
             <span className="hidden sm:inline">Bedrift</span>
@@ -84,6 +85,10 @@ export default async function SettingsPage() {
           <TabsTrigger value="profile" className="flex items-center gap-2">
             <User className="h-4 w-4" />
             <span className="hidden sm:inline">Profil</span>
+          </TabsTrigger>
+          <TabsTrigger value="notifications" className="flex items-center gap-2">
+            <Bell className="h-4 w-4" />
+            <span className="hidden sm:inline">Varsler</span>
           </TabsTrigger>
           <TabsTrigger value="users" className="flex items-center gap-2">
             <Users className="h-4 w-4" />
@@ -105,6 +110,10 @@ export default async function SettingsPage() {
 
         <TabsContent value="profile">
           <UserProfileForm user={user} />
+        </TabsContent>
+
+        <TabsContent value="notifications">
+          <NotificationSettings user={user as any} />
         </TabsContent>
 
         <TabsContent value="users">

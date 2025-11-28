@@ -60,6 +60,15 @@ model User {
   postalCode    String?      // Postnummer
   city          String?      // Poststed
   
+  // Varslingsinnstillinger
+  notifyByEmail       Boolean  @default(true)  // Motta e-postvarsler
+  notifyBySms         Boolean  @default(false) // Motta SMS-varsler (krever phone)
+  reminderDaysBefore  Int      @default(1)     // Hvor mange dager før hendelser skal varsles
+  notifyMeetings      Boolean  @default(true)  // Varsle om møter
+  notifyInspections   Boolean  @default(true)  // Varsle om vernerunder/inspeksjoner
+  notifyAudits        Boolean  @default(true)  // Varsle om revisjoner
+  notifyMeasures      Boolean  @default(true)  // Varsle om tiltak som forfaller
+  
   // Security: Account lockout
   failedLoginAttempts Int       @default(0)
   lockedUntil         DateTime?
@@ -75,6 +84,7 @@ model User {
   documentsApproved   Document[]           @relation("DocumentApprovedBy")
   measures            Measure[]            @relation("MeasureResponsible")
   notifications       Notification[]
+  scheduledReminders  ScheduledReminder[]  @relation("UserReminders")
   createdAt           DateTime     @default(now())
   updatedAt           DateTime     @updatedAt
 
@@ -176,6 +186,7 @@ model Tenant {
   managementReviews ManagementReview[] // Ledelsens gjennomgang
   meetings         Meeting[]        // AMU/VO møter
   whistleblowings  Whistleblowing[] // Varslinger
+  scheduledReminders ScheduledReminder[] // Planlagte påminnelser
   createdAt        DateTime         @default(now())
   updatedAt        DateTime         @updatedAt
 
@@ -1480,4 +1491,53 @@ enum NotificationType {
   MEASURE_ASSIGNED     // Tiltak tildelt deg
   AUDIT_SCHEDULED      // Revisjon planlagt
   TRAINING_DUE         // Opplæring forfaller snart
+  MEETING_REMINDER     // Påminnelse om møte
+  INSPECTION_REMINDER  // Påminnelse om vernerunde/inspeksjon
+  AUDIT_REMINDER       // Påminnelse om revisjon
+  MEASURE_REMINDER     // Påminnelse om tiltak som forfaller
+}
+
+// ============================================
+// Scheduled Reminders (Planlagte påminnelser)
+// ============================================
+
+model ScheduledReminder {
+  id              String            @id @default(cuid())
+  tenantId        String
+  userId          String            // Hvem som skal motta påminnelsen
+  type            ReminderType
+  entityType      String            // "Meeting", "Inspection", "Audit", "Measure"
+  entityId        String            // ID til møte/inspeksjon/etc
+  title           String            // Tittel på påminnelsen
+  message         String?           @db.Text // Ekstra melding/beskrivelse
+  scheduledFor    DateTime          // Når påminnelsen skal sendes
+  sentAt          DateTime?         // Når påminnelsen ble sendt
+  sentViaEmail    Boolean           @default(false)
+  sentViaSms      Boolean           @default(false)
+  status          ReminderStatus    @default(PENDING)
+  error           String?           @db.Text
+  createdAt       DateTime          @default(now())
+  
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  user   User   @relation("UserReminders", fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@index([tenantId])
+  @@index([userId])
+  @@index([scheduledFor])
+  @@index([status])
+  @@index([entityType, entityId])
+}
+
+enum ReminderType {
+  MEETING_UPCOMING      // Møte om X dager
+  INSPECTION_UPCOMING   // Vernerunde om X dager
+  AUDIT_UPCOMING        // Revisjon om X dager
+  MEASURE_DUE_SOON      // Tiltak forfaller snart
+}
+
+enum ReminderStatus {
+  PENDING     // Venter på å bli sendt
+  SENT        // Sendt vellykket
+  FAILED      // Feilet
+  CANCELLED   // Kansellert (f.eks. møte ble avlyst)
 }
