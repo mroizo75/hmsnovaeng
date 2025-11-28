@@ -146,6 +146,14 @@ model Tenant {
   hmsContactPhone  String?          // Telefon til HMS-ansvarlig
   hmsContactEmail  String?          // E-post til HMS-ansvarlig
   
+  // Azure AD / Office 365 SSO Integration (per-tenant)
+  azureAdTenantId     String?       // Azure AD Tenant ID (fra Azure Portal)
+  azureAdEnabled      Boolean       @default(false) // Er Azure AD SSO aktivert?
+  azureAdSyncEnabled  Boolean       @default(false) // Auto-sync brukere fra Azure AD?
+  azureAdLastSync     DateTime?     // Sist synkronisert
+  azureAdDomain       String?       // Primary domain (f.eks. "firma.no")
+  azureAdAutoRole     Role?         // Standard rolle for nye brukere fra Azure AD
+  
   users            UserTenant[]
   documents        Document[]
   documentVersions DocumentVersion[]

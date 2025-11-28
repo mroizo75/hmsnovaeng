@@ -1,5 +1,6 @@
 import { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
+import AzureADProvider from "next-auth/providers/azure-ad";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import { prisma } from "@/lib/db";
 import bcrypt from "bcryptjs";
@@ -7,6 +8,18 @@ import bcrypt from "bcryptjs";
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
   providers: [
+    // Microsoft/Office 365 SSO
+    AzureADProvider({
+      clientId: process.env.AZURE_AD_CLIENT_ID || "",
+      clientSecret: process.env.AZURE_AD_CLIENT_SECRET || "",
+      tenantId: process.env.AZURE_AD_TENANT_ID || "common",
+      authorization: {
+        params: {
+          scope: "openid profile email User.Read",
+        },
+      },
+    }),
+    // Traditional credentials login
     CredentialsProvider({
       name: "credentials",
       credentials: {
@@ -157,7 +170,70 @@ export const authOptions: NextAuthOptions = {
     signIn: "/login",
   },
   callbacks: {
-    async jwt({ token, user }) {
+    async signIn({ user, account, profile }) {
+      // OAuth providers (Microsoft, Google, etc.)
+      if (account?.provider !== "credentials") {
+        const email = user.email!;
+        
+        // Valider om brukeren kan logge inn via Azure AD
+        const { validateAzureAdLogin } = await import("@/server/actions/azure-ad.actions");
+        const validation = await validateAzureAdLogin(email);
+
+        if (!validation.allowed) {
+          console.error(`SSO login denied for ${email}: ${validation.error}`);
+          return false;
+        }
+
+        // Sjekk om bruker eksisterer
+        let existingUser = await prisma.user.findUnique({
+          where: { email: email.toLowerCase() },
+          include: {
+            tenants: {
+              where: {
+                tenantId: validation.tenantId,
+              },
+            },
+          },
+        });
+
+        // Hvis bruker ikke eksisterer, opprett automatisk (JIT provisioning)
+        if (!existingUser) {
+          existingUser = await prisma.user.create({
+            data: {
+              email: email.toLowerCase(),
+              name: user.name,
+              emailVerified: new Date(),
+              tenants: {
+                create: {
+                  tenantId: validation.tenantId!,
+                  role: validation.role!,
+                },
+              },
+            },
+            include: {
+              tenants: true,
+            },
+          });
+          console.log(`JIT provisioning: Created user ${email} with role ${validation.role}`);
+        } else if (existingUser.tenants.length === 0) {
+          // Bruker eksisterer men ikke i denne tenanten - legg til
+          await prisma.userTenant.create({
+            data: {
+              userId: existingUser.id,
+              tenantId: validation.tenantId!,
+              role: validation.role!,
+            },
+          });
+          console.log(`JIT provisioning: Added ${email} to tenant with role ${validation.role}`);
+        }
+
+        return true;
+      }
+
+      // Credentials provider - standard håndtering
+      return true;
+    },
+    async jwt({ token, user, account }) {
       if (user) {
         token.id = user.id;
         
@@ -189,6 +265,14 @@ export const authOptions: NextAuthOptions = {
         session.user.role = token.role as any;
       }
       return session;
+    },
+  },
+  events: {
+    async signIn({ user, account, isNewUser }) {
+      // Logg SSO innlogginger
+      if (account?.provider !== "credentials") {
+        console.log(`SSO login: ${user.email} via ${account.provider}`);
+      }
     },
   },
   secret: process.env.NEXTAUTH_SECRET,

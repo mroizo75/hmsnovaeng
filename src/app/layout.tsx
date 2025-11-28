@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Providers } from "./providers";
 import { CookieConsent } from "@/components/cookie-consent";
+import { AITracker } from "@/components/ai-tracker";
 import { StructuredData } from "@/components/seo/structured-data";
 import {
   SITE_CONFIG,
@@ -64,7 +65,10 @@ export default async function RootLayout({
         <StructuredData data={ORGANIZATION_SCHEMA} />
       </head>
       <body>
-        <Providers>{children}</Providers>
+        <Providers>
+          <AITracker />
+          {children}
+        </Providers>
         <CookieConsent />
       </body>
     </html>

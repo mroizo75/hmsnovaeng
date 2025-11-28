@@ -1,0 +1,306 @@
+"use server";
+
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
+import { prisma } from "@/lib/db";
+import { revalidatePath } from "next/cache";
+import type { Role } from "@prisma/client";
+
+async function getSessionContext() {
+  const session = await getServerSession(authOptions);
+  
+  if (!session?.user?.email) {
+    return { error: "Ikke autentisert" };
+  }
+
+  const user = await prisma.user.findUnique({
+    where: { email: session.user.email },
+    include: {
+      tenants: { take: 1 },
+    },
+  });
+
+  if (!user || user.tenants.length === 0) {
+    return { error: "Ingen tenant funnet" };
+  }
+
+  const tenantId = user.tenants[0].tenantId;
+  const role = user.tenants[0].role;
+
+  if (role !== "ADMIN") {
+    return { error: "Kun administratorer kan endre Azure AD-innstillinger" };
+  }
+
+  return { user, tenantId, role };
+}
+
+export async function updateAzureAdSettings(data: {
+  azureAdTenantId?: string;
+  azureAdEnabled?: boolean;
+  azureAdSyncEnabled?: boolean;
+  azureAdDomain?: string;
+  azureAdAutoRole?: string;
+}) {
+  try {
+    const context = await getSessionContext();
+    if ("error" in context) {
+      return { success: false, error: context.error };
+    }
+
+    const { tenantId } = context;
+
+    // Valider at Tenant ID er en gyldig GUID hvis oppgitt
+    if (data.azureAdTenantId) {
+      const guidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+      if (!guidRegex.test(data.azureAdTenantId)) {
+        return {
+          success: false,
+          error: "Ugyldig Azure AD Tenant ID format. Må være en GUID.",
+        };
+      }
+    }
+
+    // Valider domene-format
+    if (data.azureAdDomain) {
+      const domainRegex = /^[a-z0-9]+([\-\.]{1}[a-z0-9]+)*\.[a-z]{2,}$/i;
+      if (!domainRegex.test(data.azureAdDomain)) {
+        return {
+          success: false,
+          error: "Ugyldig domene-format. Eksempel: bedrift.no",
+        };
+      }
+    }
+
+    await prisma.tenant.update({
+      where: { id: tenantId },
+      data: {
+        azureAdTenantId: data.azureAdTenantId,
+        azureAdEnabled: data.azureAdEnabled,
+        azureAdSyncEnabled: data.azureAdSyncEnabled,
+        azureAdDomain: data.azureAdDomain?.toLowerCase(),
+        azureAdAutoRole: data.azureAdAutoRole as Role | null,
+      },
+    });
+
+    revalidatePath("/dashboard/settings");
+    
+    return { success: true };
+  } catch (error) {
+    console.error("Error updating Azure AD settings:", error);
+    return {
+      success: false,
+      error: "Kunne ikke oppdatere Azure AD-innstillinger",
+    };
+  }
+}
+
+export async function syncAzureAdUsers() {
+  try {
+    const context = await getSessionContext();
+    if ("error" in context) {
+      return { success: false, error: context.error };
+    }
+
+    const { tenantId } = context;
+
+    // Hent tenant med Azure AD konfigurasjon
+    const tenant = await prisma.tenant.findUnique({
+      where: { id: tenantId },
+      select: {
+        id: true,
+        azureAdTenantId: true,
+        azureAdEnabled: true,
+        azureAdDomain: true,
+        azureAdAutoRole: true,
+      },
+    });
+
+    if (!tenant?.azureAdEnabled || !tenant.azureAdTenantId) {
+      return {
+        success: false,
+        error: "Azure AD er ikke konfigurert for denne bedriften",
+      };
+    }
+
+    // Hent brukere fra Azure AD via Microsoft Graph API
+    const { fetchAzureAdUsers } = await import("@/lib/microsoft-graph");
+    const graphResult = await fetchAzureAdUsers(
+      tenant.azureAdTenantId,
+      tenant.azureAdDomain || undefined
+    );
+
+    if (!graphResult.success || !graphResult.users) {
+      return {
+        success: false,
+        error: graphResult.error || "Kunne ikke hente brukere fra Azure AD",
+      };
+    }
+
+    let createdCount = 0;
+    let updatedCount = 0;
+
+    // Opprett eller oppdater brukere i HMS Nova
+    for (const azureUser of graphResult.users) {
+      const email = azureUser.mail || azureUser.userPrincipalName;
+      if (!email) continue;
+
+      // Sjekk om bruker allerede eksisterer
+      const existingUser = await prisma.user.findUnique({
+        where: { email: email.toLowerCase() },
+        include: {
+          tenants: {
+            where: { tenantId: tenant.id },
+          },
+        },
+      });
+
+      if (existingUser) {
+        // Oppdater eksisterende bruker
+        if (existingUser.tenants.length === 0) {
+          // Bruker eksisterer, men ikke i denne tenanten - legg til
+          await prisma.userTenant.create({
+            data: {
+              userId: existingUser.id,
+              tenantId: tenant.id,
+              role: (tenant.azureAdAutoRole as Role) || "ANSATT",
+              department: azureUser.department || undefined,
+            },
+          });
+          createdCount++;
+        } else {
+          // Bruker eksisterer allerede i tenant - oppdater navn hvis endret
+          if (azureUser.displayName && existingUser.name !== azureUser.displayName) {
+            await prisma.user.update({
+              where: { id: existingUser.id },
+              data: { name: azureUser.displayName },
+            });
+            updatedCount++;
+          }
+        }
+      } else {
+        // Opprett ny bruker
+        await prisma.user.create({
+          data: {
+            email: email.toLowerCase(),
+            name: azureUser.displayName,
+            emailVerified: new Date(), // Azure AD brukere er automatisk verifisert
+            phone: azureUser.mobilePhone || azureUser.businessPhones?.[0] || undefined,
+            tenants: {
+              create: {
+                tenantId: tenant.id,
+                role: (tenant.azureAdAutoRole as Role) || "ANSATT",
+                department: azureUser.department || undefined,
+              },
+            },
+          },
+        });
+        createdCount++;
+      }
+    }
+
+    // Oppdater sist synkronisert
+    await prisma.tenant.update({
+      where: { id: tenantId },
+      data: {
+        azureAdLastSync: new Date(),
+      },
+    });
+
+    revalidatePath("/dashboard/settings");
+
+    return {
+      success: true,
+      data: {
+        created: createdCount,
+        updated: updatedCount,
+        total: graphResult.users.length,
+      },
+    };
+  } catch (error) {
+    console.error("Error syncing Azure AD users:", error);
+    return {
+      success: false,
+      error: "Kunne ikke synkronisere brukere fra Azure AD",
+    };
+  }
+}
+
+/**
+ * Validerer om en bruker kan logge inn via Azure AD basert på tenant-konfigurasjon
+ */
+export async function validateAzureAdLogin(email: string): Promise<{
+  allowed: boolean;
+  tenantId?: string;
+  role?: Role;
+  error?: string;
+}> {
+  try {
+    // Hent domene fra e-post
+    const domain = email.split("@")[1];
+    if (!domain) {
+      return { allowed: false, error: "Ugyldig e-postadresse" };
+    }
+
+    // Finn tenant med matching domene og aktivert Azure AD
+    const tenant = await prisma.tenant.findFirst({
+      where: {
+        azureAdEnabled: true,
+        azureAdDomain: domain.toLowerCase(),
+      },
+      select: {
+        id: true,
+        azureAdAutoRole: true,
+        status: true,
+      },
+    });
+
+    if (!tenant) {
+      return {
+        allowed: false,
+        error: "Ingen aktiv HMS Nova-konto funnet for dette domenet",
+      };
+    }
+
+    if (tenant.status === "SUSPENDED" || tenant.status === "CANCELLED") {
+      return {
+        allowed: false,
+        error: "Bedriftskontoen er suspendert. Kontakt support@hmsnova.com",
+      };
+    }
+
+    // Sjekk om bruker allerede eksisterer
+    const existingUser = await prisma.user.findUnique({
+      where: { email: email.toLowerCase() },
+      include: {
+        tenants: {
+          where: {
+            tenantId: tenant.id,
+          },
+        },
+      },
+    });
+
+    if (existingUser && existingUser.tenants.length > 0) {
+      // Bruker eksisterer allerede
+      return {
+        allowed: true,
+        tenantId: tenant.id,
+        role: existingUser.tenants[0].role,
+      };
+    }
+
+    // Ny bruker - skal opprettes med standard rolle
+    return {
+      allowed: true,
+      tenantId: tenant.id,
+      role: (tenant.azureAdAutoRole as Role) || "ANSATT",
+    };
+  } catch (error) {
+    console.error("Error validating Azure AD login:", error);
+    return {
+      allowed: false,
+      error: "Kunne ikke validere innlogging",
+    };
+  }
+}
+

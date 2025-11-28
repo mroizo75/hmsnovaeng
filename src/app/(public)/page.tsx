@@ -6,6 +6,8 @@ import { Badge } from "@/components/ui/badge";
 import { ScrollReveal } from "@/components/scroll-reveal";
 import { RegisterDialog } from "@/components/register-dialog";
 import { MultipleStructuredData } from "@/components/seo/structured-data";
+import { FAQSection } from "@/components/faq-section";
+import { getFAQsForPage } from "@/lib/faq-data";
 import {
   PAGE_METADATA,
   getOpenGraphDefaults,
@@ -496,6 +498,13 @@ export default function HomePage() {
           </div>
         </div>
       </section>
+
+      {/* FAQ Section - AI Optimization */}
+      <FAQSection 
+        faqs={getFAQsForPage('home')} 
+        title="Ofte stilte spørsmål"
+        description="Svar på de vanligste spørsmålene om HMS Nova"
+      />
 
       {/* CTA Section - StoryBrand: Call to Action */}
       <section className="container mx-auto px-4 py-20">

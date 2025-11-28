@@ -30,24 +30,37 @@ Sitemap: https://hmsnova.no/sitemap.xml
 # Spesielle instruksjoner for AI crawlers
 User-agent: GPTBot
 Allow: /
+Allow: /blogg/
 Crawl-delay: 1
 
 User-agent: ChatGPT-User
 Allow: /
+Allow: /blogg/
 
 User-agent: CCBot
 Allow: /
+Allow: /blogg/
 Crawl-delay: 1
 
 User-agent: anthropic-ai
 Allow: /
+Allow: /blogg/
 Crawl-delay: 1
 
 User-agent: Claude-Web
 Allow: /
+Allow: /blogg/
 Crawl-delay: 1
 
 User-agent: PerplexityBot
 Allow: /
+Allow: /blogg/
 Crawl-delay: 1
+
+User-agent: Google-Extended
+Allow: /
+Allow: /blogg/
+
+User-agent: Bytespider
+Disallow: /
 

@@ -113,6 +113,43 @@ export default function LoginPage() {
               {loading ? t("common.loading") : t("auth.login")}
             </Button>
 
+            {/* SSO Options */}
+            {process.env.NEXT_PUBLIC_ENABLE_SSO === "true" && (
+              <>
+                <div className="relative my-4">
+                  <div className="absolute inset-0 flex items-center">
+                    <span className="w-full border-t" />
+                  </div>
+                  <div className="relative flex justify-center text-xs uppercase">
+                    <span className="bg-background px-2 text-muted-foreground">
+                      Eller
+                    </span>
+                  </div>
+                </div>
+
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="w-full"
+                  disabled={loading}
+                  onClick={() => signIn("azure-ad", { callbackUrl: "/dashboard" })}
+                >
+                  <svg
+                    className="mr-2 h-4 w-4"
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 23 23"
+                  >
+                    <path fill="#f3f3f3" d="M0 0h23v23H0z" />
+                    <path fill="#f35325" d="M1 1h10v10H1z" />
+                    <path fill="#81bc06" d="M12 1h10v10H12z" />
+                    <path fill="#05a6f0" d="M1 12h10v10H1z" />
+                    <path fill="#ffba08" d="M12 12h10v10H12z" />
+                  </svg>
+                  Logg inn med Microsoft
+                </Button>
+              </>
+            )}
+
             <div className="text-center mt-4">
               <Link
                 href="/forgot-password"

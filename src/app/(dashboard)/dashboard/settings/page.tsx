@@ -7,7 +7,8 @@ import { TenantSettingsForm } from "@/features/settings/components/tenant-settin
 import { UserProfileForm } from "@/features/settings/components/user-profile-form";
 import { UserManagement } from "@/features/settings/components/user-management";
 import { SubscriptionInfo } from "@/features/settings/components/subscription-info";
-import { Building2, User, Users, CreditCard } from "lucide-react";
+import { AzureAdIntegration } from "@/features/settings/components/azure-ad-integration";
+import { Building2, User, Users, CreditCard, Cloud } from "lucide-react";
 
 export default async function SettingsPage() {
   const session = await getServerSession(authOptions);
@@ -75,7 +76,7 @@ export default async function SettingsPage() {
 
       {/* Tabs */}
       <Tabs defaultValue="company" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-4">
+        <TabsList className="grid w-full grid-cols-5">
           <TabsTrigger value="company" className="flex items-center gap-2">
             <Building2 className="h-4 w-4" />
             <span className="hidden sm:inline">Bedrift</span>
@@ -87,6 +88,10 @@ export default async function SettingsPage() {
           <TabsTrigger value="users" className="flex items-center gap-2">
             <Users className="h-4 w-4" />
             <span className="hidden sm:inline">Brukere</span>
+          </TabsTrigger>
+          <TabsTrigger value="sso" className="flex items-center gap-2">
+            <Cloud className="h-4 w-4" />
+            <span className="hidden sm:inline">Office 365</span>
           </TabsTrigger>
           <TabsTrigger value="subscription" className="flex items-center gap-2">
             <CreditCard className="h-4 w-4" />
@@ -110,6 +115,10 @@ export default async function SettingsPage() {
             pricingTier={tenant.pricingTier}
             maxUsers={limits.maxUsers}
           />
+        </TabsContent>
+
+        <TabsContent value="sso">
+          <AzureAdIntegration tenant={tenant as any} isAdmin={isAdmin} />
         </TabsContent>
 
         <TabsContent value="subscription">
