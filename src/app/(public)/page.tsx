@@ -504,6 +504,7 @@ export default function HomePage() {
         faqs={getFAQsForPage('home')} 
         title="Ofte stilte spørsmål"
         description="Svar på de vanligste spørsmålene om HMS Nova"
+        enableSchema={false}
       />
 
       {/* CTA Section - StoryBrand: Call to Action */}

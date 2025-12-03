@@ -1,19 +1,21 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { S3Client, PutObjectCommand, DeleteObjectCommand } from "@aws-sdk/client-s3";
 import { createErrorResponse, createSuccessResponse, ErrorCodes } from "@/lib/validations/api";
+import { buildInspectionImageKey } from "@/lib/inspection-image-upload";
 
 const s3Client = new S3Client({
   region: "auto",
-  endpoint: process.env.R2_ENDPOINT,
+  endpoint: process.env.R2_ENDPOINT || process.env.S3_ENDPOINT,
   credentials: {
     accessKeyId: process.env.R2_ACCESS_KEY_ID!,
     secretAccessKey: process.env.R2_SECRET_ACCESS_KEY!,
   },
+  forcePathStyle: true,
 });
 
-const BUCKET_NAME = process.env.R2_BUCKET_NAME!;
+const BUCKET_NAME = process.env.R2_BUCKET_NAME || process.env.R2_BUCKET || process.env.S3_BUCKET || "hmsnova";
 
 /**
  * POST /api/inspections/upload
@@ -22,16 +24,23 @@ const BUCKET_NAME = process.env.R2_BUCKET_NAME!;
 export async function POST(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
-    if (!session?.user?.id) {
+    if (!session?.user?.id || !session.user.tenantId) {
       return createErrorResponse(ErrorCodes.UNAUTHORIZED, "Ikke autentisert", 401);
     }
 
     const formData = await request.formData();
-    const file = formData.get("file") as File;
+    const file = formData.get("file");
+    const inspectionIdValue = formData.get("inspectionId");
 
-    if (!file) {
+    if (!(file instanceof File)) {
       return createErrorResponse(ErrorCodes.VALIDATION_ERROR, "Ingen fil lastet opp", 400);
     }
+
+    if (typeof inspectionIdValue !== "string" || inspectionIdValue.trim().length === 0) {
+      return createErrorResponse(ErrorCodes.VALIDATION_ERROR, "InspectionId mangler", 400);
+    }
+
+    const inspectionId = inspectionIdValue.trim();
 
     // Validate file type
     const allowedTypes = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
@@ -55,8 +64,13 @@ export async function POST(request: NextRequest) {
 
     const buffer = Buffer.from(await file.arrayBuffer());
     const timestamp = Date.now();
-    const sanitizedFileName = file.name.replace(/[^a-zA-Z0-9.-]/g, "_");
-    const key = `inspections/${session.user.id}/${timestamp}-${sanitizedFileName}`;
+    const tenantId = session.user.tenantId;
+    const key = buildInspectionImageKey({
+      tenantId,
+      inspectionId,
+      fileName: file.name || `${timestamp}.jpg`,
+      timestamp,
+    });
 
     await s3Client.send(
       new PutObjectCommand({
@@ -83,21 +97,42 @@ export async function POST(request: NextRequest) {
 export async function DELETE(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
-    if (!session?.user?.id) {
+    if (!session?.user?.id || !session.user.tenantId) {
       return createErrorResponse(ErrorCodes.UNAUTHORIZED, "Ikke autentisert", 401);
     }
 
     const { searchParams } = new URL(request.url);
-    const key = searchParams.get("key");
+    let key = searchParams.get("key");
+
+    if (!key) {
+      const contentType = request.headers.get("content-type") || "";
+      if (contentType.includes("application/json")) {
+        try {
+          const body = await request.json();
+          if (body?.key && typeof body.key === "string") {
+            key = body.key;
+          }
+        } catch {
+          // Ignorer JSON-feil for å kunne feilhåndtere under
+        }
+      }
+    }
 
     if (!key) {
       return createErrorResponse(ErrorCodes.VALIDATION_ERROR, "Ingen nøkkel spesifisert", 400);
     }
 
+    const decodedKey = key.includes("%") ? decodeURIComponent(key) : key;
+    const tenantPrefix = `tenants/${session.user.tenantId}/`;
+
+    if (!decodedKey.startsWith(tenantPrefix)) {
+      return createErrorResponse(ErrorCodes.FORBIDDEN, "Ugyldig nøkkel", 403);
+    }
+
     await s3Client.send(
       new DeleteObjectCommand({
         Bucket: BUCKET_NAME,
-        Key: key,
+        Key: decodedKey,
       })
     );
 

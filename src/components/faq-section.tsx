@@ -1,4 +1,5 @@
-import { Card, CardContent } from '@/components/ui/card';
+import React from "react";
+import { Card, CardContent } from "@/components/ui/card";
 
 export interface FAQItem {
   question: string;
@@ -9,22 +10,24 @@ interface FAQSectionProps {
   faqs: FAQItem[];
   title?: string;
   description?: string;
+  enableSchema?: boolean;
 }
 
-export function FAQSection({ 
-  faqs, 
-  title = 'Ofte stilte spørsmål',
-  description 
+export function FAQSection({
+  faqs,
+  title = "Ofte stilte spørsmål",
+  description,
+  enableSchema = true,
 }: FAQSectionProps) {
   // Generate FAQ Schema for AI
   const faqSchema = {
-    '@context': 'https://schema.org',
-    '@type': 'FAQPage',
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
     mainEntity: faqs.map((faq) => ({
-      '@type': 'Question',
+      "@type": "Question",
       name: faq.question,
       acceptedAnswer: {
-        '@type': 'Answer',
+        "@type": "Answer",
         text: faq.answer,
       },
     })),
@@ -33,10 +36,12 @@ export function FAQSection({
   return (
     <>
       {/* Schema for AI */}
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
-      />
+      {enableSchema && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
+        />
+      )}
 
       {/* Visual FAQ */}
       <section className="py-20 bg-muted/30">
