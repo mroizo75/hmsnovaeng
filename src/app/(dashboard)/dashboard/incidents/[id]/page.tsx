@@ -55,6 +55,14 @@ export default async function IncidentDetailPage({ params }: { params: Promise<{
         },
       },
       attachments: true,
+      risk: {
+        select: {
+          id: true,
+          title: true,
+          category: true,
+          score: true,
+        },
+      },
     },
   });
 
@@ -202,6 +210,46 @@ export default async function IncidentDetailPage({ params }: { params: Promise<{
               </div>
             )}
           </div>
+
+          {(incident.injuryType || typeof incident.lostTimeMinutes === "number" || incident.medicalAttentionRequired || incident.risk) && (
+            <div className="grid gap-4 md:grid-cols-3">
+              {(incident.injuryType || incident.medicalAttentionRequired) && (
+                <div>
+                  <h4 className="font-semibold mb-1">Skade</h4>
+                  <p className="text-sm text-muted-foreground">
+                    {incident.injuryType || "Ingen skade registrert"}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    {incident.medicalAttentionRequired ? "Legebehandling nødvendig" : "Ingen legebehandling"}
+                  </p>
+                </div>
+              )}
+
+              {typeof incident.lostTimeMinutes === "number" && (
+                <div>
+                  <h4 className="font-semibold mb-1">Tapt tid</h4>
+                  <p className="text-sm text-muted-foreground">
+                    {incident.lostTimeMinutes} minutter
+                  </p>
+                </div>
+              )}
+
+              {incident.risk && (
+                <div>
+                  <h4 className="font-semibold mb-1">Knyttet risiko</h4>
+                  <Link
+                    href={`/dashboard/risks/${incident.risk.id}`}
+                    className="text-sm text-primary underline"
+                  >
+                    {incident.risk.title}
+                  </Link>
+                  <p className="text-xs text-muted-foreground">
+                    Score {incident.risk.score}
+                  </p>
+                </div>
+              )}
+            </div>
+          )}
 
           {incident.immediateAction && (
             <div>

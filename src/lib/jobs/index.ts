@@ -1,4 +1,5 @@
 import { scheduleInvoiceCheck, invoiceWorker } from "./invoice-checker";
+import { scheduleReminderJobs, reminderWorker } from "./reminder-queue";
 
 /**
  * Initialiser alle scheduled jobs
@@ -8,8 +9,7 @@ export async function initializeJobs() {
   console.log("[Jobs] Initializing scheduled jobs...");
 
   try {
-    // Start invoice checker
-    await scheduleInvoiceCheck();
+    await Promise.all([scheduleInvoiceCheck(), scheduleReminderJobs()]);
     
     console.log("[Jobs] All jobs initialized successfully");
   } catch (error) {
@@ -18,5 +18,5 @@ export async function initializeJobs() {
 }
 
 // Export workers for cleanup
-export { invoiceWorker };
+export { invoiceWorker, reminderWorker };
 

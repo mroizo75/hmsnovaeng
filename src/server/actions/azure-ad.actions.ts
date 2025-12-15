@@ -34,6 +34,8 @@ async function getSessionContext() {
   return { user, tenantId, role };
 }
 
+const allowedRoles: Role[] = ["ADMIN", "HMS", "LEDER", "VERNEOMBUD", "ANSATT", "BHT", "REVISOR"];
+
 export async function updateAzureAdSettings(data: {
   azureAdTenantId?: string;
   azureAdEnabled?: boolean;
@@ -71,6 +73,13 @@ export async function updateAzureAdSettings(data: {
       }
     }
 
+    if (data.azureAdAutoRole && !allowedRoles.includes(data.azureAdAutoRole as Role)) {
+      return {
+        success: false,
+        error: "Ugyldig rolle for automatisk tildeling",
+      };
+    }
+
     await prisma.tenant.update({
       where: { id: tenantId },
       data: {
@@ -78,7 +87,7 @@ export async function updateAzureAdSettings(data: {
         azureAdEnabled: data.azureAdEnabled,
         azureAdSyncEnabled: data.azureAdSyncEnabled,
         azureAdDomain: data.azureAdDomain?.toLowerCase(),
-        azureAdAutoRole: data.azureAdAutoRole as Role | null,
+        azureAdAutoRole: data.azureAdAutoRole ? (data.azureAdAutoRole as Role) : null,
       },
     });
 

@@ -124,7 +124,7 @@ export default function BesteHMSSystemISO9001Page() {
                   </div>
 
                   <div className="p-4 bg-muted rounded-lg mb-4">
-                    <div className="text-2xl font-bold mb-1">8.000 - 18.000 kr/år</div>
+                    <div className="text-2xl font-bold mb-1">Fra 225 kr/mnd</div>
                     <div className="text-sm text-muted-foreground">
                       Avhengig av bedriftsstørrelse • Alt inkludert
                     </div>
@@ -272,7 +272,7 @@ export default function BesteHMSSystemISO9001Page() {
                   </div>
                 </div>
                 <div className="mt-4 p-3 bg-primary/10 rounded">
-                  <div className="font-bold">8.000 kr/år</div>
+                  <div className="font-bold">Fra 225 kr/mnd</div>
                   <div className="text-xs text-muted-foreground">0-20 ansatte</div>
                 </div>
               </CardContent>

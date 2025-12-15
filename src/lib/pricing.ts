@@ -12,6 +12,18 @@
 
 import { PricingTier } from "@prisma/client";
 
+export type BindingPeriod = "none" | "1year" | "2year";
+
+export interface BindingPlan {
+  period: BindingPeriod;
+  name: string;
+  description: string;
+  monthlyPrice: number;
+  yearlyPrice: number;
+  savings?: string;
+  popular?: boolean;
+}
+
 export interface PricingPlan {
   tier: PricingTier;
   name: string;
@@ -25,41 +37,81 @@ export interface PricingPlan {
 }
 
 /**
- * HMS Nova Prisplan
+ * HMS Nova Prisplan (Kun Software)
  * 
  * Transparent prising. Ingen skjulte kostnader.
  * 
+ * Prismodell basert på bindingstid:
+ * - Ingen binding: 300 kr/mnd - fleksibilitet, si opp når du vil
+ * - 1 år binding: 275 kr/mnd - spar 300 kr/år
+ * - 2 år binding: 225 kr/mnd - spar 900 kr/år (beste verdi)
+ * 
  * HMS Nova fordeler:
  * - Ingen oppstartskostnader: 0 kr (konkurrenter: 20.000-50.000 kr)
- * - Ingen binding: Si opp når du vil
  * - Alt inkludert: Alle funksjoner i prisen
- * - Norsk support: E-post, telefon (prioritert), 24/7 (store bedrifter)
+ * - Norsk support: E-post og telefon inkludert
  * - Gratis HMS-håndbok: Ferdig mal klar til bruk
  * - Digital signatur: Inkludert (konkurrenter: ekstrakostnad)
  */
+export const BINDING_PLANS: BindingPlan[] = [
+  {
+    period: "none",
+    name: "Ingen binding",
+    description: "Maksimal fleksibilitet - si opp når du vil",
+    monthlyPrice: 300,
+    yearlyPrice: 3600,
+  },
+  {
+    period: "1year",
+    name: "1 år binding",
+    description: "Spar 300 kr/år med 1 års avtale",
+    monthlyPrice: 275,
+    yearlyPrice: 3300,
+    savings: "Spar 300 kr/år",
+    popular: true,
+  },
+  {
+    period: "2year",
+    name: "2 år binding",
+    description: "Beste verdi - spar 900 kr/år",
+    monthlyPrice: 225,
+    yearlyPrice: 2700,
+    savings: "Spar 900 kr/år",
+  },
+];
+
+/**
+ * Standard funksjoner inkludert i alle planer
+ */
+export const INCLUDED_FEATURES = [
+  "✅ Ubegrenset antall brukere",
+  "✅ Dokumenthåndtering med versjonskontroll",
+  "✅ Risikovurdering (5x5 matrise)",
+  "✅ Hendelsesrapportering & 5-Whys analyse",
+  "✅ Digital signaturer (pålogging)",
+  "✅ Ferdig HMS-håndbok",
+  "✅ Opplæringsmodul & kompetansematrise",
+  "✅ Revisjoner & Audits (ISO 9001)",
+  "✅ Mål & KPI-oppfølging",
+  "✅ Stoffkartotek med sikkerhetsdatablad",
+  "✅ Automatiske påminnelser & varsler",
+  "✅ Mobiloptimalisert løsning",
+  "✅ E-post og telefon support",
+  "✅ Ubegrenset lagring",
+  "✅ API-tilgang for integrasjoner",
+];
+
+// Legacy pricing plans (beholdes for bakoverkompatibilitet)
 export const PRICING_PLANS: PricingPlan[] = [
   {
     tier: "MICRO",
-    name: "Små bedrifter",
-    employeeRange: "1-20 ansatte",
+    name: "HMS Nova Software",
+    employeeRange: "Alle bedriftsstørrelser",
     minEmployees: 1,
-    maxEmployees: 20,
-    yearlyPrice: 6000,
-    monthlyPrice: 500,
-    features: [
-      "✅ Opptil 20 brukere inkludert",
-      "✅ Dokumenthåndtering med versjonskontroll",
-      "✅ Risikovurdering (5x5 matrise)",
-      "✅ Hendelsesrapportering & 5-Whys analyse",
-      "✅ Digital signaturer (pålogging)",
-      "✅ Ferdig HMS-håndbok",
-      "✅ Opplæringsmodul & kompetansematrise",
-      "✅ Revisjoner & Audits (ISO 9001)",
-      "✅ Mål & KPI-oppfølging",
-      "✅ Stoffkartotek med sikkerhetsdatablad",
-      "✅ E-post support",
-      "✅ 10 GB lagring",
-    ],
+    maxEmployees: null,
+    yearlyPrice: 3300, // 1 år binding som standard
+    monthlyPrice: 275,
+    features: INCLUDED_FEATURES,
     popularFeatures: [
       "Digital signatur",
       "Ferdig HMS-håndbok",
@@ -68,22 +120,13 @@ export const PRICING_PLANS: PricingPlan[] = [
   },
   {
     tier: "SMALL",
-    name: "Mellomstore bedrifter",
-    employeeRange: "21-50 ansatte",
-    minEmployees: 21,
-    maxEmployees: 50,
-    yearlyPrice: 8000,
-    monthlyPrice: 667,
-    features: [
-      "✅ Alt i Små bedrifter, pluss:",
-      "✅ Opptil 50 brukere inkludert",
-      "✅ Automatiske påminnelser & varsler",
-      "✅ Avansert rapportering & analytics",
-      "✅ Prioritert support (telefon + e-post)",
-      "✅ Dedikert onboarding-samtale",
-      "✅ 50 GB lagring",
-      "✅ API-tilgang for integrasjoner",
-    ],
+    name: "HMS Nova Software",
+    employeeRange: "Alle bedriftsstørrelser",
+    minEmployees: 1,
+    maxEmployees: null,
+    yearlyPrice: 3300,
+    monthlyPrice: 275,
+    features: INCLUDED_FEATURES,
     popularFeatures: [
       "Automatiske varsler",
       "API-tilgang",
@@ -92,41 +135,27 @@ export const PRICING_PLANS: PricingPlan[] = [
   },
   {
     tier: "MEDIUM",
-    name: "Store bedrifter",
-    employeeRange: "51+ ansatte",
-    minEmployees: 51,
+    name: "HMS Nova Software",
+    employeeRange: "Alle bedriftsstørrelser",
+    minEmployees: 1,
     maxEmployees: null,
-    yearlyPrice: 12000,
-    monthlyPrice: 1000,
-    features: [
-      "✅ Alt i Mellomstore bedrifter, pluss:",
-      "✅ Ubegrenset brukere",
-      "✅ Ubegrenset lagring",
-      "✅ Dedikert kundekonsulent",
-      "✅ On-premise deployment (valgfritt)",
-      "✅ SLA med 99.9% oppetid",
-      "✅ 24/7 prioritert support",
-      "✅ Egendefinerte integrasjoner",
-      "✅ Avansert bruker- og rollestyring",
-      "✅ Hvitelabeling (ekstra kostnad)",
-      "✅ Årlig revisjon av HMS-systemet",
-    ],
+    yearlyPrice: 3300,
+    monthlyPrice: 275,
+    features: INCLUDED_FEATURES,
     popularFeatures: [
       "Ubegrenset brukere",
-      "Dedikert konsulent",
-      "24/7 support",
+      "Ubegrenset lagring",
+      "Full support",
     ],
   },
 ];
 
 /**
  * Beregn pricing tier basert på antall ansatte
- * Matcher HMS Nova sine offisielle priser
+ * Nå returnerer alltid MICRO siden alle får samme pris
  */
 export function calculatePricingTier(employeeCount: number): PricingTier {
-  if (employeeCount <= 20) return "MICRO";    // 1-20 = Små bedrifter (6.000 kr)
-  if (employeeCount <= 50) return "SMALL";    // 21-50 = Mellomstore bedrifter (8.000 kr)
-  return "MEDIUM";                            // 51+ = Store bedrifter (12.000 kr)
+  return "MICRO"; // Alle får samme pris uansett størrelse
 }
 
 /**
@@ -137,11 +166,25 @@ export function getPricingPlan(tier: PricingTier): PricingPlan {
 }
 
 /**
- * Hent pris basert på antall ansatte
+ * Hent binding plan basert på periode
+ */
+export function getBindingPlan(period: BindingPeriod): BindingPlan {
+  return BINDING_PLANS.find((p) => p.period === period) || BINDING_PLANS[0];
+}
+
+/**
+ * Hent pris basert på bindingsperiode
+ */
+export function getPriceForBinding(period: BindingPeriod, isYearly: boolean = false): number {
+  const plan = getBindingPlan(period);
+  return isYearly ? plan.yearlyPrice : plan.monthlyPrice;
+}
+
+/**
+ * Hent pris basert på antall ansatte (legacy - returnerer 1 år binding pris)
  */
 export function getPriceForEmployeeCount(employeeCount: number, isYearly: boolean = true): number {
-  const tier = calculatePricingTier(employeeCount);
-  const plan = getPricingPlan(tier);
+  const plan = getBindingPlan("1year"); // Standard er 1 år binding
   return isYearly ? plan.yearlyPrice : plan.monthlyPrice;
 }
 

@@ -1,6 +1,20 @@
+import type { Metadata } from "next";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Shield, Mail, Phone, MapPin } from "lucide-react";
+
+export const metadata: Metadata = {
+  title: "Personvernerklæring | GDPR | KKS AS & HMS Nova",
+  description:
+    "Les hvordan KKS AS behandler personopplysninger i HMS Nova. GDPR-compliant personvernerklæring som forklarer dine rettigheter, hvordan vi samler inn og bruker data, og hvordan du kan kontakte oss.",
+  robots: {
+    index: true,
+    follow: true,
+  },
+  alternates: {
+    canonical: "https://hmsnova.no/personvern",
+  },
+};
 
 export default function PersonvernPage() {
   const lastUpdated = "2. november 2024";
@@ -45,7 +59,7 @@ export default function PersonvernPage() {
                   <Phone className="h-4 w-4" />
                   <a href="tel:+4799112916" className="hover:text-primary">+47 99 11 29 16</a>
                 </p>
-                <p>Org.nr: [Skal fylles inn]</p>
+                <p>Org.nr: 925897019</p>
               </div>
             </CardContent>
           </Card>
@@ -364,7 +378,7 @@ export default function PersonvernPage() {
                 </p>
                 <p className="flex items-start gap-2">
                   <MapPin className="h-4 w-4 text-primary mt-0.5" />
-                  <span>KKS AS<br/>[Adresse skal fylles inn]</span>
+                  <span>KKS AS<br/>Peckels Gate 12b, 3616 Kongsberg</span>
                 </p>
               </div>
             </CardContent>

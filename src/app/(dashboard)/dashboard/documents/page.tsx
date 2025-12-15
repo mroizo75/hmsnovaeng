@@ -23,6 +23,14 @@ export default async function DocumentsPage() {
   const documents = await prisma.document.findMany({
     where: { tenantId: userTenant.tenantId },
     orderBy: { createdAt: "desc" },
+    include: {
+      owner: {
+        select: { id: true, name: true, email: true },
+      },
+      template: {
+        select: { id: true, name: true },
+      },
+    },
   });
 
   const stats = {

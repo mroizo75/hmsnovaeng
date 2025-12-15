@@ -43,6 +43,47 @@ export default async function EditDocumentPage({ params }: { params: Promise<{ i
     );
   }
 
+  const tenantUsers = await prisma.userTenant.findMany({
+    where: { tenantId: userTenant.tenantId },
+    include: {
+      user: {
+        select: { id: true, name: true, email: true },
+      },
+    },
+    orderBy: {
+      user: { name: "asc" },
+    },
+  });
+
+  const templates = await prisma.documentTemplate.findMany({
+    where: {
+      OR: [{ isGlobal: true }, { tenantId: userTenant.tenantId }],
+    },
+    orderBy: [
+      { isGlobal: "desc" },
+      { name: "asc" },
+    ],
+  });
+
+  const ownerOptions = tenantUsers
+    .map((member) => ({
+      id: member.user?.id ?? "",
+      name: member.user?.name ?? member.user?.email ?? "Ukjent",
+      email: member.user?.email ?? "",
+      role: member.role,
+    }))
+    .filter((user) => user.id);
+
+  const templateOptions = templates.map((template) => ({
+    id: template.id,
+    name: template.name,
+    category: template.category,
+    description: template.description,
+    defaultReviewIntervalMonths: template.defaultReviewIntervalMonths,
+    isGlobal: template.isGlobal,
+    pdcaGuidance: template.pdcaGuidance as Record<string, string> | null,
+  }));
+
   return (
     <div className="space-y-6">
       <div>
@@ -58,7 +99,11 @@ export default async function EditDocumentPage({ params }: { params: Promise<{ i
         </p>
       </div>
 
-      <DocumentEditForm document={document} />
+      <DocumentEditForm
+        document={document}
+        owners={ownerOptions}
+        templates={templateOptions}
+      />
     </div>
   );
 }

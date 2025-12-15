@@ -26,6 +26,9 @@ export async function POST(request: NextRequest) {
     const location = formData.get("location") as string;
     const reportedBy = formData.get("reportedBy") as string;
     const date = formData.get("date") as string;
+    const injuryType = formData.get("injuryType") as string | null;
+    const medicalAttention = formData.get("medicalAttentionRequired") as string | null;
+    const lostTime = formData.get("lostTimeMinutes") as string | null;
 
     // Opprett avvik
     const incident = await prisma.incident.create({
@@ -38,7 +41,11 @@ export async function POST(request: NextRequest) {
         location,
         occurredAt: new Date(date),
         reportedBy,
-        status: "REPORTED", // Ny rapport
+        status: "OPEN",
+        stage: "REPORTED",
+        injuryType,
+        medicalAttentionRequired: medicalAttention === "yes",
+        lostTimeMinutes: lostTime ? parseInt(lostTime, 10) : undefined,
       },
     });
 

@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { ActionStatus } from "@prisma/client";
+import { ActionEffectiveness, ActionStatus, ControlFrequency, MeasureCategory } from "@prisma/client";
 
 /**
  * ISO 9001 Compliance:
@@ -21,6 +21,10 @@ export const createMeasureSchema = z.object({
   dueAt: z.date(),
   responsibleId: z.string().cuid({ message: "Ansvarlig person må velges" }),
   status: z.nativeEnum(ActionStatus).default("PENDING"),
+  category: z.nativeEnum(MeasureCategory).default("CORRECTIVE"),
+  followUpFrequency: z.nativeEnum(ControlFrequency).default("ANNUAL"),
+  costEstimate: z.number().int().min(0).optional(),
+  benefitEstimate: z.number().int().min(0).optional(),
 });
 
 export const updateMeasureSchema = z.object({
@@ -30,12 +34,17 @@ export const updateMeasureSchema = z.object({
   dueAt: z.date().optional(),
   responsibleId: z.string().cuid().optional(),
   status: z.nativeEnum(ActionStatus).optional(),
+  category: z.nativeEnum(MeasureCategory).optional(),
+  followUpFrequency: z.nativeEnum(ControlFrequency).optional(),
+  costEstimate: z.number().int().min(0).optional(),
+  benefitEstimate: z.number().int().min(0).optional(),
 });
 
 export const completeMeasureSchema = z.object({
   id: z.string().cuid(),
   completedAt: z.date(),
   completionNote: z.string().optional(), // Evaluering av tiltaket
+  effectiveness: z.nativeEnum(ActionEffectiveness).default("EFFECTIVE"),
 });
 
 export type CreateMeasureInput = z.infer<typeof createMeasureSchema>;

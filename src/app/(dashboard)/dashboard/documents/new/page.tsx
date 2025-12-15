@@ -4,6 +4,7 @@ import { DocumentForm } from "@/features/documents/components/document-form";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
+import { prisma } from "@/lib/db";
 
 export default async function NewDocumentPage() {
   const user = await getCurrentUser();
@@ -16,6 +17,52 @@ export default async function NewDocumentPage() {
   if (!userTenant) {
     return <div>Ingen tilgang til tenant</div>;
   }
+
+  const tenantUsers = await prisma.userTenant.findMany({
+    where: { tenantId: userTenant.tenantId },
+    include: {
+      user: {
+        select: { id: true, name: true, email: true },
+      },
+    },
+    orderBy: {
+      user: {
+        name: "asc",
+      },
+    },
+  });
+
+  const templates = await prisma.documentTemplate.findMany({
+    where: {
+      OR: [
+        { isGlobal: true },
+        { tenantId: userTenant.tenantId },
+      ],
+    },
+    orderBy: [
+      { isGlobal: "desc" },
+      { name: "asc" },
+    ],
+  });
+
+  const ownerOptions = tenantUsers
+    .map((member) => ({
+      id: member.user?.id ?? "",
+      name: member.user?.name ?? member.user?.email ?? "Ukjent",
+      email: member.user?.email ?? "",
+      role: member.role,
+    }))
+    .filter((user) => user.id);
+
+  const templateOptions = templates.map((template) => ({
+    id: template.id,
+    name: template.name,
+    category: template.category,
+    description: template.description,
+    defaultReviewIntervalMonths: template.defaultReviewIntervalMonths,
+    isGlobal: template.isGlobal,
+    pdcaGuidance: template.pdcaGuidance as Record<string, string> | null,
+  }));
 
   return (
     <div className="space-y-6">
@@ -32,7 +79,11 @@ export default async function NewDocumentPage() {
         </p>
       </div>
 
-      <DocumentForm tenantId={userTenant.tenantId} />
+      <DocumentForm
+        tenantId={userTenant.tenantId}
+        owners={ownerOptions}
+        templates={templateOptions}
+      />
     </div>
   );
 }

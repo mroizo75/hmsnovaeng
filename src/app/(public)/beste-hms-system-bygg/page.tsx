@@ -153,7 +153,7 @@ export default function BesteHMSSystemByggPage() {
                   </div>
 
                   <div className="p-4 bg-muted rounded-lg mb-4">
-                    <div className="text-2xl font-bold mb-1">8.000 - 18.000 kr/år</div>
+                    <div className="text-2xl font-bold mb-1">Fra 225 kr/mnd</div>
                     <div className="text-sm text-muted-foreground">
                       Avhengig av bedriftsstørrelse
                     </div>
@@ -330,7 +330,7 @@ export default function BesteHMSSystemByggPage() {
                     },
                     {
                       feature: 'Pris (0-20 ansatte)',
-                      nova: '8.000 kr/år',
+                      nova: 'Fra 225 kr/mnd',
                       gronn: '7.890 kr/år',
                       avonova: '15.000+ kr/år',
                     },

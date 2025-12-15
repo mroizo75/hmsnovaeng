@@ -9,6 +9,10 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
+import { RiskControlForm } from "@/features/risks/components/risk-control-form";
+import { RiskControlList } from "@/features/risks/components/risk-control-list";
+import { RiskDocumentLinks } from "@/features/risks/components/risk-document-links";
+import { RiskAuditLinks } from "@/features/risks/components/risk-audit-links";
 
 export default async function EditRiskPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -35,6 +39,34 @@ export default async function EditRiskPage({ params }: { params: Promise<{ id: s
       measures: {
         orderBy: { createdAt: "desc" },
       },
+      owner: {
+        select: { id: true, name: true, email: true },
+      },
+      kpi: {
+        select: { id: true, title: true },
+      },
+      inspectionTemplate: {
+        select: { id: true, name: true },
+      },
+      controls: {
+        include: {
+          owner: { select: { id: true, name: true, email: true } },
+          evidenceDocument: { select: { id: true, title: true } },
+        },
+        orderBy: { createdAt: "desc" },
+      },
+      documentLinks: {
+        include: {
+          document: { select: { id: true, title: true, status: true } },
+        },
+        orderBy: { createdAt: "desc" },
+      },
+      auditLinks: {
+        include: {
+          audit: { select: { id: true, title: true, scheduledDate: true, status: true } },
+        },
+        orderBy: { createdAt: "desc" },
+      },
     },
   });
 
@@ -56,6 +88,37 @@ export default async function EditRiskPage({ params }: { params: Promise<{ id: s
     },
   });
 
+  const goals = await prisma.goal.findMany({
+    where: { tenantId },
+    select: { id: true, title: true },
+    orderBy: { title: "asc" },
+  });
+
+  const inspectionTemplates = await prisma.inspectionTemplate.findMany({
+    where: {
+      OR: [
+        { tenantId },
+        { tenantId: null, isGlobal: true },
+      ],
+    },
+    select: { id: true, name: true },
+    orderBy: { name: "asc" },
+  });
+
+  const documents = await prisma.document.findMany({
+    where: { tenantId },
+    select: { id: true, title: true, status: true },
+    orderBy: { updatedAt: "desc" },
+    take: 100,
+  });
+
+  const audits = await prisma.audit.findMany({
+    where: { tenantId },
+    select: { id: true, title: true, scheduledDate: true, status: true },
+    orderBy: { scheduledDate: "desc" },
+    take: 100,
+  });
+
   return (
     <div className="space-y-6">
       <div>
@@ -69,7 +132,15 @@ export default async function EditRiskPage({ params }: { params: Promise<{ id: s
         <p className="text-muted-foreground">{risk.title}</p>
       </div>
 
-      <RiskForm tenantId={tenantId} userId={user.id} risk={risk} mode="edit" />
+      <RiskForm
+        tenantId={tenantId}
+        userId={user.id}
+        risk={risk}
+        mode="edit"
+        owners={tenantUsers}
+        goalOptions={goals}
+        templateOptions={inspectionTemplates}
+      />
 
       <Card>
         <CardHeader>
@@ -85,6 +156,41 @@ export default async function EditRiskPage({ params }: { params: Promise<{ id: s
         </CardHeader>
         <CardContent>
           <MeasureList measures={risk.measures} />
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle>Kontroller</CardTitle>
+              <CardDescription>ISO 31000: dokumenter eierskap og effekt for sentrale kontroller</CardDescription>
+            </div>
+            <RiskControlForm riskId={risk.id} users={tenantUsers} documents={documents} />
+          </div>
+        </CardHeader>
+        <CardContent>
+          <RiskControlList riskId={risk.id} controls={risk.controls} />
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Dokumentkoblinger</CardTitle>
+          <CardDescription>Viser prosedyrer, instrukser og rapporter som støtter risikostyringen</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <RiskDocumentLinks riskId={risk.id} documents={documents} links={risk.documentLinks} />
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Revisjoner og tester</CardTitle>
+          <CardDescription>Knytt interne revisjoner og kontrolltester til risikoen</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <RiskAuditLinks riskId={risk.id} audits={audits} links={risk.auditLinks} />
         </CardContent>
       </Card>
     </div>

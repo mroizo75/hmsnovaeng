@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import Link from "next/link";
 import Script from "next/script";
 import { Button } from "@/components/ui/button";
@@ -25,88 +24,67 @@ import {
 } from "lucide-react";
 
 export default function PriserPage() {
-  const [billingInterval, setBillingInterval] = useState<"monthly" | "yearly">("yearly");
-
   const breadcrumbSchema = getBreadcrumbSchema([
     { name: "Hjem", url: "/" },
     { name: "Priser", url: "/priser" },
   ]);
 
-  const plans = [
+  const bindingPlans = [
     {
-      name: "Små bedrifter",
-      description: "1-20 ansatte",
-      priceMonthly: 550,
-      priceYearly: 6000,
+      name: "Ingen binding",
+      description: "Maksimal fleksibilitet",
+      priceMonthly: 300,
+      priceYearly: 3600,
       features: [
-        "Opptil 20 brukere inkludert",
-        "Dokumenthåndtering med versjonskontroll",
-        "Risikovurdering (5x5 matrise)",
-        "Hendelsesrapportering & 5-Whys analyse",
-        "Digital signaturer (pålogging)",
-        "Ferdig HMS-håndbok",
-        "Opplæringsmodul & kompetansematrise",
-        "Revisjoner & Audits (ISO 9001)",
-        "Mål & KPI-oppfølging",
-        "Stoffkartotek med sikkerhetsdatablad",
-        "E-post support",
-        "10 GB lagring",
+        "Si opp når som helst",
+        "1 måneds oppsigelsestid",
+        "Full fleksibilitet",
       ],
     },
     {
-      name: "Mellomstore bedrifter",
-      description: "21-50 ansatte",
-      priceMonthly: 750,
-      priceYearly: 8000,
+      name: "1 år binding",
+      description: "Mest populært valg",
+      priceMonthly: 275,
+      priceYearly: 3300,
       popular: true,
+      savings: "Spar 300 kr/år",
       features: [
-        "Alt i Små bedrifter, pluss:",
-        "Opptil 50 brukere inkludert",
-        "Automatiske påminnelser & varsler",
-        "Avansert rapportering & analytics",
-        "Prioritert support (telefon + e-post)",
-        "Dedikert onboarding-samtale",
-        "50 GB lagring",
-        "API-tilgang for integrasjoner",
+        "Best verdi for de fleste",
+        "Forutsigbar kostnad",
+        "Spar 25 kr/mnd",
       ],
     },
     {
-      name: "Store bedrifter",
-      description: "51+ ansatte",
-      priceMonthly: 1100,
-      priceYearly: 12000,
+      name: "2 år binding",
+      description: "Beste pris",
+      priceMonthly: 225,
+      priceYearly: 2700,
+      savings: "Spar 900 kr/år",
       features: [
-        "Alt i Mellomstore bedrifter, pluss:",
-        "Ubegrenset brukere",
-        "Ubegrenset lagring",
-        "Dedikert kundekonsulent",
-        "On-premise deployment (valgfritt)",
-        "SLA med 99.9% oppetid",
-        "24/7 prioritert support",
-        "Egendefinerte integrasjoner",
-        "Avansert bruker- og rollestyring",
-        "Hvitelabeling (ekstra kostnad)",
-        "Årlig revisjon av HMS-systemet",
+        "Laveste månedspris",
+        "Langsiktig besparelse",
+        "Spar 75 kr/mnd",
       ],
     },
   ];
 
-  const getPrice = (plan: typeof plans[0]) => {
-    if (billingInterval === "monthly") {
-      return {
-        amount: plan.priceMonthly,
-        label: "/mnd",
-        total: `Totalt ${plan.priceMonthly * 12} kr/år`,
-      };
-    } else {
-      return {
-        amount: plan.priceYearly,
-        label: "/år",
-        total: "",
-        savings: `Spar ${(plan.priceMonthly * 12 - plan.priceYearly).toLocaleString('nb-NO')} kr`,
-      };
-    }
-  };
+  const allFeatures = [
+    "Ubegrenset antall brukere",
+    "Dokumenthåndtering med versjonskontroll",
+    "Risikovurdering (5x5 matrise)",
+    "Hendelsesrapportering & 5-Whys analyse",
+    "Digital signaturer (pålogging)",
+    "Ferdig HMS-håndbok",
+    "Opplæringsmodul & kompetansematrise",
+    "Revisjoner & Audits (ISO 9001)",
+    "Mål & KPI-oppfølging",
+    "Stoffkartotek med sikkerhetsdatablad",
+    "Automatiske påminnelser & varsler",
+    "Mobiloptimalisert løsning",
+    "E-post og telefon support",
+    "Ubegrenset lagring",
+    "API-tilgang for integrasjoner",
+  ];
 
   return (
     <>
@@ -259,98 +237,96 @@ export default function PriserPage() {
       {/* Pricing Cards */}
       <section id="priser" className="container mx-auto px-4 py-20 bg-muted/30">
         <div className="max-w-6xl mx-auto">
-          {/* Billing Toggle */}
-          <div className="flex justify-center items-center gap-4 mb-12">
-            <span className={`text-sm font-medium ${billingInterval === "monthly" ? "text-foreground" : "text-muted-foreground"}`}>
-              Månedlig
-            </span>
-            <button
-              onClick={() => setBillingInterval(billingInterval === "monthly" ? "yearly" : "monthly")}
-              className={`relative inline-flex h-8 w-14 items-center rounded-full transition-colors ${
-                billingInterval === "yearly" ? "bg-primary" : "bg-muted"
-              }`}
-            >
-              <span
-                className={`inline-block h-6 w-6 transform rounded-full bg-white transition-transform ${
-                  billingInterval === "yearly" ? "translate-x-7" : "translate-x-1"
-                }`}
-              />
-            </button>
-            <span className={`text-sm font-medium ${billingInterval === "yearly" ? "text-foreground" : "text-muted-foreground"}`}>
-              Årlig
-            </span>
-            {billingInterval === "yearly" && (
-              <Badge variant="default" className="ml-2">Spar opptil 20%</Badge>
-            )}
+          {/* Header */}
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold mb-4">Velg din bindingsperiode</h2>
+            <p className="text-muted-foreground max-w-2xl mx-auto">
+              Alle planer inkluderer full tilgang til HMS Nova. 
+              Lengre binding gir lavere månedspris.
+            </p>
           </div>
 
           <div className="grid md:grid-cols-3 gap-8">
-            {plans.map((plan, index) => {
-              const pricing = getPrice(plan);
-              return (
-                <Card
-                  key={index}
-                  className={`relative ${plan.popular ? "border-primary shadow-xl scale-105" : ""}`}
-                >
-                  {plan.popular && (
-                    <div className="absolute -top-4 left-1/2 -translate-x-1/2">
-                      <Badge className="px-4 py-1">Mest populær</Badge>
+            {bindingPlans.map((plan, index) => (
+              <Card
+                key={index}
+                className={`relative ${plan.popular ? "border-primary shadow-xl scale-105" : ""}`}
+              >
+                {plan.popular && (
+                  <div className="absolute -top-4 left-1/2 -translate-x-1/2">
+                    <Badge className="px-4 py-1">Mest populær</Badge>
+                  </div>
+                )}
+                <CardHeader>
+                  <CardTitle className="text-2xl">{plan.name}</CardTitle>
+                  <CardDescription>{plan.description}</CardDescription>
+                  <div className="mt-4">
+                    <div>
+                      <span className="text-4xl font-bold">{plan.priceMonthly} kr</span>
+                      <span className="text-2xl text-muted-foreground">/mnd</span>
                     </div>
-                  )}
-                  <CardHeader>
-                    <CardTitle className="text-2xl">{plan.name}</CardTitle>
-                    <CardDescription>{plan.description}</CardDescription>
-                    <div className="mt-4">
-                      <div>
-                        <span className="text-4xl font-bold">{pricing.amount.toLocaleString('nb-NO')} kr</span>
-                        <span className="text-2xl text-muted-foreground">{pricing.label}</span>
-                      </div>
-                    </div>
-                    <div className="space-y-1">
-                      {pricing.total && (
-                        <p className="text-xs text-muted-foreground">
-                          {pricing.total}
-                        </p>
-                      )}
-                      {pricing.savings && (
-                        <p className="text-xs font-semibold text-primary">
-                          {pricing.savings}
-                        </p>
-                      )}
-                    </div>
-                  </CardHeader>
-                  <CardContent className="space-y-6">
-                    <div className="space-y-3">
-                      <h4 className="font-semibold text-sm">Inkludert:</h4>
-                      <ul className="space-y-2 text-sm">
-                        {plan.features.map((feature, idx) => (
-                          <li key={idx} className="flex items-start gap-2">
-                            <CheckCircle2 className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
-                            <span>{feature}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
+                  </div>
+                  <div className="space-y-1">
+                    <p className="text-xs text-muted-foreground">
+                      Totalt {plan.priceYearly.toLocaleString('nb-NO')} kr/år
+                    </p>
+                    {plan.savings && (
+                      <p className="text-xs font-semibold text-primary">
+                        {plan.savings}
+                      </p>
+                    )}
+                  </div>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  <div className="space-y-3">
+                    <h4 className="font-semibold text-sm">Bindingsfordeler:</h4>
+                    <ul className="space-y-2 text-sm">
+                      {plan.features.map((feature, idx) => (
+                        <li key={idx} className="flex items-start gap-2">
+                          <CheckCircle2 className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
+                          <span>{feature}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
 
-                    <RegisterDialog>
-                      <Button
-                        variant={plan.popular ? "default" : "outline"}
-                        className="w-full"
-                        size="lg"
-                      >
-                        Kom i gang
-                      </Button>
-                    </RegisterDialog>
-                  </CardContent>
-                </Card>
-              );
-            })}
+                  <RegisterDialog>
+                    <Button
+                      variant={plan.popular ? "default" : "outline"}
+                      className="w-full"
+                      size="lg"
+                    >
+                      Kom i gang
+                    </Button>
+                  </RegisterDialog>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+
+          {/* All Features Section */}
+          <div className="mt-16">
+            <Card className="bg-gradient-to-br from-muted/50 to-muted/30">
+              <CardContent className="p-8">
+                <h3 className="text-xl font-bold text-center mb-6">
+                  Alt dette er inkludert i alle planer:
+                </h3>
+                <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                  {allFeatures.map((feature, idx) => (
+                    <div key={idx} className="flex items-start gap-2">
+                      <CheckCircle2 className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
+                      <span className="text-sm">{feature}</span>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
           </div>
 
           {/* Price Note */}
           <div className="mt-12 text-center">
             <p className="text-sm text-muted-foreground">
-              Alle priser er eks. mva. {billingInterval === "yearly" && "Årlig betaling gir betydelig rabatt sammenlignet med månedlig."}
+              Alle priser er eks. mva. Faktureres månedlig eller årlig etter ønske.
             </p>
           </div>
         </div>
@@ -478,12 +454,12 @@ export default function PriserPage() {
 
             <Card>
               <CardHeader>
-                <CardTitle className="text-lg">Hva er brukergrensen for hver plan?</CardTitle>
+                <CardTitle className="text-lg">Er det noen brukergrense?</CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-muted-foreground">
-                  Små bedrifter (1-20 brukere), Mellomstore bedrifter (21-50 brukere), og Store bedrifter (ubegrenset brukere). 
-                  Hvis du vokser ut av din plan, kan du enkelt oppgradere når som helst.
+                  Nei! HMS Nova inkluderer ubegrenset antall brukere i alle planer. 
+                  Du betaler samme pris uansett hvor mange ansatte du har.
                 </p>
               </CardContent>
             </Card>
@@ -530,13 +506,13 @@ export default function PriserPage() {
 
             <Card>
               <CardHeader>
-                <CardTitle className="text-lg">Hva er forskjellen på månedlig og årlig betaling?</CardTitle>
+                <CardTitle className="text-lg">Hva er forskjellen på bindingsalternativene?</CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-muted-foreground">
-                  Med årlig betaling får du betydelig rabatt (opptil 20%) sammenlignet med månedlig betaling. 
-                  Årlig betaling faktureres én gang per år, mens månedlig faktureres hver måned. 
-                  Begge alternativer har ingen bindingstid.
+                  Med lengre binding får du lavere månedspris. Ingen binding koster 300 kr/mnd, 
+                  1 års binding koster 275 kr/mnd (spar 300 kr/år), og 2 års binding koster 225 kr/mnd (spar 900 kr/år). 
+                  Alle planer inkluderer full tilgang til alle funksjoner.
                 </p>
               </CardContent>
             </Card>
@@ -561,7 +537,7 @@ export default function PriserPage() {
                   <th className="text-left p-4"></th>
                   <th className="text-center p-4">
                     <div className="font-bold text-primary">HMS Nova</div>
-                    <div className="text-sm text-muted-foreground">Fra 500 kr/mnd</div>
+                    <div className="text-sm text-muted-foreground">Fra 225 kr/mnd</div>
                   </th>
                   <th className="text-center p-4">
                     <div className="font-bold">Andre systemer</div>
@@ -569,7 +545,7 @@ export default function PriserPage() {
                   </th>
                   <th className="text-center p-4">
                     <div className="font-bold">Andre</div>
-                    <div className="text-sm text-muted-foreground">Fra 800+ kr/mnd</div>
+                    <div className="text-sm text-muted-foreground">Fra 500+ kr/mnd</div>
                   </th>
                 </tr>
               </thead>
@@ -600,7 +576,7 @@ export default function PriserPage() {
                 </tr>
                 <tr className="border-b">
                   <td className="p-4 text-sm">Brukere inkludert</td>
-                  <td className="p-4 text-center text-muted-foreground">1-20 / 21-50 / Ubegrenset</td>
+                  <td className="p-4 text-center text-muted-foreground">Ubegrenset</td>
                   <td className="p-4 text-center text-muted-foreground">Begrenset</td>
                   <td className="p-4 text-center text-muted-foreground">Ekstrakostnad</td>
                 </tr>
@@ -611,10 +587,10 @@ export default function PriserPage() {
                   <td className="p-4 text-center text-muted-foreground">Varierer</td>
                 </tr>
                 <tr className="border-b">
-                  <td className="p-4 text-sm">Bindingstid</td>
+                  <td className="p-4 text-sm">Valgfri bindingstid</td>
                   <td className="p-4 text-center"><CheckCircle2 className="h-5 w-5 text-primary mx-auto" /></td>
-                  <td className="p-4 text-center text-muted-foreground">12 mnd</td>
-                  <td className="p-4 text-center text-muted-foreground">12-36 mnd</td>
+                  <td className="p-4 text-center text-muted-foreground">12 mnd krav</td>
+                  <td className="p-4 text-center text-muted-foreground">12-36 mnd krav</td>
                 </tr>
               </tbody>
             </table>

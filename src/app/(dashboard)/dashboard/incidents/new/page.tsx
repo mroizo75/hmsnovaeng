@@ -6,8 +6,15 @@ import { IncidentForm } from "@/features/incidents/components/incident-form";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
+import type { IncidentType } from "@prisma/client";
 
-export default async function NewIncidentPage() {
+type PageSearchParams = Promise<{ type?: IncidentType }> | { type?: IncidentType } | undefined;
+
+export default async function NewIncidentPage({ searchParams }: { searchParams?: PageSearchParams }) {
+  const resolvedSearchParams =
+    typeof searchParams === "object" && searchParams !== null && "then" in searchParams
+      ? await searchParams
+      : (searchParams as { type?: IncidentType } | undefined);
   const session = await getServerSession(authOptions);
 
   if (!session?.user?.email) {
@@ -25,6 +32,21 @@ export default async function NewIncidentPage() {
 
   const tenantId = user.tenants[0].tenantId;
 
+  const risks = await prisma.risk.findMany({
+    where: { tenantId },
+    select: {
+      id: true,
+      title: true,
+      category: true,
+      score: true,
+    },
+    orderBy: [
+      { score: "desc" },
+      { createdAt: "desc" },
+    ],
+    take: 25,
+  });
+
   return (
     <div className="space-y-6">
       <div>
@@ -40,7 +62,12 @@ export default async function NewIncidentPage() {
         </p>
       </div>
 
-      <IncidentForm tenantId={tenantId} userId={user.id} />
+      <IncidentForm
+        tenantId={tenantId}
+        userId={user.id}
+        risks={risks}
+        defaultType={resolvedSearchParams?.type}
+      />
     </div>
   );
 }

@@ -20,7 +20,7 @@ export const SEO_CONTENT = {
     secondary: [
       "Erstatt Excel-ark og papirrot med et moderne HMS-system",
       "500+ norske bedrifter stoler på HMS Nova",
-      "Fra 6.000 kr/år - ingen skjulte kostnader eller bindingstid",
+      "Fra 225 kr/mnd - ingen skjulte kostnader, valgfri binding",
     ],
   },
 
@@ -60,9 +60,9 @@ export const SEO_CONTENT = {
     },
     {
       feature: "Bindingstid",
-      hmsnova: "Ingen",
-      competitors: "1-3 år",
-      benefit: "Fleksibilitet til å endre når du vil",
+      hmsnova: "Valgfri (0-2 år)",
+      competitors: "1-3 år påkrevd",
+      benefit: "Du velger bindingsperiode etter dine behov",
     },
     {
       feature: "Mobilapp (offline)",
@@ -71,10 +71,10 @@ export const SEO_CONTENT = {
       benefit: "Perfekt for feltarbeid og byggeplasser",
     },
     {
-      feature: "Pris (små bedrifter)",
-      hmsnova: "Fra 6.000 kr/år",
+      feature: "Pris",
+      hmsnova: "Fra 225 kr/mnd (2.700 kr/år)",
       competitors: "Fra 7.080-12.000 kr/år",
-      benefit: "Best verdi for pengene",
+      benefit: "Best verdi for pengene - ubegrenset brukere",
     },
   ],
 
@@ -94,10 +94,10 @@ export const SEO_CONTENT = {
       "HMS Nova er Norges mest moderne HMS-system. Vi bygger trygghet gjennom digitalisering av HMS-arbeid. Med HMS Nova får bedrifter et komplett verktøy for risikovurdering, hendelsesrapportering, dokumenthåndtering og ISO 9001 compliance. Systemet erstatter Excel-ark og papirrot med en moderne, mobilbasert løsning.",
 
     howMuchCost:
-      "HMS Nova koster fra 6.000 kr/år for små bedrifter (1-20 ansatte), 8.000 kr/år for mellomstore bedrifter (21-50 ansatte), og 12.000 kr/år for store bedrifter (51+). Ingen oppstartskostnader, ingen bindingstid, alt inkludert. 20% rabatt på HMS-kurs og 10% rabatt på BHT for medlemmer.",
+      "HMS Nova koster fra 225 kr/mnd med 2 års binding, 275 kr/mnd med 1 års binding, eller 300 kr/mnd uten binding. Ubegrenset antall brukere inkludert. Ingen oppstartskostnader, alt inkludert. 20% rabatt på HMS-kurs og 10% rabatt på BHT for medlemmer.",
 
     howDifferent:
-      "HMS Nova skiller seg fra Grønn Jobb, Avonova og Kuba ved å være 100% digitalt og moderne. Vi har digital signatur inkludert (ikke ekstrakostnad), ingen bindingstid, mobilapp med offline-støtte, og betydelig lavere priser. Vår visjon er enkel: HMS Nova bygger trygghet - ikke byråkrati.",
+      "HMS Nova skiller seg fra Grønn Jobb, Avonova og Kuba ved å være 100% digitalt og moderne. Vi har digital signatur inkludert (ikke ekstrakostnad), valgfri bindingstid (0-2 år), mobilapp med offline-støtte, og betydelig lavere priser fra kun 225 kr/mnd. Vår visjon er enkel: HMS Nova bygger trygghet - ikke byråkrati.",
 
     isItApproved:
       "HMS Nova følger alle krav i Arbeidsmiljøloven, Internkontrollforskriften og ISO 9001:2015. Systemet er bygget for å sikre full compliance med norsk lov og internasjonale standarder. Vi samarbeider også med Dr. Dropin for godkjent bedriftshelsetjeneste.",
@@ -123,7 +123,7 @@ export const SEO_CONTENT = {
   // Meta descriptions for different pages
   metaDescriptions: {
     home: "HMS Nova bygger trygghet. Få kontroll på HMS med digital signatur, automatiske påminnelser og mobilapp. 500+ norske bedrifter stoler på oss. Prøv gratis.",
-    priser: "Transparente HMS-priser fra 6.000 kr/år. Ingen oppstartskostnader, ingen bindingstid. 20% rabatt på kurs, 10% på BHT. Se alle priser.",
+    priser: "Transparente HMS-priser fra 225 kr/mnd. Ingen oppstartskostnader, valgfri binding. 20% rabatt på kurs, 10% på BHT. Se alle priser.",
     kurs: "20% rabatt på HMS-kurs for medlemmer. Verneombud, førstehjelp, diisocyanater. Godkjent av KKS AS. Fysisk, digitalt eller hybrid.",
     bht: "10% rabatt på godkjent bedriftshelsetjeneste fra Dr. Dropin. Digital integrasjon med HMS Nova. 3000+ bedrifter stoler på dem.",
   },
@@ -134,12 +134,12 @@ export const LONG_TAIL_KEYWORDS = [
   "hms system som bygger trygghet",
   "digital hms løsning for norske bedrifter",
   "hms system med mobilapp offline",
-  "billigste hms system uten bindingstid",
+  "billigste hms system valgfri binding",
   "hms system med digital signatur inkludert",
   "iso 9001 compliant hms system norge",
   "hms system bedre enn grønn jobb",
   "hms system alternativ til avonova",
-  "moderne hms system for små bedrifter",
+  "moderne hms system ubegrenset brukere",
   "hms automatisering og påminnelser",
 ] as const;
 

@@ -2,83 +2,97 @@
  * Subscription utility functions
  * Håndterer logikk for abonnements-pakker og brukerbegrensninger
  * 
- * Pakker speiler priser fra /priser siden og er lik Grønn Jobb sine pakker
+ * Ny prismodell (kun software):
+ * - Ingen binding: 300 kr/mnd (3600 kr/år)
+ * - 1 år binding: 275 kr/mnd (3300 kr/år) - default
+ * - 2 år binding: 225 kr/mnd (2700 kr/år)
+ * 
+ * Alle planer inkluderer ubegrenset antall brukere.
  */
 
 export type PricingTier = "MICRO" | "SMALL" | "MEDIUM" | "LARGE";
+export type BindingPeriod = "none" | "1year" | "2year";
 
 export interface SubscriptionLimits {
   maxUsers: number;
   price: number;
+  monthlyPrice: number;
   name: string;
   description: string;
 }
 
+export interface BindingPricing {
+  period: BindingPeriod;
+  monthlyPrice: number;
+  yearlyPrice: number;
+  name: string;
+}
+
+/**
+ * Priser basert på bindingsperiode
+ */
+export const BINDING_PRICES: Record<BindingPeriod, BindingPricing> = {
+  none: {
+    period: "none",
+    monthlyPrice: 300,
+    yearlyPrice: 3600,
+    name: "Ingen binding",
+  },
+  "1year": {
+    period: "1year",
+    monthlyPrice: 275,
+    yearlyPrice: 3300,
+    name: "1 år binding",
+  },
+  "2year": {
+    period: "2year",
+    monthlyPrice: 225,
+    yearlyPrice: 2700,
+    name: "2 år binding",
+  },
+};
+
 /**
  * Hent grenser og info for en gitt pricing tier
- * Speiler prisene fra /priser siden (hmsnova.no/priser)
+ * Alle tier har nå samme pris og ubegrenset brukere
+ * Legacy-støtte for eksisterende kunder
  */
 export function getSubscriptionLimits(tier: PricingTier | null): SubscriptionLimits {
-  switch (tier) {
-    case "MICRO":
-      // Små bedrifter: 1-20 ansatte
-      return {
-        maxUsers: 20,
-        price: 6000,
-        name: "Små bedrifter",
-        description: "Opptil 20 brukere inkludert",
-      };
-    case "SMALL":
-      // Mellomstore bedrifter: 21-50 ansatte
-      return {
-        maxUsers: 50,
-        price: 8000,
-        name: "Mellomstore bedrifter",
-        description: "Opptil 50 brukere inkludert",
-      };
-    case "MEDIUM":
-      // Store bedrifter: 51+ ansatte (ubegrenset)
-      return {
-        maxUsers: 999, // "Ubegrenset" i praksis
-        price: 12000,
-        name: "Store bedrifter",
-        description: "Ubegrenset brukere",
-      };
-    case "LARGE":
-      // DEPRECATED: Bruk MEDIUM for store bedrifter
-      // Beholdt for bakoverkompatibilitet
-      return {
-        maxUsers: 999,
-        price: 12000,
-        name: "Store bedrifter",
-        description: "Ubegrenset brukere",
-      };
-    default:
-      // Default til MICRO hvis ikke satt (standard pakke)
-      return {
-        maxUsers: 20,
-        price: 6000,
-        name: "Små bedrifter",
-        description: "Opptil 20 brukere inkludert",
-      };
-  }
+  // Ny prismodell: Alle får samme pris (1 år binding som standard)
+  // og ubegrenset brukere
+  const defaultLimits: SubscriptionLimits = {
+    maxUsers: 999, // Ubegrenset brukere
+    price: 3300,   // 1 år binding: 275 kr/mnd * 12
+    monthlyPrice: 275,
+    name: "HMS Nova Software",
+    description: "Ubegrenset brukere inkludert",
+  };
+
+  // For bakoverkompatibilitet, returner alltid default
+  return defaultLimits;
+}
+
+/**
+ * Hent pris basert på bindingsperiode
+ */
+export function getBindingPrice(period: BindingPeriod): BindingPricing {
+  return BINDING_PRICES[period] || BINDING_PRICES["1year"];
 }
 
 /**
  * Sjekk om tenant har nådd maks antall brukere
+ * Med ny prismodell er dette alltid false (ubegrenset brukere)
  */
 export function hasReachedUserLimit(currentUsers: number, tier: PricingTier | null): boolean {
-  const limits = getSubscriptionLimits(tier);
-  return currentUsers >= limits.maxUsers;
+  // Ny modell: Ubegrenset brukere for alle
+  return false;
 }
 
 /**
  * Få anbefalt tier basert på antall ansatte
- * Matcher prisstruktur fra hmsnova.no/priser
+ * Med ny modell returnerer vi alltid MICRO (alle har samme pris)
  */
 export function getRecommendedTier(employeeCount: number): PricingTier {
-  if (employeeCount <= 20) return "MICRO";  // Små bedrifter
-  if (employeeCount <= 50) return "SMALL";  // Mellomstore bedrifter
-  return "MEDIUM";  // Store bedrifter (51+)
+  return "MICRO"; // Alle får samme tier nå
 }
 

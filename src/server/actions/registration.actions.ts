@@ -133,8 +133,8 @@ export async function submitRegistrationRequest(formData: FormData) {
       },
     });
 
-    // Get pricing info for email
-    const yearlyPrice = pricingTier === "MICRO" ? 6000 : pricingTier === "SMALL" ? 8000 : 12000;
+    // Get pricing info for email (ny prismodell: 1 år binding som standard)
+    const yearlyPrice = 3300; // 275 kr/mnd * 12
 
     // Send confirmation email to customer
     if (process.env.RESEND_API_KEY) {

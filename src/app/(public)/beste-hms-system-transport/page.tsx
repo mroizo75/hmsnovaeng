@@ -96,7 +96,7 @@ export default function BesteHMSSystemTransportPage() {
               <CardContent>
                 <div className="space-y-4">
                   <div>
-                    <div className="text-3xl font-bold text-primary mb-1">8.000-15.000 kr/år</div>
+                    <div className="text-3xl font-bold text-primary mb-1">Fra 225 kr/mnd</div>
                     <div className="text-sm text-muted-foreground">Alt inkludert, ingen skjulte kostnader</div>
                   </div>
                   <div className="space-y-2">
@@ -363,7 +363,7 @@ export default function BesteHMSSystemTransportPage() {
                 {[
                   {
                     feature: 'Pris per år',
-                    nova: '8.000-15.000 kr',
+                    nova: 'Fra 225 kr/mnd',
                     gronn: '12.000-20.000 kr',
                     excel: '0 kr (men 20+ timer/mnd)',
                   },

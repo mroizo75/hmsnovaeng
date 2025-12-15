@@ -153,6 +153,8 @@ function getRoleLabel(role: ParticipantRole) {
   }
 }
 
+const NO_DECISION_RESPONSIBLE_VALUE = "__none_decision_responsible__";
+
 export default function MeetingDetailPage() {
   const router = useRouter();
   const params = useParams();
@@ -173,7 +175,7 @@ export default function MeetingDetailPage() {
   const [decisionForm, setDecisionForm] = useState({
     title: "",
     description: "",
-    responsibleId: "",
+    responsibleId: NO_DECISION_RESPONSIBLE_VALUE,
     dueDate: "",
   });
 
@@ -286,7 +288,7 @@ export default function MeetingDetailPage() {
         description: decisionForm.description,
       };
 
-      if (decisionForm.responsibleId) {
+      if (decisionForm.responsibleId && decisionForm.responsibleId !== NO_DECISION_RESPONSIBLE_VALUE) {
         payload.responsibleId = decisionForm.responsibleId;
       }
 
@@ -315,7 +317,7 @@ export default function MeetingDetailPage() {
       setDecisionForm({
         title: "",
         description: "",
-        responsibleId: "",
+        responsibleId: NO_DECISION_RESPONSIBLE_VALUE,
         dueDate: "",
       });
       fetchMeeting();
@@ -664,7 +666,7 @@ export default function MeetingDetailPage() {
                         <SelectValue placeholder={loadingUsers ? "Laster brukere..." : "Velg ansvarlig (valgfritt)"} />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="">Ingen valgt</SelectItem>
+                        <SelectItem value={NO_DECISION_RESPONSIBLE_VALUE}>Ingen valgt</SelectItem>
                         {users.map((u) => (
                           <SelectItem key={u.user.id} value={u.user.id}>
                             {u.user.name || u.user.email}

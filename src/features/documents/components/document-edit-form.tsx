@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -15,12 +15,28 @@ import {
 } from "@/components/ui/select";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Textarea } from "@/components/ui/textarea";
 import { updateDocument } from "@/server/actions/document.actions";
 import { Save } from "lucide-react";
 import { Document } from "@prisma/client";
 
 interface DocumentEditFormProps {
   document: Document;
+  owners: Array<{
+    id: string;
+    name: string | null;
+    email: string;
+    role: string;
+  }>;
+  templates: Array<{
+    id: string;
+    name: string;
+    category?: string | null;
+    description?: string | null;
+    defaultReviewIntervalMonths: number;
+    isGlobal: boolean;
+    pdcaGuidance?: Record<string, string> | null;
+  }>;
 }
 
 const documentKinds = [
@@ -43,18 +59,27 @@ const userRoles = [
   { value: "REVISOR", label: "Revisor" },
 ];
 
-export function DocumentEditForm({ document }: DocumentEditFormProps) {
+const NO_OWNER_VALUE = "__none_owner__";
+const NO_TEMPLATE_VALUE = "__none_template__";
+
+const formatDateInput = (value?: Date | string | null) => {
+  if (!value) return "";
+  const date = value instanceof Date ? value : new Date(value);
+  if (Number.isNaN(date.getTime())) return "";
+  return date.toISOString().slice(0, 10);
+};
+
+export function DocumentEditForm({ document, owners, templates }: DocumentEditFormProps) {
   const router = useRouter();
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
-  
-  // Parse existing visibleToRoles
   const initialRoles = (() => {
     try {
       if (!document.visibleToRoles) return [];
-      const roles = typeof document.visibleToRoles === "string" 
-        ? JSON.parse(document.visibleToRoles) 
-        : document.visibleToRoles;
+      const roles =
+        typeof document.visibleToRoles === "string"
+          ? JSON.parse(document.visibleToRoles)
+          : document.visibleToRoles;
       return Array.isArray(roles) ? roles : [];
     } catch {
       return [];
@@ -65,6 +90,50 @@ export function DocumentEditForm({ document }: DocumentEditFormProps) {
   const [title, setTitle] = useState(document.title);
   const [kind, setKind] = useState(document.kind);
   const [version, setVersion] = useState(document.version);
+  const [selectedOwner, setSelectedOwner] = useState(document.ownerId ?? NO_OWNER_VALUE);
+  const [selectedTemplate, setSelectedTemplate] = useState(document.templateId ?? NO_TEMPLATE_VALUE);
+  const [reviewInterval, setReviewInterval] = useState(
+    String(document.reviewIntervalMonths ?? 12)
+  );
+  const [reviewIntervalTouched, setReviewIntervalTouched] = useState(false);
+  const [effectiveFrom, setEffectiveFrom] = useState(formatDateInput(document.effectiveFrom));
+  const [effectiveTo, setEffectiveTo] = useState(formatDateInput(document.effectiveTo));
+  const [pdca, setPdca] = useState({
+    plan: document.planSummary ?? "",
+    do: document.doSummary ?? "",
+    check: document.checkSummary ?? "",
+    act: document.actSummary ?? "",
+  });
+
+  const templateMap = useMemo(() => {
+    const map = new Map<string, (typeof templates)[number]>();
+    templates.forEach((template) => map.set(template.id, template));
+    return map;
+  }, [templates]);
+
+  const handleTemplateChange = (value: string) => {
+    setSelectedTemplate(value);
+    if (value === NO_TEMPLATE_VALUE) {
+      return;
+    }
+
+    const template = templateMap.get(value);
+    if (!template) {
+      return;
+    }
+
+    if (!reviewIntervalTouched && template.defaultReviewIntervalMonths) {
+      setReviewInterval(String(template.defaultReviewIntervalMonths));
+    }
+
+    const guidance = template.pdcaGuidance || {};
+    setPdca((prev) => ({
+      plan: prev.plan || guidance.plan || "",
+      do: prev.do || guidance.do || "",
+      check: prev.check || guidance.check || "",
+      act: prev.act || guidance.act || "",
+    }));
+  };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -77,8 +146,17 @@ export function DocumentEditForm({ document }: DocumentEditFormProps) {
         kind,
         version,
         visibleToRoles: selectedRoles.length > 0 ? selectedRoles : null,
+        ownerId: selectedOwner === NO_OWNER_VALUE ? null : selectedOwner,
+        templateId: selectedTemplate === NO_TEMPLATE_VALUE ? null : selectedTemplate,
+        reviewIntervalMonths: reviewInterval,
+        effectiveFrom: effectiveFrom || null,
+        effectiveTo: effectiveTo || null,
+        planSummary: pdca.plan,
+        doSummary: pdca.do,
+        checkSummary: pdca.check,
+        actSummary: pdca.act,
       });
-      
+
       if (result.success) {
         toast({
           title: "✅ Dokument oppdatert",
@@ -131,11 +209,7 @@ export function DocumentEditForm({ document }: DocumentEditFormProps) {
           <div className="grid gap-4 md:grid-cols-2">
             <div className="space-y-2">
               <Label htmlFor="kind">Type dokument *</Label>
-              <Select 
-                value={kind} 
-                onValueChange={(value: any) => setKind(value)}
-                disabled={loading}
-              >
+              <Select value={kind} onValueChange={(value: any) => setKind(value)} disabled={loading}>
                 <SelectTrigger>
                   <SelectValue placeholder="Velg type" />
                 </SelectTrigger>
@@ -157,6 +231,142 @@ export function DocumentEditForm({ document }: DocumentEditFormProps) {
                 value={version}
                 onChange={(e) => setVersion(e.target.value)}
                 placeholder="v1.0"
+                disabled={loading}
+              />
+            </div>
+          </div>
+
+          <div className="grid gap-4 md:grid-cols-2">
+            <div className="space-y-2">
+              <Label htmlFor="ownerId">Prosesseier</Label>
+              <Select
+                value={selectedOwner}
+                onValueChange={setSelectedOwner}
+                disabled={loading || owners.length === 0}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder={owners.length ? "Velg ansvarlig" : "Ingen brukere tilgjengelig"} />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value={NO_OWNER_VALUE}>Ingen</SelectItem>
+                  {owners.map((owner) => (
+                    <SelectItem key={owner.id} value={owner.id}>
+                      {owner.name || owner.email} ({owner.role})
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="templateId">Dokumentmal</Label>
+              <Select
+                value={selectedTemplate}
+                onValueChange={handleTemplateChange}
+                disabled={loading || templates.length === 0}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder={templates.length ? "Velg mal (valgfritt)" : "Ingen maler tilgjengelig"} />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value={NO_TEMPLATE_VALUE}>Ingen</SelectItem>
+                  {templates.map((template) => (
+                    <SelectItem key={template.id} value={template.id}>
+                      {template.name} {template.isGlobal ? "• Global" : ""}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              {selectedTemplate !== NO_TEMPLATE_VALUE && (
+                <p className="text-xs text-muted-foreground">
+                  {templateMap.get(selectedTemplate)?.description ?? "Mal valgt"}
+                </p>
+              )}
+            </div>
+          </div>
+
+          <div className="grid gap-4 md:grid-cols-3">
+            <div className="space-y-2">
+              <Label htmlFor="reviewIntervalMonths">Revisjonsintervall (måneder)</Label>
+              <Input
+                id="reviewIntervalMonths"
+                name="reviewIntervalMonths"
+                type="number"
+                min={1}
+                max={36}
+                value={reviewInterval}
+                onChange={(event) => {
+                  setReviewIntervalTouched(true);
+                  setReviewInterval(event.target.value);
+                }}
+                disabled={loading}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="effectiveFrom">Gyldig fra</Label>
+              <Input
+                id="effectiveFrom"
+                name="effectiveFrom"
+                type="date"
+                value={effectiveFrom}
+                onChange={(event) => setEffectiveFrom(event.target.value)}
+                disabled={loading}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="effectiveTo">Gyldig til</Label>
+              <Input
+                id="effectiveTo"
+                name="effectiveTo"
+                type="date"
+                value={effectiveTo}
+                onChange={(event) => setEffectiveTo(event.target.value)}
+                disabled={loading}
+              />
+            </div>
+          </div>
+
+          <div className="grid gap-4 md:grid-cols-2">
+            <div className="space-y-2">
+              <Label htmlFor="planSummary">Plan (Plan)</Label>
+              <Textarea
+                id="planSummary"
+                name="planSummary"
+                value={pdca.plan}
+                onChange={(event) => setPdca((prev) => ({ ...prev, plan: event.target.value }))}
+                disabled={loading}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="doSummary">Gjør (Do)</Label>
+              <Textarea
+                id="doSummary"
+                name="doSummary"
+                value={pdca.do}
+                onChange={(event) => setPdca((prev) => ({ ...prev, do: event.target.value }))}
+                disabled={loading}
+              />
+            </div>
+          </div>
+
+          <div className="grid gap-4 md:grid-cols-2">
+            <div className="space-y-2">
+              <Label htmlFor="checkSummary">Kontroller (Check)</Label>
+              <Textarea
+                id="checkSummary"
+                name="checkSummary"
+                value={pdca.check}
+                onChange={(event) => setPdca((prev) => ({ ...prev, check: event.target.value }))}
+                disabled={loading}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="actSummary">Forbedre (Act)</Label>
+              <Textarea
+                id="actSummary"
+                name="actSummary"
+                value={pdca.act}
+                onChange={(event) => setPdca((prev) => ({ ...prev, act: event.target.value }))}
                 disabled={loading}
               />
             </div>
@@ -195,12 +405,10 @@ export function DocumentEditForm({ document }: DocumentEditFormProps) {
             </div>
             {selectedRoles.length > 0 ? (
               <p className="text-sm text-blue-600">
-                ✓ Valgt: {selectedRoles.map(r => userRoles.find(ur => ur.value === r)?.label).join(", ")}
+                ✓ Valgt: {selectedRoles.map((role) => userRoles.find((r) => r.value === role)?.label).join(", ")}
               </p>
             ) : (
-              <p className="text-sm text-muted-foreground">
-                📢 Synlig for alle roller
-              </p>
+              <p className="text-sm text-muted-foreground">📢 Synlig for alle roller</p>
             )}
           </div>
 
@@ -238,4 +446,3 @@ export function DocumentEditForm({ document }: DocumentEditFormProps) {
     </Card>
   );
 }
-

@@ -10,7 +10,7 @@ export const faqDatabase = {
     {
       question: 'Hva koster HMS Nova?',
       answer:
-        'HMS Nova koster <strong>8.000 kr/år</strong> for bedrifter med 0-20 ansatte, <strong>12.000 kr/år</strong> for 21-50 ansatte, og <strong>18.000 kr/år</strong> for 51+ ansatte. Prisen inkluderer ALT: ubegrenset antall brukere, alle funksjoner, digital signatur, mobilapp, og norsk support. Ingen skjulte kostnader eller oppsettsgebyr.',
+        'HMS Nova koster <strong>300 kr/mnd</strong> uten binding, <strong>275 kr/mnd</strong> med 1 års binding (spar 300 kr/år), eller <strong>225 kr/mnd</strong> med 2 års binding (spar 900 kr/år). Prisen inkluderer ALT: ubegrenset antall brukere, alle funksjoner, digital signatur, mobilapp, og norsk support. Ingen skjulte kostnader eller oppsettsgebyr.',
     },
     {
       question: 'Støtter HMS Nova ISO 9001?',
@@ -43,7 +43,7 @@ export const faqDatabase = {
     {
       question: 'Er HMS Nova bedre enn Avonova?',
       answer:
-        'HMS Nova er bedre for <strong>små-mellomstore bedrifter</strong> (0-100 ansatte) som vil ha moderne teknologi til rimelig pris. Avonova er bedre for store konsern (100+ ansatte) som trenger omfattende BHT-tjenester og enterprise-support. HMS Nova: 8.000-18.000 kr/år. Avonova: 15.000+ kr/år.',
+        'HMS Nova er bedre for <strong>alle bedriftsstørrelser</strong> som vil ha moderne teknologi til rimelig pris. Avonova er bedre for store konsern som trenger omfattende BHT-tjenester og enterprise-support. HMS Nova: fra 225 kr/mnd (2.700 kr/år). Avonova: 15.000+ kr/år.',
     },
   ],
 

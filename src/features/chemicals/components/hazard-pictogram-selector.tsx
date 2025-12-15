@@ -4,19 +4,7 @@ import { useState, useEffect } from "react";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
-
-// GHS/CLP Faresymboler
-const HAZARD_PICTOGRAMS = [
-  { id: "brannfarlig", name: "Brannfarlig", file: "brannfarlig.webp" },
-  { id: "etsende", name: "Etsende", file: "etsende.webp" },
-  { id: "explosive", name: "Eksplosivt", file: "explosive.webp" },
-  { id: "gass_under_trykk", name: "Gass under trykk", file: "gass_under_trykk.webp" },
-  { id: "giftig", name: "Giftig", file: "giftig.webp" },
-  { id: "helserisiko", name: "Helserisiko", file: "helserisiko.webp" },
-  { id: "kronisk_helsefarlig", name: "Kronisk helsefarlig", file: "kronisk_helsefarlig.webp" },
-  { id: "miljofare", name: "Miljøfare", file: "miljofare.webp" },
-  { id: "oksiderende", name: "Oksiderende", file: "oksiderende.webp" },
-];
+import { HAZARD_PICTOGRAMS } from "@/lib/pictograms";
 
 interface HazardPictogramSelectorProps {
   defaultValue?: string;

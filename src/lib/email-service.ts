@@ -4,6 +4,7 @@
  */
 
 import { Resend } from "resend";
+import { getPrivilegedRoleLabel, PrivilegedRole } from "./privileged-users";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
@@ -17,6 +18,13 @@ interface SendUserInvitationEmailParams {
   tempPassword: string;
   companyName: string;
   invitedByName: string;
+}
+
+interface SendPrivilegedAccessEmailParams {
+  to: string;
+  name: string;
+  role: PrivilegedRole;
+  tempPassword: string;
 }
 
 /**
@@ -192,6 +200,76 @@ export async function sendUserInvitationEmail({
     console.error("Send invitation email error:", error);
     throw error;
   }
+}
+
+export async function sendPrivilegedAccessEmail({
+  to,
+  name,
+  role,
+  tempPassword,
+}: SendPrivilegedAccessEmailParams) {
+  const loginUrl = `${BASE_URL}/login`;
+  const roleLabel = getPrivilegedRoleLabel(role);
+  const html = `
+<!DOCTYPE html>
+<html lang="no">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Privilegert tilgang aktivert</title>
+  </head>
+  <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; background-color: #f5f5f5; margin: 0; padding: 32px;">
+    <table width="100%" cellpadding="0" cellspacing="0" style="max-width: 640px; margin: 0 auto; background: #ffffff; border-radius: 12px; overflow: hidden;">
+      <tr>
+        <td style="background: linear-gradient(135deg, #0f172a, #0891b2); padding: 32px;">
+          <h1 style="color: #ffffff; margin: 0; font-size: 26px;">Tilgang aktivert</h1>
+          <p style="color: #e0f2fe; margin: 8px 0 0; font-size: 16px;">${roleLabel.toUpperCase()} · HMS Nova</p>
+        </td>
+      </tr>
+      <tr>
+        <td style="padding: 32px;">
+          <p style="font-size: 16px; color: #0f172a; margin: 0 0 16px;">Hei ${name},</p>
+          <p style="font-size: 16px; color: #0f172a; margin: 0 0 16px;">
+            Du har fått ${roleLabel}-tilgang til HMS Nova. Denne rollen gir full administrativ tilgang til alle kunder og konfigurasjoner. Del aldri disse opplysningene videre.
+          </p>
+          <div style="background-color: #f1f5f9; border-radius: 8px; padding: 24px; margin: 24px 0;">
+            <h2 style="margin: 0 0 12px; font-size: 16px; color: #0f172a;">Påloggingsinformasjon</h2>
+            <p style="margin: 0; font-size: 14px; color: #475569;">
+              <strong>E-post:</strong> ${to}<br />
+              <strong>Midlertidig passord:</strong>
+              <code style="background: #e2e8f0; padding: 4px 8px; border-radius: 4px; font-size: 14px;">${tempPassword}</code>
+            </p>
+          </div>
+          <p style="font-size: 15px; color: #0f172a; margin: 0 0 24px;">
+            Logg inn via lenken nedenfor og bytt passord umiddelbart: 
+          </p>
+          <p style="text-align: center;">
+            <a href="${loginUrl}" style="display: inline-block; background: #0ea5e9; color: #ffffff; padding: 14px 28px; border-radius: 6px; text-decoration: none; font-weight: 600;">
+              Logg inn på HMS Nova
+            </a>
+          </p>
+          <p style="font-size: 13px; color: #475569; margin: 24px 0 0;">
+            Hvis du ikke forventet denne e-posten, kontakt sikkerhetsteamet umiddelbart på support@hmsnova.com.
+          </p>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>
+  `;
+
+  const { data, error } = await resend.emails.send({
+    from: FROM_EMAIL,
+    to: [to],
+    subject: `Privilegert tilgang aktivert (${roleLabel})`,
+    html,
+  });
+
+  if (error) {
+    throw new Error(`Failed to send email: ${error.message}`);
+  }
+
+  return { success: true, messageId: data?.id };
 }
 
 /**

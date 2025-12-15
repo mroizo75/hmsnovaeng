@@ -31,6 +31,15 @@ export default async function RisksPage() {
     where: { tenantId },
     include: {
       measures: true,
+      owner: {
+        select: { id: true, name: true, email: true },
+      },
+      inspectionTemplate: {
+        select: { id: true, name: true },
+      },
+      kpi: {
+        select: { id: true, title: true },
+      },
     },
     orderBy: [
       { score: "desc" },

@@ -30,6 +30,13 @@ export default async function IncidentsPage() {
     where: { tenantId },
     include: {
       measures: true,
+      risk: {
+        select: {
+          id: true,
+          title: true,
+          category: true,
+        },
+      },
     },
     orderBy: { occurredAt: "desc" },
   });

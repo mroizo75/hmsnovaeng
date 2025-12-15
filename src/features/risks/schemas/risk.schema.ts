@@ -1,5 +1,11 @@
 import { z } from "zod";
-import { RiskStatus } from "@prisma/client";
+import {
+  ControlFrequency,
+  RiskCategory,
+  RiskResponseStrategy,
+  RiskStatus,
+  RiskTrend,
+} from "@prisma/client";
 
 /**
  * Schema for creating a new risk assessment
@@ -13,6 +19,24 @@ export const createRiskSchema = z.object({
   consequence: z.number().int().min(1).max(5),
   ownerId: z.string().cuid(),
   status: z.nativeEnum(RiskStatus).default("OPEN"),
+  category: z.nativeEnum(RiskCategory).default("OPERATIONAL"),
+  location: z.string().max(120).optional().nullable(),
+  area: z.string().max(120).optional().nullable(),
+  description: z.string().max(2000).optional().nullable(),
+  existingControls: z.string().max(2000).optional().nullable(),
+  controlFrequency: z.nativeEnum(ControlFrequency).default("ANNUAL"),
+  riskStatement: z.string().max(500).optional().nullable(),
+  residualLikelihood: z.number().int().min(1).max(5).optional().nullable(),
+  residualConsequence: z.number().int().min(1).max(5).optional().nullable(),
+  nextReviewDate: z.date().optional().nullable(),
+  kpiId: z.string().cuid().optional().nullable(),
+  inspectionTemplateId: z.string().cuid().optional().nullable(),
+  linkedProcess: z.string().max(200).optional().nullable(),
+  riskAppetite: z.string().max(500).optional().nullable(),
+  riskTolerance: z.string().max(500).optional().nullable(),
+  responseStrategy: z.nativeEnum(RiskResponseStrategy).default("REDUCE"),
+  trend: z.nativeEnum(RiskTrend).default("STABLE"),
+  reviewedAt: z.date().optional().nullable(),
 });
 
 export const updateRiskSchema = z.object({
@@ -23,6 +47,24 @@ export const updateRiskSchema = z.object({
   consequence: z.number().int().min(1).max(5).optional(),
   ownerId: z.string().cuid().optional(),
   status: z.nativeEnum(RiskStatus).optional(),
+  category: z.nativeEnum(RiskCategory).optional(),
+  location: z.string().max(120).optional().nullable(),
+  area: z.string().max(120).optional().nullable(),
+  description: z.string().max(2000).optional().nullable(),
+  existingControls: z.string().max(2000).optional().nullable(),
+  controlFrequency: z.nativeEnum(ControlFrequency).optional(),
+  riskStatement: z.string().max(500).optional().nullable(),
+  residualLikelihood: z.number().int().min(1).max(5).optional().nullable(),
+  residualConsequence: z.number().int().min(1).max(5).optional().nullable(),
+  nextReviewDate: z.date().optional().nullable(),
+  kpiId: z.string().cuid().optional().nullable(),
+  inspectionTemplateId: z.string().cuid().optional().nullable(),
+  linkedProcess: z.string().max(200).optional().nullable(),
+  riskAppetite: z.string().max(500).optional().nullable(),
+  riskTolerance: z.string().max(500).optional().nullable(),
+  responseStrategy: z.nativeEnum(RiskResponseStrategy).optional(),
+  trend: z.nativeEnum(RiskTrend).optional(),
+  reviewedAt: z.date().optional().nullable(),
 });
 
 export type CreateRiskInput = z.infer<typeof createRiskSchema>;

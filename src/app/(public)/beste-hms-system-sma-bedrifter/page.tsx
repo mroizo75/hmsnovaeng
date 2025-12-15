@@ -68,7 +68,7 @@ export default function BesteHMSSystemSmaBedrifterPage() {
                   <h3 className="font-semibold text-lg mb-4">Hvorfor HMS Nova vinner:</h3>
                   <ul className="space-y-3">
                     {[
-                      'Lavest totalkostnad (8.000 kr/år, alt inkludert)',
+                      'Lavest totalkostnad (fra 225 kr/mnd, alt inkludert)',
                       'Raskest å komme i gang (2 timer)',
                       'Enklest å bruke (4.8/5 i brukervennlighet)',
                       'Komplett løsning (ingen tillegg nødvendig)',
@@ -117,9 +117,9 @@ export default function BesteHMSSystemSmaBedrifterPage() {
                   </ul>
 
                   <div className="mt-6 p-4 bg-primary/10 rounded-lg">
-                    <div className="text-2xl font-bold mb-1">8.000 kr/år</div>
+                    <div className="text-2xl font-bold mb-1">Fra 225 kr/mnd</div>
                     <div className="text-sm text-muted-foreground">
-                      Alt inkludert • Ingen binding • 14 dagers gratis test
+                      Alt inkludert • Valgfri binding • 14 dagers gratis test
                     </div>
                   </div>
 
@@ -215,7 +215,7 @@ export default function BesteHMSSystemSmaBedrifterPage() {
                 <div>
                   <h3 className="font-semibold mb-4">Hvorfor Kuba er bra:</h3>
                   <ul className="space-y-2">
-                    {['Lavest pris (6.000 kr/år)', 'Veldig enkel', 'Rask å komme i gang'].map(
+                    {['Lavest pris', 'Veldig enkel', 'Rask å komme i gang'].map(
                       (item, index) => (
                         <li key={index} className="flex items-start gap-2">
                           <CheckCircle2 className="h-5 w-5 text-green-600 flex-shrink-0 mt-0.5" />
@@ -259,7 +259,7 @@ export default function BesteHMSSystemSmaBedrifterPage() {
                   </ul>
 
                   <div className="mt-6 p-4 bg-muted rounded-lg">
-                    <div className="text-2xl font-bold mb-1">6.000 kr/år</div>
+                    <div className="text-2xl font-bold mb-1">Fra 6.000 kr/år</div>
                     <div className="text-sm text-muted-foreground">Grunnleggende HMS</div>
                   </div>
                 </div>
@@ -294,7 +294,7 @@ export default function BesteHMSSystemSmaBedrifterPage() {
                   {[
                     {
                       criteria: 'Pris (0-20 ansatte)',
-                      nova: '8.000 kr/år',
+                      nova: 'Fra 225 kr/mnd',
                       gronn: '7.890 kr/år',
                       kuba: '6.000 kr/år',
                     },
@@ -371,7 +371,7 @@ export default function BesteHMSSystemSmaBedrifterPage() {
               </Button>
             </Link>
             <p className="text-sm mt-6 text-primary-foreground/70">
-              Ingen binding • Norsk support • 8.000 kr/år
+              Valgfri binding • Norsk support • Fra 225 kr/mnd
             </p>
           </CardContent>
         </Card>

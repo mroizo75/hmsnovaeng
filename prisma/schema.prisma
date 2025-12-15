@@ -82,7 +82,19 @@ model User {
   meetingParticipants MeetingParticipant[] @relation("MeetingParticipants")
   meetingDecisions    MeetingDecision[]    @relation("MeetingDecisions")
   documentsApproved   Document[]           @relation("DocumentApprovedBy")
+  ownedDocuments      Document[]           @relation("DocumentOwner")
+  ownedRisks          Risk[]               @relation("RiskOwner")
+  riskControlsOwned   RiskControl[]        @relation("RiskControlOwner")
+  securityAssetsOwned SecurityAsset[]      @relation("SecurityAssetOwner")
+  securityControlsOwned SecurityControl[]  @relation("SecurityControlOwner")
+  securityEvidenceCollected SecurityEvidence[] @relation("SecurityEvidenceCollector")
+  environmentalAspects EnvironmentalAspect[] @relation("EnvironmentalAspectOwner")
   measures            Measure[]            @relation("MeasureResponsible")
+  environmentalMeasurements EnvironmentalMeasurement[] @relation("EnvironmentalMeasurementResponsible")
+  accessReviewsOwned  AccessReview[]       @relation("AccessReviewOwner")
+  accessReviewDecisions AccessReviewEntry[] @relation("AccessReviewDecider")
+  feedbackRecorded    CustomerFeedback[]   @relation("FeedbackRecorder")
+  feedbackFollowUp    CustomerFeedback[]   @relation("FeedbackFollowUpOwner")
   notifications       Notification[]
   scheduledReminders  ScheduledReminder[]  @relation("UserReminders")
   createdAt           DateTime     @default(now())
@@ -167,10 +179,23 @@ model Tenant {
   users            UserTenant[]
   documents        Document[]
   documentVersions DocumentVersion[]
+  documentTemplates DocumentTemplate[]
   risks            Risk[]
+  riskControls     RiskControl[]
+  riskDocumentLinks RiskDocumentLink[]
+  riskAuditLinks   RiskAuditLink[]
+  securityAssets   SecurityAsset[]
+  securityControls SecurityControl[]
+  securityControlDocuments SecurityControlDocument[]
+  securityEvidences SecurityEvidence[]
+  accessReviews    AccessReview[]
+  accessReviewEntries AccessReviewEntry[]
+  customerFeedbacks CustomerFeedback[]
   incidents        Incident[]
   trainings        Training[]
   actions          Measure[]
+  environmentalAspects EnvironmentalAspect[]
+  environmentalMeasurements EnvironmentalMeasurement[]
   audits           Audit[]
   goals            Goal[]
   chemicals        Chemical[]
@@ -183,6 +208,7 @@ model Tenant {
   formSubmissions  FormSubmission[] // Digital forms
   kpiMeasurements  KpiMeasurement[] // KPI målinger
   inspections      Inspection[]     // Vernerunde/Inspeksjoner
+  inspectionTemplates InspectionTemplate[]
   managementReviews ManagementReview[] // Ledelsens gjennomgang
   meetings         Meeting[]        // AMU/VO møter
   whistleblowings  Whistleblowing[] // Varslinger
@@ -422,7 +448,16 @@ model Document {
   approvedBy String?
   approvedAt DateTime?
   updatedBy  String?
+  ownerId    String?
+  templateId String?
   nextReviewDate DateTime? // Når skal dokumentet gjennomgås igjen?
+  reviewIntervalMonths Int @default(12)
+  effectiveFrom DateTime?
+  effectiveTo   DateTime?
+  planSummary   String?    @db.Text
+  doSummary     String?    @db.Text
+  checkSummary  String?    @db.Text
+  actSummary    String?    @db.Text
   visibleToRoles Json?    // Array av roller som skal se dokumentet ["ANSATT", "LEDER"]. Null = alle
   createdAt  DateTime     @default(now())
   updatedAt  DateTime     @updatedAt
@@ -430,6 +465,11 @@ model Document {
   tenant          Tenant            @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   versions        DocumentVersion[] // Historikk av alle versjoner
   approvedByUser  User?             @relation("DocumentApprovedBy", fields: [approvedBy], references: [id], onDelete: SetNull)
+  owner           User?             @relation("DocumentOwner", fields: [ownerId], references: [id], onDelete: SetNull)
+  template        DocumentTemplate? @relation(fields: [templateId], references: [id], onDelete: SetNull)
+  riskDocumentLinks RiskDocumentLink[]
+  riskControlsEvidence RiskControl[] @relation("RiskControlEvidence")
+  securityControlDocuments SecurityControlDocument[]
 
   @@unique([tenantId, slug]) // Slug må være unik per tenant
   @@index([tenantId])
@@ -475,6 +515,25 @@ enum DocStatus {
   ARCHIVED   // Utdatert/erstattet
 }
 
+model DocumentTemplate {
+  id           String   @id @default(cuid())
+  tenantId     String?
+  name         String
+  category     String?
+  description  String?  @db.Text
+  pdcaGuidance Json?
+  defaultReviewIntervalMonths Int @default(12)
+  isGlobal     Boolean  @default(false)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  tenant   Tenant?   @relation(fields: [tenantId], references: [id], onDelete: SetNull)
+  documents Document[]
+
+  @@index([tenantId])
+  @@index([isGlobal])
+}
+
 // ============================================
 // Risk Management
 // ============================================
@@ -489,16 +548,47 @@ model Risk {
   score       Int
   ownerId     String
   status      RiskStatus @default(OPEN)
+  category    RiskCategory @default(OPERATIONAL)
+  location    String?
+  area        String?
+  description String?   @db.Text
+  existingControls String? @db.Text
+  residualLikelihood Int?
+  residualConsequence Int?
+  residualScore Int?
+  nextReviewDate DateTime?
+  controlFrequency ControlFrequency? @default(ANNUAL)
+  riskStatement String? @db.Text
+  kpiId        String?
+  inspectionTemplateId String?
+  linkedProcess String?
+  riskAppetite String? @db.Text
+  riskTolerance String? @db.Text
+  responseStrategy RiskResponseStrategy @default(REDUCE)
+  trend        RiskTrend @default(STABLE)
   reviewedAt  DateTime?
   createdAt   DateTime   @default(now())
   updatedAt   DateTime   @updatedAt
 
-  tenant   Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  measures Measure[]
+  tenant              Tenant             @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  measures            Measure[]
+  owner               User               @relation("RiskOwner", fields: [ownerId], references: [id])
+  kpi                 Goal?              @relation("RiskGoal", fields: [kpiId], references: [id])
+  inspectionTemplate  InspectionTemplate? @relation("RiskInspectionTemplate", fields: [inspectionTemplateId], references: [id])
+  linkedIncidents     Incident[]         @relation("IncidentRiskReference")
+  inspectionFindings  InspectionFinding[] @relation("InspectionFindingRisk")
+  documentLinks       RiskDocumentLink[]
+  auditLinks          RiskAuditLink[]
+  controls            RiskControl[]
+  securityControls    SecurityControl[]
 
   @@index([tenantId])
   @@index([status])
   @@index([score])
+  @@index([category])
+  @@index([nextReviewDate])
+  @@index([kpiId])
+  @@index([inspectionTemplateId])
 }
 
 enum RiskStatus {
@@ -508,25 +598,413 @@ enum RiskStatus {
   CLOSED
 }
 
+enum RiskCategory {
+  STRATEGIC
+  OPERATIONAL
+  SAFETY
+  HEALTH
+  ENVIRONMENTAL
+  LEGAL
+  INFORMATION_SECURITY
+}
+
+enum RiskResponseStrategy {
+  AVOID
+  REDUCE
+  TRANSFER
+  ACCEPT
+}
+
+enum RiskTrend {
+  INCREASING
+  STABLE
+  DECREASING
+}
+
+enum RiskDocumentRelation {
+  SUPPORTING
+  POLICY
+  PROCEDURE
+  CONTROL_REPORT
+  WORK_INSTRUCTION
+  OTHER
+}
+
+enum RiskAuditRelation {
+  CONTROL_TEST
+  FOLLOW_UP
+  OBSERVATION
+  OTHER
+}
+
+enum RiskControlType {
+  PREVENTIVE
+  DETECTIVE
+  CORRECTIVE
+  DIRECTIONAL
+  COMPENSATING
+}
+
+enum RiskControlStatus {
+  ACTIVE
+  NEEDS_IMPROVEMENT
+  RETIRED
+}
+
+enum RiskControlEffectiveness {
+  EFFECTIVE
+  PARTIAL
+  INEFFECTIVE
+  NOT_TESTED
+}
+
+model RiskDocumentLink {
+  id         String                @id @default(cuid())
+  tenantId   String
+  riskId     String
+  documentId String
+  relation   RiskDocumentRelation  @default(SUPPORTING)
+  note       String?               @db.Text
+  createdAt  DateTime              @default(now())
+
+  tenant   Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  risk     Risk     @relation(fields: [riskId], references: [id], onDelete: Cascade)
+  document Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
+
+  @@unique([riskId, documentId])
+  @@index([tenantId])
+  @@index([documentId])
+}
+
+model RiskAuditLink {
+  id        String             @id @default(cuid())
+  tenantId  String
+  riskId    String
+  auditId   String
+  relation  RiskAuditRelation  @default(CONTROL_TEST)
+  summary   String?            @db.Text
+  createdAt DateTime           @default(now())
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  risk   Risk   @relation(fields: [riskId], references: [id], onDelete: Cascade)
+  audit  Audit  @relation(fields: [auditId], references: [id], onDelete: Cascade)
+
+  @@unique([riskId, auditId])
+  @@index([tenantId])
+  @@index([auditId])
+}
+
+model RiskControl {
+  id                 String                   @id @default(cuid())
+  tenantId           String
+  riskId             String
+  title              String
+  description        String?                  @db.Text
+  controlType        RiskControlType          @default(PREVENTIVE)
+  ownerId            String?
+  status             RiskControlStatus        @default(ACTIVE)
+  effectiveness      RiskControlEffectiveness @default(NOT_TESTED)
+  frequency          ControlFrequency?
+  lastTestedAt       DateTime?
+  nextTestDate       DateTime?
+  monitoringMethod   String?
+  evidenceDocumentId String?
+  createdAt          DateTime                 @default(now())
+  updatedAt          DateTime                 @updatedAt
+
+  tenant            Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  risk              Risk     @relation(fields: [riskId], references: [id], onDelete: Cascade)
+  owner             User?    @relation("RiskControlOwner", fields: [ownerId], references: [id], onDelete: SetNull)
+  evidenceDocument  Document? @relation("RiskControlEvidence", fields: [evidenceDocumentId], references: [id], onDelete: SetNull)
+
+  @@index([tenantId])
+  @@index([riskId])
+  @@index([ownerId])
+  @@index([controlType])
+  @@index([status])
+}
+
+enum ControlFrequency {
+  WEEKLY
+  MONTHLY
+  QUARTERLY
+  ANNUAL
+  BIENNIAL
+}
+
+enum SecurityAssetType {
+  INFORMATION_SYSTEM
+  APPLICATION
+  INFRASTRUCTURE
+  DOCUMENT
+  PEOPLE
+  FACILITY
+  OTHER
+}
+
+enum CIAValue {
+  LOW
+  MEDIUM
+  HIGH
+}
+
+enum SecurityControlCategory {
+  ORGANIZATIONAL
+  PEOPLE
+  PHYSICAL
+  TECHNICAL
+}
+
+enum SecurityControlStatus {
+  PLANNED
+  IN_PROGRESS
+  IMPLEMENTED
+  LIVE
+}
+
+enum SecurityControlMaturity {
+  INITIAL
+  MANAGED
+  DEFINED
+  OPTIMIZED
+}
+
+enum AccessReviewStatus {
+  PLANNED
+  IN_PROGRESS
+  COMPLETED
+}
+
+enum AccessDecision {
+  REVIEW
+  APPROVED
+  REVOKED
+}
+
+enum FeedbackSource {
+  EMAIL
+  PHONE
+  MEETING
+  SURVEY
+  SOCIAL
+  OTHER
+}
+
+enum FeedbackSentiment {
+  POSITIVE
+  NEUTRAL
+  NEGATIVE
+}
+
+enum FeedbackStatus {
+  NEW
+  ACKNOWLEDGED
+  SHARED
+  FOLLOW_UP
+  CLOSED
+}
+
+model SecurityAsset {
+  id                   String          @id @default(cuid())
+  tenantId             String
+  name                 String
+  description          String?         @db.Text
+  type                 SecurityAssetType @default(INFORMATION_SYSTEM)
+  ownerId              String?
+  confidentiality      CIAValue        @default(MEDIUM)
+  integrity            CIAValue        @default(MEDIUM)
+  availability         CIAValue        @default(MEDIUM)
+  businessCriticality  Int?
+  createdAt            DateTime        @default(now())
+  updatedAt            DateTime        @updatedAt
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  owner  User?  @relation("SecurityAssetOwner", fields: [ownerId], references: [id], onDelete: SetNull)
+  controls SecurityControl[]
+
+  @@index([tenantId])
+  @@index([ownerId])
+}
+
+model SecurityControl {
+  id                String                   @id @default(cuid())
+  tenantId          String
+  code              String
+  title             String
+  requirement       String?                  @db.Text
+  annexReference    String?
+  category          SecurityControlCategory  @default(ORGANIZATIONAL)
+  status            SecurityControlStatus    @default(PLANNED)
+  maturity          SecurityControlMaturity  @default(INITIAL)
+  ownerId           String?
+  linkedAssetId     String?
+  linkedRiskId      String?
+  implementationNote String?                 @db.Text
+  monitoring        String?                  @db.Text
+  lastTestDate      DateTime?
+  nextReviewDate    DateTime?
+  createdAt         DateTime                 @default(now())
+  updatedAt         DateTime                 @updatedAt
+
+  tenant      Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  owner       User?         @relation("SecurityControlOwner", fields: [ownerId], references: [id], onDelete: SetNull)
+  linkedAsset SecurityAsset? @relation(fields: [linkedAssetId], references: [id], onDelete: SetNull)
+  linkedRisk  Risk?         @relation(fields: [linkedRiskId], references: [id], onDelete: SetNull)
+  evidences   SecurityEvidence[]
+  documents   SecurityControlDocument[]
+
+  @@unique([tenantId, code])
+  @@index([tenantId])
+  @@index([ownerId])
+  @@index([linkedAssetId])
+  @@index([linkedRiskId])
+}
+
+model SecurityControlDocument {
+  id         String      @id @default(cuid())
+  tenantId   String
+  controlId  String
+  documentId String
+  note       String?     @db.Text
+  createdAt  DateTime    @default(now())
+
+  tenant   Tenant         @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  control  SecurityControl @relation(fields: [controlId], references: [id], onDelete: Cascade)
+  document Document       @relation(fields: [documentId], references: [id], onDelete: Cascade)
+
+  @@unique([controlId, documentId])
+  @@index([documentId])
+}
+
+model SecurityEvidence {
+  id             String      @id @default(cuid())
+  tenantId       String
+  controlId      String
+  title          String
+  description    String?     @db.Text
+  attachmentKey  String?
+  collectedById  String?
+  collectedAt    DateTime    @default(now())
+  reviewResult   String?
+  createdAt      DateTime    @default(now())
+
+  tenant      Tenant          @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  control     SecurityControl @relation(fields: [controlId], references: [id], onDelete: Cascade)
+  collectedBy User?           @relation("SecurityEvidenceCollector", fields: [collectedById], references: [id], onDelete: SetNull)
+
+  @@index([controlId])
+  @@index([collectedById])
+}
+
+model AccessReview {
+  id          String             @id @default(cuid())
+  tenantId    String
+  title       String
+  scope       String?            @db.Text
+  systemName  String?
+  status      AccessReviewStatus @default(PLANNED)
+  dueDate     DateTime?
+  ownerId     String?
+  completedAt DateTime?
+  notes       String?            @db.Text
+  createdAt   DateTime           @default(now())
+  updatedAt   DateTime           @updatedAt
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  owner  User?  @relation("AccessReviewOwner", fields: [ownerId], references: [id], onDelete: SetNull)
+  entries AccessReviewEntry[]
+
+  @@index([tenantId])
+  @@index([ownerId])
+}
+
+model AccessReviewEntry {
+  id           String         @id @default(cuid())
+  reviewId     String
+  tenantId     String
+  userName     String
+  userEmail    String
+  role         String?
+  decision     AccessDecision @default(REVIEW)
+  comment      String?        @db.Text
+  decidedById  String?
+  decidedAt    DateTime?
+  createdAt    DateTime       @default(now())
+
+  tenant    Tenant       @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  review    AccessReview @relation(fields: [reviewId], references: [id], onDelete: Cascade)
+  decidedBy User?        @relation("AccessReviewDecider", fields: [decidedById], references: [id], onDelete: SetNull)
+
+  @@index([tenantId])
+  @@index([reviewId])
+  @@index([decidedById])
+}
+
+model CustomerFeedback {
+  id               String          @id @default(cuid())
+  tenantId         String
+  recordedById     String
+  recordedAt       DateTime        @default(now())
+  customerName     String?
+  customerCompany  String?
+  contactEmail     String?
+  contactPhone     String?
+  source           FeedbackSource  @default(EMAIL)
+  sentiment        FeedbackSentiment @default(POSITIVE)
+  rating           Int?
+  summary          String
+  details          String?         @db.Text
+  highlights       String?         @db.Text
+  feedbackDate     DateTime?       @default(now())
+  followUpStatus   FeedbackStatus  @default(NEW)
+  followUpOwnerId  String?
+  followUpNotes    String?         @db.Text
+  linkedGoalId     String?
+  linkedIncidentId String?
+  attachments      String?         @db.Text
+  sharedAt         DateTime?
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
+
+  tenant       Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  recordedBy   User     @relation("FeedbackRecorder", fields: [recordedById], references: [id], onDelete: Cascade)
+  followUpOwner User?   @relation("FeedbackFollowUpOwner", fields: [followUpOwnerId], references: [id], onDelete: SetNull)
+  goal         Goal?    @relation(fields: [linkedGoalId], references: [id], onDelete: SetNull)
+  incident     Incident? @relation(fields: [linkedIncidentId], references: [id], onDelete: SetNull)
+
+  @@index([tenantId])
+  @@index([recordedAt])
+  @@index([followUpStatus])
+  @@index([followUpOwnerId])
+  @@index([linkedGoalId])
+}
+
 // ============================================
 // Measures/Actions
 // ============================================
 
 model Measure {
-  id            String       @id @default(cuid())
-  tenantId      String
-  riskId        String?
-  incidentId    String?
-  auditId       String?
-  goalId        String?
-  title         String
-  description   String?      @db.Text
-  dueAt         DateTime
-  responsibleId String
-  status        ActionStatus @default(PENDING)
-  completedAt   DateTime?
-  createdAt     DateTime     @default(now())
-  updatedAt     DateTime     @updatedAt
+  id                String       @id @default(cuid())
+  tenantId          String
+  riskId            String?
+  incidentId        String?
+  auditId           String?
+  goalId            String?
+  environmentalAspectId String?
+  title             String
+  description       String?      @db.Text
+  dueAt             DateTime
+  responsibleId     String
+  status            ActionStatus @default(PENDING)
+  completedAt       DateTime?
+  effectiveness     ActionEffectiveness @default(NOT_EVALUATED)
+  effectivenessNote String?      @db.Text
+  followUpFrequency ControlFrequency? @default(ANNUAL)
+  costEstimate      Int?
+  benefitEstimate   Int?
+  category          MeasureCategory @default(CORRECTIVE)
+  createdAt         DateTime     @default(now())
+  updatedAt         DateTime     @updatedAt
 
   tenant      Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   risk        Risk?     @relation(fields: [riskId], references: [id])
@@ -534,6 +1012,8 @@ model Measure {
   audit       Audit?    @relation(fields: [auditId], references: [id])
   goal        Goal?     @relation(fields: [goalId], references: [id])
   responsible User      @relation("MeasureResponsible", fields: [responsibleId], references: [id], onDelete: Cascade)
+  environmentalAspect EnvironmentalAspect? @relation(fields: [environmentalAspectId], references: [id], onDelete: SetNull)
+  inspectionFindings InspectionFinding[] @relation("InspectionFindingMeasure")
 
   @@index([tenantId])
   @@index([status])
@@ -542,6 +1022,7 @@ model Measure {
   @@index([incidentId])
   @@index([auditId])
   @@index([goalId])
+  @@index([environmentalAspectId])
 }
 
 enum ActionStatus {
@@ -549,6 +1030,117 @@ enum ActionStatus {
   IN_PROGRESS
   DONE
   OVERDUE
+}
+
+enum ActionEffectiveness {
+  NOT_EVALUATED
+  EFFECTIVE
+  PARTIALLY_EFFECTIVE
+  INEFFECTIVE
+}
+
+enum MeasureCategory {
+  CORRECTIVE
+  PREVENTIVE
+  IMPROVEMENT
+  MITIGATION
+}
+
+// ============================================
+// Environmental Management (ISO 14001)
+// ============================================
+
+model EnvironmentalAspect {
+  id                 String                       @id @default(cuid())
+  tenantId           String
+  title              String
+  description        String?                      @db.Text
+  process            String?
+  location           String?
+  category           EnvironmentalAspectCategory  @default(RESOURCE_USE)
+  impactType         EnvironmentalImpactType      @default(NEGATIVE)
+  severity           Int
+  likelihood         Int
+  significanceScore  Int
+  legalRequirement   String?                      @db.Text
+  controlMeasures    String?                      @db.Text
+  monitoringMethod   String?
+  monitoringFrequency ControlFrequency?           @default(ANNUAL)
+  ownerId            String?
+  goalId             String?
+  status             EnvironmentalAspectStatus    @default(ACTIVE)
+  nextReviewDate     DateTime?
+  lastMeasurementDate DateTime?
+  createdAt          DateTime                     @default(now())
+  updatedAt          DateTime                     @updatedAt
+
+  tenant      Tenant       @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  owner       User?        @relation("EnvironmentalAspectOwner", fields: [ownerId], references: [id], onDelete: SetNull)
+  goal        Goal?        @relation(fields: [goalId], references: [id], onDelete: SetNull)
+  measurements EnvironmentalMeasurement[]
+  measures     Measure[]
+
+  @@index([tenantId])
+  @@index([category])
+  @@index([status])
+  @@index([significanceScore])
+  @@index([ownerId])
+  @@index([goalId])
+}
+
+model EnvironmentalMeasurement {
+  id              String                         @id @default(cuid())
+  tenantId        String
+  aspectId        String
+  parameter       String
+  unit            String?
+  method          String?
+  limitValue      Float?
+  targetValue     Float?
+  measuredValue   Float
+  measurementDate DateTime
+  status          EnvironmentalMeasurementStatus @default(COMPLIANT)
+  notes           String?                        @db.Text
+  responsibleId   String?
+  attachmentKey   String?
+  createdAt       DateTime                       @default(now())
+  updatedAt       DateTime                       @updatedAt
+
+  tenant      Tenant              @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  aspect      EnvironmentalAspect @relation(fields: [aspectId], references: [id], onDelete: Cascade)
+  responsible User?               @relation("EnvironmentalMeasurementResponsible", fields: [responsibleId], references: [id], onDelete: SetNull)
+
+  @@index([aspectId])
+  @@index([measurementDate])
+  @@index([status])
+  @@index([responsibleId])
+}
+
+enum EnvironmentalAspectCategory {
+  RESOURCE_USE
+  ENERGY
+  WATER
+  WASTE
+  EMISSIONS
+  BIODIVERSITY
+  OTHER
+}
+
+enum EnvironmentalImpactType {
+  POSITIVE
+  NEGATIVE
+}
+
+enum EnvironmentalAspectStatus {
+  ACTIVE
+  MONITORED
+  CLOSED
+}
+
+enum EnvironmentalMeasurementStatus {
+  COMPLIANT
+  WARNING
+  NON_COMPLIANT
 }
 
 // ============================================
@@ -572,17 +1164,31 @@ model Incident {
   contributingFactors String?      @db.Text
   investigatedBy      String?
   investigatedAt      DateTime?
-  status              String       @default("OPEN") // OPEN, INVESTIGATING, ACTION_TAKEN, CLOSED
+  customerName        String?
+  customerEmail       String?
+  customerPhone       String?
+  customerTicketId    String?
+  responseDeadline    DateTime?
+  customerSatisfaction Int?
+  status              IncidentStatus @default(OPEN)
+  stage               IncidentStage  @default(REPORTED)
   closedBy            String?
   closedAt            DateTime?
   effectivenessReview String?      @db.Text // ISO 9001: Effektivitetsvurdering
   lessonsLearned      String?      @db.Text // ISO 9001: Læringspunkter
+  injuryType          String?
+  medicalAttentionRequired Boolean @default(false)
+  lostTimeMinutes     Int?
+  riskReferenceId     String?
+  measureEffectiveness ActionEffectiveness? @default(NOT_EVALUATED)
   createdAt           DateTime     @default(now())
   updatedAt           DateTime     @updatedAt
 
   tenant      Tenant       @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   measures    Measure[]
   attachments Attachment[]
+  customerFeedbacks CustomerFeedback[]
+  risk        Risk?        @relation("IncidentRiskReference", fields: [riskReferenceId], references: [id])
 
   @@index([tenantId])
   @@index([type])
@@ -590,6 +1196,7 @@ model Incident {
   @@index([occurredAt])
   @@index([severity])
   @@index([responsibleId])
+  @@index([riskReferenceId])
 }
 
 enum IncidentType {
@@ -598,6 +1205,24 @@ enum IncidentType {
   SKADE
   MILJO
   KVALITET
+  HMS
+  CUSTOMER
+}
+
+enum IncidentStatus {
+  OPEN
+  INVESTIGATING
+  ACTION_TAKEN
+  CLOSED
+}
+
+enum IncidentStage {
+  REPORTED
+  UNDER_REVIEW
+  ROOT_CAUSE
+  ACTIONS_DEFINED
+  ACTIONS_COMPLETE
+  VERIFIED
 }
 
 // ============================================
@@ -658,6 +1283,7 @@ model Audit {
   tenant   Tenant         @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   findings AuditFinding[]
   measures Measure[]
+  riskAuditLinks RiskAuditLink[]
 
   @@index([tenantId])
   @@index([scheduledDate])
@@ -744,6 +1370,9 @@ model Goal {
   status          GoalStatus   @default(ACTIVE)
   measurements    KpiMeasurement[] // Målinger over tid
   actions         Measure[]    // Tiltak knyttet til målet
+  environmentalAspects EnvironmentalAspect[]
+  risks           Risk[]       @relation("RiskGoal")
+  customerFeedback CustomerFeedback[]
   createdAt       DateTime     @default(now())
   updatedAt       DateTime     @updatedAt
 
@@ -898,27 +1527,59 @@ model AuditLog {
 // ============================================================================
 
 model Inspection {
-  id              String            @id @default(cuid())
-  tenantId        String
-  title           String
-  description     String?           @db.Text
-  type            InspectionType    @default(VERNERUNDE)
-  status          InspectionStatus  @default(PLANNED)
-  scheduledDate   DateTime
-  completedDate   DateTime?
-  location        String?
-  conductedBy     String            // userId
-  participants    String?           @db.Text // JSON array of userIds
-  findings        InspectionFinding[]
-  createdAt       DateTime          @default(now())
-  updatedAt       DateTime          @updatedAt
+  id               String            @id @default(cuid())
+  tenantId         String
+  title            String
+  description      String?           @db.Text
+  type             InspectionType    @default(VERNERUNDE)
+  status           InspectionStatus  @default(PLANNED)
+  scheduledDate    DateTime
+  completedDate    DateTime?
+  location         String?
+  area             String?
+  riskCategory     RiskCategory?
+  templateId       String?
+  conductedBy      String            // userId
+  participants     String?           @db.Text // JSON array of userIds
+  durationMinutes  Int?
+  followUpById     String?
+  nextInspection   DateTime?
+  findings         InspectionFinding[]
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
   
-  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  tenant    Tenant            @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  template  InspectionTemplate? @relation("TemplateInspections", fields: [templateId], references: [id], onDelete: SetNull)
   
   @@index([tenantId])
   @@index([scheduledDate])
   @@index([status])
   @@index([type])
+  @@index([templateId])
+  @@index([riskCategory])
+  @@index([nextInspection])
+}
+
+model InspectionTemplate {
+  id          String   @id @default(cuid())
+  tenantId    String?
+  name        String
+  description String? @db.Text
+  category    String?
+  riskCategory RiskCategory?
+  checklist   Json?
+  isGlobal    Boolean @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  tenant      Tenant?      @relation(fields: [tenantId], references: [id], onDelete: SetNull)
+  inspections Inspection[] @relation("TemplateInspections")
+  risks       Risk[]       @relation("RiskInspectionTemplate")
+
+  @@index([tenantId])
+  @@index([category])
+  @@index([riskCategory])
+  @@index([isGlobal])
 }
 
 model InspectionFinding {
@@ -934,14 +1595,20 @@ model InspectionFinding {
   dueDate       DateTime?
   resolvedAt    DateTime?
   resolutionNotes String?        @db.Text
+  linkedRiskId  String?
+  linkedMeasureId String?
   createdAt     DateTime         @default(now())
   updatedAt     DateTime         @updatedAt
   
   inspection Inspection @relation(fields: [inspectionId], references: [id], onDelete: Cascade)
+  linkedRisk Risk? @relation("InspectionFindingRisk", fields: [linkedRiskId], references: [id])
+  linkedMeasure Measure? @relation("InspectionFindingMeasure", fields: [linkedMeasureId], references: [id])
   
   @@index([inspectionId])
   @@index([status])
   @@index([responsibleId])
+  @@index([linkedRiskId])
+  @@index([linkedMeasureId])
 }
 
 enum InspectionType {
@@ -1019,6 +1686,9 @@ enum FormCategory {
   RISK          // Risikovurderinger
   TRAINING      // Opplæring
   CHECKLIST     // Sjekklister
+  WELLBEING     // Psykososiale skjemaer (ISO 45003)
+  BCM           // Beredskaps- og kontinuitetsplaner (ISO 22301)
+  COMPLAINT     // Kundeklager (ISO 10002)
   CUSTOM        // Egendefinert
 }
 

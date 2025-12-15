@@ -562,7 +562,7 @@ export default function BHTPage() {
               <div className="grid md:grid-cols-3 gap-4 text-sm mb-4">
                 <div className="text-center p-4 bg-green-50 rounded-lg">
                   <p className="font-semibold text-green-700">HMS Nova software</p>
-                  <p className="text-2xl font-bold text-green-600">Fra 6.000 kr/år</p>
+                  <p className="text-2xl font-bold text-green-600">Fra 225 kr/mnd</p>
                   <p className="text-xs text-muted-foreground">Komplett HMS-system</p>
                 </div>
                 <div className="text-center p-4 bg-green-50 rounded-lg">
@@ -578,7 +578,7 @@ export default function BHTPage() {
               </div>
               <div className="text-center p-4 bg-primary text-primary-foreground rounded-lg">
                 <p className="font-bold text-lg mb-1">Totalt årlig verdi: Fra 8.650 kr</p>
-                <p className="text-sm opacity-90">HMS Nova (6.000 kr) + BHT-rabatt (648 kr) + Kurs-rabatt (2.000+ kr)</p>
+                <p className="text-sm opacity-90">HMS Nova (fra 225 kr/mnd) + BHT-rabatt (648 kr) + Kurs-rabatt (2.000+ kr)</p>
               </div>
             </div>
 

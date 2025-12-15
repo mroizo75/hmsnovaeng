@@ -348,6 +348,7 @@ export function FormBuilder({ tenantId, initialData }: FormBuilderProps) {
                   <SelectItem value="RISK">Risikovurdering</SelectItem>
                   <SelectItem value="TRAINING">Opplæring</SelectItem>
                   <SelectItem value="CHECKLIST">Sjekkliste</SelectItem>
+                  <SelectItem value="WELLBEING">Psykososial puls (WELLBEING)</SelectItem>
                 </SelectContent>
               </Select>
             </div>

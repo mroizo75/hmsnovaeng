@@ -93,8 +93,8 @@ export default function BesteHMSSystemKontorPage() {
               <CardContent>
                 <div className="space-y-4">
                   <div>
-                    <div className="text-3xl font-bold text-primary mb-1">8.000-12.000 kr/år</div>
-                    <div className="text-sm text-muted-foreground">Alt inkludert, ingen skjulte kostnader</div>
+                    <div className="text-3xl font-bold text-primary mb-1">Fra 225 kr/mnd</div>
+                    <div className="text-sm text-muted-foreground">Alt inkludert, ubegrenset brukere</div>
                   </div>
                   <div className="space-y-2">
                     {[
@@ -360,7 +360,7 @@ export default function BesteHMSSystemKontorPage() {
                 {[
                   {
                     feature: 'Pris per år',
-                    nova: '8.000-12.000 kr',
+                    nova: 'Fra 225 kr/mnd',
                     gronn: '12.000-18.000 kr',
                     excel: '0 kr (men 15+ timer/mnd)',
                   },

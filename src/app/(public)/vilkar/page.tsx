@@ -1,9 +1,23 @@
+import type { Metadata } from "next";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { FileText, Mail, Phone } from "lucide-react";
 
+export const metadata: Metadata = {
+  title: "Bruksvilkår | Terms of Service | KKS AS & HMS Nova",
+  description:
+    "Les bruksvilkårene for HMS Nova. Informasjon om priser, betaling, oppsigelse, brukerens plikter, ansvarsbegrensning og dine rettigheter som kunde hos KKS AS.",
+  robots: {
+    index: true,
+    follow: true,
+  },
+  alternates: {
+    canonical: "https://hmsnova.no/vilkar",
+  },
+};
+
 export default function VilkarPage() {
-  const lastUpdated = "2. november 2024";
+  const lastUpdated = "15. desember 2024";
 
   return (
     <div className="bg-gradient-to-b from-background to-muted/20">
@@ -31,7 +45,7 @@ export default function VilkarPage() {
             </CardHeader>
             <CardContent className="space-y-4">
               <p className="text-muted-foreground">
-                Disse bruksvilkårene ("Vilkårene") gjelder mellom <strong>KKS AS</strong> (org.nr. [fylles inn]), 
+                Disse bruksvilkårene ("Vilkårene") gjelder mellom <strong>KKS AS</strong> (org.nr. 925897019), 
                 ("Vi", "Oss", "Vår") og deg som bruker av HMS Nova ("Du", "Deg", "Din", "Kunden").
               </p>
               <p className="text-muted-foreground">
@@ -67,8 +81,20 @@ export default function VilkarPage() {
                 <ul className="list-disc list-inside space-y-1 text-sm text-muted-foreground">
                   <li>Juridisk eller HMS-faglig rådgivning (dette må søkes hos kvalifiserte konsulenter)</li>
                   <li>Garanti for at systemet oppfyller alle spesifikke bransjekrav</li>
+                  <li>Garanti for ISO-sertifisering eller compliance med spesifikke standarder</li>
                   <li>Tilpasset utvikling eller spesialfunksjoner uten særskilt avtale</li>
                 </ul>
+              </div>
+
+              <div>
+                <h4 className="font-semibold mb-2">2.3 Utvikling og forbedringer</h4>
+                <p className="text-sm text-muted-foreground">
+                  HMS Nova er under kontinuerlig utvikling. Vi jobber aktivt med å implementere støtte for 
+                  ISO 9001, ISO 45001, ISO 14001, ISO 27001, ISO 31000 og andre relevante standarder. 
+                  Funksjoner kan legges til, endres eller forbedres over tid. Beskrivelser på nettsiden 
+                  og i markedsføringsmateriell kan avvike fra den faktiske tjenesten, spesielt for 
+                  funksjoner som er under utvikling eller planlagt.
+                </p>
               </div>
             </CardContent>
           </Card>
@@ -81,13 +107,16 @@ export default function VilkarPage() {
               <div>
                 <h4 className="font-semibold mb-2">3.1 Abonnementspriser</h4>
                 <p className="text-sm text-muted-foreground mb-2">
-                  HMS Nova tilbys i ulike abonnementspakker basert på antall ansatte:
+                  HMS Nova tilbys med valgfri bindingsperiode:
                 </p>
                 <ul className="list-disc list-inside space-y-1 text-sm text-muted-foreground">
-                  <li><strong>1-20 ansatte:</strong> Gratis for alltid</li>
-                  <li><strong>21-50 ansatte:</strong> 8.000 kr/år (eller 800 kr/måned)</li>
-                  <li><strong>51+ ansatte:</strong> 12.000 kr/år (eller 1.200 kr/måned)</li>
+                  <li><strong>Ingen binding:</strong> 300 kr/mnd</li>
+                  <li><strong>1 år binding:</strong> 275 kr/mnd (spar 300 kr/år)</li>
+                  <li><strong>2 år binding:</strong> 225 kr/mnd (spar 900 kr/år)</li>
                 </ul>
+                <p className="text-sm text-muted-foreground mt-2">
+                  Alle planer inkluderer ubegrenset antall brukere.
+                </p>
               </div>
 
               <div>
@@ -257,7 +286,37 @@ export default function VilkarPage() {
               </div>
 
               <div>
-                <h4 className="font-semibold mb-2">7.2 Begrenset erstatning</h4>
+                <h4 className="font-semibold mb-2">7.2 Kontinuerlig utvikling og avvik</h4>
+                <p className="text-sm text-muted-foreground">
+                  HMS Nova er under kontinuerlig utvikling for å møte kravene i ISO-standarder (ISO 9001, ISO 45001, 
+                  ISO 14001, ISO 27001, ISO 31000 m.fl.), norsk lovgivning og beste praksis innen HMS. 
+                  På grunn av dette:
+                </p>
+                <ul className="list-disc list-inside space-y-1 text-sm text-muted-foreground mt-2">
+                  <li>Funksjoner, tekst og grensesnitt kan avvike fra beskrivelser på nettsiden, i markedsføringsmateriell eller tidligere versjoner</li>
+                  <li>Funksjoner kan legges til, endres eller fjernes uten forvarsel for å forbedre tjenesten</li>
+                  <li>Ordlyd, terminologi og dokumentmaler kan oppdateres for å reflektere gjeldende standarder og lovkrav</li>
+                  <li>ISO-compliance og sertifiseringsstøtte er veiledende og erstatter ikke profesjonell revisjonsbistand</li>
+                </ul>
+                <p className="text-sm text-muted-foreground mt-2">
+                  Markedsføringsmateriell og produktbeskrivelser er veiledende og kan avvike fra den faktiske 
+                  tjenesten. Vi tilstreber å holde informasjonen oppdatert, men kan ikke garantere at alle 
+                  beskrivelser til enhver tid er fullstendig korrekte.
+                </p>
+              </div>
+
+              <div>
+                <h4 className="font-semibold mb-2">7.3 ISO-standarder og compliance</h4>
+                <p className="text-sm text-muted-foreground">
+                  HMS Nova er utviklet med støtte for ISO-standarder som en veiledende funksjon. 
+                  Bruk av HMS Nova gir ingen garanti for sertifisering eller compliance med spesifikke standarder. 
+                  Ansvaret for å oppnå og opprettholde sertifiseringer ligger hos kunden. 
+                  Vi anbefaler at du søker profesjonell rådgivning for sertifiseringsprosesser.
+                </p>
+              </div>
+
+              <div>
+                <h4 className="font-semibold mb-2">7.4 Begrenset erstatning</h4>
                 <p className="text-sm text-muted-foreground">
                   Vårt totale erstatningsansvar overfor deg er begrenset til det du har betalt for tjenesten 
                   i de siste 12 månedene. Vi er ikke ansvarlige for indirekte tap, tapt fortjeneste, tap av data, 
@@ -266,7 +325,7 @@ export default function VilkarPage() {
               </div>
 
               <div>
-                <h4 className="font-semibold mb-2">7.3 Tredjepartstjenester</h4>
+                <h4 className="font-semibold mb-2">7.5 Tredjepartstjenester</h4>
                 <p className="text-sm text-muted-foreground">
                   HMS Nova kan integreres med tredjepartstjenester (f.eks. Dr. Dropin for BHT). 
                   Vi er ikke ansvarlige for disse tjenestenes funksjoner, tilgjengelighet eller kvalitet.
@@ -274,7 +333,7 @@ export default function VilkarPage() {
               </div>
 
               <div>
-                <h4 className="font-semibold mb-2">7.4 Force majeure</h4>
+                <h4 className="font-semibold mb-2">7.6 Force majeure</h4>
                 <p className="text-sm text-muted-foreground">
                   Vi er ikke ansvarlige for forsinkelser eller manglende oppfyllelse av våre forpliktelser 
                   som skyldes forhold utenfor vår kontroll (naturkatastrofer, krig, streik, 
@@ -349,7 +408,7 @@ export default function VilkarPage() {
                 <h4 className="font-semibold mb-2">10.2 Tvisteløsning</h4>
                 <p className="text-sm text-muted-foreground">
                   Tvister skal søkes løst i minnelighet. Hvis dette ikke lykkes, kan tvisten bringes inn 
-                  for norske domstoler med [fylles inn] som verneting.
+                  for norske domstoler med Kongsberg som verneting.
                 </p>
               </div>
 
@@ -380,8 +439,8 @@ export default function VilkarPage() {
                 </p>
                 <p className="text-muted-foreground mt-4">
                   <strong>KKS AS</strong><br/>
-                  Org.nr: [fylles inn]<br/>
-                  [Adresse fylles inn]
+                  Org.nr: 925897019<br/>
+                  Peckels Gate 12b, 3616 Kongsberg
                 </p>
               </div>
             </CardContent>

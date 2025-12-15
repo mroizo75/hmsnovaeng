@@ -1,5 +1,6 @@
 import { AbilityBuilder, createMongoAbility, MongoAbility } from "@casl/ability";
 import { Role } from "@prisma/client";
+import { rolePermissions } from "@/lib/permissions";
 
 export type Actions = "manage" | "create" | "read" | "update" | "delete";
 export type Subjects =
@@ -11,7 +12,15 @@ export type Subjects =
   | "Measure"
   | "Audit"
   | "Goal"
-  | "Chemical";
+  | "Chemical"
+  | "EnvironmentalAspect"
+  | "EnvironmentalMeasurement"
+  | "SecurityAsset"
+  | "SecurityControl"
+  | "AccessReview"
+  | "FormTemplate"
+  | "FormSubmission"
+  | "CustomerFeedback";
 
 export type AppAbility = MongoAbility<[Actions, Subjects]>;
 
@@ -27,62 +36,126 @@ export interface SessionUser {
 export function defineAbilities(user: SessionUser): AppAbility {
   const { can, cannot, build } = new AbilityBuilder<AppAbility>(createMongoAbility);
 
-  // Superadmin har full tilgang til alt
   if (user.isSuperAdmin) {
     can("manage", "all");
     return build();
   }
 
-  // Support har kun tilgang til tenant-administrasjon
   if (user.isSupport) {
-    // Support kan kun lese/opprette tenants, ikke slette
     can(["read", "create", "update"], "all");
     return build();
   }
 
-  // Krev tenantId for vanlige brukere
   if (!user.tenantId || !user.role) {
-    return build(); // Ingen tilganger
+    return build();
   }
 
-  // ADMIN og HMS har full tilgang til alt i sin tenant
+  const perms = rolePermissions[user.role];
+
+  if (!perms) {
+    return build();
+  }
+
   if (user.role === "ADMIN" || user.role === "HMS") {
     can("manage", "all");
+  } else {
+    applyDomainPermissions(perms, can);
   }
 
-  // LEDER kan administrere i sin avdeling
-  if (user.role === "LEDER") {
-    can(["create", "read", "update"], "all");
-    can("delete", ["Incident", "Risk"]);
-  }
-
-  // VERNEOMBUD kan rapportere og se på risiko/avvik
-  if (user.role === "VERNEOMBUD") {
-    can(["read", "create"], ["Incident", "Risk"]);
-    can("update", "Risk"); // Forenklet: alle VERNEOMBUD kan oppdatere risiko
-    can("read", ["Document", "Training", "Audit"]);
-  }
-
-  // ANSATT kan lese dokumenter og rapportere hendelser
-  if (user.role === "ANSATT") {
-    can("read", ["Document", "Training"]);
-    can("create", "Incident");
-  }
-
-  // BHT (Bedriftshelsetjeneste) kan lese og kommentere
-  if (user.role === "BHT") {
-    can("read", "all");
-    can("create", ["Incident", "Risk"]);
-  }
-
-  // REVISOR har kun lesetilgang
-  if (user.role === "REVISOR") {
-    can("read", "all");
-  }
-
-  // Ingen kan slette lovdokumenter (forenklet conditions)
   cannot("delete", "Document");
 
   return build();
+}
+
+function applyDomainPermissions(perms: typeof rolePermissions[Role], can: AbilityBuilder<AppAbility>["can"]) {
+  if (perms.canReadDocuments) can("read", "Document");
+  if (perms.canCreateDocuments) can("create", "Document");
+  if (perms.canApproveDocuments) can("update", "Document");
+  if (perms.canDeleteDocuments) can("delete", "Document");
+
+  if (perms.canReadRisks) can("read", "Risk");
+  if (perms.canCreateRisks) can("create", "Risk");
+  if (perms.canApproveRisks || perms.canDeleteRisks) {
+    can("update", "Risk");
+    if (perms.canDeleteRisks) can("delete", "Risk");
+  }
+
+  if (perms.canReadIncidents) can("read", "Incident");
+  if (perms.canCreateIncidents) can("create", "Incident");
+  if (perms.canInvestigateIncidents || perms.canCloseIncidents) {
+    can("update", "Incident");
+    if (perms.canCloseIncidents) can("delete", "Incident");
+  }
+
+  if (perms.canReadActions) {
+    can("read", "Measure");
+  }
+  if (perms.canCreateActions) can("create", "Measure");
+  if (perms.canUpdateActions) can("update", "Measure");
+  if (perms.canDeleteActions) can("delete", "Measure");
+
+  if (perms.canReadAudits) can("read", "Audit");
+  if (perms.canCreateAudits) can("create", "Audit");
+  if (perms.canConductAudits || perms.canCloseAudits) {
+    can("update", "Audit");
+    if (perms.canCloseAudits) can("delete", "Audit");
+  }
+
+  if (perms.canReadChemicals) can("read", "Chemical");
+  if (perms.canCreateChemicals) can("create", "Chemical");
+  if (perms.canUpdateChemicals) can("update", "Chemical");
+  if (perms.canDeleteChemicals) can("delete", "Chemical");
+
+  const canReadTraining = perms.canReadOwnTraining || perms.canReadAllTraining;
+  if (canReadTraining) can("read", "Training");
+  if (perms.canCreateTraining) can("create", "Training");
+  if (perms.canAssignTraining || perms.canEvaluateTraining) {
+    can("update", "Training");
+  }
+
+  if (perms.canReadGoals) can("read", "Goal");
+  if (perms.canCreateGoals || perms.canUpdateGoals || perms.canMeasureGoals) {
+    can("update", "Goal");
+    if (perms.canCreateGoals) can("create", "Goal");
+  }
+
+  const canReadFeedback = perms.canReadDocuments || perms.canReadGoals || perms.canReadAudits;
+  if (canReadFeedback) {
+    can("read", "CustomerFeedback");
+  }
+  if (perms.canCreateDocuments || perms.canCreateGoals || perms.canManageForms) {
+    can("create", "CustomerFeedback");
+  }
+  if (perms.canUpdateGoals || perms.canManageForms || perms.canUpdateActions) {
+    can("update", "CustomerFeedback");
+  }
+
+  if (perms.canReadForms) can("read", "FormTemplate");
+  if (perms.canCreateForms) can("create", "FormTemplate");
+  if (perms.canManageForms) {
+    can("update", "FormTemplate");
+    can("delete", "FormTemplate");
+  }
+  if (perms.canFillForms) {
+    can("create", "FormSubmission");
+    can("read", "FormSubmission");
+  }
+
+  if (perms.canReadEnvironment) can("read", "EnvironmentalAspect");
+  if (perms.canCreateEnvironment) can("create", "EnvironmentalAspect");
+  if (perms.canUpdateEnvironment) can("update", "EnvironmentalAspect");
+  if (perms.canRecordEnvironmentalMeasurements) {
+    can(["create", "update"], "EnvironmentalMeasurement");
+  }
+
+  if (perms.canReadSecurity) {
+    can("read", ["SecurityAsset", "SecurityControl", "AccessReview"]);
+  }
+  if (perms.canCreateSecurity) {
+    can("create", ["SecurityAsset", "SecurityControl"]);
+  }
+  if (perms.canUpdateSecurity) {
+    can("update", ["SecurityAsset", "SecurityControl", "AccessReview"]);
+  }
 }
 

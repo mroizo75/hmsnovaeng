@@ -33,6 +33,27 @@ interface TenantUser {
   };
 }
 
+interface InspectionTemplate {
+  id: string;
+  name: string;
+  description: string | null;
+  riskCategory: string | null;
+  isGlobal: boolean;
+}
+
+const riskCategoryOptions = [
+  { value: "SAFETY", label: "Sikkerhet" },
+  { value: "HEALTH", label: "Helse" },
+  { value: "ENVIRONMENTAL", label: "Miljø" },
+  { value: "OPERATIONAL", label: "Operasjonell" },
+  { value: "LEGAL", label: "Juridisk" },
+  { value: "INFORMATION_SECURITY", label: "Informasjonssikkerhet" },
+];
+
+const NO_TEMPLATE_VALUE = "__none_template__";
+const NO_RISK_CATEGORY_VALUE = "__none_risk__";
+const NO_FOLLOWUP_VALUE = "__none_followup__";
+
 export default function NewInspectionPage() {
   const router = useRouter();
   const { toast } = useToast();
@@ -40,6 +61,8 @@ export default function NewInspectionPage() {
   const [loading, setLoading] = useState(false);
   const [users, setUsers] = useState<TenantUser[]>([]);
   const [loadingUsers, setLoadingUsers] = useState(true);
+  const [templates, setTemplates] = useState<InspectionTemplate[]>([]);
+  const [loadingTemplates, setLoadingTemplates] = useState(true);
 
   const [formData, setFormData] = useState({
     title: "",
@@ -48,6 +71,12 @@ export default function NewInspectionPage() {
     scheduledDate: "",
     location: "",
     conductedBy: "",
+    templateId: NO_TEMPLATE_VALUE,
+    riskCategory: NO_RISK_CATEGORY_VALUE,
+    area: "",
+    durationMinutes: "",
+    followUpById: NO_FOLLOWUP_VALUE,
+    nextInspection: "",
   });
 
   useEffect(() => {
@@ -75,15 +104,43 @@ export default function NewInspectionPage() {
     fetchUsers();
   }, [session?.user?.tenantId, session?.user?.id]);
 
+  useEffect(() => {
+    const fetchTemplates = async () => {
+      try {
+        const response = await fetch("/api/inspection-templates");
+        const data = await response.json();
+        if (response.ok && data.templates) {
+          setTemplates(data.templates);
+        }
+      } catch (error) {
+        console.error("Failed to fetch templates:", error);
+      } finally {
+        setLoadingTemplates(false);
+      }
+    };
+
+    fetchTemplates();
+  }, []);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
 
     try {
+      const payload = {
+        ...formData,
+        templateId: formData.templateId === NO_TEMPLATE_VALUE ? undefined : formData.templateId,
+        riskCategory: formData.riskCategory === NO_RISK_CATEGORY_VALUE ? undefined : formData.riskCategory,
+        followUpById: formData.followUpById === NO_FOLLOWUP_VALUE ? undefined : formData.followUpById,
+        durationMinutes: formData.durationMinutes
+          ? Number(formData.durationMinutes)
+          : undefined,
+      };
+
       const response = await fetch("/api/inspections", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(payload),
       });
 
       const data = await response.json();
@@ -175,6 +232,66 @@ export default function NewInspectionPage() {
               </div>
 
               <div className="space-y-2">
+                <Label htmlFor="templateId">Inspeksjonsmal</Label>
+                <Select
+                  value={formData.templateId}
+                  onValueChange={(value) => {
+                  if (value === NO_TEMPLATE_VALUE) {
+                    setFormData((prev) => ({
+                      ...prev,
+                      templateId: NO_TEMPLATE_VALUE,
+                    }));
+                    return;
+                  }
+
+                    const selected = templates.find((template) => template.id === value);
+                    setFormData((prev) => ({
+                      ...prev,
+                      templateId: value,
+                      riskCategory: selected?.riskCategory || prev.riskCategory,
+                      title: prev.title || selected?.name || prev.title,
+                      description: prev.description || selected?.description || prev.description,
+                    }));
+                  }}
+                  disabled={loadingTemplates}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder={loadingTemplates ? "Laster maler..." : "Velg mal (valgfritt)"} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value={NO_TEMPLATE_VALUE}>Ingen mal</SelectItem>
+                    {templates.map((template) => (
+                      <SelectItem key={template.id} value={template.id}>
+                        {template.name} {template.isGlobal ? "(Global)" : ""}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="riskCategory">Risiko-kategori</Label>
+                <Select
+                  value={formData.riskCategory}
+                onValueChange={(value) =>
+                  setFormData({ ...formData, riskCategory: value })
+                }
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Velg kategori (valgfritt)" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value={NO_RISK_CATEGORY_VALUE}>Ingen kategori</SelectItem>
+                    {riskCategoryOptions.map((option) => (
+                      <SelectItem key={option.value} value={option.value}>
+                        {option.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
                 <Label htmlFor="conductedBy">
                   Gjennomført av <span className="text-destructive">*</span>
                 </Label>
@@ -189,6 +306,27 @@ export default function NewInspectionPage() {
                     <SelectValue placeholder={loadingUsers ? "Laster brukere..." : "Velg bruker"} />
                   </SelectTrigger>
                   <SelectContent>
+                    {users.map((u) => (
+                      <SelectItem key={u.user.id} value={u.user.id}>
+                        {u.user.name || u.user.email}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="followUpById">Oppfølging ansvarlig</Label>
+                <Select
+                  value={formData.followUpById}
+                  onValueChange={(value) => setFormData({ ...formData, followUpById: value })}
+                  disabled={loadingUsers}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Velg ansvarlig (valgfritt)" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value={NO_FOLLOWUP_VALUE}>Ingen valgt</SelectItem>
                     {users.map((u) => (
                       <SelectItem key={u.user.id} value={u.user.id}>
                         {u.user.name || u.user.email}
@@ -222,6 +360,38 @@ export default function NewInspectionPage() {
                     setFormData({ ...formData, location: e.target.value })
                   }
                   placeholder="F.eks. Produksjonshall A"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="area">Område / prosess</Label>
+                <Input
+                  id="area"
+                  value={formData.area}
+                  onChange={(e) => setFormData({ ...formData, area: e.target.value })}
+                  placeholder="F.eks. Lager, Verksted"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="durationMinutes">Estimert varighet (min)</Label>
+                <Input
+                  id="durationMinutes"
+                  type="number"
+                  min={0}
+                  value={formData.durationMinutes}
+                  onChange={(e) => setFormData({ ...formData, durationMinutes: e.target.value })}
+                  placeholder="F.eks. 90"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="nextInspection">Neste inspeksjon</Label>
+                <Input
+                  id="nextInspection"
+                  type="date"
+                  value={formData.nextInspection}
+                  onChange={(e) => setFormData({ ...formData, nextInspection: e.target.value })}
                 />
               </div>
             </div>

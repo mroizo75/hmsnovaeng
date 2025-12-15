@@ -19,8 +19,20 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 
+type DocumentWithMeta = Document & {
+  owner?: {
+    id: string;
+    name: string | null;
+    email: string | null;
+  } | null;
+  template?: {
+    id: string;
+    name: string;
+  } | null;
+};
+
 interface DocumentListProps {
-  documents: Document[];
+  documents: DocumentWithMeta[];
   tenantId: string;
   currentUserId?: string;
 }
@@ -55,6 +67,13 @@ const roleLabels: Record<string, string> = {
   ANSATT: "Ansatt",
   BHT: "BHT",
   REVISOR: "Revisor",
+};
+
+const formatDate = (value?: string | Date | null) => {
+  if (!value) return null;
+  const date = value instanceof Date ? value : new Date(value);
+  if (Number.isNaN(date.getTime())) return null;
+  return date.toLocaleDateString("no-NO");
 };
 
 export function DocumentList({ documents, tenantId, currentUserId }: DocumentListProps) {
@@ -156,19 +175,29 @@ export function DocumentList({ documents, tenantId, currentUserId }: DocumentLis
             <TableHead>Type</TableHead>
             <TableHead>Versjon</TableHead>
             <TableHead>Status</TableHead>
+            <TableHead>Prosesseier</TableHead>
+            <TableHead>Neste revisjon</TableHead>
             <TableHead>Synlig for</TableHead>
             <TableHead>Godkjent</TableHead>
-            <TableHead>Opprettet</TableHead>
             <TableHead className="text-right">Handlinger</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
-          {documents.map((doc) => (
+          {documents.map((doc) => {
+            const nextReviewDate = doc.nextReviewDate ? new Date(doc.nextReviewDate) : null;
+            const isReviewOverdue = nextReviewDate ? nextReviewDate < new Date() : false;
+
+            return (
             <TableRow key={doc.id}>
               <TableCell>
                 <div className="flex items-center gap-2">
                   <FileText className="h-4 w-4 text-muted-foreground" />
                   <span className="font-medium">{doc.title}</span>
+                  {doc.template?.name && (
+                    <Badge variant="outline" className="text-xs">
+                      {doc.template.name}
+                    </Badge>
+                  )}
                 </div>
               </TableCell>
               <TableCell>
@@ -179,6 +208,29 @@ export function DocumentList({ documents, tenantId, currentUserId }: DocumentLis
                 <Badge variant={statusVariants[doc.status]}>
                   {statusLabels[doc.status]}
                 </Badge>
+              </TableCell>
+              <TableCell>
+                {doc.owner?.name || doc.owner?.email ? (
+                  <div className="flex flex-col">
+                    <span className="text-sm font-medium">
+                      {doc.owner?.name || doc.owner?.email}
+                    </span>
+                    {doc.owner?.email && doc.owner?.name && (
+                      <span className="text-xs text-muted-foreground">{doc.owner.email}</span>
+                    )}
+                  </div>
+                ) : (
+                  <span className="text-sm text-muted-foreground">Ikke satt</span>
+                )}
+              </TableCell>
+              <TableCell>
+                {nextReviewDate ? (
+                  <span className={`text-sm ${isReviewOverdue ? "text-destructive font-medium" : ""}`}>
+                    {formatDate(nextReviewDate)}
+                  </span>
+                ) : (
+                  <span className="text-sm text-muted-foreground">-</span>
+                )}
               </TableCell>
               <TableCell>
                 {(() => {
@@ -206,18 +258,12 @@ export function DocumentList({ documents, tenantId, currentUserId }: DocumentLis
               </TableCell>
               <TableCell>
                 {doc.approvedAt ? (
-                  <div>
-                    <span className="text-sm text-muted-foreground">
-                      {new Date(doc.approvedAt).toLocaleDateString("no-NO")}
-                    </span>
-                  </div>
+                  <span className="text-sm text-muted-foreground">{formatDate(doc.approvedAt)}</span>
                 ) : (
                   <span className="text-sm text-muted-foreground">-</span>
                 )}
               </TableCell>
-              <TableCell>
-                {new Date(doc.createdAt).toLocaleDateString("no-NO")}
-              </TableCell>
+              <TableCell>{formatDate(doc.createdAt)}</TableCell>
               <TableCell className="text-right">
                 <div className="flex justify-end gap-2">
                   <Button
@@ -277,14 +323,19 @@ export function DocumentList({ documents, tenantId, currentUserId }: DocumentLis
                 </div>
               </TableCell>
             </TableRow>
-          ))}
+            );
+          })}
         </TableBody>
       </Table>
       </div>
 
       {/* Mobile - Kort */}
       <div className="md:hidden space-y-3">
-        {documents.map((doc) => (
+        {documents.map((doc) => {
+          const nextReviewDate = doc.nextReviewDate ? new Date(doc.nextReviewDate) : null;
+          const isReviewOverdue = nextReviewDate ? nextReviewDate < new Date() : false;
+
+          return (
           <Card key={doc.id}>
             <CardContent className="p-4">
               <div className="space-y-3">
@@ -296,7 +347,7 @@ export function DocumentList({ documents, tenantId, currentUserId }: DocumentLis
                       <div className="flex items-center gap-2 mt-1 text-xs text-muted-foreground">
                         <span>v{doc.version}</span>
                         <span>•</span>
-                        <span>{new Date(doc.createdAt).toLocaleDateString("no-NO")}</span>
+                        <span>{formatDate(doc.createdAt)}</span>
                       </div>
                     </div>
                   </div>
@@ -305,12 +356,17 @@ export function DocumentList({ documents, tenantId, currentUserId }: DocumentLis
                   </Badge>
                 </div>
 
-                <div className="flex flex-wrap gap-2">
+            <div className="flex flex-wrap gap-2">
                   <Badge variant="outline">{kindLabels[doc.kind]}</Badge>
+                {doc.template?.name && (
+                  <Badge variant="secondary" className="text-xs">
+                    {doc.template.name}
+                  </Badge>
+                )}
                   {doc.approvedAt && (
                     <div className="flex items-center gap-1 text-xs text-muted-foreground">
                       <Calendar className="h-3 w-3" />
-                      Godkjent {new Date(doc.approvedAt).toLocaleDateString("no-NO")}
+                    Godkjent {formatDate(doc.approvedAt)}
                     </div>
                   )}
                 </div>
@@ -345,6 +401,20 @@ export function DocumentList({ documents, tenantId, currentUserId }: DocumentLis
                       );
                     }
                   })()}
+                </div>
+
+                <div className="border-t pt-3 text-sm">
+                  <p className="text-xs text-muted-foreground">Prosesseier</p>
+                  <p className="font-medium">
+                    {doc.owner?.name || doc.owner?.email || "Ikke satt"}
+                  </p>
+                </div>
+
+                <div className="border-t pt-3 text-sm">
+                  <p className="text-xs text-muted-foreground">Neste revisjon</p>
+                  <p className={`font-medium ${isReviewOverdue ? "text-destructive" : ""}`}>
+                    {formatDate(nextReviewDate) ?? "Ikke satt"}
+                  </p>
                 </div>
 
                 <div className="flex gap-2 pt-2 border-t">
@@ -399,7 +469,8 @@ export function DocumentList({ documents, tenantId, currentUserId }: DocumentLis
               </div>
             </CardContent>
           </Card>
-        ))}
+        );
+        })}
       </div>
     </>
   );

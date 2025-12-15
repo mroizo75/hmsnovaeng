@@ -65,6 +65,17 @@ export interface RolePermissions {
   canCreateInspections: boolean;
   canConductInspections: boolean;
   canCloseInspections: boolean;
+
+  // Miljøstyring (ISO 14001)
+  canReadEnvironment: boolean;
+  canCreateEnvironment: boolean;
+  canUpdateEnvironment: boolean;
+  canRecordEnvironmentalMeasurements: boolean;
+
+  // Informasjonssikkerhet (ISO 27001)
+  canReadSecurity: boolean;
+  canCreateSecurity: boolean;
+  canUpdateSecurity: boolean;
   
   // Mål & KPIer
   canReadGoals: boolean;
@@ -152,6 +163,13 @@ export const rolePermissions: Record<Role, RolePermissions> = {
     canCreateGoals: true,
     canUpdateGoals: true,
     canMeasureGoals: true,
+    canReadEnvironment: true,
+    canCreateEnvironment: true,
+    canUpdateEnvironment: true,
+    canRecordEnvironmentalMeasurements: true,
+    canReadSecurity: true,
+    canCreateSecurity: true,
+    canUpdateSecurity: true,
     canReadManagementReviews: true,
     canCreateManagementReviews: true,
     canApproveManagementReviews: true,
@@ -217,6 +235,13 @@ export const rolePermissions: Record<Role, RolePermissions> = {
     canCreateGoals: true,
     canUpdateGoals: true,
     canMeasureGoals: true,
+    canReadEnvironment: true,
+    canCreateEnvironment: true,
+    canUpdateEnvironment: true,
+    canRecordEnvironmentalMeasurements: true,
+    canReadSecurity: true,
+    canCreateSecurity: true,
+    canUpdateSecurity: true,
     canReadManagementReviews: true,
     canCreateManagementReviews: true,
     canApproveManagementReviews: false, // Kun Admin
@@ -282,6 +307,13 @@ export const rolePermissions: Record<Role, RolePermissions> = {
     canCreateGoals: true,
     canUpdateGoals: true,
     canMeasureGoals: true,
+    canReadEnvironment: true,
+    canCreateEnvironment: true,
+    canUpdateEnvironment: true,
+    canRecordEnvironmentalMeasurements: true,
+    canReadSecurity: true,
+    canCreateSecurity: false,
+    canUpdateSecurity: false,
     canReadManagementReviews: true,
     canCreateManagementReviews: false,
     canApproveManagementReviews: false,
@@ -347,6 +379,13 @@ export const rolePermissions: Record<Role, RolePermissions> = {
     canCreateGoals: false,
     canUpdateGoals: false,
     canMeasureGoals: false,
+    canReadEnvironment: true,
+    canCreateEnvironment: true,
+    canUpdateEnvironment: false,
+    canRecordEnvironmentalMeasurements: true,
+    canReadSecurity: false,
+    canCreateSecurity: false,
+    canUpdateSecurity: false,
     canReadManagementReviews: false,
     canCreateManagementReviews: false,
     canApproveManagementReviews: false,
@@ -412,6 +451,13 @@ export const rolePermissions: Record<Role, RolePermissions> = {
     canCreateGoals: false,
     canUpdateGoals: false,
     canMeasureGoals: false,
+    canReadEnvironment: false,
+    canCreateEnvironment: false,
+    canUpdateEnvironment: false,
+    canRecordEnvironmentalMeasurements: false,
+    canReadSecurity: false,
+    canCreateSecurity: false,
+    canUpdateSecurity: false,
     canReadManagementReviews: false,
     canCreateManagementReviews: false,
     canApproveManagementReviews: false,
@@ -477,6 +523,13 @@ export const rolePermissions: Record<Role, RolePermissions> = {
     canCreateGoals: false,
     canUpdateGoals: false,
     canMeasureGoals: false,
+    canReadEnvironment: true,
+    canCreateEnvironment: false,
+    canUpdateEnvironment: false,
+    canRecordEnvironmentalMeasurements: true,
+    canReadSecurity: true,
+    canCreateSecurity: false,
+    canUpdateSecurity: false,
     canReadManagementReviews: true,
     canCreateManagementReviews: false,
     canApproveManagementReviews: false,
@@ -542,6 +595,13 @@ export const rolePermissions: Record<Role, RolePermissions> = {
     canCreateGoals: false,
     canUpdateGoals: false,
     canMeasureGoals: false,
+    canReadEnvironment: true,
+    canCreateEnvironment: false,
+    canUpdateEnvironment: false,
+    canRecordEnvironmentalMeasurements: false,
+    canReadSecurity: true,
+    canCreateSecurity: false,
+    canUpdateSecurity: false,
     canReadManagementReviews: true,
     canCreateManagementReviews: false,
     canApproveManagementReviews: false,
@@ -591,6 +651,7 @@ export function getVisibleNavItems(role: Role) {
     documents: perms.canReadDocuments,
     forms: perms.canReadForms,
     risks: perms.canReadRisks,
+    riskRegister: perms.canReadRisks,
     incidents: perms.canReadIncidents,
     inspections: perms.canReadInspections,
     chemicals: perms.canReadChemicals,
@@ -601,6 +662,9 @@ export function getVisibleNavItems(role: Role) {
     whistleblowing: perms.canViewWhistleblowing,
     actions: perms.canReadActions,
     goals: perms.canReadGoals,
+    environment: perms.canReadEnvironment,
+    security: perms.canReadSecurity,
+  feedback: perms.canReadDocuments || perms.canReadGoals || perms.canReadAudits,
     settings: perms.canReadSettings,
   };
 }

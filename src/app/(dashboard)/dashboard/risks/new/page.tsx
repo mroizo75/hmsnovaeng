@@ -25,6 +25,43 @@ export default async function NewRiskPage() {
 
   const tenantId = user.tenants[0].tenantId;
 
+  const tenantUsers = await prisma.user.findMany({
+    where: {
+      tenants: {
+        some: { tenantId },
+      },
+    },
+    select: {
+      id: true,
+      name: true,
+      email: true,
+    },
+    orderBy: { name: "asc" },
+  });
+
+  const goals = await prisma.goal.findMany({
+    where: { tenantId },
+    select: {
+      id: true,
+      title: true,
+    },
+    orderBy: { title: "asc" },
+  });
+
+  const inspectionTemplates = await prisma.inspectionTemplate.findMany({
+    where: {
+      OR: [
+        { tenantId },
+        { tenantId: null, isGlobal: true },
+      ],
+    },
+    select: {
+      id: true,
+      name: true,
+    },
+    orderBy: { name: "asc" },
+  });
+
   return (
     <div className="space-y-6">
       <div>
@@ -40,7 +77,14 @@ export default async function NewRiskPage() {
         </p>
       </div>
 
-      <RiskForm tenantId={tenantId} userId={user.id} mode="create" />
+      <RiskForm
+        tenantId={tenantId}
+        userId={user.id}
+        mode="create"
+        owners={tenantUsers}
+        goalOptions={goals}
+        templateOptions={inspectionTemplates}
+      />
     </div>
   );
 }

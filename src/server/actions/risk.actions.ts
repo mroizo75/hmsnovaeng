@@ -2,38 +2,67 @@
 
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/db";
-import { getServerSession } from "next-auth/next";
-import { authOptions } from "@/lib/auth";
 import { createRiskSchema, updateRiskSchema } from "@/features/risks/schemas/risk.schema";
+import { ControlFrequency } from "@prisma/client";
+import { calculateNextReviewDate } from "@/lib/document-utils";
+import { getActionContext } from "./action-context";
 
-async function getSessionContext() {
-  const session = await getServerSession(authOptions);
-  if (!session?.user?.email) {
-    throw new Error("Unauthorized");
+const sanitizeString = (value?: string | null) => {
+  if (!value) return null;
+  const trimmed = value.trim();
+  return trimmed.length > 0 ? trimmed : null;
+};
+
+const parseOptionalNumber = (value: any) => {
+  if (value === undefined || value === null || value === "") {
+    return undefined;
   }
-  
-  const user = await prisma.user.findUnique({
-    where: { email: session.user.email },
-    include: { tenants: true },
-  });
-  
-  if (!user || user.tenants.length === 0) {
-    throw new Error("User not associated with a tenant");
+  const parsed = Number(value);
+  return Number.isNaN(parsed) ? undefined : parsed;
+};
+
+const parseOptionalDate = (value: any) => {
+  if (!value) return undefined;
+  const date = value instanceof Date ? value : new Date(value);
+  return Number.isNaN(date.getTime()) ? undefined : date;
+};
+
+const getNextReviewDateForFrequency = (base: Date, frequency: ControlFrequency) => {
+  switch (frequency) {
+    case "WEEKLY":
+      return new Date(base.getTime() + 7 * 24 * 60 * 60 * 1000);
+    case "MONTHLY":
+      return calculateNextReviewDate(base, 1);
+    case "QUARTERLY":
+      return calculateNextReviewDate(base, 3);
+    case "ANNUAL":
+      return calculateNextReviewDate(base, 12);
+    case "BIENNIAL":
+      return calculateNextReviewDate(base, 24);
+    default:
+      return calculateNextReviewDate(base, 12);
   }
-  
-  return { user, tenantId: user.tenants[0].tenantId };
-}
+};
 
 // Hent alle risikoer for en tenant
 export async function getRisks(tenantId: string) {
   try {
-    const { user } = await getSessionContext();
+    await getActionContext();
     
     const risks = await prisma.risk.findMany({
       where: { tenantId },
       include: {
         measures: {
           orderBy: { createdAt: "desc" },
+        },
+        owner: {
+          select: { id: true, name: true, email: true },
+        },
+        inspectionTemplate: {
+          select: { id: true, name: true },
+        },
+        kpi: {
+          select: { id: true, title: true },
         },
       },
       orderBy: [
@@ -52,13 +81,22 @@ export async function getRisks(tenantId: string) {
 // Hent en spesifikk risiko
 export async function getRisk(id: string) {
   try {
-    const { user, tenantId } = await getSessionContext();
+    const { tenantId } = await getActionContext();
     
     const risk = await prisma.risk.findUnique({
       where: { id, tenantId },
       include: {
         measures: {
           orderBy: { createdAt: "desc" },
+        },
+        owner: {
+          select: { id: true, name: true, email: true },
+        },
+        inspectionTemplate: {
+          select: { id: true, name: true },
+        },
+        kpi: {
+          select: { id: true, title: true },
         },
       },
     });
@@ -77,21 +115,58 @@ export async function getRisk(id: string) {
 // Opprett ny risiko
 export async function createRisk(input: any) {
   try {
-    const { user, tenantId } = await getSessionContext();
-    const validated = createRiskSchema.parse({ ...input, tenantId });
+    const { user, tenantId } = await getActionContext();
+    const normalizedInput = {
+      ...input,
+      tenantId,
+      likelihood: Number(input.likelihood),
+      consequence: Number(input.consequence),
+      residualLikelihood: parseOptionalNumber(input.residualLikelihood),
+      residualConsequence: parseOptionalNumber(input.residualConsequence),
+      nextReviewDate: parseOptionalDate(input.nextReviewDate),
+      reviewedAt: parseOptionalDate(input.reviewedAt),
+    };
+    const validated = createRiskSchema.parse(normalizedInput);
     
     const score = validated.likelihood * validated.consequence;
+    const residualScore =
+      validated.residualLikelihood && validated.residualConsequence
+        ? validated.residualLikelihood * validated.residualConsequence
+        : null;
+    const controlFrequency = validated.controlFrequency ?? ControlFrequency.ANNUAL;
+    const nextReviewDate =
+      validated.nextReviewDate ??
+      getNextReviewDateForFrequency(new Date(), controlFrequency);
     
     const risk = await prisma.risk.create({
       data: {
         tenantId: validated.tenantId,
         title: validated.title,
         context: validated.context,
+        description: sanitizeString(validated.description),
+        existingControls: sanitizeString(validated.existingControls),
+        location: sanitizeString(validated.location),
+        area: sanitizeString(validated.area),
+        category: validated.category,
         likelihood: validated.likelihood,
         consequence: validated.consequence,
         score,
         ownerId: validated.ownerId,
         status: validated.status,
+        riskStatement: sanitizeString(validated.riskStatement),
+        controlFrequency,
+        nextReviewDate,
+        residualLikelihood: validated.residualLikelihood,
+        residualConsequence: validated.residualConsequence,
+        residualScore,
+        kpiId: validated.kpiId ?? null,
+        inspectionTemplateId: validated.inspectionTemplateId ?? null,
+        linkedProcess: sanitizeString(validated.linkedProcess),
+        riskAppetite: sanitizeString(validated.riskAppetite),
+        riskTolerance: sanitizeString(validated.riskTolerance),
+        responseStrategy: validated.responseStrategy,
+        trend: validated.trend,
+        reviewedAt: validated.reviewedAt ?? null,
       },
     });
     
@@ -117,8 +192,21 @@ export async function createRisk(input: any) {
 // Oppdater risiko
 export async function updateRisk(input: any) {
   try {
-    const { user, tenantId } = await getSessionContext();
-    const validated = updateRiskSchema.parse(input);
+    const { user, tenantId } = await getActionContext();
+    const nextReviewValue =
+      input.nextReviewDate === "" || input.nextReviewDate === null
+        ? null
+        : parseOptionalDate(input.nextReviewDate);
+    const normalizedInput = {
+      ...input,
+      likelihood: parseOptionalNumber(input.likelihood),
+      consequence: parseOptionalNumber(input.consequence),
+      residualLikelihood: parseOptionalNumber(input.residualLikelihood),
+      residualConsequence: parseOptionalNumber(input.residualConsequence),
+      nextReviewDate: nextReviewValue,
+      reviewedAt: parseOptionalDate(input.reviewedAt),
+    };
+    const validated = updateRiskSchema.parse(normalizedInput);
     
     const existingRisk = await prisma.risk.findUnique({
       where: { id: validated.id, tenantId },
@@ -132,14 +220,65 @@ export async function updateRisk(input: any) {
     const likelihood = validated.likelihood ?? existingRisk.likelihood;
     const consequence = validated.consequence ?? existingRisk.consequence;
     const score = likelihood * consequence;
+    const residualLikelihood = validated.residualLikelihood ?? existingRisk.residualLikelihood ?? undefined;
+    const residualConsequence = validated.residualConsequence ?? existingRisk.residualConsequence ?? undefined;
+    const residualScore =
+      residualLikelihood && residualConsequence
+        ? residualLikelihood * residualConsequence
+        : null;
+
+    const updateData: Record<string, any> = {
+      score,
+      updatedAt: new Date(),
+    };
+
+    if (validated.title) updateData.title = validated.title;
+    if (validated.context) updateData.context = validated.context;
+    if (validated.description !== undefined) updateData.description = sanitizeString(validated.description);
+    if (validated.existingControls !== undefined) updateData.existingControls = sanitizeString(validated.existingControls);
+    if (validated.location !== undefined) updateData.location = sanitizeString(validated.location);
+    if (validated.area !== undefined) updateData.area = sanitizeString(validated.area);
+    if (validated.ownerId) updateData.ownerId = validated.ownerId;
+    if (validated.status) updateData.status = validated.status;
+    if (validated.category) updateData.category = validated.category;
+    if (validated.riskStatement !== undefined) updateData.riskStatement = sanitizeString(validated.riskStatement);
+    if (validated.linkedProcess !== undefined) updateData.linkedProcess = sanitizeString(validated.linkedProcess);
+    if (validated.riskAppetite !== undefined) updateData.riskAppetite = sanitizeString(validated.riskAppetite);
+    if (validated.riskTolerance !== undefined) updateData.riskTolerance = sanitizeString(validated.riskTolerance);
+    if (validated.responseStrategy) updateData.responseStrategy = validated.responseStrategy;
+    if (validated.trend) updateData.trend = validated.trend;
+    if (validated.kpiId !== undefined) updateData.kpiId = validated.kpiId ?? null;
+    if (validated.inspectionTemplateId !== undefined) updateData.inspectionTemplateId = validated.inspectionTemplateId ?? null;
+    if (validated.likelihood !== undefined) updateData.likelihood = validated.likelihood;
+    if (validated.consequence !== undefined) updateData.consequence = validated.consequence;
+    if (validated.residualLikelihood !== undefined) updateData.residualLikelihood = validated.residualLikelihood;
+    if (validated.residualConsequence !== undefined) updateData.residualConsequence = validated.residualConsequence;
+    updateData.residualScore = residualScore;
+    if (validated.reviewedAt !== undefined) {
+      updateData.reviewedAt = validated.reviewedAt ?? null;
+    }
+
+    let nextReviewDateToPersist = validated.nextReviewDate;
+    if (validated.nextReviewDate === null) {
+      nextReviewDateToPersist = null;
+    } else if (validated.nextReviewDate === undefined && validated.controlFrequency) {
+      nextReviewDateToPersist = getNextReviewDateForFrequency(
+        existingRisk.nextReviewDate ?? new Date(),
+        validated.controlFrequency
+      );
+    }
+
+    if (nextReviewDateToPersist !== undefined) {
+      updateData.nextReviewDate = nextReviewDateToPersist;
+    }
+
+    if (validated.controlFrequency) {
+      updateData.controlFrequency = validated.controlFrequency;
+    }
     
     const risk = await prisma.risk.update({
       where: { id: validated.id, tenantId },
-      data: {
-        ...validated,
-        score,
-        updatedAt: new Date(),
-      },
+      data: updateData,
     });
     
     await prisma.auditLog.create({
@@ -164,7 +303,7 @@ export async function updateRisk(input: any) {
 // Slett risiko
 export async function deleteRisk(id: string) {
   try {
-    const { user, tenantId } = await getSessionContext();
+    const { user, tenantId } = await getActionContext();
     
     const risk = await prisma.risk.findUnique({
       where: { id, tenantId },
@@ -199,7 +338,7 @@ export async function deleteRisk(id: string) {
 // Få statistikk over risikoer
 export async function getRiskStats(tenantId: string) {
   try {
-    const { user } = await getSessionContext();
+    await getActionContext();
     
     const risks = await prisma.risk.findMany({
       where: { tenantId },

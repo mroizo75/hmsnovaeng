@@ -25,6 +25,22 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { createMeasure } from "@/server/actions/measure.actions";
 import { useToast } from "@/hooks/use-toast";
 import { Plus } from "lucide-react";
+import type { ControlFrequency, MeasureCategory } from "@prisma/client";
+
+const categoryOptions: Array<{ value: MeasureCategory; label: string }> = [
+  { value: "CORRECTIVE", label: "Korrigerende" },
+  { value: "PREVENTIVE", label: "Forebyggende" },
+  { value: "IMPROVEMENT", label: "Forbedring" },
+  { value: "MITIGATION", label: "Risikoreduserende" },
+];
+
+const frequencyOptions: Array<{ value: ControlFrequency; label: string }> = [
+  { value: "WEEKLY", label: "Ukentlig" },
+  { value: "MONTHLY", label: "Månedlig" },
+  { value: "QUARTERLY", label: "Kvartalsvis" },
+  { value: "ANNUAL", label: "Årlig" },
+  { value: "BIENNIAL", label: "Annet hvert år" },
+];
 
 interface MeasureFormProps {
   tenantId: string;
@@ -58,6 +74,10 @@ export function MeasureForm({ tenantId, riskId, incidentId, auditId, goalId, use
       dueAt: formData.get("dueAt") as string,
       responsibleId: formData.get("responsibleId") as string,
       status: "PENDING",
+      category: formData.get("category") as string,
+      followUpFrequency: formData.get("followUpFrequency") as string,
+      costEstimate: formData.get("costEstimate") as string,
+      benefitEstimate: formData.get("benefitEstimate") as string,
     };
 
     try {
@@ -128,6 +148,64 @@ export function MeasureForm({ tenantId, riskId, incidentId, auditId, goalId, use
               disabled={loading}
               rows={3}
             />
+          </div>
+
+          <div className="grid gap-4 md:grid-cols-2">
+            <div className="space-y-2">
+              <Label htmlFor="category">Tiltakstype *</Label>
+              <Select name="category" defaultValue="CORRECTIVE" disabled={loading}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Velg type" />
+                </SelectTrigger>
+                <SelectContent>
+                  {categoryOptions.map((option) => (
+                    <SelectItem key={option.value} value={option.value}>
+                      {option.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="followUpFrequency">Oppfølging *</Label>
+              <Select name="followUpFrequency" defaultValue="ANNUAL" disabled={loading}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Velg frekvens" />
+                </SelectTrigger>
+                <SelectContent>
+                  {frequencyOptions.map((option) => (
+                    <SelectItem key={option.value} value={option.value}>
+                      {option.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          <div className="grid gap-4 md:grid-cols-2">
+            <div className="space-y-2">
+              <Label htmlFor="costEstimate">Kostnadsestimat (NOK)</Label>
+              <Input
+                id="costEstimate"
+                name="costEstimate"
+                placeholder="F.eks. 15000"
+                type="number"
+                min={0}
+                disabled={loading}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="benefitEstimate">Forventet effekt (poeng)</Label>
+              <Input
+                id="benefitEstimate"
+                name="benefitEstimate"
+                placeholder="F.eks. 30"
+                type="number"
+                min={0}
+                disabled={loading}
+              />
+            </div>
           </div>
 
           <div className="grid gap-4 md:grid-cols-2">

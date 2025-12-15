@@ -196,12 +196,9 @@ export async function activateTenant(input: z.infer<typeof activateTenantSchema>
         },
       });
 
-      // 2. Beregn pris basert på antall ansatte (offisielle HMS Nova priser)
-      const yearlyPrice = 
-        tenant.pricingTier === "MICRO" ? 6000 :      // 1-20 ansatte: Små bedrifter
-        tenant.pricingTier === "SMALL" ? 8000 :      // 21-50 ansatte: Mellomstore bedrifter
-        tenant.pricingTier === "MEDIUM" ? 12000 :    // 51+ ansatte: Store bedrifter
-        12000;
+      // 2. Beregn pris basert på bindingsperiode (nye HMS Nova priser)
+      // Standard er 1 år binding: 275 kr/mnd = 3300 kr/år
+      const yearlyPrice = 3300;
 
       const plan: any = 
         tenant.pricingTier === "MICRO" ? "STARTER" :

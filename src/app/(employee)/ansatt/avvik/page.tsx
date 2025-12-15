@@ -27,10 +27,34 @@ export default async function AnsattAvvik() {
     take: 50, // Siste 50 rapporter
   });
 
-  // Tell status
-  const openCount = myIncidents.filter((i) => i.status === "REPORTED").length;
-  const investigatingCount = myIncidents.filter((i) => i.status === "INVESTIGATING").length;
-  const closedCount = myIncidents.filter((i) => i.status === "CLOSED").length;
+  const resolveStage = (incident: (typeof myIncidents)[number]) => {
+    if (incident.stage) {
+      return incident.stage;
+    }
+    // Fallback for eldre data som ikke har stage
+    if (incident.status === "CLOSED") {
+      return "VERIFIED";
+    }
+    if (incident.status === "INVESTIGATING" || incident.status === "ACTION_TAKEN") {
+      return "UNDER_REVIEW";
+    }
+    return "REPORTED";
+  };
+
+  const openCount = myIncidents.filter((i) => {
+    const stage = resolveStage(i);
+    return stage === "REPORTED" || stage === "UNDER_REVIEW";
+  }).length;
+
+  const investigatingCount = myIncidents.filter((i) => {
+    const stage = resolveStage(i);
+    return stage === "ROOT_CAUSE" || stage === "ACTIONS_DEFINED" || stage === "ACTIONS_COMPLETE";
+  }).length;
+
+  const closedCount = myIncidents.filter((i) => {
+    const stage = resolveStage(i);
+    return stage === "VERIFIED" || i.status === "CLOSED";
+  }).length;
 
   return (
     <div className="space-y-6">
@@ -125,32 +149,45 @@ export default async function AnsattAvvik() {
           ) : (
             <div className="space-y-3">
               {myIncidents.map((incident) => {
-                // Status badge
+                const stage = resolveStage(incident);
                 let statusBadge;
-                if (incident.status === "REPORTED") {
-                  statusBadge = (
-                    <Badge variant="outline" className="bg-yellow-50 text-yellow-700 border-yellow-300">
-                      🕐 Rapportert
-                    </Badge>
-                  );
-                } else if (incident.status === "INVESTIGATING") {
-                  statusBadge = (
-                    <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-300">
-                      🔍 Undersøkes
-                    </Badge>
-                  );
-                } else if (incident.status === "CLOSED") {
-                  statusBadge = (
-                    <Badge variant="outline" className="bg-green-50 text-green-700 border-green-300">
-                      ✓ Lukket
-                    </Badge>
-                  );
-                } else {
-                  statusBadge = (
-                    <Badge variant="outline" className="bg-gray-50 text-gray-700 border-gray-300">
-                      📋 {incident.status}
-                    </Badge>
-                  );
+                switch (stage) {
+                  case "REPORTED":
+                    statusBadge = (
+                      <Badge variant="outline" className="bg-yellow-50 text-yellow-700 border-yellow-300">
+                        🕐 Rapportert
+                      </Badge>
+                    );
+                    break;
+                  case "UNDER_REVIEW":
+                  case "ROOT_CAUSE":
+                    statusBadge = (
+                      <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-300">
+                        🔍 Undersøkes
+                      </Badge>
+                    );
+                    break;
+                  case "ACTIONS_DEFINED":
+                  case "ACTIONS_COMPLETE":
+                    statusBadge = (
+                      <Badge variant="outline" className="bg-indigo-50 text-indigo-700 border-indigo-300">
+                        🛠 Tiltak
+                      </Badge>
+                    );
+                    break;
+                  case "VERIFIED":
+                    statusBadge = (
+                      <Badge variant="outline" className="bg-green-50 text-green-700 border-green-300">
+                        ✓ Lukket
+                      </Badge>
+                    );
+                    break;
+                  default:
+                    statusBadge = (
+                      <Badge variant="outline" className="bg-gray-50 text-gray-700 border-gray-300">
+                        📋 {incident.status}
+                      </Badge>
+                    );
                 }
 
                 // Type badge

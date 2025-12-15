@@ -5,6 +5,7 @@
 
 import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcryptjs";
+import { addMonths } from "date-fns";
 
 const prisma = new PrismaClient();
 
@@ -61,10 +62,87 @@ async function main() {
     process.exit(1);
   }
 
+  const ensureGlobalTemplate = async (
+    name: string,
+    description: string,
+    pdcaGuidance: Record<string, string>,
+    defaultReviewIntervalMonths = 12,
+    category?: string
+  ) => {
+    const existing = await prisma.documentTemplate.findFirst({
+      where: { name, tenantId: null },
+    });
+
+    if (!existing) {
+      await prisma.documentTemplate.create({
+        data: {
+          name,
+          description,
+          pdcaGuidance,
+          defaultReviewIntervalMonths,
+          category,
+          isGlobal: true,
+        },
+      });
+    }
+  };
+
+  await ensureGlobalTemplate(
+    "Standard prosedyre",
+    "Mal for kvalitetsprosedyrer med tydelig PDCA-struktur.",
+    {
+      plan: "Definer mål, omfang og ansvarlige roller.",
+      do: "Beskriv gjennomføring og nødvendig dokumentasjon.",
+      check: "Forklar kontroller, målinger og rapportering.",
+      act: "Beskriv hvordan tiltak og forbedringer håndteres.",
+    }
+  );
+
+  await ensureGlobalTemplate(
+    "Arbeidsinstruks",
+    "Instruks for sikre arbeidsoperasjoner i henhold til ISO 45001.",
+    {
+      plan: "Arbeidsområde, risikovurdering og forberedelser.",
+      do: "Steg-for-steg-instruks med fokus på sikkerhet.",
+      check: "Hvordan observasjoner og målinger utføres.",
+      act: "Prosess for oppdatering og forbedring av instruksen.",
+    },
+    6
+  );
+
+  await ensureGlobalTemplate(
+    "BCM-plan",
+    "Mal for kontinuitetsplaner (ISO 22301) med tydelige roller.",
+    {
+      plan: "Identifiser kritiske tjenester og gjenopprettingsmål.",
+      do: "Beskriv aktiveringskriterier og ansvarlige roller.",
+      check: "Plan for øvelser, test av backup og læringspunkter.",
+      act: "Prosess for forbedring og oppdatering av planverket.",
+    },
+    12,
+    "BCM"
+  );
+
   // =====================================================================
   // 4. DOKUMENTER
   // =====================================================================
   console.log("📄 Oppretter dokumenter...");
+
+  const bcmTemplate = await prisma.documentTemplate.create({
+    data: {
+      tenantId: tenant.id,
+      name: "Kontinuitetsplan",
+      category: "BCM",
+      description: "Tenant-spesifikk kontinuitetsmal for kritiske tjenester.",
+      pdcaGuidance: {
+        plan: "Kartlegg kritiske prosesser og avhengigheter.",
+        do: "Definer responsteam, kommunikasjonsplan og tiltak.",
+        check: "Planlagte øvelser og resultatoppfølging.",
+        act: "Oppdater plan etter hver hendelse/øvelse.",
+      },
+      isGlobal: false,
+    },
+  });
 
   const documents = await Promise.all([
     prisma.document.create({
@@ -120,25 +198,244 @@ async function main() {
         status: "DRAFT",
       },
     }),
+    prisma.document.create({
+      data: {
+        tenantId: tenant.id,
+        title: "Kontinuitetsplan 2025",
+        slug: "kontinuitetsplan-2025-demo",
+        kind: "PLAN",
+        version: "1.0",
+        fileKey: "demo/bcm-plan.pdf",
+        status: "APPROVED",
+        approvedBy: adminUser.id,
+        approvedAt: new Date(),
+        ownerId: leaderUser.id,
+        templateId: bcmTemplate.id,
+        reviewIntervalMonths: 12,
+        nextReviewDate: new Date(Date.now() + 200 * 24 * 60 * 60 * 1000),
+        planSummary: "Plan for å sikre drift av lager og logistikk ved hendelser.",
+        doSummary: "Crisis team møtes innen 30 min og aktiverer alternative leverandører.",
+        checkSummary: "Halvårlige skrivebordsøvelser og systemtester.",
+        actSummary: "Forbedringstiltak registreres som dokumenterte avvik.",
+      },
+    }),
   ]);
 
   console.log(`   ✅ ${documents.length} dokumenter opprettet`);
+
+  // Psykososial puls (ISO 45003)
+  const wellbeingTemplate = await prisma.formTemplate.create({
+    data: {
+      tenantId: tenant.id,
+      title: "Psykososial puls",
+      description: "Kvartalsvis pulsundersøkelse for arbeidsmiljø (ISO 45003).",
+      category: "WELLBEING",
+      requiresSignature: false,
+      requiresApproval: false,
+      createdBy: adminUser.id,
+      fields: {
+        create: [
+          {
+            label: "Hvordan har du det i dag? (1-5)",
+            fieldType: "RADIO",
+            order: 1,
+            isRequired: true,
+            options: JSON.stringify(["1", "2", "3", "4", "5"]),
+          },
+          {
+            label: "Hvordan oppleves arbeidsbelastningen? (1-5)",
+            fieldType: "RADIO",
+            order: 2,
+            isRequired: true,
+            options: JSON.stringify(["1", "2", "3", "4", "5"]),
+          },
+          {
+            label: "Føler du deg ivaretatt av leder/kollegaer? (1-5)",
+            fieldType: "RADIO",
+            order: 3,
+            isRequired: true,
+            options: JSON.stringify(["1", "2", "3", "4", "5"]),
+          },
+          {
+            label: "Hva ønsker du å dele?",
+            fieldType: "TEXTAREA",
+            order: 4,
+          },
+        ],
+      },
+    },
+    include: {
+      fields: true,
+    },
+  });
+
+  const bcmExerciseTemplate = await prisma.formTemplate.create({
+    data: {
+      tenantId: tenant.id,
+      title: "Beredskapsøvelse - scenario",
+      description: "Sjekkliste for å dokumentere gjennomføring av forretningskontinuitetsøvelser.",
+      category: "BCM",
+      requiresSignature: true,
+      requiresApproval: true,
+      createdBy: adminUser.id,
+      fields: {
+        create: [
+          {
+            label: "Scenario / hendelse",
+            fieldType: "TEXT",
+            order: 1,
+            isRequired: true,
+          },
+          {
+            label: "Berørte prosesser",
+            fieldType: "TEXTAREA",
+            order: 2,
+            isRequired: true,
+          },
+          {
+            label: "Team som deltok",
+            fieldType: "TEXTAREA",
+            order: 3,
+          },
+          {
+            label: "Hva fungerte godt?",
+            fieldType: "TEXTAREA",
+            order: 4,
+          },
+          {
+            label: "Hva må forbedres?",
+            fieldType: "TEXTAREA",
+            order: 5,
+          },
+        ],
+      },
+    },
+  });
+
+  const wellbeingFieldMap = Object.fromEntries(
+    wellbeingTemplate.fields.map((field) => [field.label, field.id])
+  );
+
+  const wellbeingResponses = [
+    {
+      userId: employeeUser.id,
+      mood: "4",
+      workload: "3",
+      support: "4",
+      comment: "God balanse og støtte fra teamet.",
+      daysAgo: 5,
+    },
+    {
+      userId: hmsUser.id,
+      mood: "3",
+      workload: "4",
+      support: "3",
+      comment: "Høyt arbeidspress før revisjon.",
+      daysAgo: 12,
+    },
+    {
+      userId: vernUser.id,
+      mood: "5",
+      workload: "2",
+      support: "5",
+      comment: "Motiverende å se forbedringer.",
+      daysAgo: 20,
+    },
+  ];
+
+  for (const response of wellbeingResponses) {
+    await prisma.formSubmission.create({
+      data: {
+        tenantId: tenant.id,
+        formTemplateId: wellbeingTemplate.id,
+        submittedById: response.userId,
+        status: "SUBMITTED",
+        signedAt: new Date(Date.now() - response.daysAgo * 24 * 60 * 60 * 1000),
+        fieldValues: {
+          create: [
+            { fieldId: wellbeingFieldMap["Hvordan har du det i dag? (1-5)"], value: response.mood },
+            {
+              fieldId: wellbeingFieldMap["Hvordan oppleves arbeidsbelastningen? (1-5)"],
+              value: response.workload,
+            },
+            {
+              fieldId: wellbeingFieldMap["Føler du deg ivaretatt av leder/kollegaer? (1-5)"],
+              value: response.support,
+            },
+            {
+              fieldId: wellbeingFieldMap["Hva ønsker du å dele?"],
+              value: response.comment,
+            },
+          ],
+        },
+      },
+    });
+  }
 
   // =====================================================================
   // 5. RISIKOVURDERINGER
   // =====================================================================
   console.log("⚠️  Oppretter risikovurderinger...");
 
+  const warehouseInspectionTemplate = await prisma.inspectionTemplate.create({
+    data: {
+      tenantId: tenant.id,
+      name: "Kvartalsvis lagervernerunde",
+      description: "Kontroller fallrisiko, orden og verneutstyr i lageret",
+      category: "HMS",
+      riskCategory: "SAFETY",
+      checklist: {
+        items: [
+          { title: "Sikker tilgang til høyder", type: "checkbox" },
+          { title: "Rekkverk og fallsele på plass", type: "checkbox" },
+          { title: "Ingen hindringer i gangbaner", type: "checkbox" },
+        ],
+      },
+      isGlobal: false,
+    },
+  });
+
+  const chemicalInspectionTemplate = await prisma.inspectionTemplate.create({
+    data: {
+      tenantId: tenant.id,
+      name: "Kjemikalekontroll",
+      description: "Månedlig kontroll av kjemikalierom",
+      category: "KJEMIKALIER",
+      riskCategory: "ENVIRONMENTAL",
+      checklist: {
+        items: [
+          { title: "Riktig merking", type: "checkbox" },
+          { title: "Personlig verneutstyr tilgjengelig", type: "checkbox" },
+          { title: "Sikkerhetsdatablader oppdaterte", type: "checkbox" },
+        ],
+      },
+      isGlobal: false,
+    },
+  });
+
   const risk1 = await prisma.risk.create({
     data: {
       tenantId: tenant.id,
       title: "Fall fra høyde ved lagerarbeid",
       context: "Ansatte som jobber i høyden ved lagring kan falle og skade seg. Lokasjon: Lager - Høyreol seksjon A.",
+      description: "Arbeid i høyden pågår daglig med truck og lift.",
+      existingControls: "Fallsikringskurs, årlig kontroll av lift.",
+      riskStatement: "Fall kan gi alvorlig skade eller dødsfall.",
+      location: "Lager",
+      area: "Logistikk",
+      linkedProcess: "Lagerdrift",
+      category: "SAFETY",
       likelihood: 3,
       consequence: 4,
       score: 12,
       ownerId: leaderUser.id,
       status: "MITIGATING",
+      controlFrequency: "QUARTERLY",
+      nextReviewDate: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000),
+      residualLikelihood: 2,
+      residualConsequence: 3,
+      residualScore: 6,
+      inspectionTemplateId: warehouseInspectionTemplate.id,
     },
   });
 
@@ -152,6 +449,12 @@ async function main() {
       responsibleId: leaderUser.id,
       dueAt: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
       completedAt: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
+      category: "MITIGATION",
+      followUpFrequency: "MONTHLY",
+      costEstimate: 8000,
+      benefitEstimate: 20,
+      effectiveness: "EFFECTIVE",
+      effectivenessNote: "Opplæring reduserte nestenulykker",
     },
   });
 
@@ -160,11 +463,24 @@ async function main() {
       tenantId: tenant.id,
       title: "Kjemisk eksponering - Rengjøringsmidler",
       context: "Eksponering for sterke rengjøringsmidler kan forårsake hudirritasjon og luftveisplager. Lokasjon: Rengjøringsrom.",
+      description: "Sterke alkalier brukes daglig. Manglende ventilation.",
+      existingControls: "Hansker, briller, tvungen ventilasjon.",
+      riskStatement: "Hud- og lungeskade ved søl.",
+      location: "Rengjøringsrom",
+      area: "Facility",
+      linkedProcess: "Renhold",
+      category: "ENVIRONMENTAL",
       likelihood: 2,
       consequence: 2,
       score: 4,
       ownerId: hmsUser.id,
       status: "MITIGATING",
+      controlFrequency: "MONTHLY",
+      nextReviewDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+      residualLikelihood: 1,
+      residualConsequence: 2,
+      residualScore: 2,
+      inspectionTemplateId: chemicalInspectionTemplate.id,
     },
   });
 
@@ -178,6 +494,12 @@ async function main() {
       responsibleId: hmsUser.id,
       dueAt: new Date(Date.now() - 60 * 24 * 60 * 60 * 1000),
       completedAt: new Date(Date.now() - 60 * 24 * 60 * 60 * 1000),
+      category: "PREVENTIVE",
+      followUpFrequency: "MONTHLY",
+      costEstimate: 4000,
+      benefitEstimate: 15,
+      effectiveness: "PARTIALLY_EFFECTIVE",
+      effectivenessNote: "Trenger ny ventilasjon for full effekt",
     },
   });
 
@@ -186,11 +508,23 @@ async function main() {
       tenantId: tenant.id,
       title: "Ergonomiske belastninger - Dataarbeid",
       context: "Langvarig dataarbeid kan føre til muskel- og skjelettplager. Lokasjon: Kontorer.",
+      description: "Arbeidstakere sitter mer enn 7 timer daglig.",
+      existingControls: "Høydejusterbare pulter, pauserutine.",
+      riskStatement: "Muskelplager og sykefravær.",
+      location: "Kontorfløy",
+      area: "Administrasjon",
+      linkedProcess: "Kontorarbeid",
+      category: "HEALTH",
       likelihood: 3,
       consequence: 2,
       score: 6,
       ownerId: leaderUser.id,
       status: "MITIGATING",
+      controlFrequency: "ANNUAL",
+      nextReviewDate: new Date(Date.now() + 180 * 24 * 60 * 60 * 1000),
+      residualLikelihood: 2,
+      residualConsequence: 2,
+      residualScore: 4,
     },
   });
 
@@ -199,15 +533,257 @@ async function main() {
       tenantId: tenant.id,
       title: "Brann i elektrisk utstyr",
       context: "Eldre elektrisk utstyr kan overopphetes og forårsake brann. Lokasjon: Produksjonshall B.",
+      description: "Gamle tavler uten termisk overvåkning",
+      existingControls: "Årlig elkontroll, termografi.",
+      riskStatement: "Brann og driftsstans.",
+      location: "Produksjonshall B",
+      area: "Produksjon",
+      linkedProcess: "Produksjon",
+      category: "SAFETY",
       likelihood: 1,
       consequence: 5,
       score: 5,
       ownerId: hmsUser.id,
       status: "OPEN",
+      controlFrequency: "ANNUAL",
+      nextReviewDate: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000),
+      residualLikelihood: 1,
+      residualConsequence: 3,
+      residualScore: 3,
     },
   });
 
   console.log(`   ✅ 4 risikovurderinger opprettet`);
+
+  const demoSecurityAsset = await prisma.securityAsset.create({
+    data: {
+      tenantId: tenant.id,
+      name: "Produksjonsnettverk",
+      description: "Switching/Firewall som beskytter produksjonsmiljø",
+      type: "INFRASTRUCTURE",
+      ownerId: hmsUser.id,
+      confidentiality: "HIGH",
+      integrity: "HIGH",
+      availability: "HIGH",
+      businessCriticality: 5,
+    },
+  });
+
+  const demoSecurityControl = await prisma.securityControl.create({
+    data: {
+      tenantId: tenant.id,
+      code: "A.8.24",
+      title: "Logging og overvåking",
+      annexReference: "Annex A 8.24",
+      requirement: "Sikkerhetslogg skal etableres og evalueres jevnlig",
+      category: "TECHNICAL",
+      status: "LIVE",
+      maturity: "DEFINED",
+      ownerId: hmsUser.id,
+      linkedAssetId: demoSecurityAsset.id,
+      linkedRiskId: risk4.id,
+      implementationNote: "SIEM korrelerer hendelser fra brannmur, AD og produksjonssystem.",
+      monitoring: "Driftsavdelingen vurderer alarmer daglig",
+      lastTestDate: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000),
+      nextReviewDate: new Date(Date.now() + 120 * 24 * 60 * 60 * 1000),
+    },
+  });
+
+  await prisma.securityControlDocument.create({
+    data: {
+      tenantId: tenant.id,
+      controlId: demoSecurityControl.id,
+      documentId: documents[2].id,
+      note: "Referanse til brannvern-/driftsplan",
+    },
+  });
+
+  await prisma.securityEvidence.create({
+    data: {
+      tenantId: tenant.id,
+      controlId: demoSecurityControl.id,
+      title: "SIEM-rapport mars",
+      description: "Rapport viser gjennomførte hendelsesresponser og ingen åpne avvik.",
+      collectedById: hmsUser.id,
+      reviewResult: "OK",
+    },
+  });
+
+  const endpointAsset = await prisma.securityAsset.create({
+    data: {
+      tenantId: tenant.id,
+      name: "Bærbare PC-er",
+      description: "Flåte på 140 PC-er med sensitiv kundeinfo.",
+      type: "PEOPLE",
+      ownerId: leaderUser.id,
+      confidentiality: "HIGH",
+      integrity: "MEDIUM",
+      availability: "MEDIUM",
+      businessCriticality: 4,
+    },
+  });
+
+  const multiFactorControl = await prisma.securityControl.create({
+    data: {
+      tenantId: tenant.id,
+      code: "A.6.7",
+      title: "MFA for alle privilegerte brukere",
+      annexReference: "Annex A 6.7",
+      requirement: "Administratortilgang skal sikres med flerfaktorautentisering.",
+      category: "ORGANIZATIONAL",
+      status: "IMPLEMENTED",
+      maturity: "MANAGED",
+      ownerId: hmsUser.id,
+      linkedAssetId: endpointAsset.id,
+      implementationNote: "All administratortilgang skjer via Azure AD Conditional Access med PIM.",
+      monitoring: "Azure rapporter analyseres månedlig.",
+      lastTestDate: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
+      nextReviewDate: new Date(Date.now() + 150 * 24 * 60 * 60 * 1000),
+    },
+  });
+
+  await prisma.securityEvidence.create({
+    data: {
+      tenantId: tenant.id,
+      controlId: multiFactorControl.id,
+      title: "PIM-logg Q2",
+      description: "Gjennomgang viser 0 uautoriserte aktiveringer og alle roller har MFA.",
+      collectedById: hmsUser.id,
+      reviewResult: "Ingen funn",
+    },
+  });
+
+  const demoAccessReview = await prisma.accessReview.create({
+    data: {
+      tenantId: tenant.id,
+      title: "Halvårlig SAP-tilganger",
+      systemName: "SAP",
+      scope: "Drift og finansroller",
+      status: "PLANNED",
+      dueDate: new Date(Date.now() + 45 * 24 * 60 * 60 * 1000),
+      ownerId: leaderUser.id,
+    },
+  });
+
+  await prisma.accessReviewEntry.createMany({
+    data: [
+      {
+        tenantId: tenant.id,
+        reviewId: demoAccessReview.id,
+        userName: leaderUser.name ?? "Leder",
+        userEmail: leaderUser.email,
+        role: "Finansgodkjenner",
+        decision: "REVIEW",
+      },
+      {
+        tenantId: tenant.id,
+        reviewId: demoAccessReview.id,
+        userName: "Tidligere ansatt",
+        userEmail: "tidligere@test.no",
+        role: "SAP PowerUser",
+        decision: "REVOKED",
+        comment: "Stoppet i forrige runde",
+        decidedById: leaderUser.id,
+        decidedAt: new Date(),
+      },
+    ],
+  });
+
+  const adReview = await prisma.accessReview.create({
+    data: {
+      tenantId: tenant.id,
+      title: "Kvartalsvis AD-tilganger",
+      systemName: "Active Directory",
+      scope: "Domain Admins + Helpdesk",
+      status: "IN_PROGRESS",
+      dueDate: new Date(Date.now() + 15 * 24 * 60 * 60 * 1000),
+      ownerId: hmsUser.id,
+    },
+  });
+
+  await prisma.accessReviewEntry.createMany({
+    data: [
+      {
+        tenantId: tenant.id,
+        reviewId: adReview.id,
+        userName: "Ekstern konsulent",
+        userEmail: "consulting@partner.no",
+        role: "Domain Admin",
+        decision: "REVOKED",
+        comment: "Skal avsluttes etter prosjekt",
+        decidedById: hmsUser.id,
+        decidedAt: new Date(),
+      },
+      {
+        tenantId: tenant.id,
+        reviewId: adReview.id,
+        userName: "Produksjonsleder",
+        userEmail: "prodleder@test.no",
+        role: "Helpdesk Admin",
+        decision: "APPROVED",
+        comment: "Behov bekreftet av leder",
+        decidedById: leaderUser.id,
+        decidedAt: new Date(),
+      },
+    ],
+  });
+
+  await prisma.riskControl.createMany({
+    data: [
+      {
+        tenantId: tenant.id,
+        riskId: risk1.id,
+        title: "Ukentlig inspeksjon av reoler/lift",
+        description: "Lagerleder verifiserer at reoler, lift og gangveier er sikre før skift.",
+        controlType: "PREVENTIVE",
+        ownerId: leaderUser.id,
+        status: "ACTIVE",
+        effectiveness: "EFFECTIVE",
+        frequency: "WEEKLY",
+        evidenceDocumentId: documents[1]?.id,
+      },
+      {
+        tenantId: tenant.id,
+        riskId: risk2.id,
+        title: "Månedlig kjemikalierunde",
+        controlType: "PREVENTIVE",
+        ownerId: hmsUser.id,
+        status: "ACTIVE",
+        effectiveness: "PARTIAL",
+        frequency: "MONTHLY",
+        monitoringMethod: "Sjekkliste fra kjemikalekontroll",
+      },
+      {
+        tenantId: tenant.id,
+        riskId: risk4.id,
+        title: "Termografimåling av tavler",
+        controlType: "DETECTIVE",
+        ownerId: hmsUser.id,
+        status: "NEEDS_IMPROVEMENT",
+        effectiveness: "NOT_TESTED",
+        frequency: "ANNUAL",
+      },
+    ],
+  });
+
+  await prisma.riskDocumentLink.createMany({
+    data: [
+      {
+        tenantId: tenant.id,
+        riskId: risk1.id,
+        documentId: documents[0].id,
+        relation: "PROCEDURE",
+        note: "Se kapittel 4 i HMS-håndboken",
+      },
+      {
+        tenantId: tenant.id,
+        riskId: risk4.id,
+        documentId: documents[2].id,
+        relation: "SUPPORTING",
+        note: "Brannvernplan dekker tiltak ved varmegang",
+      },
+    ],
+  });
 
   // =====================================================================
   // 6. HENDELSER/AVVIK
@@ -228,11 +804,16 @@ async function main() {
         immediateAction: "Førstehjelpsutstyr ble brukt. Ansatt ble sendt til legevakt for kontroll.",
         rootCause: "Manglende bruk av vernehansker under vedlikehold av stansemaskin.",
         status: "CLOSED",
+        stage: "VERIFIED",
         closedBy: hmsUser.id,
         closedAt: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000),
         occurredAt: new Date(Date.now() - 14 * 24 * 60 * 60 * 1000),
         investigatedAt: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000),
         lessonsLearned: "Påminnelse om bruk av verneutstyr. Oppdatert arbeidsinstruksjon. Ekstra opplæring for berørte.",
+        injuryType: "Kuttskade finger",
+        medicalAttentionRequired: true,
+        lostTimeMinutes: 90,
+        riskReferenceId: risk1.id,
       },
     }),
     prisma.incident.create({
@@ -248,10 +829,13 @@ async function main() {
         immediateAction: "Glassflasker fjernet umiddelbart.",
         rootCause: "Utilstrekkelig oppbevaring av glass etter mottak.",
         status: "ACTION_TAKEN",
+        stage: "ACTIONS_DEFINED",
         occurredAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000),
         investigatedBy: hmsUser.id,
         investigatedAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
         lessonsLearned: "Innført rutine for umiddelbar rydding. Plassert flere avfallsbeholdere.",
+        medicalAttentionRequired: false,
+        riskReferenceId: risk2.id,
       },
     }),
     prisma.incident.create({
@@ -268,17 +852,80 @@ async function main() {
         immediateAction: "Beholder fjernet fra bruk inntil korrekt merking var på plass.",
         rootCause: "Kjemikalie ble fylt over i ny beholder uten merking.",
         status: "CLOSED",
+        stage: "VERIFIED",
         closedBy: hmsUser.id,
         closedAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
         occurredAt: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000),
         investigatedAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000),
         lessonsLearned: "Alle beholdere er nå merket. Opplæring i korrekt merking. Ukentlig inspeksjon.",
         effectivenessReview: "Ingen nye avvik funnet ved oppfølging.",
+        riskReferenceId: risk2.id,
+      },
+    }),
+    prisma.incident.create({
+      data: {
+        tenantId: tenant.id,
+        title: "Kundeklage: forsinket servicebesøk",
+        type: "CUSTOMER",
+        severity: 3,
+        description: "Kunde rapporterer om 2 ukers forsinkelse på servicebesøk hos kritisk kunde.",
+        reportedBy: leaderUser.id,
+        responsibleId: hmsUser.id,
+        occurredAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000),
+        status: "OPEN",
+        stage: "REPORTED",
+        customerName: "Fjord Energi AS",
+        customerEmail: "innkjop@fjordenergi.no",
+        customerPhone: "+47 988 65 000",
+        customerTicketId: "CRM-555",
+        responseDeadline: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000),
+        customerSatisfaction: 2,
       },
     }),
   ]);
 
   console.log(`   ✅ ${incidents.length} hendelser opprettet`);
+
+  await prisma.customerFeedback.createMany({
+    data: [
+      {
+        tenantId: tenant.id,
+        recordedById: hmsUser.id,
+        customerName: "Eva Normann",
+        customerCompany: "Nordic Retail AS",
+        contactEmail: "eva.normann@nordicretail.no",
+        source: "MEETING",
+        sentiment: "POSITIVE",
+        rating: 5,
+        summary: "Roser responstid og oppfølging fra HMS-teamet",
+        details:
+          "Nordic Retail fremhever at HMS Nova ga rask respons ved kritisk hendelse og sikret at korrigerende tiltak ble fulgt opp.",
+        highlights: "Ønskes delt i kundecase og ledelsens gjennomgang.",
+        followUpStatus: "SHARED",
+        followUpOwnerId: leaderUser.id,
+        feedbackDate: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000),
+      },
+      {
+        tenantId: tenant.id,
+        recordedById: leaderUser.id,
+        customerName: "Kari Forberg",
+        customerCompany: "Bygg & Ventilasjon",
+        contactPhone: "+47 988 88 888",
+        source: "SURVEY",
+        sentiment: "POSITIVE",
+        rating: 4,
+        summary: "Fornøyd med vernerundeprosessen",
+        details:
+          "Kunden trekker frem at fotodokumentasjon og tiltaksliste ble delt samme dag. Ønsker tettere oppfølging før neste runde i juni.",
+        highlights: "Forslag om å publisere resultat i intranett og sikkerhetsmøte.",
+        followUpStatus: "FOLLOW_UP",
+        followUpOwnerId: hmsUser.id,
+        feedbackDate: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
+      },
+    ],
+  });
+
+  console.log("✅ Kundetilbakemeldinger registrert");
 
   // =====================================================================
   // 7. OPPLÆRING
@@ -383,6 +1030,133 @@ async function main() {
   console.log(`   ✅ ${additionalGoals.length} ekstra mål opprettet`);
 
   // =====================================================================
+  // 9b. MILJØASPEKTER
+  // =====================================================================
+  console.log("🌿 Oppretter miljøaspekter...");
+  const environmentGoal = additionalGoals[0];
+  const wasteGoal = additionalGoals[1];
+
+  const demoEnergyAspect = await prisma.environmentalAspect.create({
+    data: {
+      tenantId: tenant.id,
+      title: "Energibruk kontorfløy",
+      description: "Strømforbruk fra ventilasjon og datarom.",
+      process: "Kontor",
+      location: "Kontorbygg",
+      category: "ENERGY",
+      impactType: "NEGATIVE",
+      severity: 3,
+      likelihood: 4,
+      significanceScore: 12,
+      legalRequirement: "Energimerkeordningen / TEK17 kap. 14",
+      controlMeasures: "Bevegelsessensorer, nattmodus på ventilasjon.",
+      monitoringMethod: "Automatisk energimåler",
+      monitoringFrequency: "MONTHLY",
+      ownerId: hmsUser.id,
+      goalId: environmentGoal?.id,
+      status: "ACTIVE",
+      nextReviewDate: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000),
+      lastMeasurementDate: new Date(Date.now() - 14 * 24 * 60 * 60 * 1000),
+    },
+  });
+
+  const demoWasteAspect = await prisma.environmentalAspect.create({
+    data: {
+      tenantId: tenant.id,
+      title: "Sortering av farlig avfall",
+      description: "Løsemiddel og spraybokser fra produksjon.",
+      process: "Produksjon",
+      location: "Verksted",
+      category: "WASTE",
+      impactType: "NEGATIVE",
+      severity: 5,
+      likelihood: 3,
+      significanceScore: 15,
+      legalRequirement: "Avfallsforskriften kap. 11",
+      controlMeasures: "Merkede beholdere, låst skap, avtale med godkjent mottak.",
+      monitoringMethod: "Loggføring og månedlig kontroll",
+      monitoringFrequency: "MONTHLY",
+      ownerId: leaderUser.id,
+      goalId: wasteGoal?.id,
+      status: "MONITORED",
+      nextReviewDate: new Date(Date.now() + 120 * 24 * 60 * 60 * 1000),
+    },
+  });
+
+  const demoEmissionAspect = await prisma.environmentalAspect.create({
+    data: {
+      tenantId: tenant.id,
+      title: "Utslipp fra reserveaggregat",
+      description: "Overvåker NOx-utslipp fra dieselaggregatet ved testkjøring og strømutfall.",
+      process: "Drift / IT",
+      location: "Datasenter",
+      category: "EMISSIONS",
+      impactType: "NEGATIVE",
+      severity: 4,
+      likelihood: 2,
+      significanceScore: 8,
+      legalRequirement: "Forskrift om begrensning av forurensning §27-5",
+      controlMeasures: "Rutine for testkjøringer, partikkelfilter, serviceavtale",
+      monitoringMethod: "Emisjonsmåler + logg fra aggregat",
+      monitoringFrequency: "QUARTERLY",
+      ownerId: hmsUser.id,
+      status: "ACTIVE",
+      nextReviewDate: addMonths(new Date(), 6),
+    },
+  });
+
+  await prisma.environmentalMeasurement.create({
+    data: {
+      tenantId: tenant.id,
+      aspectId: demoEnergyAspect.id,
+      parameter: "kWh per måned",
+      unit: "kWh",
+      method: "AMS-måler",
+      limitValue: 25000,
+      targetValue: 22000,
+      measuredValue: 23500,
+      measurementDate: new Date(Date.now() - 14 * 24 * 60 * 60 * 1000),
+      status: "WARNING",
+      notes: "Kuldeperiode ga økt forbruk",
+      responsibleId: hmsUser.id,
+    },
+  });
+
+  await prisma.environmentalMeasurement.create({
+    data: {
+      tenantId: tenant.id,
+      aspectId: demoEmissionAspect.id,
+      parameter: "NOx (mg/Nm3)",
+      unit: "mg/Nm3",
+      method: "Kontinuerlig måling med sensor",
+      limitValue: 980,
+      targetValue: 750,
+      measuredValue: 720,
+      measurementDate: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000),
+      status: "COMPLIANT",
+      notes: "Resultat innenfor målt krav etter filterbytte",
+      responsibleId: leaderUser.id,
+    },
+  });
+
+  await prisma.environmentalMeasurement.create({
+    data: {
+      tenantId: tenant.id,
+      aspectId: demoWasteAspect.id,
+      parameter: "Kg farlig avfall",
+      unit: "kg",
+      method: "Veiing ved levering",
+      limitValue: 400,
+      targetValue: 300,
+      measuredValue: 280,
+      measurementDate: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
+      status: "COMPLIANT",
+      notes: "Levering til Ragn-Sells, kvittering vedlagt",
+      responsibleId: leaderUser.id,
+    },
+  });
+
+  // =====================================================================
   // 9. REVISJONER/AUDITS
   // =====================================================================
   console.log("📋 Oppretter revisjoner...");
@@ -403,6 +1177,16 @@ async function main() {
       teamMemberIds: JSON.stringify([adminUser.id]),
       summary: "Systemet fungerer tilfredsstillende. Enkelte forbedringspunkter identifisert.",
       conclusion: "Godkjent med mindre avvik. Korrigerende tiltak er iverksatt.",
+    },
+  });
+
+  await prisma.riskAuditLink.create({
+    data: {
+      tenantId: tenant.id,
+      riskId: risk1.id,
+      auditId: audit1.id,
+      relation: "CONTROL_TEST",
+      summary: "Internrevisjon kontrollerer at risikovurderinger er oppdatert",
     },
   });
 
@@ -455,7 +1239,22 @@ async function main() {
     },
   });
 
-  console.log(`   ✅ 2 revisjoner og ${auditFindings.length} funn opprettet`);
+  await prisma.audit.create({
+    data: {
+      tenantId: tenant.id,
+      title: "BCM skrivebordsøvelse 2025",
+      auditType: "INTERNAL",
+      scope: "Beredskap for logistikk og leveranser",
+      criteria: "ISO 22301",
+      scheduledDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+      area: "Kontinuitet",
+      department: "Logistikk",
+      status: "PLANNED",
+      leadAuditorId: auditorUser.id,
+    },
+  });
+
+  console.log(`   ✅ 3 revisjoner og ${auditFindings.length} funn opprettet`);
 
   // =====================================================================
   // 10. VERNERUNDER/INSPEKSJONER
@@ -474,6 +1273,12 @@ async function main() {
       conductedBy: hmsUser.id,
       participants: JSON.stringify([leaderUser.id, "vern@test.no"]),
       status: "COMPLETED",
+      templateId: warehouseInspectionTemplate.id,
+      riskCategory: "SAFETY",
+      area: "Produksjon",
+      durationMinutes: 120,
+      followUpById: hmsUser.id,
+      nextInspection: new Date(Date.now() + 60 * 24 * 60 * 60 * 1000),
     },
   });
 
@@ -490,6 +1295,7 @@ async function main() {
         dueDate: new Date(Date.now() - 21 * 24 * 60 * 60 * 1000),
         resolvedAt: new Date(Date.now() - 21 * 24 * 60 * 60 * 1000),
         resolutionNotes: "Faresymbol påført. OK.",
+        linkedRiskId: risk1.id,
       },
     }),
     prisma.inspectionFinding.create({
@@ -502,6 +1308,7 @@ async function main() {
         status: "IN_PROGRESS",
         responsibleId: hmsUser.id,
         dueDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+        linkedRiskId: risk4.id,
       },
     }),
     prisma.inspectionFinding.create({
@@ -514,6 +1321,7 @@ async function main() {
         status: "OPEN",
         responsibleId: adminUser.id,
         dueDate: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000),
+        linkedRiskId: risk1.id,
       },
     }),
   ]);
@@ -528,6 +1336,9 @@ async function main() {
       location: "Hele bedriften",
       conductedBy: hmsUser.id,
       status: "PLANNED",
+      riskCategory: "SAFETY",
+      durationMinutes: 60,
+      followUpById: adminUser.id,
     },
   });
 
@@ -621,6 +1432,10 @@ async function main() {
         status: "IN_PROGRESS",
         responsibleId: adminUser.id,
         dueAt: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000),
+        category: "IMPROVEMENT",
+        followUpFrequency: "ANNUAL",
+        costEstimate: 5000,
+        benefitEstimate: 10,
       },
     }),
     prisma.measure.create({
@@ -631,6 +1446,10 @@ async function main() {
         status: "PENDING",
         responsibleId: leaderUser.id,
         dueAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+        category: "PREVENTIVE",
+        followUpFrequency: "MONTHLY",
+        costEstimate: 7000,
+        benefitEstimate: 12,
       },
     }),
     prisma.measure.create({
@@ -641,6 +1460,10 @@ async function main() {
         status: "PENDING",
         responsibleId: hmsUser.id,
         dueAt: new Date(Date.now() + 45 * 24 * 60 * 60 * 1000),
+        category: "IMPROVEMENT",
+        followUpFrequency: "ANNUAL",
+        costEstimate: 3000,
+        benefitEstimate: 25,
       },
     }),
   ]);

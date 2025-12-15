@@ -38,6 +38,15 @@ export default async function DashboardPage() {
   const userRole = user.tenants[0].role;
   const permissions = getPermissions(userRole);
 
+  // Sikre at eldre avvik har gyldig status etter enum-endringer
+  await prisma.$executeRawUnsafe(`
+    UPDATE Incident
+    SET status = 'OPEN'
+    WHERE status NOT IN ('OPEN','INVESTIGATING','ACTION_TAKEN','CLOSED')
+       OR status IS NULL
+       OR status = ''
+  `);
+
   // Hent statistikk fra moduler brukeren har tilgang til
   const [
     documents,

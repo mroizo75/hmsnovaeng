@@ -10,6 +10,7 @@ import {
 import { getStorage, generateFileKey } from "@/lib/storage";
 import { DocStatus } from "@prisma/client";
 import { requirePermission, requireResourceAccess } from "@/lib/server-authorization";
+import { calculateNextReviewDate, parseDateInput } from "@/lib/document-utils";
 
 // Helper: Logg til audit log
 async function logAudit(
@@ -28,6 +29,43 @@ async function logAudit(
       metadata: metadata ? JSON.stringify(metadata) : null,
     },
   });
+}
+
+const sanitizeText = (value?: string | null) => {
+  if (!value) return null;
+  const trimmed = value.trim();
+  return trimmed.length > 0 ? trimmed : null;
+};
+
+const parseIntInput = (value?: string | null) => {
+  if (!value) return undefined;
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? parsed : undefined;
+};
+
+async function assertTenantUser(tenantId: string, userId: string) {
+  const member = await prisma.userTenant.findFirst({
+    where: { tenantId, userId },
+  });
+
+  if (!member) {
+    throw new Error("Ugyldig bruker for denne virksomheten");
+  }
+}
+
+async function resolveTemplate(tenantId: string, templateId: string) {
+  const template = await prisma.documentTemplate.findFirst({
+    where: {
+      id: templateId,
+      OR: [{ tenantId }, { isGlobal: true }],
+    },
+  });
+
+  if (!template) {
+    throw new Error("Fant ikke valgt dokumentmal");
+  }
+
+  return template;
 }
 
 export async function getDocuments(tenantId: string) {
@@ -91,6 +129,17 @@ export async function createDocument(formData: FormData) {
     const fileEntry = formData.get("file");
     const changeComment = formData.get("changeComment") as string | null;
     const visibleToRolesStr = formData.get("visibleToRoles") as string | null;
+    const ownerIdRaw = (formData.get("ownerId") as string | null) || null;
+    const templateIdRaw = (formData.get("templateId") as string | null) || null;
+    const reviewIntervalRaw = formData.get("reviewIntervalMonths") as string | null;
+    const reviewIntervalValue = parseIntInput(reviewIntervalRaw);
+    const reviewIntervalProvided = typeof reviewIntervalValue === "number" && !Number.isNaN(reviewIntervalValue);
+    const effectiveFromValue = parseDateInput(formData.get("effectiveFrom") as string | null);
+    const effectiveToValue = parseDateInput(formData.get("effectiveTo") as string | null);
+    const planSummary = sanitizeText(formData.get("planSummary") as string | null);
+    const doSummary = sanitizeText(formData.get("doSummary") as string | null);
+    const checkSummary = sanitizeText(formData.get("checkSummary") as string | null);
+    const actSummary = sanitizeText(formData.get("actSummary") as string | null);
     const data = {
       tenantId: formData.get("tenantId") as string,
       kind: formData.get("kind") as string,
@@ -104,7 +153,19 @@ export async function createDocument(formData: FormData) {
     }
 
     const file = fileEntry as Blob & { name: string };
-    const validated = createDocumentSchema.parse({ ...data, file });
+    const validated = createDocumentSchema.parse({
+      ...data,
+      ownerId: ownerIdRaw,
+      templateId: templateIdRaw,
+      reviewIntervalMonths: reviewIntervalValue,
+      effectiveFrom: effectiveFromValue,
+      effectiveTo: effectiveToValue,
+      planSummary,
+      doSummary,
+      checkSummary,
+      actSummary,
+      file,
+    });
 
     // Generer slug fra tittel
     const baseSlug = validated.title
@@ -146,6 +207,30 @@ export async function createDocument(formData: FormData) {
       }
     }
 
+    if (validated.ownerId) {
+      try {
+        await assertTenantUser(validated.tenantId, validated.ownerId);
+      } catch (error: any) {
+        return { success: false, error: error.message };
+      }
+    }
+
+    let template: Awaited<ReturnType<typeof resolveTemplate>> | null = null;
+    if (validated.templateId) {
+      try {
+        template = await resolveTemplate(validated.tenantId, validated.templateId);
+      } catch (error: any) {
+        return { success: false, error: error.message };
+      }
+    }
+
+    const resolvedReviewInterval = reviewIntervalProvided
+      ? validated.reviewIntervalMonths
+      : template?.defaultReviewIntervalMonths || validated.reviewIntervalMonths;
+
+    const resolvedEffectiveFrom = validated.effectiveFrom ?? new Date();
+    const nextReviewDate = calculateNextReviewDate(resolvedEffectiveFrom, resolvedReviewInterval);
+
     // Opprett nytt dokument med første versjon
     const document = await prisma.document.create({
       data: {
@@ -157,7 +242,16 @@ export async function createDocument(formData: FormData) {
         status: DocStatus.DRAFT, // ALLTID DRAFT først - MÅ godkjennes
         fileKey,
         updatedBy: context.userEmail,
-        nextReviewDate: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000), // 1 år
+        ownerId: validated.ownerId,
+        templateId: validated.templateId,
+        reviewIntervalMonths: resolvedReviewInterval,
+        effectiveFrom: resolvedEffectiveFrom,
+        effectiveTo: validated.effectiveTo,
+        planSummary: validated.planSummary ?? null,
+        doSummary: validated.doSummary ?? null,
+        checkSummary: validated.checkSummary ?? null,
+        actSummary: validated.actSummary ?? null,
+        nextReviewDate,
         visibleToRoles: visibleToRoles || null,
         versions: {
           create: {
@@ -184,6 +278,9 @@ export async function createDocument(formData: FormData) {
         title: validated.title,
         version: validated.version,
         kind: validated.kind,
+        templateId: validated.templateId,
+        ownerId: validated.ownerId,
+        reviewIntervalMonths: resolvedReviewInterval,
       }
     );
 
@@ -303,38 +400,113 @@ export async function updateDocument(input: any) {
     // Sjekk tilgang
     const context = await requirePermission("canCreateDocuments");
 
-    const validated = updateDocumentSchema.parse(input);
+    const hasField = (key: string) => Object.prototype.hasOwnProperty.call(input, key);
+    const reviewIntervalProvided = hasField("reviewIntervalMonths");
+    const payload = {
+      ...input,
+      reviewIntervalMonths: reviewIntervalProvided ? parseIntInput(input.reviewIntervalMonths) : undefined,
+      effectiveFrom: hasField("effectiveFrom") ? parseDateInput(input.effectiveFrom as string | null) : undefined,
+      effectiveTo: hasField("effectiveTo") ? parseDateInput(input.effectiveTo as string | null) : undefined,
+      planSummary: hasField("planSummary") ? sanitizeText(input.planSummary) : undefined,
+      doSummary: hasField("doSummary") ? sanitizeText(input.doSummary) : undefined,
+      checkSummary: hasField("checkSummary") ? sanitizeText(input.checkSummary) : undefined,
+      actSummary: hasField("actSummary") ? sanitizeText(input.actSummary) : undefined,
+    };
 
-    // Prepare update data
+    const validated = updateDocumentSchema.parse(payload);
+
+    const document = await prisma.document.findUnique({
+      where: { id: validated.id },
+    });
+
+    if (!document) {
+      return { success: false, error: "Dokument ikke funnet" };
+    }
+
+    if (validated.ownerId) {
+      try {
+        await assertTenantUser(document.tenantId, validated.ownerId);
+      } catch (error: any) {
+        return { success: false, error: error.message };
+      }
+    }
+
+    let template: Awaited<ReturnType<typeof resolveTemplate>> | null = null;
+    const templateFieldProvided = hasField("templateId");
+    if (validated.templateId) {
+      try {
+        template = await resolveTemplate(document.tenantId, validated.templateId);
+      } catch (error: any) {
+        return { success: false, error: error.message };
+      }
+    }
+
+    const resolvedReviewInterval = (() => {
+      if (reviewIntervalProvided && validated.reviewIntervalMonths) {
+        return validated.reviewIntervalMonths;
+      }
+      if (templateFieldProvided && template) {
+        return template.defaultReviewIntervalMonths;
+      }
+      return document.reviewIntervalMonths ?? 12;
+    })();
+
+    const resolvedEffectiveFrom = hasField("effectiveFrom")
+      ? validated.effectiveFrom ?? null
+      : document.effectiveFrom;
+
+    const effectiveFromForCalc = resolvedEffectiveFrom ?? document.effectiveFrom ?? new Date();
+    const nextReviewDate = calculateNextReviewDate(effectiveFromForCalc, resolvedReviewInterval);
+
     const updateData: any = {
-      ...validated,
       updatedBy: context.userEmail,
       updatedAt: new Date(),
     };
 
-    // Handle visibleToRoles - convert empty array to null
-    if ('visibleToRoles' in validated) {
-      updateData.visibleToRoles = validated.visibleToRoles && validated.visibleToRoles.length > 0 
-        ? validated.visibleToRoles 
-        : null;
+    if (validated.title) updateData.title = validated.title;
+    if (validated.kind) updateData.kind = validated.kind;
+    if (validated.version) updateData.version = validated.version;
+    if (hasField("visibleToRoles")) {
+      updateData.visibleToRoles =
+        validated.visibleToRoles && validated.visibleToRoles.length > 0 ? validated.visibleToRoles : null;
+    }
+    if (hasField("ownerId")) {
+      updateData.ownerId = validated.ownerId ?? null;
+    }
+    if (templateFieldProvided) {
+      updateData.templateId = validated.templateId ?? null;
+    }
+    if (hasField("planSummary")) updateData.planSummary = validated.planSummary ?? null;
+    if (hasField("doSummary")) updateData.doSummary = validated.doSummary ?? null;
+    if (hasField("checkSummary")) updateData.checkSummary = validated.checkSummary ?? null;
+    if (hasField("actSummary")) updateData.actSummary = validated.actSummary ?? null;
+    if (hasField("effectiveFrom")) updateData.effectiveFrom = resolvedEffectiveFrom;
+    if (hasField("effectiveTo")) updateData.effectiveTo = validated.effectiveTo ?? null;
+
+    if (reviewIntervalProvided || templateFieldProvided || hasField("effectiveFrom")) {
+      updateData.reviewIntervalMonths = resolvedReviewInterval;
+      updateData.nextReviewDate = nextReviewDate;
     }
 
-    const document = await prisma.document.update({
+    const updated = await prisma.document.update({
       where: { id: validated.id },
       data: updateData,
     });
 
     await logAudit(
-      document.tenantId,
+      updated.tenantId,
       context.userId,
       "DOCUMENT_UPDATED",
-      `Document:${document.id}`,
-      validated
+      `Document:${updated.id}`,
+      {
+        ...validated,
+        reviewIntervalMonths: resolvedReviewInterval,
+      }
     );
 
     revalidatePath(`/dashboard/documents`);
     revalidatePath(`/dashboard/documents/${validated.id}`);
-    return { success: true, data: document };
+    return { success: true, data: updated };
   } catch (error: any) {
     console.error("Update document error:", error);
     return { success: false, error: error.message || "Kunne ikke oppdatere dokument" };
@@ -357,6 +529,10 @@ export async function approveDocument(input: any) {
       return { success: false, error: "Dokument ikke funnet" };
     }
 
+    const reviewIntervalMonths = document.reviewIntervalMonths ?? 12;
+    const effectiveFrom = document.effectiveFrom ?? new Date();
+    const nextReviewDate = calculateNextReviewDate(effectiveFrom, reviewIntervalMonths);
+
     // Oppdater dokument til APPROVED
     const approved = await prisma.document.update({
       where: { id: validated.id },
@@ -364,7 +540,7 @@ export async function approveDocument(input: any) {
         status: DocStatus.APPROVED,
         approvedBy: validated.approvedBy,
         approvedAt: new Date(),
-        nextReviewDate: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000), // 1 år fra nå
+        nextReviewDate,
       },
     });
 

@@ -22,12 +22,13 @@ import {
   getSeverityInfo,
   getIncidentStatusLabel,
   getIncidentStatusColor,
+  getIncidentStageLabel,
 } from "@/features/incidents/schemas/incident.schema";
 import { useToast } from "@/hooks/use-toast";
 import type { Incident, Measure } from "@prisma/client";
 
 interface IncidentListProps {
-  incidents: (Incident & { measures: Measure[] })[];
+  incidents: (Incident & { measures: Measure[]; risk?: { id: string; title: string; category: string | null } | null })[];
 }
 
 export function IncidentList({ incidents }: IncidentListProps) {
@@ -59,12 +60,21 @@ export function IncidentList({ incidents }: IncidentListProps) {
     setLoading(null);
   };
 
-  const formatDate = (date: Date) => {
+  const formatDate = (date: Date | string) => {
     return new Date(date).toLocaleDateString("no-NO", {
       day: "2-digit",
       month: "short",
       year: "numeric",
     });
+  };
+
+  const stageColors: Record<string, string> = {
+    REPORTED: "bg-gray-100 text-gray-800 border-gray-200",
+    UNDER_REVIEW: "bg-yellow-100 text-yellow-800 border-yellow-300",
+    ROOT_CAUSE: "bg-blue-100 text-blue-800 border-blue-300",
+    ACTIONS_DEFINED: "bg-indigo-100 text-indigo-800 border-indigo-300",
+    ACTIONS_COMPLETE: "bg-green-100 text-green-800 border-green-300",
+    VERIFIED: "bg-emerald-100 text-emerald-800 border-emerald-300",
   };
 
   if (incidents.length === 0) {
@@ -85,6 +95,8 @@ export function IncidentList({ incidents }: IncidentListProps) {
             <TableHead>Avvik</TableHead>
             <TableHead>Type</TableHead>
             <TableHead className="text-center">Alvorlighet</TableHead>
+            <TableHead>Stage</TableHead>
+            <TableHead>Skade</TableHead>
             <TableHead>Dato</TableHead>
             <TableHead>Status</TableHead>
             <TableHead className="text-center">Tiltak</TableHead>
@@ -98,6 +110,8 @@ export function IncidentList({ incidents }: IncidentListProps) {
             const { label: severityLabel, bgColor: severityColor, textColor: severityTextColor } = getSeverityInfo(incident.severity);
             const statusLabel = getIncidentStatusLabel(incident.status);
             const statusColor = getIncidentStatusColor(incident.status);
+            const stageLabel = getIncidentStageLabel(incident.stage as any);
+            const stageColor = stageColors[incident.stage] || stageColors.REPORTED;
             const completedMeasures = incident.measures.filter(m => m.status === "DONE").length;
             const totalMeasures = incident.measures.length;
 
@@ -109,6 +123,42 @@ export function IncidentList({ incidents }: IncidentListProps) {
                     <div className="text-sm text-muted-foreground line-clamp-1">
                       {incident.description}
                     </div>
+                    {incident.risk && (
+                      <div className="text-xs text-muted-foreground">
+                        Risiko: {incident.risk.title}
+                      </div>
+                    )}
+                {incident.type === "CUSTOMER" && (
+                  <div className="text-xs text-purple-800 space-y-1">
+                    <div>Kunde: {incident.customerName || "Ukjent"}</div>
+                    {(incident.customerEmail || incident.customerPhone) && (
+                      <div>
+                        {incident.customerEmail && <span>{incident.customerEmail}</span>}
+                        {incident.customerEmail && incident.customerPhone && " · "}
+                        {incident.customerPhone}
+                      </div>
+                    )}
+                    {typeof incident.customerSatisfaction === "number" && (
+                      <div>Tilfredshet {incident.customerSatisfaction}/5</div>
+                    )}
+                    {incident.responseDeadline && (
+                      <div>Frist {formatDate(incident.responseDeadline)}</div>
+                    )}
+                  </div>
+                )}
+                    {incident.type === "CUSTOMER" && (
+                      <div className="text-xs text-purple-800 space-x-1 mt-1">
+                        <span>Kunde: {incident.customerName || "Ukjent"}</span>
+                        {incident.customerEmail && <span>• {incident.customerEmail}</span>}
+                        {incident.customerPhone && <span>• {incident.customerPhone}</span>}
+                        {typeof incident.customerSatisfaction === "number" && (
+                          <span>• Tilfredshet {incident.customerSatisfaction}/5</span>
+                        )}
+                        {incident.responseDeadline && (
+                          <span>• Frist {formatDate(incident.responseDeadline)}</span>
+                        )}
+                      </div>
+                    )}
                   </div>
                 </TableCell>
                 <TableCell>
@@ -118,6 +168,22 @@ export function IncidentList({ incidents }: IncidentListProps) {
                   <Badge className={`${severityColor} ${severityTextColor}`}>
                     {incident.severity} - {severityLabel}
                   </Badge>
+                </TableCell>
+                <TableCell>
+                  <Badge className={stageColor}>{stageLabel}</Badge>
+                </TableCell>
+                <TableCell>
+                  <div className="text-sm space-y-1">
+                    <div>{incident.injuryType || "Ingen skade registrert"}</div>
+                    <div className="text-xs text-muted-foreground">
+                      {incident.medicalAttentionRequired ? "Legebehandling" : "Ingen legebehandling"}
+                    </div>
+                    {typeof incident.lostTimeMinutes === "number" && (
+                      <div className="text-xs text-muted-foreground">
+                        Tapt tid: {incident.lostTimeMinutes} min
+                      </div>
+                    )}
+                  </div>
                 </TableCell>
                 <TableCell>
                   {formatDate(incident.occurredAt)}
@@ -166,6 +232,8 @@ export function IncidentList({ incidents }: IncidentListProps) {
           const { label: severityLabel, bgColor: severityColor, textColor: severityTextColor } = getSeverityInfo(incident.severity);
           const statusLabel = getIncidentStatusLabel(incident.status);
           const statusColor = getIncidentStatusColor(incident.status);
+          const stageLabel = getIncidentStageLabel(incident.stage as any);
+          const stageColor = stageColors[incident.stage] || stageColors.REPORTED;
           const completedMeasures = incident.measures.filter(m => m.status === "DONE").length;
           const totalMeasures = incident.measures.length;
 
@@ -188,6 +256,19 @@ export function IncidentList({ incidents }: IncidentListProps) {
                   <div className="flex flex-wrap gap-2">
                     <Badge className={typeColor}>{typeLabel}</Badge>
                     <Badge className={statusColor}>{statusLabel}</Badge>
+                    <Badge className={stageColor}>{stageLabel}</Badge>
+                  </div>
+
+                  {incident.risk && (
+                    <div className="text-xs text-muted-foreground">
+                      Risiko: {incident.risk.title}
+                    </div>
+                  )}
+
+                  <div className="text-xs text-muted-foreground">
+                    {incident.injuryType || "Ingen skade registrert"} ·{" "}
+                    {incident.medicalAttentionRequired ? "Legebehandling" : "Ingen legebehandling"}
+                    {typeof incident.lostTimeMinutes === "number" && ` · ${incident.lostTimeMinutes} min tap`}
                   </div>
 
                   <div className="flex items-center justify-between text-sm text-muted-foreground">

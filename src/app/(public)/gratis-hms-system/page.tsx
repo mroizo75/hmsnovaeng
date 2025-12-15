@@ -3,6 +3,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import {
   CheckCircle2,
   Clock,
@@ -14,11 +15,14 @@ import {
   ArrowRight,
   Gift,
   Zap,
+  Info,
+  HardDrive,
+  Cloud,
 } from "lucide-react";
 
 export const metadata: Metadata = {
-  title: "Få ferdig HMS-startpakke GRATIS | HMS Nova Document Generator",
-  description: "Svar på 10 spørsmål → Vi genererer HMS-håndbok, risikovurdering, opplæringsplan og prosedyrer. ISO 9001-struktur på 20 minutter. Helt gratis!",
+  title: "Gratis HMS-startpakke | Bygg ditt eget HMS-system lokalt",
+  description: "Få komplett HMS-startpakke gratis. Bygg ditt eget HMS-system lokalt på PC eller Dropbox. HMS-håndbok, risikovurdering og prosedyrer (ISO 9001). Perfekt for små bedrifter.",
   keywords: [
     "HMS system gratis",
     "HMS håndbok generator",
@@ -26,10 +30,12 @@ export const metadata: Metadata = {
     "HMS dokumenter gratis",
     "ISO 9001 pakke gratis",
     "HMS mal",
+    "HMS startpakke",
+    "Gratis HMS dokumenter",
   ],
   openGraph: {
-    title: "Få ferdig HMS-startpakke GRATIS på 20 minutter",
-    description: "Svar på 10 spørsmål → Vi genererer HMS-håndbok og prosedyrer. ISO 9001-struktur bransjespesifikt.",
+    title: "Gratis HMS-startpakke – Bygg ditt eget HMS-system",
+    description: "Få komplett HMS-startpakke gratis. Lagre på PC, Dropbox eller Google Drive. HMS-håndbok og prosedyrer (ISO 9001).",
     url: "https://hmsnova.no/gratis-hms-system",
     type: "website",
   },
@@ -52,12 +58,12 @@ export default function GratisHMSSystemPage() {
           </h1>
           
           <p className="text-xl md:text-2xl text-muted-foreground mb-4">
-            Svar på 10 spørsmål → Vi genererer startpakken din
+            Bygg ditt eget HMS-system lokalt – helt gratis
           </p>
           
           <p className="text-lg text-muted-foreground mb-8">
             HMS-håndbok, risikovurdering, opplæringsplan og prosedyrer (ISO 9001)<br />
-            <strong>Bransjespesifikt for DIN bedrift</strong>
+            <strong>Lagre på PC, Dropbox eller Google Drive</strong>
           </p>
           
           <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8">
@@ -87,6 +93,49 @@ export default function GratisHMSSystemPage() {
               <span>5000+ bedrifter</span>
             </div>
           </div>
+        </div>
+      </section>
+
+      {/* Viktig informasjon om tjenesten */}
+      <section className="container mx-auto px-4 py-8">
+        <div className="max-w-4xl mx-auto">
+          <Alert className="border-blue-200 bg-blue-50 dark:bg-blue-950/30 dark:border-blue-800">
+            <Info className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+            <AlertTitle className="text-blue-800 dark:text-blue-300 font-semibold">
+              Hva er HMS-startpakken?
+            </AlertTitle>
+            <AlertDescription className="text-blue-700 dark:text-blue-400 mt-2">
+              <p className="mb-3">
+                Denne tjenesten gir deg en <strong>komplett startpakke med HMS-dokumenter</strong> som du kan 
+                bruke til å bygge ditt eget HMS-system. Dokumentene lagres lokalt på din PC, i Dropbox, 
+                Google Drive eller annen skylagringstjeneste du foretrekker.
+              </p>
+              <div className="flex flex-wrap gap-4 mb-3">
+                <div className="flex items-center gap-2">
+                  <HardDrive className="h-4 w-4" />
+                  <span className="text-sm">Lagre på PC</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Cloud className="h-4 w-4" />
+                  <span className="text-sm">Dropbox / Google Drive</span>
+                </div>
+              </div>
+              <p className="text-sm">
+                <strong>Merk:</strong> Dette er <em>ikke</em> en del av HMS Nova sin digitale plattform. 
+                Dette er en gratis tjeneste for deg som ønsker et enkelt, men godkjent HMS-system 
+                som du administrerer selv. Perfekt for små bedrifter som vil komme i gang med HMS 
+                uten månedlige kostnader.
+              </p>
+              <div className="mt-4 pt-3 border-t border-blue-200 dark:border-blue-700">
+                <p className="text-sm">
+                  💡 <strong>Ønsker du et digitalt HMS-system?</strong>{" "}
+                  <Link href="/priser" className="underline font-medium hover:text-blue-900 dark:hover:text-blue-200">
+                    Se HMS Nova fra 225 kr/mnd →
+                  </Link>
+                </p>
+              </div>
+            </AlertDescription>
+          </Alert>
         </div>
       </section>
 
@@ -130,12 +179,15 @@ export default function GratisHMSSystemPage() {
       <section id="hva-faar-du" className="container mx-auto px-4 py-16">
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-12">
-            <Badge className="mb-4">🎁 Komplett HMS-pakke</Badge>
+            <Badge className="mb-4">🎁 Komplett HMS-startpakke</Badge>
             <h2 className="text-3xl md:text-4xl font-bold mb-4">
               Dette får du GRATIS
             </h2>
-            <p className="text-xl text-muted-foreground">
+            <p className="text-xl text-muted-foreground mb-2">
               Verdi: 15.000 kr (konsulentpris for startdokumenter) → Din pris: <span className="text-primary font-bold">0 kr</span>
+            </p>
+            <p className="text-sm text-muted-foreground">
+              Dokumenter i Word, Excel og PDF-format som du lagrer og administrerer selv
             </p>
           </div>
 
@@ -200,7 +252,7 @@ export default function GratisHMSSystemPage() {
                   </li>
                   <li className="flex items-start gap-2">
                     <CheckCircle2 className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
-                    <span>Fylles ut i HMS Nova systemet</span>
+                    <span>Ferdig Excel-mal du kan fylle ut selv</span>
                   </li>
                 </ul>
               </CardContent>
@@ -233,7 +285,7 @@ export default function GratisHMSSystemPage() {
                   </li>
                   <li className="flex items-start gap-2">
                     <CheckCircle2 className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
-                    <span>Administreres i HMS Nova systemet</span>
+                    <span>Ferdig mal for kompetanseoversikt</span>
                   </li>
                 </ul>
               </CardContent>
@@ -277,7 +329,7 @@ export default function GratisHMSSystemPage() {
             <Button size="lg" asChild>
               <Link href="/gratis-hms-system/start">
                 <Gift className="mr-2 h-5 w-5" />
-                Generer mitt HMS-system nå
+                Generer min HMS-startpakke
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Link>
             </Button>
@@ -293,7 +345,7 @@ export default function GratisHMSSystemPage() {
               Slik fungerer det
             </h2>
             <p className="text-xl text-muted-foreground">
-              3 enkle steg til ferdig HMS-system
+              3 enkle steg til ferdig HMS-startpakke
             </p>
           </div>
 
@@ -324,7 +376,7 @@ export default function GratisHMSSystemPage() {
               </CardHeader>
               <CardContent>
                 <p className="text-sm text-muted-foreground">
-                  Våre bransjemaler + dine svar = ferdig HMS-system.
+                  Våre bransjemaler + dine svar = ferdige HMS-dokumenter.
                   AI fyller ut alt basert på din bransje.
                 </p>
               </CardContent>
@@ -335,13 +387,13 @@ export default function GratisHMSSystemPage() {
                 <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-primary text-primary-foreground text-2xl font-bold">
                   3
                 </div>
-                <CardTitle>Last ned og bruk</CardTitle>
+                <CardTitle>Last ned og lagre lokalt</CardTitle>
                 <CardDescription>Umiddelbart</CardDescription>
               </CardHeader>
               <CardContent>
                 <p className="text-sm text-muted-foreground">
                   PDF, Word, Excel – alt sendes til din e-post.
-                  Klar til bruk med en gang!
+                  Lagre på PC, Dropbox eller Google Drive.
                 </p>
               </CardContent>
             </Card>
@@ -364,10 +416,10 @@ export default function GratisHMSSystemPage() {
           <Card className="bg-primary text-primary-foreground border-0">
             <CardHeader className="text-center pb-4">
               <CardTitle className="text-3xl md:text-4xl">
-                Klar til å få ditt HMS-system?
+                Klar til å bygge ditt eget HMS-system?
               </CardTitle>
               <CardDescription className="text-primary-foreground/80 text-lg">
-                Over 5000 bedrifter har allerede generert sitt HMS-system
+                Over 5000 bedrifter har allerede generert sin HMS-startpakke
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
@@ -378,7 +430,7 @@ export default function GratisHMSSystemPage() {
                 </div>
                 <div>
                   <div className="text-4xl font-bold">6</div>
-                  <div className="text-sm text-primary-foreground/80">startdokumenter</div>
+                  <div className="text-sm text-primary-foreground/80">dokumenter</div>
                 </div>
                 <div>
                   <div className="text-4xl font-bold">0</div>
@@ -397,10 +449,24 @@ export default function GratisHMSSystemPage() {
               </div>
 
               <p className="text-center text-sm text-primary-foreground/70">
-                Ingen kredittkort påkrevd • Ingen skjulte kostnader • 100% gratis
+                Ingen kredittkort • Lagre lokalt på PC/Dropbox • 100% gratis for alltid
               </p>
             </CardContent>
           </Card>
+
+          {/* Alternativ: Digital løsning */}
+          <div className="mt-8 text-center">
+            <p className="text-muted-foreground mb-4">
+              Trenger du mer enn dokumenter? Ønsker du automatiske påminnelser, 
+              digital signatur og samarbeidsfunksjoner?
+            </p>
+            <Button variant="outline" asChild>
+              <Link href="/priser">
+                Se HMS Nova digital plattform fra 225 kr/mnd
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </Link>
+            </Button>
+          </div>
         </div>
       </section>
     </div>

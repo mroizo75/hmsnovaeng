@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { closeIncident } from "@/server/actions/incident.actions";
 import { useToast } from "@/hooks/use-toast";
 import { CheckCircle } from "lucide-react";
@@ -30,6 +31,7 @@ export function CloseIncidentForm({ incidentId, userId }: CloseIncidentFormProps
       closedBy: userId,
       effectivenessReview: formData.get("effectivenessReview") as string,
       lessonsLearned: formData.get("lessonsLearned") as string || undefined,
+      measureEffectiveness: formData.get("measureEffectiveness") as string,
     };
 
     try {
@@ -95,6 +97,25 @@ export function CloseIncidentForm({ incidentId, userId }: CloseIncidentFormProps
             <p className="text-xs text-muted-foreground">
               Vurder om de korrigerende tiltakene har vært effektive
             </p>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="measureEffectiveness">Effekt av tiltak</Label>
+            <Select
+              name="measureEffectiveness"
+              defaultValue="EFFECTIVE"
+              disabled={loading}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Velg vurdering" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="EFFECTIVE">Tiltakene var effektive</SelectItem>
+                <SelectItem value="PARTIALLY_EFFECTIVE">Delvis effektive</SelectItem>
+                <SelectItem value="INEFFECTIVE">Ikke effektive</SelectItem>
+                <SelectItem value="NOT_EVALUATED">Ikke evaluert</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
 
           <div className="space-y-2">

@@ -134,13 +134,13 @@ export const SOFTWARE_PRODUCT_SCHEMA = {
   offers: {
     "@type": "AggregateOffer",
     priceCurrency: "NOK",
-    lowPrice: "6000",
-    highPrice: "12000",
+    lowPrice: "225",
+    highPrice: "300",
     priceSpecification: {
       "@type": "UnitPriceSpecification",
-      price: "6000",
+      price: "275",
       priceCurrency: "NOK",
-      unitText: "YEAR",
+      unitText: "MONTH",
     },
   },
   aggregateRating: {
@@ -185,7 +185,7 @@ export const FAQ_SCHEMA = {
       name: "Hva koster HMS Nova?",
       acceptedAnswer: {
         "@type": "Answer",
-        text: "HMS Nova starter på 6.000 kr/år for små bedrifter (1-20 ansatte), 8.000 kr/år for mellomstore bedrifter (21-50 ansatte), og 12.000 kr/år for store bedrifter (51+ ansatte). Ingen oppstartskostnader, ingen bindingstid, alt inkludert.",
+        text: "HMS Nova koster fra 225 kr/mnd med 2 års binding, 275 kr/mnd med 1 års binding, eller 300 kr/mnd uten binding. Ubegrenset antall brukere inkludert. Ingen oppstartskostnader, alt inkludert.",
       },
     },
     {
@@ -217,7 +217,7 @@ export const FAQ_SCHEMA = {
       name: "Hvordan skiller HMS Nova seg fra Grønn Jobb, Avonova og Kuba?",
       acceptedAnswer: {
         "@type": "Answer",
-        text: "HMS Nova er 100% digitalt og moderne. Vi har digital signatur inkludert (ikke ekstrakostnad), ingen bindingstid, mobilapp med offline-støtte, og betydelig lavere priser. Vår visjon er enkel: HMS Nova bygger trygghet - ikke byråkrati.",
+        text: "HMS Nova er 100% digitalt og moderne. Vi har digital signatur inkludert (ikke ekstrakostnad), valgfri bindingstid (fra ingen binding til 2 år), mobilapp med offline-støtte, og betydelig lavere priser fra 225 kr/mnd. Vår visjon er enkel: HMS Nova bygger trygghet - ikke byråkrati.",
       },
     },
   ],
@@ -243,9 +243,9 @@ export const PAGE_METADATA = {
     keywords: [...PRIMARY_KEYWORDS, ...SECONDARY_KEYWORDS.slice(0, 10)].join(", "),
   },
   priser: {
-    title: "Priser - HMS Nova | Fra 500 kr/mnd | Ingen Skjulte Kostnader",
-    description: "Transparente priser på HMS-system. Fra 6.000 kr/år for små bedrifter. Ingen oppstartskostnader, ingen bindingstid. 20% medlemsrabatt på HMS-kurs og 10% på BHT. Se alle priser.",
-    keywords: "hms system pris, hms programvare kostnad, billig hms system, hms system små bedrifter, beste hms system pris",
+    title: "Priser - HMS Nova | Fra 225 kr/mnd | Ingen Skjulte Kostnader",
+    description: "Transparente priser på HMS-system. Fra 225 kr/mnd med 2 års binding, 275 kr/mnd med 1 år, eller 300 kr/mnd uten binding. Ubegrenset brukere inkludert. Ingen oppstartskostnader. Se alle priser.",
+    keywords: "hms system pris, hms programvare kostnad, billig hms system, hms system alle bedrifter, beste hms system pris",
   },
   kurs: {
     title: "HMS-kurs - Lovpålagte Kurs & Førstehjelp | HMS Nova",

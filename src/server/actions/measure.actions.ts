@@ -5,6 +5,7 @@ import { prisma } from "@/lib/db";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import { createMeasureSchema, updateMeasureSchema, completeMeasureSchema } from "@/features/measures/schemas/measure.schema";
+import { IncidentStage } from "@prisma/client";
 
 async function getSessionContext() {
   const session = await getServerSession(authOptions);
@@ -23,6 +24,12 @@ async function getSessionContext() {
   
   return { user, tenantId: user.tenants[0].tenantId };
 }
+
+const parseOptionalNumber = (value: any) => {
+  if (value === undefined || value === null || value === "") return undefined;
+  const parsed = Number(value);
+  return Number.isNaN(parsed) ? undefined : parsed;
+};
 
 // Hent alle tiltak for en tenant
 export async function getMeasures(tenantId: string) {
@@ -79,11 +86,14 @@ export async function getMeasuresByRisk(riskId: string) {
 export async function createMeasure(input: any) {
   try {
     const { user, tenantId } = await getSessionContext();
-    const validated = createMeasureSchema.parse({
+    const normalizedInput = {
       ...input,
       tenantId,
       dueAt: new Date(input.dueAt),
-    });
+      costEstimate: parseOptionalNumber(input.costEstimate),
+      benefitEstimate: parseOptionalNumber(input.benefitEstimate),
+    };
+    const validated = createMeasureSchema.parse(normalizedInput);
     
     const measure = await prisma.measure.create({
       data: {
@@ -97,6 +107,10 @@ export async function createMeasure(input: any) {
         dueAt: validated.dueAt,
         responsibleId: validated.responsibleId,
         status: validated.status,
+        category: validated.category,
+        followUpFrequency: validated.followUpFrequency,
+        costEstimate: validated.costEstimate,
+        benefitEstimate: validated.benefitEstimate,
       },
     });
     
@@ -105,6 +119,16 @@ export async function createMeasure(input: any) {
       await prisma.risk.update({
         where: { id: validated.riskId },
         data: { status: "MITIGATING" },
+      });
+    }
+
+    if (validated.incidentId) {
+      await prisma.incident.update({
+        where: { id: validated.incidentId, tenantId },
+        data: {
+          stage: IncidentStage.ACTIONS_DEFINED,
+          status: "ACTION_TAKEN",
+        },
       });
     }
     
@@ -140,10 +164,13 @@ export async function createMeasure(input: any) {
 export async function updateMeasure(input: any) {
   try {
     const { user, tenantId } = await getSessionContext();
-    const validated = updateMeasureSchema.parse({
+    const normalizedInput = {
       ...input,
       dueAt: input.dueAt ? new Date(input.dueAt) : undefined,
-    });
+      costEstimate: parseOptionalNumber(input.costEstimate),
+      benefitEstimate: parseOptionalNumber(input.benefitEstimate),
+    };
+    const validated = updateMeasureSchema.parse(normalizedInput);
     
     const existingMeasure = await prisma.measure.findUnique({
       where: { id: validated.id, tenantId },
@@ -157,6 +184,8 @@ export async function updateMeasure(input: any) {
       where: { id: validated.id, tenantId },
       data: {
         ...validated,
+        costEstimate: validated.costEstimate,
+        benefitEstimate: validated.benefitEstimate,
         updatedAt: new Date(),
       },
     });
@@ -188,16 +217,19 @@ export async function updateMeasure(input: any) {
 export async function completeMeasure(input: any) {
   try {
     const { user, tenantId } = await getSessionContext();
-    const validated = completeMeasureSchema.parse({
+    const normalizedInput = {
       ...input,
       completedAt: new Date(input.completedAt),
-    });
+    };
+    const validated = completeMeasureSchema.parse(normalizedInput);
     
     const measure = await prisma.measure.update({
       where: { id: validated.id, tenantId },
       data: {
         status: "DONE",
         completedAt: validated.completedAt,
+        effectiveness: validated.effectiveness,
+        effectivenessNote: validated.completionNote,
         updatedAt: new Date(),
       },
     });
@@ -216,6 +248,21 @@ export async function completeMeasure(input: any) {
           data: { status: "CLOSED" },
         });
       }
+    }
+
+    if (measure.incidentId) {
+      const incidentMeasures = await prisma.measure.findMany({
+        where: { incidentId: measure.incidentId, tenantId },
+      });
+      
+      const incidentAllCompleted = incidentMeasures.every(m => m.status === "DONE");
+      
+      await prisma.incident.update({
+        where: { id: measure.incidentId, tenantId },
+        data: {
+          stage: incidentAllCompleted ? IncidentStage.ACTIONS_COMPLETE : IncidentStage.ACTIONS_DEFINED,
+        },
+      });
     }
     
     await prisma.auditLog.create({

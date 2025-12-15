@@ -210,19 +210,19 @@ export function RegisterDialog({ trigger, children, onOpenChange }: RegisterDial
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-              {/* Antall ansatte */}
+              {/* Ønsket bindingsperiode */}
               <div className="space-y-2">
-                <Label htmlFor="employeeCount" className="text-xs sm:text-sm font-medium">
-                  Antall ansatte <span className="text-destructive">*</span>
+                <Label htmlFor="bindingPeriod" className="text-xs sm:text-sm font-medium">
+                  Ønsket bindingsperiode <span className="text-destructive">*</span>
                 </Label>
-                <Select name="employeeCount" required>
+                <Select name="bindingPeriod" required>
                   <SelectTrigger className="h-11">
                     <SelectValue placeholder="Velg" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="1-20">1-20 (6000 kr/år)</SelectItem>
-                    <SelectItem value="21-50">21-50 (8000 kr/år)</SelectItem>
-                    <SelectItem value="51+">51+ (12000 kr/år)</SelectItem>
+                    <SelectItem value="none">Ingen binding (300 kr/mnd)</SelectItem>
+                    <SelectItem value="1year">1 år binding (275 kr/mnd)</SelectItem>
+                    <SelectItem value="2year">2 år binding (225 kr/mnd)</SelectItem>
                   </SelectContent>
                 </Select>
               </div>

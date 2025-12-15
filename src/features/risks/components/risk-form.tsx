@@ -1,6 +1,6 @@
-"use client";
+'use client';
 
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -18,13 +18,23 @@ import { createRisk, updateRisk } from "@/server/actions/risk.actions";
 import { RiskMatrix } from "./risk-matrix";
 import { calculateRiskScore } from "@/features/risks/schemas/risk.schema";
 import { useToast } from "@/hooks/use-toast";
-import type { Risk } from "@prisma/client";
+import type {
+  ControlFrequency,
+  Risk,
+  RiskCategory,
+  RiskResponseStrategy,
+  RiskTrend,
+} from "@prisma/client";
+import { Slider } from "@/components/ui/slider";
 
 interface RiskFormProps {
   tenantId: string;
   userId: string;
   risk?: Risk;
   mode?: "create" | "edit";
+  owners: Array<{ id: string; name?: string | null; email?: string | null }>;
+  goalOptions?: Array<{ id: string; title: string }>;
+  templateOptions?: Array<{ id: string; name: string }>;
 }
 
 const statusOptions = [
@@ -34,33 +44,158 @@ const statusOptions = [
   { value: "CLOSED", label: "Lukket" },
 ];
 
-export function RiskForm({ tenantId, userId, risk, mode = "create" }: RiskFormProps) {
+const categoryOptions: Array<{ value: RiskCategory; label: string }> = [
+  { value: "OPERATIONAL", label: "Operasjonell" },
+  { value: "SAFETY", label: "Sikkerhet" },
+  { value: "HEALTH", label: "Helse" },
+  { value: "ENVIRONMENTAL", label: "Miljø" },
+  { value: "INFORMATION_SECURITY", label: "Informasjonssikkerhet" },
+  { value: "LEGAL", label: "Juridisk/Compliance" },
+  { value: "STRATEGIC", label: "Strategisk" },
+];
+
+const frequencyOptions: Array<{ value: ControlFrequency; label: string }> = [
+  { value: "WEEKLY", label: "Ukentlig" },
+  { value: "MONTHLY", label: "Månedlig" },
+  { value: "QUARTERLY", label: "Kvartalsvis" },
+  { value: "ANNUAL", label: "Årlig" },
+  { value: "BIENNIAL", label: "Annet hvert år" },
+];
+
+const responseOptions: Array<{ value: RiskResponseStrategy; label: string; description: string }> = [
+  { value: "AVOID", label: "Unngå", description: "Stopp aktiviteten eller endre prosess for å fjerne risikoen" },
+  { value: "REDUCE", label: "Reduser", description: "Implementer kontroller for å senke sannsynlighet eller konsekvens" },
+  { value: "TRANSFER", label: "Overfør", description: "Flytt risiko via forsikring, kontrakter eller leverandører" },
+  { value: "ACCEPT", label: "Aksepter", description: "Aksepter risikoen innenfor definert toleranse" },
+];
+
+const trendOptions: Array<{ value: RiskTrend; label: string }> = [
+  { value: "INCREASING", label: "Økende" },
+  { value: "STABLE", label: "Stabil" },
+  { value: "DECREASING", label: "Synkende" },
+];
+
+const NO_GOAL_VALUE = "__none_goal__";
+const NO_TEMPLATE_VALUE = "__none_template__";
+
+const formatDateInput = (value?: Date | string | null) => {
+  if (!value) return "";
+  const date = value instanceof Date ? value : new Date(value);
+  if (Number.isNaN(date.getTime())) return "";
+  return date.toISOString().slice(0, 10);
+};
+
+const getDefaultNextReview = (frequency: ControlFrequency) => {
+  const now = new Date();
+  switch (frequency) {
+    case "WEEKLY":
+      return new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
+    case "MONTHLY":
+      return new Date(now.getFullYear(), now.getMonth() + 1, now.getDate());
+    case "QUARTERLY":
+      return new Date(now.getFullYear(), now.getMonth() + 3, now.getDate());
+    case "ANNUAL":
+      return new Date(now.getFullYear() + 1, now.getMonth(), now.getDate());
+    case "BIENNIAL":
+      return new Date(now.getFullYear() + 2, now.getMonth(), now.getDate());
+    default:
+      return new Date(now.getFullYear() + 1, now.getMonth(), now.getDate());
+  }
+};
+
+export function RiskForm({
+  tenantId,
+  userId,
+  risk,
+  mode = "create",
+  owners,
+  goalOptions = [],
+  templateOptions = [],
+}: RiskFormProps) {
   const router = useRouter();
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
   const [likelihood, setLikelihood] = useState(risk?.likelihood || 3);
   const [consequence, setConsequence] = useState(risk?.consequence || 3);
+  const [ownerId, setOwnerId] = useState(risk?.ownerId || userId);
+  const [category, setCategory] = useState<RiskCategory>(risk?.category || "OPERATIONAL");
+  const [controlFrequency, setControlFrequency] = useState<ControlFrequency>(
+    risk?.controlFrequency || "ANNUAL"
+  );
+  const [nextReviewTouched, setNextReviewTouched] = useState(Boolean(risk?.nextReviewDate));
+  const [nextReviewDate, setNextReviewDate] = useState(
+    formatDateInput(risk?.nextReviewDate ?? getDefaultNextReview(controlFrequency))
+  );
+  const [residualLikelihood, setResidualLikelihood] = useState<number | null>(
+    risk?.residualLikelihood ?? null
+  );
+  const [residualConsequence, setResidualConsequence] = useState<number | null>(
+    risk?.residualConsequence ?? null
+  );
+  const [selectedGoal, setSelectedGoal] = useState(risk?.kpiId ?? NO_GOAL_VALUE);
+  const [selectedTemplate, setSelectedTemplate] = useState(
+    risk?.inspectionTemplateId ?? NO_TEMPLATE_VALUE
+  );
+  const [riskAppetite, setRiskAppetite] = useState(risk?.riskAppetite ?? "");
+  const [riskTolerance, setRiskTolerance] = useState(risk?.riskTolerance ?? "");
+  const [responseStrategy, setResponseStrategy] = useState<RiskResponseStrategy>(
+    risk?.responseStrategy ?? "REDUCE"
+  );
+  const [trend, setTrend] = useState<RiskTrend>(risk?.trend ?? "STABLE");
+  const [reviewedAt, setReviewedAt] = useState(formatDateInput(risk?.reviewedAt));
+
+  useEffect(() => {
+    if (!nextReviewTouched) {
+      const updated = getDefaultNextReview(controlFrequency);
+      setNextReviewDate(formatDateInput(updated));
+    }
+  }, [controlFrequency, nextReviewTouched]);
 
   const { score, level, color, bgColor } = calculateRiskScore(likelihood, consequence);
+
+  const residualScore = useMemo(() => {
+    if (!residualLikelihood || !residualConsequence) return null;
+    return calculateRiskScore(residualLikelihood, residualConsequence);
+  }, [residualLikelihood, residualConsequence]);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
 
     const formData = new FormData(e.currentTarget);
-    const data = {
+
+    const payload = {
       title: formData.get("title") as string,
       context: formData.get("context") as string,
       likelihood,
       consequence,
-      ownerId: userId,
-      status: formData.get("status") as string || "OPEN",
+      ownerId,
+      status: (formData.get("status") as string) || "OPEN",
+      category,
+      location: formData.get("location") as string,
+      area: formData.get("area") as string,
+      description: formData.get("description") as string,
+      existingControls: formData.get("existingControls") as string,
+      controlFrequency,
+      nextReviewDate: nextReviewDate || undefined,
+      riskStatement: formData.get("riskStatement") as string,
+      residualLikelihood,
+      residualConsequence,
+      kpiId: selectedGoal === NO_GOAL_VALUE ? undefined : selectedGoal,
+      inspectionTemplateId: selectedTemplate === NO_TEMPLATE_VALUE ? undefined : selectedTemplate,
+      linkedProcess: formData.get("linkedProcess") as string,
+      riskAppetite,
+      riskTolerance,
+      responseStrategy,
+      trend,
+      reviewedAt: reviewedAt || undefined,
     };
 
     try {
-      const result = mode === "create"
-        ? await createRisk({ ...data, tenantId })
-        : await updateRisk({ ...data, id: risk!.id });
+      const result =
+        mode === "create"
+          ? await createRisk({ ...payload, tenantId })
+          : await updateRisk({ ...payload, id: risk!.id });
 
       if (result.success) {
         toast({
@@ -93,38 +228,57 @@ export function RiskForm({ tenantId, userId, risk, mode = "create" }: RiskFormPr
       <Card>
         <CardHeader>
           <CardTitle>Grunnleggende informasjon</CardTitle>
-          <CardDescription>Beskriv risikoen</CardDescription>
+          <CardDescription>Beskriv risikoen og hvem som eier den</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="title">Tittel *</Label>
-            <Input
-              id="title"
-              name="title"
-              placeholder="F.eks. Fall fra høyde ved arbeid på tak"
-              defaultValue={risk?.title}
-              required
-              disabled={loading}
-            />
+          <div className="grid gap-4 md:grid-cols-2">
+            <div className="space-y-2">
+              <Label htmlFor="title">Tittel *</Label>
+              <Input
+                id="title"
+                name="title"
+                placeholder="F.eks. Fall fra høyde ved arbeid på tak"
+                defaultValue={risk?.title}
+                required
+                disabled={loading}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="category">Kategori *</Label>
+              <Select value={category} onValueChange={(val: RiskCategory) => setCategory(val)} disabled={loading}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Velg kategori" />
+                </SelectTrigger>
+                <SelectContent>
+                  {categoryOptions.map((option) => (
+                    <SelectItem key={option.value} value={option.value}>
+                      {option.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="context">Beskrivelse *</Label>
-            <Textarea
-              id="context"
-              name="context"
-              placeholder="Beskriv situasjonen, hvor det kan skje, hvem som er utsatt, etc."
-              defaultValue={risk?.context}
-              required
-              disabled={loading}
-              rows={4}
-            />
-          </div>
-
-          {mode === "edit" && (
+          <div className="grid gap-4 md:grid-cols-2">
+            <div className="space-y-2">
+              <Label htmlFor="ownerId">Risiko-eier *</Label>
+              <Select value={ownerId} onValueChange={setOwnerId} disabled={loading}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Velg risiko-eier" />
+                </SelectTrigger>
+                <SelectContent>
+                  {owners.map((owner) => (
+                    <SelectItem key={owner.id} value={owner.id}>
+                      {owner.name || owner.email}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
             <div className="space-y-2">
               <Label htmlFor="status">Status</Label>
-              <Select name="status" defaultValue={risk?.status || "OPEN"} disabled={loading}>
+              <Select name="status" defaultValue={risk?.status || "OPEN"} disabled={loading || mode === "create"}>
                 <SelectTrigger>
                   <SelectValue placeholder="Velg status" />
                 </SelectTrigger>
@@ -137,7 +291,94 @@ export function RiskForm({ tenantId, userId, risk, mode = "create" }: RiskFormPr
                 </SelectContent>
               </Select>
             </div>
-          )}
+          </div>
+
+          <div className="grid gap-4 md:grid-cols-3">
+            <div className="space-y-2">
+              <Label htmlFor="location">Lokasjon</Label>
+              <Input
+                id="location"
+                name="location"
+                placeholder="F.eks. Produksjonshall A"
+                defaultValue={risk?.location ?? ""}
+                disabled={loading}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="area">Område / Prosess</Label>
+              <Input
+                id="area"
+                name="area"
+                placeholder="Byggeplass, lager, etc."
+                defaultValue={risk?.area ?? ""}
+                disabled={loading}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="linkedProcess">Knyttet til prosess</Label>
+              <Input
+                id="linkedProcess"
+                name="linkedProcess"
+                placeholder="F.eks. Vedlikehold, Montasje"
+                defaultValue={risk?.linkedProcess ?? ""}
+                disabled={loading}
+              />
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Scenario og nåværende kontroller</CardTitle>
+          <CardDescription>Beskriv hva som kan skje og hvordan det kontrolleres i dag</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="context">Beskrivelse *</Label>
+            <Textarea
+              id="context"
+              name="context"
+              placeholder="Beskriv situasjonen, hvor det kan skje, hvem som er utsatt, etc."
+              defaultValue={risk?.context}
+              required
+              disabled={loading}
+              rows={4}
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="riskStatement">Hva kan skje?</Label>
+            <Textarea
+              id="riskStatement"
+              name="riskStatement"
+              placeholder="Beskriv konsekvensen dersom risikoscenarioet inntreffer"
+              defaultValue={risk?.riskStatement ?? ""}
+              disabled={loading}
+              rows={3}
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="existingControls">Eksisterende kontroller</Label>
+            <Textarea
+              id="existingControls"
+              name="existingControls"
+              placeholder="Hvilke barrierer eller kontroller finnes i dag?"
+              defaultValue={risk?.existingControls ?? ""}
+              disabled={loading}
+              rows={3}
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="description">Tilleggsnotater</Label>
+            <Textarea
+              id="description"
+              name="description"
+              placeholder="Andre relevante detaljer, referanser eller observasjoner"
+              defaultValue={risk?.description ?? ""}
+              disabled={loading}
+              rows={3}
+            />
+          </div>
         </CardContent>
       </Card>
 
@@ -178,6 +419,234 @@ export function RiskForm({ tenantId, userId, risk, mode = "create" }: RiskFormPr
         </CardContent>
       </Card>
 
+      <Card>
+        <CardHeader>
+          <CardTitle>Rest-risiko etter tiltak</CardTitle>
+          <CardDescription>
+            Estimer risiko etter at planlagte tiltak er gjennomført (ISO 45001 krav til evaluering)
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="grid gap-4 md:grid-cols-2">
+            <div>
+              <Label>Residual Sannsynlighet</Label>
+              <Slider
+                min={1}
+                max={5}
+                step={1}
+                value={[residualLikelihood ?? 3]}
+                onValueChange={([value]) => setResidualLikelihood(value)}
+                disabled={loading}
+              />
+              <p className="text-sm text-muted-foreground mt-1">
+                {residualLikelihood ? `Verdi: ${residualLikelihood}` : "Velg en verdi 1-5"}
+              </p>
+            </div>
+            <div>
+              <Label>Residual Konsekvens</Label>
+              <Slider
+                min={1}
+                max={5}
+                step={1}
+                value={[residualConsequence ?? 3]}
+                onValueChange={([value]) => setResidualConsequence(value)}
+                disabled={loading}
+              />
+              <p className="text-sm text-muted-foreground mt-1">
+                {residualConsequence ? `Verdi: ${residualConsequence}` : "Velg en verdi 1-5"}
+              </p>
+            </div>
+          </div>
+          {residualScore && (
+            <div className={`p-4 rounded-lg border ${residualScore.bgColor}`}>
+              <p className={`font-semibold ${residualScore.color}`}>
+                Residual nivå: {residualScore.level} ({residualScore.score})
+              </p>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Oppfølging og koblinger</CardTitle>
+          <CardDescription>Koble risikoen mot KPIer og inspeksjonsmaler</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="grid gap-4 md:grid-cols-2">
+            <div className="space-y-2">
+              <Label htmlFor="controlFrequency">Oppfølgingsfrekvens *</Label>
+              <Select
+                value={controlFrequency}
+                onValueChange={(value: ControlFrequency) => {
+                  setControlFrequency(value);
+                }}
+                disabled={loading}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Velg frekvens" />
+                </SelectTrigger>
+                <SelectContent>
+                  {frequencyOptions.map((option) => (
+                    <SelectItem key={option.value} value={option.value}>
+                      {option.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="nextReviewDate">Neste gjennomgang *</Label>
+              <Input
+                id="nextReviewDate"
+                name="nextReviewDate"
+                type="date"
+                value={nextReviewDate}
+                onChange={(event) => {
+                  setNextReviewTouched(true);
+                  setNextReviewDate(event.target.value);
+                }}
+                disabled={loading}
+              />
+            </div>
+          </div>
+
+          <div className="grid gap-4 md:grid-cols-2">
+            <div className="space-y-2">
+              <Label htmlFor="kpiId">Koble til mål/KPI</Label>
+              <Select
+                value={selectedGoal}
+                onValueChange={setSelectedGoal}
+                disabled={goalOptions.length === 0 || loading}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder={goalOptions.length ? "Velg mål (valgfritt)" : "Ingen mål tilgjengelig"} />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value={NO_GOAL_VALUE}>Ingen</SelectItem>
+                  {goalOptions.map((goal) => (
+                    <SelectItem key={goal.id} value={goal.id}>
+                      {goal.title}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="inspectionTemplateId">Inspeksjonsmal</Label>
+              <Select
+                value={selectedTemplate}
+                onValueChange={setSelectedTemplate}
+                disabled={templateOptions.length === 0 || loading}
+              >
+                <SelectTrigger>
+                  <SelectValue
+                    placeholder={templateOptions.length ? "Velg mal (valgfritt)" : "Ingen maler tilgjengelig"}
+                  />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value={NO_TEMPLATE_VALUE}>Ingen</SelectItem>
+                  {templateOptions.map((template) => (
+                    <SelectItem key={template.id} value={template.id}>
+                      {template.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Risikoappetitt og strategi</CardTitle>
+          <CardDescription>ISO 31000: dokumenter toleransegrenser og valgt respons</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="grid gap-4 md:grid-cols-2">
+            <div className="space-y-2">
+              <Label htmlFor="riskAppetite">Risikoappetitt</Label>
+              <Textarea
+                id="riskAppetite"
+                name="riskAppetite"
+                placeholder="Beskriv hvilket nivå av risiko virksomheten aksepterer"
+                value={riskAppetite}
+                onChange={(event) => setRiskAppetite(event.target.value)}
+                disabled={loading}
+                rows={3}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="riskTolerance">Risiko-toleranse</Label>
+              <Textarea
+                id="riskTolerance"
+                name="riskTolerance"
+                placeholder="Beskriv hvilke avvik/indikatorer som utløser tiltak"
+                value={riskTolerance}
+                onChange={(event) => setRiskTolerance(event.target.value)}
+                disabled={loading}
+                rows={3}
+              />
+            </div>
+          </div>
+
+          <div className="grid gap-4 md:grid-cols-3">
+            <div className="space-y-2">
+              <Label>Responsstrategi *</Label>
+              <Select
+                value={responseStrategy}
+                onValueChange={(value: RiskResponseStrategy) => setResponseStrategy(value)}
+                disabled={loading}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Velg strategi" />
+                </SelectTrigger>
+                <SelectContent>
+                  {responseOptions.map((option) => (
+                    <SelectItem key={option.value} value={option.value}>
+                      <div>
+                        <p className="font-medium">{option.label}</p>
+                        <p className="text-xs text-muted-foreground">{option.description}</p>
+                      </div>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label>Trend *</Label>
+              <Select value={trend} onValueChange={(value: RiskTrend) => setTrend(value)} disabled={loading}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Velg trend" />
+                </SelectTrigger>
+                <SelectContent>
+                  {trendOptions.map((option) => (
+                    <SelectItem key={option.value} value={option.value}>
+                      {option.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="reviewedAt">Sist gjennomgått</Label>
+              <Input
+                id="reviewedAt"
+                name="reviewedAt"
+                type="date"
+                value={reviewedAt}
+                onChange={(event) => setReviewedAt(event.target.value)}
+                disabled={loading}
+              />
+            </div>
+          </div>
+          <p className="text-xs text-muted-foreground">
+            Hold appetitt, toleranse og strategi oppdatert – brukes i ledelsens gjennomgang, revisjoner og rapporter.
+          </p>
+        </CardContent>
+      </Card>
+
       <div className="flex gap-4">
         <Button type="submit" disabled={loading}>
           {loading ? "Lagrer..." : mode === "create" ? "Opprett risiko" : "Lagre endringer"}
@@ -194,4 +663,3 @@ export function RiskForm({ tenantId, userId, risk, mode = "create" }: RiskFormPr
     </form>
   );
 }
-

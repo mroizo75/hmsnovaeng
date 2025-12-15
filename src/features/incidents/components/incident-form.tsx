@@ -21,6 +21,8 @@ import type { IncidentType } from "@prisma/client";
 interface IncidentFormProps {
   tenantId: string;
   userId: string;
+  risks: Array<{ id: string; title: string; category: string; score: number }>;
+  defaultType?: IncidentType;
 }
 
 const incidentTypes: Array<{ value: IncidentType; label: string; desc: string }> = [
@@ -29,6 +31,7 @@ const incidentTypes: Array<{ value: IncidentType; label: string; desc: string }>
   { value: "SKADE", label: "Personskade", desc: "Skade på person" },
   { value: "MILJO", label: "Miljøhendelse", desc: "Utslipp, søl eller miljøskade" },
   { value: "KVALITET", label: "Kvalitetsavvik", desc: "Produkt/tjeneste kvalitet" },
+  { value: "CUSTOMER", label: "Kundeklage", desc: "ISO 10002: Kunde- og brukertilbakemeldinger" },
 ];
 
 const severityLevels = [
@@ -39,17 +42,20 @@ const severityLevels = [
   { value: 5, label: "5 - Kritisk", desc: "Svært alvorlige konsekvenser" },
 ];
 
-export function IncidentForm({ tenantId, userId }: IncidentFormProps) {
+const NO_RISK_REFERENCE_VALUE = "__none_risk_reference__";
+
+export function IncidentForm({ tenantId, userId, risks = [], defaultType }: IncidentFormProps) {
   const router = useRouter();
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
-  const [selectedType, setSelectedType] = useState<IncidentType | "">("");
+  const [selectedType, setSelectedType] = useState<IncidentType | "">(defaultType || "");
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
 
     const formData = new FormData(e.currentTarget);
+    const rawRiskReferenceId = formData.get("riskReferenceId") as string | null;
     const data = {
       tenantId,
       type: formData.get("type") as IncidentType,
@@ -61,18 +67,36 @@ export function IncidentForm({ tenantId, userId }: IncidentFormProps) {
       location: formData.get("location") as string || undefined,
       witnessName: formData.get("witnessName") as string || undefined,
       immediateAction: formData.get("immediateAction") as string || undefined,
+      injuryType: formData.get("injuryType") as string || undefined,
+      medicalAttentionRequired: formData.get("medicalAttentionRequired") === "yes",
+      lostTimeMinutes: formData.get("lostTimeMinutes")
+        ? parseInt(formData.get("lostTimeMinutes") as string, 10)
+        : undefined,
+      riskReferenceId:
+        rawRiskReferenceId && rawRiskReferenceId !== NO_RISK_REFERENCE_VALUE
+          ? rawRiskReferenceId
+          : undefined,
+      customerName: formData.get("customerName") as string | null,
+      customerEmail: formData.get("customerEmail") as string | null,
+      customerPhone: formData.get("customerPhone") as string | null,
+      customerTicketId: formData.get("customerTicketId") as string | null,
+      responseDeadline: formData.get("responseDeadline") as string | null,
+      customerSatisfaction: formData.get("customerSatisfaction")
+        ? parseInt(formData.get("customerSatisfaction") as string, 10)
+        : undefined,
     };
 
     try {
       const result = await createIncident(data);
 
       if (result.success) {
+        const redirectRoute = result.data?.type === "CUSTOMER" ? "/dashboard/complaints" : "/dashboard/incidents";
         toast({
           title: "✅ Avvik rapportert",
           description: "Avviket er registrert og vil bli fulgt opp",
           className: "bg-green-50 border-green-200",
         });
-        router.push("/dashboard/incidents");
+        router.push(redirectRoute);
         router.refresh();
       } else {
         toast({
@@ -107,7 +131,7 @@ export function IncidentForm({ tenantId, userId }: IncidentFormProps) {
                 name="type"
                 required
                 disabled={loading}
-                value={selectedType}
+                value={selectedType || undefined}
                 onValueChange={(value) => setSelectedType(value as IncidentType)}
               >
                 <SelectTrigger>
@@ -200,6 +224,140 @@ export function IncidentForm({ tenantId, userId }: IncidentFormProps) {
               placeholder="Navn på vitner til hendelsen"
               disabled={loading}
             />
+          </div>
+        </CardContent>
+      </Card>
+
+      {selectedType === "CUSTOMER" && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Kundeklage</CardTitle>
+            <CardDescription>ISO 10002: registrer hvem som klager og hvordan saken skal håndteres</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid gap-4 md:grid-cols-2">
+              <div className="space-y-2">
+                <Label htmlFor="customerName">Kundenavn *</Label>
+                <Input
+                  id="customerName"
+                  name="customerName"
+                  placeholder="Navn på kunde/bedrift"
+                  disabled={loading}
+                  required={selectedType === "CUSTOMER"}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="customerEmail">Kunde e-post</Label>
+                <Input id="customerEmail" name="customerEmail" type="email" placeholder="kunde@firma.no" disabled={loading} />
+              </div>
+            </div>
+
+            <div className="grid gap-4 md:grid-cols-2">
+              <div className="space-y-2">
+                <Label htmlFor="customerPhone">Telefon</Label>
+                <Input id="customerPhone" name="customerPhone" placeholder="+47 99 99 99 99" disabled={loading} />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="customerTicketId">Referanse / saknr.</Label>
+                <Input
+                  id="customerTicketId"
+                  name="customerTicketId"
+                  placeholder="F.eks. Zendesk #124"
+                  disabled={loading}
+                />
+              </div>
+            </div>
+
+            <div className="grid gap-4 md:grid-cols-2">
+              <div className="space-y-2">
+                <Label htmlFor="responseDeadline">Lovet svarfrist</Label>
+                <Input id="responseDeadline" name="responseDeadline" type="date" disabled={loading} />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="customerSatisfaction">Tilfredshet (1-5)</Label>
+                <Select name="customerSatisfaction" disabled={loading}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Velg vurdering" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {[1, 2, 3, 4, 5].map((value) => (
+                      <SelectItem key={value} value={value.toString()}>
+                        {value}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Skade og oppfølging</CardTitle>
+          <CardDescription>ISO 45001: dokumenter personskade og koble til risiko</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="grid gap-4 md:grid-cols-2">
+            <div className="space-y-2">
+              <Label htmlFor="injuryType">Type skade</Label>
+              <Input
+                id="injuryType"
+                name="injuryType"
+                placeholder="F.eks. Kuttskade, fallskade, kjemisk eksponering"
+                disabled={loading}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="medicalAttentionRequired">Legebehandling</Label>
+              <Select
+                name="medicalAttentionRequired"
+                defaultValue="no"
+                disabled={loading}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Var lege involvert?" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="no">Nei</SelectItem>
+                  <SelectItem value="yes">Ja, legebehandling nødvendig</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          <div className="grid gap-4 md:grid-cols-2">
+            <div className="space-y-2">
+              <Label htmlFor="lostTimeMinutes">Tapt tid (minutter)</Label>
+              <Input
+                id="lostTimeMinutes"
+              name="lostTimeMinutes"
+                type="number"
+                min={0}
+                placeholder="Antall minutter/timer fravær"
+                disabled={loading}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="riskReferenceId">Knytt til risikovurdering</Label>
+              <Select
+                name="riskReferenceId"
+                disabled={loading || risks.length === 0}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder={risks.length ? "Velg risiko (valgfritt)" : "Ingen risikoer tilgjengelig"} />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value={NO_RISK_REFERENCE_VALUE}>Ingen</SelectItem>
+                  {risks.map((risk) => (
+                    <SelectItem key={risk.id} value={risk.id}>
+                      {risk.title} · Score {risk.score}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
           </div>
         </CardContent>
       </Card>

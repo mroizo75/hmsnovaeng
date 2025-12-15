@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { IncidentType } from "@prisma/client";
+import { ActionEffectiveness, IncidentStage, IncidentType, IncidentStatus } from "@prisma/client";
 
 /**
  * ISO 9001 - 10.2 Avvik og korrigerende tiltak
@@ -28,6 +28,16 @@ export const createIncidentSchema = z.object({
   location: z.string().optional(),
   witnessName: z.string().optional(),
   immediateAction: z.string().optional(), // ISO 9001: Umiddelbare tiltak
+  injuryType: z.string().max(120).optional(),
+  medicalAttentionRequired: z.boolean().optional(),
+  lostTimeMinutes: z.number().int().min(0).optional(),
+  riskReferenceId: z.string().cuid().optional(),
+  customerName: z.string().max(140).optional(),
+  customerEmail: z.string().email().optional(),
+  customerPhone: z.string().max(60).optional(),
+  customerTicketId: z.string().max(120).optional(),
+  responseDeadline: z.date().optional(),
+  customerSatisfaction: z.number().int().min(1).max(5).optional(),
 });
 
 export const updateIncidentSchema = z.object({
@@ -41,7 +51,20 @@ export const updateIncidentSchema = z.object({
   witnessName: z.string().optional(),
   immediateAction: z.string().optional(),
   rootCause: z.string().optional(), // ISO 9001: Årsaksanalyse
-  status: z.enum(["OPEN", "INVESTIGATING", "ACTION_TAKEN", "CLOSED"]).optional(),
+  contributingFactors: z.string().optional(),
+  status: z.nativeEnum(IncidentStatus).optional(),
+  injuryType: z.string().max(120).optional(),
+  medicalAttentionRequired: z.boolean().optional(),
+  lostTimeMinutes: z.number().int().min(0).optional(),
+  riskReferenceId: z.string().cuid().optional().nullable(),
+  measureEffectiveness: z.nativeEnum(ActionEffectiveness).optional(),
+  stage: z.nativeEnum(IncidentStage).optional(),
+  customerName: z.string().max(140).optional(),
+  customerEmail: z.string().email().optional().nullable(),
+  customerPhone: z.string().max(60).optional(),
+  customerTicketId: z.string().max(120).optional(),
+  responseDeadline: z.date().optional().nullable(),
+  customerSatisfaction: z.number().int().min(1).max(5).optional().nullable(),
 });
 
 export const investigateIncidentSchema = z.object({
@@ -56,6 +79,7 @@ export const closeIncidentSchema = z.object({
   closedBy: z.string().cuid(),
   effectivenessReview: z.string().min(20, "Effektivitetsvurdering må være minst 20 tegn"),
   lessonsLearned: z.string().optional(),
+  measureEffectiveness: z.nativeEnum(ActionEffectiveness).optional(),
 });
 
 export type CreateIncidentInput = z.infer<typeof createIncidentSchema>;
@@ -73,6 +97,8 @@ export function getIncidentTypeLabel(type: IncidentType): string {
     SKADE: "Personskade",
     MILJO: "Miljøhendelse",
     KVALITET: "Kvalitetsavvik",
+    HMS: "HMS",
+    CUSTOMER: "Kundeklage",
   };
   return labels[type];
 }
@@ -87,6 +113,8 @@ export function getIncidentTypeColor(type: IncidentType): string {
     SKADE: "bg-red-100 text-red-800 border-red-300",
     MILJO: "bg-green-100 text-green-800 border-green-300",
     KVALITET: "bg-blue-100 text-blue-800 border-blue-300",
+    HMS: "bg-teal-100 text-teal-800 border-teal-300",
+    CUSTOMER: "bg-purple-100 text-purple-800 border-purple-300",
   };
   return colors[type];
 }
@@ -157,5 +185,17 @@ export function getIncidentStatusColor(status: string): string {
     CLOSED: "bg-green-100 text-green-800 border-green-300",
   };
   return colors[status] || "bg-gray-100 text-gray-800 border-gray-300";
+}
+
+export function getIncidentStageLabel(stage: IncidentStage): string {
+  const labels: Record<IncidentStage, string> = {
+    REPORTED: "Rapportert",
+    UNDER_REVIEW: "Under vurdering",
+    ROOT_CAUSE: "Årsak funnet",
+    ACTIONS_DEFINED: "Tiltak planlagt",
+    ACTIONS_COMPLETE: "Tiltak utført",
+    VERIFIED: "Verifisert",
+  };
+  return labels[stage];
 }
 

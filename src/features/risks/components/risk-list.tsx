@@ -21,7 +21,10 @@ import { useToast } from "@/hooks/use-toast";
 import type { Risk, Measure } from "@prisma/client";
 
 interface RiskListProps {
-  risks: (Risk & { measures: Measure[] })[];
+  risks: (Risk & {
+    measures: Measure[];
+    owner?: { id: string; name: string | null; email: string | null } | null;
+  })[];
 }
 
 const statusLabels: Record<string, string> = {
@@ -36,6 +39,44 @@ const statusVariants: Record<string, "default" | "secondary" | "destructive"> = 
   MITIGATING: "default",
   ACCEPTED: "secondary",
   CLOSED: "secondary",
+};
+
+const categoryLabels: Record<string, string> = {
+  OPERATIONAL: "Operasjonell",
+  SAFETY: "Sikkerhet",
+  HEALTH: "Helse",
+  ENVIRONMENTAL: "Miljø",
+  INFORMATION_SECURITY: "Info-sikkerhet",
+  LEGAL: "Juridisk",
+  STRATEGIC: "Strategisk",
+};
+
+const frequencyLabels: Record<string, string> = {
+  WEEKLY: "Ukentlig",
+  MONTHLY: "Månedlig",
+  QUARTERLY: "Kvartalsvis",
+  ANNUAL: "Årlig",
+  BIENNIAL: "Annet hvert år",
+};
+
+const formatDate = (value?: Date | string | null) => {
+  if (!value) return "";
+  const date = value instanceof Date ? value : new Date(value);
+  if (Number.isNaN(date.getTime())) return "";
+  return date.toLocaleDateString("no-NO", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  });
+};
+
+const isPastDate = (value?: Date | string | null) => {
+  if (!value) return false;
+  const date = value instanceof Date ? value : new Date(value);
+  if (Number.isNaN(date.getTime())) return false;
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  return date < today;
 };
 
 export function RiskList({ risks }: RiskListProps) {
@@ -90,11 +131,14 @@ export function RiskList({ risks }: RiskListProps) {
         <TableHeader>
           <TableRow>
             <TableHead>Risiko</TableHead>
+            <TableHead>Kategori</TableHead>
+            <TableHead>Eier</TableHead>
             <TableHead className="text-center">S</TableHead>
             <TableHead className="text-center">K</TableHead>
             <TableHead className="text-center">Score</TableHead>
             <TableHead>Nivå</TableHead>
             <TableHead>Status</TableHead>
+            <TableHead>Neste revisjon</TableHead>
             <TableHead className="text-center">Tiltak</TableHead>
             <TableHead className="text-right">Handlinger</TableHead>
           </TableRow>
@@ -104,6 +148,11 @@ export function RiskList({ risks }: RiskListProps) {
             const { level, bgColor, textColor } = calculateRiskScore(risk.likelihood, risk.consequence);
             const completedMeasures = risk.measures.filter(m => m.status === "DONE").length;
             const totalMeasures = risk.measures.length;
+            const nextReview = formatDate(risk.nextReviewDate);
+            const overdue = isPastDate(risk.nextReviewDate);
+            const ownerLabel = risk.owner?.name || risk.owner?.email || "Ikke satt";
+            const frequency = risk.controlFrequency ? frequencyLabels[risk.controlFrequency] : "Årlig";
+            const categoryLabel = risk.category ? categoryLabels[risk.category] || risk.category : "Ikke satt";
 
             return (
               <TableRow key={risk.id}>
@@ -113,6 +162,17 @@ export function RiskList({ risks }: RiskListProps) {
                     <div className="text-sm text-muted-foreground line-clamp-1">
                       {risk.context}
                     </div>
+                  </div>
+                </TableCell>
+                <TableCell>
+                  <Badge variant="secondary">
+                    {categoryLabel}
+                  </Badge>
+                </TableCell>
+                <TableCell>
+                  <div className="text-sm">
+                    {ownerLabel}
+                    <p className="text-xs text-muted-foreground">{frequency}</p>
                   </div>
                 </TableCell>
                 <TableCell className="text-center font-semibold">
@@ -133,6 +193,16 @@ export function RiskList({ risks }: RiskListProps) {
                   <Badge variant={statusVariants[risk.status]}>
                     {statusLabels[risk.status]}
                   </Badge>
+                </TableCell>
+                <TableCell>
+                  <div className="text-sm">
+                    <span className={overdue ? "text-red-600 font-semibold" : ""}>
+                      {nextReview || "Ikke satt"}
+                    </span>
+                    {nextReview && (
+                      <p className="text-xs text-muted-foreground">{frequency}</p>
+                    )}
+                  </div>
                 </TableCell>
                 <TableCell className="text-center">
                   {totalMeasures > 0 ? (
@@ -176,6 +246,11 @@ export function RiskList({ risks }: RiskListProps) {
           const { level, bgColor, textColor } = calculateRiskScore(risk.likelihood, risk.consequence);
           const completedMeasures = risk.measures.filter(m => m.status === "DONE").length;
           const totalMeasures = risk.measures.length;
+          const nextReview = formatDate(risk.nextReviewDate);
+          const overdue = isPastDate(risk.nextReviewDate);
+          const ownerLabel = risk.owner?.name || risk.owner?.email || "Ikke satt";
+          const frequency = risk.controlFrequency ? frequencyLabels[risk.controlFrequency] : "Årlig";
+          const categoryLabel = risk.category ? categoryLabels[risk.category] || risk.category : "Ikke satt";
 
           return (
             <Card key={risk.id}>
@@ -194,6 +269,9 @@ export function RiskList({ risks }: RiskListProps) {
                   </div>
 
                   <div className="flex flex-wrap gap-2 items-center">
+                    <Badge variant="secondary">
+                      {categoryLabel}
+                    </Badge>
                     <Badge className={`${bgColor} ${textColor}`}>{level}</Badge>
                     <Badge variant={statusVariants[risk.status]}>
                       {statusLabels[risk.status]}
@@ -211,6 +289,17 @@ export function RiskList({ risks }: RiskListProps) {
                       </span>
                     </div>
                   )}
+
+                  <div className="text-sm">
+                    <p className="font-medium">{ownerLabel}</p>
+                    <p className="text-xs text-muted-foreground">{frequency}</p>
+                  </div>
+
+                  <div className="text-sm">
+                    <p className={overdue ? "text-red-600 font-semibold" : "font-medium"}>
+                      Neste revisjon: {nextReview || "Ikke satt"}
+                    </p>
+                  </div>
 
                   <div className="flex gap-2 pt-2 border-t">
                     <Button variant="outline" size="sm" className="flex-1" asChild>

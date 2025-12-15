@@ -11,6 +11,7 @@ import {
   closeIncidentSchema,
 } from "@/features/incidents/schemas/incident.schema";
 import { createNotification, notifyUsersByRole } from "./notification.actions";
+import { IncidentStage, IncidentStatus } from "@prisma/client";
 
 async function getSessionContext() {
   const session = await getServerSession(authOptions);
@@ -29,6 +30,49 @@ async function getSessionContext() {
   
   return { user, tenantId: user.tenants[0].tenantId };
 }
+
+const sanitizeString = (value?: string | null) => {
+  if (!value) return null;
+  const trimmed = value.trim();
+  return trimmed.length > 0 ? trimmed : null;
+};
+
+const parseOptionalNumber = (value: any) => {
+  if (value === undefined || value === null || value === "") {
+    return undefined;
+  }
+  const parsed = Number(value);
+  return Number.isNaN(parsed) ? undefined : parsed;
+};
+
+const parseBoolean = (value: any) => {
+  if (typeof value === "boolean") return value;
+  if (typeof value === "string") {
+    if (value.toLowerCase() === "true") return true;
+    if (value.toLowerCase() === "false") return false;
+  }
+  return undefined;
+};
+
+const parseOptionalDate = (value: any) => {
+  if (!value) return undefined;
+  const date = value instanceof Date ? value : new Date(value);
+  return Number.isNaN(date.getTime()) ? undefined : date;
+};
+
+const stageFromStatus = (status: IncidentStatus): IncidentStage => {
+  switch (status) {
+    case "INVESTIGATING":
+      return "UNDER_REVIEW";
+    case "ACTION_TAKEN":
+      return "ACTIONS_DEFINED";
+    case "CLOSED":
+      return "VERIFIED";
+    case "OPEN":
+    default:
+      return "REPORTED";
+  }
+};
 
 // Hent alle avvik for en tenant
 export async function getIncidents(tenantId: string) {
@@ -51,6 +95,14 @@ export async function getIncidents(tenantId: string) {
             id: true,
             name: true,
             fileKey: true,
+          },
+        },
+        risk: {
+          select: {
+            id: true,
+            title: true,
+            category: true,
+            score: true,
           },
         },
       },
@@ -78,6 +130,14 @@ export async function getIncident(id: string) {
           orderBy: { createdAt: "desc" },
         },
         attachments: true,
+        risk: {
+          select: {
+            id: true,
+            title: true,
+            category: true,
+            score: true,
+          },
+        },
       },
     });
     
@@ -96,11 +156,16 @@ export async function getIncident(id: string) {
 export async function createIncident(input: any) {
   try {
     const { user, tenantId } = await getSessionContext();
-    const validated = createIncidentSchema.parse({
+    const normalizedInput = {
       ...input,
       tenantId,
       occurredAt: new Date(input.occurredAt),
-    });
+      lostTimeMinutes: parseOptionalNumber(input.lostTimeMinutes),
+      medicalAttentionRequired: parseBoolean(input.medicalAttentionRequired),
+    responseDeadline: parseOptionalDate(input.responseDeadline),
+    customerSatisfaction: parseOptionalNumber(input.customerSatisfaction),
+    };
+    const validated = createIncidentSchema.parse(normalizedInput);
     
     const incident = await prisma.incident.create({
       data: {
@@ -111,9 +176,20 @@ export async function createIncident(input: any) {
         severity: validated.severity,
         occurredAt: validated.occurredAt,
         reportedBy: validated.reportedBy,
-        location: validated.location,
-        witnessName: validated.witnessName,
-        immediateAction: validated.immediateAction,
+        location: sanitizeString(validated.location),
+        witnessName: sanitizeString(validated.witnessName),
+        immediateAction: sanitizeString(validated.immediateAction),
+        injuryType: sanitizeString(validated.injuryType),
+        medicalAttentionRequired: validated.medicalAttentionRequired ?? false,
+        lostTimeMinutes: validated.lostTimeMinutes,
+        riskReferenceId: validated.riskReferenceId ?? null,
+        customerName: sanitizeString(validated.customerName),
+        customerEmail: sanitizeString(validated.customerEmail),
+        customerPhone: sanitizeString(validated.customerPhone),
+        customerTicketId: sanitizeString(validated.customerTicketId),
+        responseDeadline: validated.responseDeadline ?? null,
+        customerSatisfaction: validated.customerSatisfaction ?? null,
+        stage: IncidentStage.REPORTED,
       },
     });
     
@@ -152,10 +228,15 @@ export async function createIncident(input: any) {
 export async function updateIncident(input: any) {
   try {
     const { user, tenantId } = await getSessionContext();
-    const validated = updateIncidentSchema.parse({
+    const normalizedInput = {
       ...input,
       occurredAt: input.occurredAt ? new Date(input.occurredAt) : undefined,
-    });
+      lostTimeMinutes: parseOptionalNumber(input.lostTimeMinutes),
+      medicalAttentionRequired: parseBoolean(input.medicalAttentionRequired),
+    responseDeadline: parseOptionalDate(input.responseDeadline),
+    customerSatisfaction: parseOptionalNumber(input.customerSatisfaction),
+    };
+    const validated = updateIncidentSchema.parse(normalizedInput);
     
     const existingIncident = await prisma.incident.findUnique({
       where: { id: validated.id, tenantId },
@@ -165,12 +246,48 @@ export async function updateIncident(input: any) {
       return { success: false, error: "Avvik ikke funnet" };
     }
     
+    const updateData: Record<string, any> = {
+      updatedAt: new Date(),
+    };
+
+    if (validated.title) updateData.title = validated.title;
+    if (validated.description) updateData.description = validated.description;
+    if (validated.type) updateData.type = validated.type;
+    if (validated.severity !== undefined) updateData.severity = validated.severity;
+    if (validated.occurredAt) updateData.occurredAt = validated.occurredAt;
+    if (validated.location !== undefined) updateData.location = sanitizeString(validated.location);
+    if (validated.witnessName !== undefined) updateData.witnessName = sanitizeString(validated.witnessName);
+    if (validated.immediateAction !== undefined) updateData.immediateAction = sanitizeString(validated.immediateAction);
+    if (validated.rootCause !== undefined) updateData.rootCause = validated.rootCause;
+    if (validated.contributingFactors !== undefined) updateData.contributingFactors = validated.contributingFactors;
+    if (validated.injuryType !== undefined) updateData.injuryType = sanitizeString(validated.injuryType);
+    if (validated.medicalAttentionRequired !== undefined) updateData.medicalAttentionRequired = validated.medicalAttentionRequired;
+    if (validated.lostTimeMinutes !== undefined) updateData.lostTimeMinutes = validated.lostTimeMinutes;
+    if (validated.riskReferenceId !== undefined) updateData.riskReferenceId = validated.riskReferenceId ?? null;
+    if (validated.measureEffectiveness) updateData.measureEffectiveness = validated.measureEffectiveness;
+    if (validated.customerName !== undefined) updateData.customerName = sanitizeString(validated.customerName);
+    if (validated.customerEmail !== undefined) updateData.customerEmail = sanitizeString(validated.customerEmail);
+    if (validated.customerPhone !== undefined) updateData.customerPhone = sanitizeString(validated.customerPhone);
+    if (validated.customerTicketId !== undefined) updateData.customerTicketId = sanitizeString(validated.customerTicketId);
+    if (validated.responseDeadline !== undefined) updateData.responseDeadline = validated.responseDeadline ?? null;
+    if (validated.customerSatisfaction !== undefined) updateData.customerSatisfaction = validated.customerSatisfaction ?? null;
+
+    let stageToPersist = validated.stage;
+    if (!stageToPersist && validated.status) {
+      stageToPersist = stageFromStatus(validated.status);
+    }
+
+    if (stageToPersist && stageToPersist !== existingIncident.stage) {
+      updateData.stage = stageToPersist;
+    }
+
+    if (validated.status) {
+      updateData.status = validated.status;
+    }
+
     const incident = await prisma.incident.update({
       where: { id: validated.id, tenantId },
-      data: {
-        ...validated,
-        updatedAt: new Date(),
-      },
+      data: updateData,
     });
     
     await prisma.auditLog.create({
@@ -216,6 +333,7 @@ export async function investigateIncident(input: any) {
         investigatedBy: validated.investigatedBy,
         investigatedAt: new Date(),
         status: "INVESTIGATING",
+        stage: IncidentStage.ROOT_CAUSE,
         updatedAt: new Date(),
       },
     });
@@ -270,6 +388,8 @@ export async function closeIncident(input: any) {
         closedAt: new Date(),
         effectivenessReview: validated.effectivenessReview,
         lessonsLearned: validated.lessonsLearned,
+        measureEffectiveness: validated.measureEffectiveness,
+        stage: IncidentStage.VERIFIED,
         updatedAt: new Date(),
       },
     });

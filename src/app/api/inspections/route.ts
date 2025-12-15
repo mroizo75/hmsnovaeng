@@ -74,6 +74,12 @@ export async function POST(request: NextRequest) {
         location: data.location,
         conductedBy: data.conductedBy || session.user.id,
         participants: data.participants ? JSON.stringify(data.participants) : null,
+        templateId: data.templateId || null,
+        riskCategory: data.riskCategory || null,
+        area: data.area || null,
+        durationMinutes: data.durationMinutes ?? null,
+        followUpById: data.followUpById || null,
+        nextInspection: data.nextInspection ? new Date(data.nextInspection) : null,
       },
       include: {
         findings: true,
