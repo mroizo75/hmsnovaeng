@@ -1,19 +1,27 @@
-"use client";
-
 import Link from "next/link";
+import type { Metadata } from "next";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { RegisterDialog } from "@/components/register-dialog";
 import { 
   CheckCircle2, 
   ArrowRight,
   AlertTriangle,
-  Download,
   Shield,
   FileText,
   Target,
-  TrendingUp
+  TrendingUp,
+  BarChart3,
+  Bell,
+  Users
 } from "lucide-react";
+
+export const metadata: Metadata = {
+  title: "Digital Risikovurdering i HMS Nova | 5x5 Risikomatrise",
+  description: "Gjennomfør risikovurderinger digitalt med HMS Nova. 5x5 risikomatrise, automatisk tiltaksoppfølging, PDF-rapporter og ISO 9001-compliance. Prøv gratis i 14 dager.",
+  keywords: ["risikovurdering", "risikomatrise", "5x5 matrise", "HMS risikovurdering", "risikoanalyse", "SJA"],
+};
 
 export default function RisikovurderingMalPage() {
   return (
@@ -23,153 +31,59 @@ export default function RisikovurderingMalPage() {
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-12">
             <Badge variant="default" className="mb-6">
-              <Download className="h-3 w-3 mr-2" />
-              Gratis mal
+              <AlertTriangle className="h-3 w-3 mr-2" />
+              Digital risikovurdering
             </Badge>
             <h1 className="text-5xl md:text-6xl font-bold mb-6">
-              Gratis risikovurdering-mal<br />
-              <span className="text-primary">Gjør jobben på 15 minutter</span>
+              Risikovurdering<br />
+              <span className="text-primary">som faktisk fungerer</span>
             </h1>
             <p className="text-xl text-muted-foreground mb-8">
-              En profesjonell mal for risikovurdering som oppfyller kravene i Arbeidsmiljøloven. 
-              Identifiser farer, vurder risiko og planlegg tiltak – enkelt og oversiktlig.
+              Slutt med Excel-ark som ingen oppdaterer. Med HMS Nova får du en dynamisk 
+              risikomatrise som holder oversikten for deg – med automatisk tiltaksoppfølging.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <RegisterDialog>
+                <Button size="lg" className="text-lg px-8 bg-green-700 hover:bg-green-800 text-white">
+                  Prøv gratis i 14 dager
+                  <ArrowRight className="ml-2 h-5 w-5" />
+                </Button>
+              </RegisterDialog>
+              <Link href="/priser">
+                <Button size="lg" variant="outline" className="text-lg px-8">
+                  Se priser
+                </Button>
+              </Link>
+            </div>
+            <p className="text-sm text-muted-foreground mt-4">
+              ✓ Ingen kredittkort  ✓ Full tilgang  ✓ Fra 225 kr/mnd
             </p>
           </div>
-
-          <Card className="border-2 border-primary/20 shadow-xl">
-            <CardContent className="p-8">
-              <div className="flex items-center gap-4 mb-6">
-                <div className="h-16 w-16 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-                  <AlertTriangle className="h-8 w-8 text-primary" />
-                </div>
-                <div>
-                  <h3 className="font-bold text-2xl">Profesjonell risikovurdering-mal</h3>
-                  <p className="text-muted-foreground">5x5 risikomatrise med Excel-format</p>
-                </div>
-              </div>
-
-              <div className="grid md:grid-cols-2 gap-6 mb-8">
-                <div>
-                  <h4 className="font-semibold mb-3 flex items-center gap-2">
-                    <FileText className="h-5 w-5 text-primary" />
-                    Hva får du?
-                  </h4>
-                  <ul className="space-y-2 text-sm">
-                    <li className="flex items-start gap-2">
-                      <CheckCircle2 className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
-                      <span>5x5 risikomatrise (sannsynlighet × konsekvens)</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <CheckCircle2 className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
-                      <span>Ferdige farekategorier og eksempler</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <CheckCircle2 className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
-                      <span>Automatisk fargekoding av risikonivå</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <CheckCircle2 className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
-                      <span>Tiltaksplan med ansvarlige og frister</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <CheckCircle2 className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
-                      <span>Excel og PDF-format</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <CheckCircle2 className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
-                      <span>Veiledning for utfylling</span>
-                    </li>
-                  </ul>
-                </div>
-
-                <div>
-                  <h4 className="font-semibold mb-3 flex items-center gap-2">
-                    <Target className="h-5 w-5 text-primary" />
-                    Dekker alle farekategorier
-                  </h4>
-                  <ul className="space-y-2 text-sm">
-                    <li className="flex items-start gap-2">
-                      <CheckCircle2 className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
-                      <span>Fysiske farer (støy, vibrasjoner, kjemikalier)</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <CheckCircle2 className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
-                      <span>Psykososiale farer (stress, mobbing, trakassering)</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <CheckCircle2 className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
-                      <span>Ergonomiske farer (tunge løft, repeterende arbeid)</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <CheckCircle2 className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
-                      <span>Organisatoriske farer (mangel på opplæring)</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <CheckCircle2 className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
-                      <span>Brann, elektrisitet og maskiner</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <CheckCircle2 className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
-                      <span>+ mye mer</span>
-                    </li>
-                  </ul>
-                </div>
-              </div>
-
-              <div className="bg-primary/5 rounded-lg p-6 mb-6">
-                <h4 className="font-semibold mb-3 flex items-center gap-2">
-                  <Shield className="h-5 w-5 text-primary" />
-                  Hvorfor trenger du risikovurdering?
-                </h4>
-                <p className="text-sm text-muted-foreground mb-2">
-                  Arbeidsmiljøloven §3-1 krever at alle arbeidsgivere identifiserer farer og vurderer risiko. 
-                  Risikovurdering er grunnlaget for alt HMS-arbeid.
-                </p>
-                <p className="text-sm text-muted-foreground">
-                  <strong>Uten risikovurdering risikerer dere:</strong> Bøter fra Arbeidstilsynet, 
-                  manglende oversikt over fareområder, og ulykker som kunne vært forebygget.
-                </p>
-              </div>
-
-              <div className="text-center">
-                <Button size="lg" asChild className="w-full md:w-auto">
-                  <Link href="/gratis-hms-system">
-                    <Download className="mr-2 h-5 w-5" />
-                    Få risikovurdering + hele HMS-systemet gratis
-                    <ArrowRight className="ml-2 h-5 w-5" />
-                  </Link>
-                </Button>
-                <p className="text-xs text-muted-foreground mt-3">
-                  Ingen kredittkort. Ingen skjulte kostnader. Gratis for alltid.
-                </p>
-              </div>
-            </CardContent>
-          </Card>
         </div>
       </section>
 
-      {/* Mer innhold */}
+      {/* Hvorfor digital */}
       <section className="container mx-auto px-4 py-20 bg-muted/30">
-        <div className="max-w-4xl mx-auto">
+        <div className="max-w-5xl mx-auto">
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold mb-4">
-              Eller få digital risikovurdering med HMS Nova
+              Hvorfor digital risikovurdering?
             </h2>
-            <p className="text-muted-foreground">
-              Istedenfor manuell Excel-jobb, få et dynamisk system som holder oversikten for deg
+            <p className="text-muted-foreground max-w-2xl mx-auto">
+              Excel-baserte risikovurderinger blir fort utdaterte og vanskelige å følge opp. 
+              Med HMS Nova blir alt enklere, mer sporbart og alltid oppdatert.
             </p>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-6">
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
             <Card>
               <CardHeader>
-                <AlertTriangle className="h-10 w-10 text-primary mb-2" />
-                <CardTitle className="text-lg">Digital risikomatrise</CardTitle>
+                <BarChart3 className="h-10 w-10 text-primary mb-2" />
+                <CardTitle className="text-lg">5x5 Risikomatrise</CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-sm text-muted-foreground">
-                  Automatisk beregning av risikoscore, fargekoding og prioritering. 
-                  Oppdateres i sanntid når tiltak gjennomføres.
+                  Automatisk beregning av risikoscore med fargekoding. Visuell oversikt over alle risikoer.
                 </p>
               </CardContent>
             </Card>
@@ -181,8 +95,19 @@ export default function RisikovurderingMalPage() {
               </CardHeader>
               <CardContent>
                 <p className="text-sm text-muted-foreground">
-                  Tiltak tildeles automatisk til ansvarlige med frister. 
-                  Få varsler før fristen utløper.
+                  Tiltak tildeles automatisk til ansvarlige med frister. Se status i sanntid.
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <Bell className="h-10 w-10 text-primary mb-2" />
+                <CardTitle className="text-lg">Automatiske påminnelser</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-sm text-muted-foreground">
+                  Få varsel når tiltak forfaller eller risikovurderinger må revideres.
                 </p>
               </CardContent>
             </Card>
@@ -190,37 +115,205 @@ export default function RisikovurderingMalPage() {
             <Card>
               <CardHeader>
                 <TrendingUp className="h-10 w-10 text-primary mb-2" />
-                <CardTitle className="text-lg">Rapporter og statistikk</CardTitle>
+                <CardTitle className="text-lg">Trender over tid</CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-sm text-muted-foreground">
-                  Se utvikling over tid, hvilke områder som har høyest risiko, 
-                  og eksporter til PDF for revisjoner.
+                  Se hvordan risikobildet utvikler seg. Blir det bedre eller verre?
                 </p>
-              </CardContent>
-            </Card>
-          </div>
-
-          <div className="mt-12 text-center">
-            <Card className="bg-primary text-primary-foreground border-0 inline-block">
-              <CardContent className="p-8">
-                <AlertTriangle className="h-12 w-12 mx-auto mb-4" />
-                <h3 className="text-2xl font-bold mb-2">Gratis for bedrifter med 1-20 ansatte</h3>
-                <p className="text-primary-foreground/90 mb-6">
-                  Digital risikovurdering + alle andre HMS-moduler
-                </p>
-                <Button size="lg" className="bg-green-700 hover:bg-green-800 text-white" asChild>
-                  <Link href="/gratis-hms-system">
-                    Kom i gang nå – helt gratis
-                    <ArrowRight className="ml-2 h-5 w-5" />
-                  </Link>
-                </Button>
               </CardContent>
             </Card>
           </div>
         </div>
       </section>
+
+      {/* Funksjoner */}
+      <section className="container mx-auto px-4 py-20">
+        <div className="max-w-4xl mx-auto">
+          <div className="grid md:grid-cols-2 gap-12 items-center">
+            <div>
+              <Badge variant="secondary" className="mb-4">Risikovurdering-modulen</Badge>
+              <h2 className="text-3xl font-bold mb-6">
+                Alt du trenger for god risikostyring
+              </h2>
+              <ul className="space-y-4">
+                <li className="flex items-start gap-3">
+                  <CheckCircle2 className="h-6 w-6 text-primary mt-0.5 flex-shrink-0" />
+                  <div>
+                    <p className="font-semibold">5x5 risikomatrise</p>
+                    <p className="text-sm text-muted-foreground">Sannsynlighet × konsekvens med automatisk fargekoding</p>
+                  </div>
+                </li>
+                <li className="flex items-start gap-3">
+                  <CheckCircle2 className="h-6 w-6 text-primary mt-0.5 flex-shrink-0" />
+                  <div>
+                    <p className="font-semibold">Ferdige farekategorier</p>
+                    <p className="text-sm text-muted-foreground">Fysiske, psykososiale, ergonomiske og organisatoriske farer</p>
+                  </div>
+                </li>
+                <li className="flex items-start gap-3">
+                  <CheckCircle2 className="h-6 w-6 text-primary mt-0.5 flex-shrink-0" />
+                  <div>
+                    <p className="font-semibold">Automatisk tiltaksoppfølging</p>
+                    <p className="text-sm text-muted-foreground">Tiltak blir tildelt ansvarlig med frist og påminnelser</p>
+                  </div>
+                </li>
+                <li className="flex items-start gap-3">
+                  <CheckCircle2 className="h-6 w-6 text-primary mt-0.5 flex-shrink-0" />
+                  <div>
+                    <p className="font-semibold">Restrisiko-beregning</p>
+                    <p className="text-sm text-muted-foreground">Se hvordan tiltak reduserer risikoen</p>
+                  </div>
+                </li>
+                <li className="flex items-start gap-3">
+                  <CheckCircle2 className="h-6 w-6 text-primary mt-0.5 flex-shrink-0" />
+                  <div>
+                    <p className="font-semibold">PDF-rapport med ett klikk</p>
+                    <p className="text-sm text-muted-foreground">Eksporter for revisjoner og Arbeidstilsynet</p>
+                  </div>
+                </li>
+              </ul>
+            </div>
+
+            <Card className="border-2 border-primary/20">
+              <CardContent className="p-8">
+                <div className="text-center">
+                  <AlertTriangle className="h-16 w-16 text-primary mx-auto mb-4" />
+                  <h3 className="text-2xl font-bold mb-2">Prøv risikovurdering-modulen</h3>
+                  <p className="text-muted-foreground mb-6">
+                    Test HMS Nova gratis i 14 dager. Full tilgang til alle moduler.
+                  </p>
+                  <RegisterDialog>
+                    <Button size="lg" className="w-full bg-green-700 hover:bg-green-800 text-white">
+                      Start gratis prøveperiode
+                      <ArrowRight className="ml-2 h-5 w-5" />
+                    </Button>
+                  </RegisterDialog>
+                  <p className="text-xs text-muted-foreground mt-3">
+                    Ingen kredittkort nødvendig
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </section>
+
+      {/* Info om risikovurdering */}
+      <section className="container mx-auto px-4 py-20 bg-muted/30">
+        <div className="max-w-4xl mx-auto">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold mb-4">
+              Hva er risikovurdering?
+            </h2>
+            <p className="text-muted-foreground">
+              Risikovurdering er grunnlaget for alt HMS-arbeid
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-8">
+            <Card>
+              <CardHeader>
+                <Shield className="h-8 w-8 text-primary mb-2" />
+                <CardTitle>Lovkrav</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3 text-sm text-muted-foreground">
+                <p>
+                  <strong>Arbeidsmiljøloven §3-1</strong> krever at alle arbeidsgivere 
+                  identifiserer farer og vurderer risiko på arbeidsplassen.
+                </p>
+                <p>
+                  Uten dokumentert risikovurdering risikerer dere bøter fra 
+                  Arbeidstilsynet og manglende oversikt over fareområder.
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <Target className="h-8 w-8 text-primary mb-2" />
+                <CardTitle>5x5 Risikomatrise</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3 text-sm text-muted-foreground">
+                <p>
+                  Risiko = <strong>Sannsynlighet × Konsekvens</strong>. 
+                  Begge vurderes på en skala fra 1-5.
+                </p>
+                <p>
+                  Resultatet gir en risikoscore fra 1-25 som fargekodes: 
+                  grønn (lav), gul (middels), oransje (høy), rød (kritisk).
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <FileText className="h-8 w-8 text-primary mb-2" />
+                <CardTitle>Hva skal vurderes?</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3 text-sm text-muted-foreground">
+                <ul className="space-y-1">
+                  <li>• Fysiske farer (støy, kjemikalier, maskiner)</li>
+                  <li>• Psykososiale farer (stress, mobbing)</li>
+                  <li>• Ergonomiske farer (tunge løft, arbeidsstillinger)</li>
+                  <li>• Organisatoriske farer (opplæring, rutiner)</li>
+                  <li>• Brann og elektrisitet</li>
+                </ul>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <Users className="h-8 w-8 text-primary mb-2" />
+                <CardTitle>Hvem skal delta?</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3 text-sm text-muted-foreground">
+                <p>
+                  Risikovurdering skal gjøres i samarbeid med de ansatte. 
+                  De som utfører arbeidet kjenner farene best.
+                </p>
+                <p>
+                  <strong>Anbefalt:</strong> Leder, verneombud, HMS-ansvarlig 
+                  og representanter fra de ulike arbeidsområdene.
+                </p>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </section>
+
+      {/* CTA */}
+      <section className="container mx-auto px-4 py-20">
+        <div className="max-w-3xl mx-auto">
+          <Card className="bg-primary text-primary-foreground border-0">
+            <CardContent className="p-12 text-center">
+              <AlertTriangle className="h-16 w-16 mx-auto mb-6" />
+              <h2 className="text-3xl font-bold mb-4">
+                Klar til å få kontroll på risiko?
+              </h2>
+              <p className="text-lg text-primary-foreground/90 mb-8">
+                Test HMS Nova gratis i 14 dager. Ingen kredittkort. Ingen forpliktelser.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                <RegisterDialog>
+                  <Button size="lg" className="text-lg px-8 bg-green-700 hover:bg-green-800 text-white">
+                    Start gratis prøveperiode
+                    <ArrowRight className="ml-2 h-5 w-5" />
+                  </Button>
+                </RegisterDialog>
+                <Link href="/priser">
+                  <Button size="lg" variant="outline" className="text-lg px-8 bg-transparent border-white text-white hover:bg-white/10">
+                    Se priser
+                  </Button>
+                </Link>
+              </div>
+              <p className="text-sm mt-6 text-primary-foreground/70">
+                Fra 225 kr/mnd • Ingen bindingstid • Norsk support
+              </p>
+            </CardContent>
+          </Card>
+        </div>
+      </section>
     </div>
   );
 }
-

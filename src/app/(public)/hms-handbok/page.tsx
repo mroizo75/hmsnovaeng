@@ -1,20 +1,27 @@
-"use client";
-
 import Link from "next/link";
+import type { Metadata } from "next";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { RegisterDialog } from "@/components/register-dialog";
 import { 
   CheckCircle2, 
   ArrowRight,
   BookOpen,
-  Download,
   FileText,
   Shield,
   Users,
   AlertTriangle,
-  ClipboardCheck
+  ClipboardCheck,
+  RefreshCw,
+  Search
 } from "lucide-react";
+
+export const metadata: Metadata = {
+  title: "Digital HMS-håndbok i HMS Nova | Alltid oppdatert",
+  description: "Få en digital HMS-håndbok som alltid er oppdatert med gjeldende lover. Tilpasset din bransje, tilgjengelig for alle ansatte. Prøv HMS Nova gratis i 14 dager.",
+  keywords: ["HMS-håndbok", "HMS-dokumentasjon", "internkontroll", "HMS-system", "HMS-prosedyrer"],
+};
 
 export default function HMSHandbokPage() {
   return (
@@ -24,153 +31,59 @@ export default function HMSHandbokPage() {
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-12">
             <Badge variant="default" className="mb-6">
-              <Download className="h-3 w-3 mr-2" />
-              Gratis ressurs
+              <BookOpen className="h-3 w-3 mr-2" />
+              Digital HMS-håndbok
             </Badge>
             <h1 className="text-5xl md:text-6xl font-bold mb-6">
-              Gratis HMS-håndbok<br />
-              <span className="text-primary">Klar på 5 minutter</span>
+              HMS-håndbok<br />
+              <span className="text-primary">som lever med bedriften</span>
             </h1>
             <p className="text-xl text-muted-foreground mb-8">
-              En komplett HMS-håndbok tilpasset din bransje. Få alle HMS-prosedyrer, 
-              maler og sjekklister du trenger for å oppfylle lovkravene.
+              Glem statiske PDF-er som blir utdaterte. Med HMS Nova får du en levende 
+              HMS-håndbok som oppdateres automatisk og er tilgjengelig for alle ansatte.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <RegisterDialog>
+                <Button size="lg" className="text-lg px-8 bg-green-700 hover:bg-green-800 text-white">
+                  Prøv gratis i 14 dager
+                  <ArrowRight className="ml-2 h-5 w-5" />
+                </Button>
+              </RegisterDialog>
+              <Link href="/priser">
+                <Button size="lg" variant="outline" className="text-lg px-8">
+                  Se priser
+                </Button>
+              </Link>
+            </div>
+            <p className="text-sm text-muted-foreground mt-4">
+              ✓ Ingen kredittkort  ✓ Full tilgang  ✓ Fra 225 kr/mnd
             </p>
           </div>
-
-          <Card className="border-2 border-primary/20 shadow-xl">
-            <CardContent className="p-8">
-              <div className="flex items-center gap-4 mb-6">
-                <div className="h-16 w-16 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-                  <BookOpen className="h-8 w-8 text-primary" />
-                </div>
-                <div>
-                  <h3 className="font-bold text-2xl">Komplett HMS-håndbok</h3>
-                  <p className="text-muted-foreground">Over 50 sider med praktiske HMS-rutiner</p>
-                </div>
-              </div>
-
-              <div className="grid md:grid-cols-2 gap-6 mb-8">
-                <div>
-                  <h4 className="font-semibold mb-3 flex items-center gap-2">
-                    <Shield className="h-5 w-5 text-primary" />
-                    Hva får du?
-                  </h4>
-                  <ul className="space-y-2 text-sm">
-                    <li className="flex items-start gap-2">
-                      <CheckCircle2 className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
-                      <span>Komplett HMS-policy og HMS-mål</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <CheckCircle2 className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
-                      <span>Organisering av HMS-arbeidet</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <CheckCircle2 className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
-                      <span>Rutiner for risikovurdering</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <CheckCircle2 className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
-                      <span>Avvikshåndtering og forbedring</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <CheckCircle2 className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
-                      <span>Opplærings- og kompetanseplaner</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <CheckCircle2 className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
-                      <span>Beredskaps- og evakueringsplaner</span>
-                    </li>
-                  </ul>
-                </div>
-
-                <div>
-                  <h4 className="font-semibold mb-3 flex items-center gap-2">
-                    <ClipboardCheck className="h-5 w-5 text-primary" />
-                    Tilpasset din bransje
-                  </h4>
-                  <ul className="space-y-2 text-sm">
-                    <li className="flex items-start gap-2">
-                      <CheckCircle2 className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
-                      <span>Bygg og anlegg</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <CheckCircle2 className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
-                      <span>Industri og produksjon</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <CheckCircle2 className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
-                      <span>Helse og omsorg</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <CheckCircle2 className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
-                      <span>Transport og logistikk</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <CheckCircle2 className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
-                      <span>Utdanning og offentlig sektor</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <CheckCircle2 className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
-                      <span>+ 15 andre bransjer</span>
-                    </li>
-                  </ul>
-                </div>
-              </div>
-
-              <div className="bg-primary/5 rounded-lg p-6 mb-6">
-                <h4 className="font-semibold mb-3 flex items-center gap-2">
-                  <AlertTriangle className="h-5 w-5 text-primary" />
-                  Hvorfor trenger du en HMS-håndbok?
-                </h4>
-                <p className="text-sm text-muted-foreground mb-2">
-                  Arbeidsmiljøloven krever at alle bedrifter har systematisk HMS-arbeid. 
-                  En HMS-håndbok dokumenterer hvordan dere jobber med helse, miljø og sikkerhet.
-                </p>
-                <p className="text-sm text-muted-foreground">
-                  <strong>Uten håndbok risikerer dere:</strong> Bøter fra Arbeidstilsynet, 
-                  manglende oversikt over risiko, og problemer ved ulykker og revisjoner.
-                </p>
-              </div>
-
-              <div className="text-center">
-                <Button size="lg" asChild className="w-full md:w-auto">
-                  <Link href="/gratis-hms-system">
-                    <Download className="mr-2 h-5 w-5" />
-                    Få HMS-håndbok + hele HMS-systemet gratis
-                    <ArrowRight className="ml-2 h-5 w-5" />
-                  </Link>
-                </Button>
-                <p className="text-xs text-muted-foreground mt-3">
-                  Ingen kredittkort. Ingen skjulte kostnader. Gratis for alltid.
-                </p>
-              </div>
-            </CardContent>
-          </Card>
         </div>
       </section>
 
-      {/* Mer innhold */}
+      {/* Hvorfor digital */}
       <section className="container mx-auto px-4 py-20 bg-muted/30">
-        <div className="max-w-4xl mx-auto">
+        <div className="max-w-5xl mx-auto">
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold mb-4">
-              Men vent – det blir bedre!
+              Hvorfor digital HMS-håndbok?
             </h2>
-            <p className="text-muted-foreground">
-              Istedenfor bare en statisk PDF, får du tilgang til hele HMS Nova-systemet helt gratis
+            <p className="text-muted-foreground max-w-2xl mx-auto">
+              Tradisjonelle HMS-håndbøker i Word eller PDF blir fort utdaterte. 
+              Med HMS Nova har du alltid siste versjon tilgjengelig.
             </p>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-6">
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
             <Card>
               <CardHeader>
-                <FileText className="h-10 w-10 text-primary mb-2" />
-                <CardTitle className="text-lg">Digital HMS-håndbok</CardTitle>
+                <RefreshCw className="h-10 w-10 text-primary mb-2" />
+                <CardTitle className="text-lg">Alltid oppdatert</CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-sm text-muted-foreground">
-                  Levende dokument som oppdateres automatisk når lover endres. 
-                  Alltid tilgjengelig for alle ansatte.
+                  Lover og regler endres. HMS Nova varsler deg om endringer og hjelper deg å oppdatere.
                 </p>
               </CardContent>
             </Card>
@@ -178,50 +91,231 @@ export default function HMSHandbokPage() {
             <Card>
               <CardHeader>
                 <Users className="h-10 w-10 text-primary mb-2" />
-                <CardTitle className="text-lg">Komplett HMS-system</CardTitle>
+                <CardTitle className="text-lg">Tilgjengelig for alle</CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-sm text-muted-foreground">
-                  Risikovurderinger, avviksmeldinger, opplæringssporing, 
-                  stoffkartotek og mye mer – alt på ett sted.
+                  Alle ansatte har tilgang via web og mobil. Ingen leting i mapper eller e-post.
                 </p>
               </CardContent>
             </Card>
 
             <Card>
               <CardHeader>
-                <Shield className="h-10 w-10 text-primary mb-2" />
-                <CardTitle className="text-lg">ISO 9001-klar</CardTitle>
+                <Search className="h-10 w-10 text-primary mb-2" />
+                <CardTitle className="text-lg">Søkbart innhold</CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-sm text-muted-foreground">
-                  Oppfyller alle krav til ISO 9001 og andre HMS-standarder. 
-                  Klar for revisjon og sertifisering.
+                  Finn riktig prosedyre på sekunder. Fulltekstsøk i alle dokumenter.
                 </p>
               </CardContent>
             </Card>
-          </div>
 
-          <div className="mt-12 text-center">
-            <Card className="bg-primary text-primary-foreground border-0 inline-block">
-              <CardContent className="p-8">
-                <BookOpen className="h-12 w-12 mx-auto mb-4" />
-                <h3 className="text-2xl font-bold mb-2">Gratis for bedrifter med 1-20 ansatte</h3>
-                <p className="text-primary-foreground/90 mb-6">
-                  Ingen skjulte kostnader. Ingen kredittkort. Start i dag.
+            <Card>
+              <CardHeader>
+                <FileText className="h-10 w-10 text-primary mb-2" />
+                <CardTitle className="text-lg">Versjonskontroll</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-sm text-muted-foreground">
+                  Full historikk over alle endringer. Se hvem som endret hva og når.
                 </p>
-                <Button size="lg" className="bg-green-700 hover:bg-green-800 text-white" asChild>
-                  <Link href="/gratis-hms-system">
-                    Kom i gang nå – helt gratis
-                    <ArrowRight className="ml-2 h-5 w-5" />
-                  </Link>
-                </Button>
               </CardContent>
             </Card>
           </div>
         </div>
       </section>
+
+      {/* Funksjoner */}
+      <section className="container mx-auto px-4 py-20">
+        <div className="max-w-4xl mx-auto">
+          <div className="grid md:grid-cols-2 gap-12 items-center">
+            <div>
+              <Badge variant="secondary" className="mb-4">Dokumentmodulen</Badge>
+              <h2 className="text-3xl font-bold mb-6">
+                Alt dokumentasjonen din samlet
+              </h2>
+              <ul className="space-y-4">
+                <li className="flex items-start gap-3">
+                  <CheckCircle2 className="h-6 w-6 text-primary mt-0.5 flex-shrink-0" />
+                  <div>
+                    <p className="font-semibold">HMS-policy og mål</p>
+                    <p className="text-sm text-muted-foreground">Definér bedriftens HMS-policy og målbare mål</p>
+                  </div>
+                </li>
+                <li className="flex items-start gap-3">
+                  <CheckCircle2 className="h-6 w-6 text-primary mt-0.5 flex-shrink-0" />
+                  <div>
+                    <p className="font-semibold">Organisering</p>
+                    <p className="text-sm text-muted-foreground">Roller, ansvar og myndighet i HMS-arbeidet</p>
+                  </div>
+                </li>
+                <li className="flex items-start gap-3">
+                  <CheckCircle2 className="h-6 w-6 text-primary mt-0.5 flex-shrink-0" />
+                  <div>
+                    <p className="font-semibold">Prosedyrer og rutiner</p>
+                    <p className="text-sm text-muted-foreground">Alle HMS-rutiner samlet på ett sted</p>
+                  </div>
+                </li>
+                <li className="flex items-start gap-3">
+                  <CheckCircle2 className="h-6 w-6 text-primary mt-0.5 flex-shrink-0" />
+                  <div>
+                    <p className="font-semibold">Beredskapsplaner</p>
+                    <p className="text-sm text-muted-foreground">Evakuering, brann, førstehjelp og varsling</p>
+                  </div>
+                </li>
+                <li className="flex items-start gap-3">
+                  <CheckCircle2 className="h-6 w-6 text-primary mt-0.5 flex-shrink-0" />
+                  <div>
+                    <p className="font-semibold">Digital signering</p>
+                    <p className="text-sm text-muted-foreground">Ansatte signerer at de har lest og forstått</p>
+                  </div>
+                </li>
+              </ul>
+            </div>
+
+            <Card className="border-2 border-primary/20">
+              <CardContent className="p-8">
+                <div className="text-center">
+                  <BookOpen className="h-16 w-16 text-primary mx-auto mb-4" />
+                  <h3 className="text-2xl font-bold mb-2">Prøv HMS-håndboken</h3>
+                  <p className="text-muted-foreground mb-6">
+                    Test HMS Nova gratis i 14 dager. Full tilgang til alle moduler.
+                  </p>
+                  <RegisterDialog>
+                    <Button size="lg" className="w-full bg-green-700 hover:bg-green-800 text-white">
+                      Start gratis prøveperiode
+                      <ArrowRight className="ml-2 h-5 w-5" />
+                    </Button>
+                  </RegisterDialog>
+                  <p className="text-xs text-muted-foreground mt-3">
+                    Ingen kredittkort nødvendig
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </section>
+
+      {/* Info om HMS-håndbok */}
+      <section className="container mx-auto px-4 py-20 bg-muted/30">
+        <div className="max-w-4xl mx-auto">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold mb-4">
+              Hva skal HMS-håndboken inneholde?
+            </h2>
+            <p className="text-muted-foreground">
+              Internkontrollforskriften stiller krav til dokumentasjon
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-8">
+            <Card>
+              <CardHeader>
+                <Shield className="h-8 w-8 text-primary mb-2" />
+                <CardTitle>Lovkrav</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3 text-sm text-muted-foreground">
+                <p>
+                  <strong>Internkontrollforskriften §5</strong> krever at virksomheten 
+                  har skriftlige mål, organisering, kartlegging og rutiner for HMS.
+                </p>
+                <p>
+                  Dokumentasjonen skal være tilgjengelig for de ansatte og 
+                  kunne vises frem ved tilsyn.
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <ClipboardCheck className="h-8 w-8 text-primary mb-2" />
+                <CardTitle>Innhold</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3 text-sm text-muted-foreground">
+                <ul className="space-y-1">
+                  <li>• HMS-policy og mål</li>
+                  <li>• Organisering og ansvar</li>
+                  <li>• Kartlegging av farer og risikovurdering</li>
+                  <li>• Rutiner og prosedyrer</li>
+                  <li>• Avvikshåndtering</li>
+                  <li>• Opplæringsplan</li>
+                </ul>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <AlertTriangle className="h-8 w-8 text-primary mb-2" />
+                <CardTitle>Vanlige feil</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3 text-sm text-muted-foreground">
+                <ul className="space-y-1">
+                  <li>• Utdaterte dokumenter</li>
+                  <li>• Vanskelig å finne riktig versjon</li>
+                  <li>• Ansatte vet ikke hvor dokumentene er</li>
+                  <li>• Ingen oversikt over hvem som har lest</li>
+                  <li>• Mangler ved revisjon</li>
+                </ul>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <FileText className="h-8 w-8 text-primary mb-2" />
+                <CardTitle>Bransjetilpasning</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3 text-sm text-muted-foreground">
+                <p>
+                  HMS Nova har maler tilpasset mange bransjer:
+                </p>
+                <ul className="space-y-1">
+                  <li>• Bygg og anlegg</li>
+                  <li>• Industri og produksjon</li>
+                  <li>• Helse og omsorg</li>
+                  <li>• Transport og logistikk</li>
+                  <li>• Kontor og administrasjon</li>
+                </ul>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </section>
+
+      {/* CTA */}
+      <section className="container mx-auto px-4 py-20">
+        <div className="max-w-3xl mx-auto">
+          <Card className="bg-primary text-primary-foreground border-0">
+            <CardContent className="p-12 text-center">
+              <BookOpen className="h-16 w-16 mx-auto mb-6" />
+              <h2 className="text-3xl font-bold mb-4">
+                Klar til å få orden på dokumentasjonen?
+              </h2>
+              <p className="text-lg text-primary-foreground/90 mb-8">
+                Test HMS Nova gratis i 14 dager. Ingen kredittkort. Ingen forpliktelser.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                <RegisterDialog>
+                  <Button size="lg" className="text-lg px-8 bg-green-700 hover:bg-green-800 text-white">
+                    Start gratis prøveperiode
+                    <ArrowRight className="ml-2 h-5 w-5" />
+                  </Button>
+                </RegisterDialog>
+                <Link href="/priser">
+                  <Button size="lg" variant="outline" className="text-lg px-8 bg-transparent border-white text-white hover:bg-white/10">
+                    Se priser
+                  </Button>
+                </Link>
+              </div>
+              <p className="text-sm mt-6 text-primary-foreground/70">
+                Fra 225 kr/mnd • Ingen bindingstid • Norsk support
+              </p>
+            </CardContent>
+          </Card>
+        </div>
+      </section>
     </div>
   );
 }
-
