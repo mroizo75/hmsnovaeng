@@ -34,6 +34,8 @@ export function ActivateTenantForm({
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    console.log("🚀 Form submitted! tenantId:", tenantId);
+    console.log("📧 Form data:", formData);
     setLoading(true);
 
     try {
@@ -148,7 +150,12 @@ export function ActivateTenantForm({
       </div>
 
       <div className="pt-4 border-t">
-        <Button type="submit" disabled={loading} className="w-full">
+        <Button 
+          type="submit" 
+          disabled={loading} 
+          className="w-full"
+          onClick={() => console.log("🔘 Button clicked!")}
+        >
           {loading ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
