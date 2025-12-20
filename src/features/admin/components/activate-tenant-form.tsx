@@ -39,10 +39,12 @@ export function ActivateTenantForm({
     setLoading(true);
 
     try {
+      console.log("⏳ Calling activateTenant server action...");
       const result = await activateTenant({
         tenantId,
         ...formData,
       });
+      console.log("✅ Server action returned:", result);
 
       if (result.success) {
         toast({
@@ -52,6 +54,7 @@ export function ActivateTenantForm({
         router.push("/admin/registrations");
         router.refresh();
       } else {
+        console.log("❌ Server returned error:", result.error);
         toast({
           variant: "destructive",
           title: "❌ Feil",
@@ -59,13 +62,14 @@ export function ActivateTenantForm({
         });
       }
     } catch (error) {
-      console.error("Activate tenant error:", error);
+      console.error("💥 Activate tenant CATCH error:", error);
       toast({
         variant: "destructive",
         title: "❌ Systemfeil",
         description: "En uventet feil oppstod",
       });
     } finally {
+      console.log("🏁 Finally block - setting loading to false");
       setLoading(false);
     }
   }
