@@ -392,6 +392,124 @@ export async function rejectRegistration(tenantId: string, reason: string) {
 }
 
 /**
+ * Send velkomst-e-post på nytt til eksisterende bruker
+ */
+export async function resendWelcomeEmail(input: {
+  tenantId: string;
+  userEmail: string;
+  newPassword?: string;
+}) {
+  try {
+    const session = await getServerSession(authOptions);
+    if (!session?.user?.email) {
+      return { success: false, error: "Ikke autentisert" };
+    }
+
+    const currentUser = await prisma.user.findUnique({
+      where: { email: session.user.email },
+    });
+
+    if (!currentUser?.isSuperAdmin && !currentUser?.isSupport) {
+      return { success: false, error: "Ingen tilgang" };
+    }
+
+    // Hent tenant og bruker
+    const tenant = await prisma.tenant.findUnique({
+      where: { id: input.tenantId },
+    });
+
+    if (!tenant) {
+      return { success: false, error: "Tenant ikke funnet" };
+    }
+
+    const user = await prisma.user.findUnique({
+      where: { email: input.userEmail },
+    });
+
+    if (!user) {
+      return { success: false, error: "Bruker ikke funnet" };
+    }
+
+    // Hvis nytt passord er oppgitt, oppdater det
+    let passwordToSend = input.newPassword;
+    if (passwordToSend) {
+      const hashedPassword = await bcrypt.hash(passwordToSend, 10);
+      await prisma.user.update({
+        where: { id: user.id },
+        data: { password: hashedPassword },
+      });
+    } else {
+      // Generer nytt passord
+      passwordToSend = generateSecurePassword();
+      const hashedPassword = await bcrypt.hash(passwordToSend, 10);
+      await prisma.user.update({
+        where: { id: user.id },
+        data: { password: hashedPassword },
+      });
+    }
+
+    // Send e-post
+    if (process.env.RESEND_API_KEY) {
+      await resend.emails.send({
+        from: "HMS Nova <noreply@hmsnova.com>",
+        to: input.userEmail,
+        subject: "HMS Nova - Nytt passord 🔑",
+        html: getActivationEmail({
+          adminName: user.name || "Bruker",
+          companyName: tenant.name,
+          email: input.userEmail,
+          password: passwordToSend,
+          loginUrl: `${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/login`,
+          dashboardUrl: `${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/dashboard`,
+        }),
+      });
+    } else {
+      return { success: false, error: "E-post er ikke konfigurert (mangler RESEND_API_KEY)" };
+    }
+
+    // Audit log
+    await AuditLog.log(
+      tenant.id,
+      currentUser.id,
+      "WELCOME_EMAIL_RESENT",
+      "User",
+      user.id,
+      {
+        userEmail: input.userEmail,
+        sentBy: currentUser.email,
+      }
+    );
+
+    return { success: true, message: "E-post sendt!" };
+  } catch (error: any) {
+    console.error("Resend welcome email error:", error);
+    return { success: false, error: error.message || "Kunne ikke sende e-post" };
+  }
+}
+
+// Generer sikkert passord
+function generateSecurePassword(): string {
+  const length = 12;
+  const uppercase = "ABCDEFGHJKLMNPQRSTUVWXYZ";
+  const lowercase = "abcdefghjkmnpqrstuvwxyz";
+  const numbers = "23456789";
+  const special = "!@#$%&*";
+  const all = uppercase + lowercase + numbers + special;
+
+  let password = "";
+  password += uppercase[Math.floor(Math.random() * uppercase.length)];
+  password += lowercase[Math.floor(Math.random() * lowercase.length)];
+  password += numbers[Math.floor(Math.random() * numbers.length)];
+  password += special[Math.floor(Math.random() * special.length)];
+
+  for (let i = password.length; i < length; i++) {
+    password += all[Math.floor(Math.random() * all.length)];
+  }
+
+  return password.split("").sort(() => Math.random() - 0.5).join("");
+}
+
+/**
  * E-post template for aktivering
  */
 function getActivationEmail(data: {

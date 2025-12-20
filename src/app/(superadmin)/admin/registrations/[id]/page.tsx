@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { getRegistrationDetails } from "@/server/actions/onboarding.actions";
 import { ActivateTenantForm } from "@/features/admin/components/activate-tenant-form";
 import { RejectRegistrationForm } from "@/features/admin/components/reject-registration-form";
+import { ResendWelcomeEmailForm } from "@/features/admin/components/resend-welcome-email-form";
 import { 
   ArrowLeft,
   Building2, 
@@ -271,7 +272,14 @@ async function RegistrationDetails({ id }: { id: string }) {
                           {userTenant.user.email}
                         </p>
                       </div>
-                      <Badge variant="secondary">{userTenant.role}</Badge>
+                      <div className="flex items-center gap-2">
+                        <ResendWelcomeEmailForm
+                          tenantId={registration.id}
+                          userEmail={userTenant.user.email}
+                          userName={userTenant.user.name || "Bruker"}
+                        />
+                        <Badge variant="secondary">{userTenant.role}</Badge>
+                      </div>
                     </div>
                   ))}
                 </div>

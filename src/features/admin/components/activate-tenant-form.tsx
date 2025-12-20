@@ -55,6 +55,7 @@ export function ActivateTenantForm({
         router.refresh();
       } else {
         console.log("❌ Server returned error:", result.error);
+        alert("Feil: " + (result.error || "Kunne ikke aktivere tenant"));
         toast({
           variant: "destructive",
           title: "❌ Feil",
