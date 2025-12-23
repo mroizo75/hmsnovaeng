@@ -1008,7 +1008,7 @@ async function main() {
 
   console.log("✅ Opplæring opprettet:", training1.title, training2.title);
 
-  // Opprett eksempel stoffkartotek
+  // Opprett eksempel stoffkartotek (med korrekte ISO 7010 PPE-filnavn)
   const chemical1 = await prisma.chemical.create({
     data: {
       tenantId: tenant.id,
@@ -1017,8 +1017,8 @@ async function main() {
       casNumber: "67-64-1",
       hazardClass: "Brannfarlig væske (GHS02), Helsefare (GHS07)",
       hazardStatements: "H225: Meget brannfarlig væske og damp\nH319: Gir alvorlig øyeirritasjon\nH336: Kan forårsake døsighet eller svimmelhet",
-      warningPictograms: JSON.stringify(["GHS02.svg", "GHS07.svg"]),
-      requiredPPE: JSON.stringify(["Vernebriller", "Hansker"]),
+      warningPictograms: JSON.stringify(["brannfarlig.webp", "helserisiko.webp"]),
+      requiredPPE: JSON.stringify(["ISO_7010_M002.svg.png", "ISO_7010_M007.svg.png"]), // Vernebriller, Arbeidshansker
       sdsVersion: "2.1",
       sdsDate: new Date(Date.now() - 180 * 24 * 60 * 60 * 1000),
       nextReviewDate: new Date(Date.now() + 185 * 24 * 60 * 60 * 1000),
@@ -1039,8 +1039,8 @@ async function main() {
       casNumber: "7647-01-0",
       hazardClass: "Etsende (GHS05), Helsefare (GHS07)",
       hazardStatements: "H290: Kan være etsende for metaller\nH314: Gir alvorlige etseskader på hud og øyne\nH335: Kan forårsake irritasjon av luftveiene",
-      warningPictograms: JSON.stringify(["GHS05.svg", "GHS07.svg"]),
-      requiredPPE: JSON.stringify(["Vernebriller", "Hansker", "Åndedrettsvern"]),
+      warningPictograms: JSON.stringify(["etsende.webp", "helserisiko.webp"]),
+      requiredPPE: JSON.stringify(["ISO_7010_M002.svg.png", "ISO_7010_M007.svg.png", "ISO_7010_M005.svg.png"]), // Vernebriller, Hansker, Åndedrettsvern
       sdsVersion: "3.0",
       sdsDate: new Date(Date.now() - 90 * 24 * 60 * 60 * 1000),
       nextReviewDate: new Date(Date.now() + 275 * 24 * 60 * 60 * 1000),
@@ -1419,6 +1419,81 @@ async function main() {
   });
 
   console.log("✅ Varsling opprettet:", whistleblow1.caseNumber, "med", 4, "meldinger");
+
+  // Opprett eksempel kundetilbakemeldinger (CustomerFeedback - ISO 10002)
+  const feedback1 = await prisma.customerFeedback.create({
+    data: {
+      tenantId: tenant.id,
+      recordedById: adminUser.id,
+      customerName: "Ole Hansen",
+      customerCompany: "Hansen Bygg AS",
+      contactEmail: "ole@hansenbygg.no",
+      source: "EMAIL",
+      sentiment: "POSITIVE",
+      rating: 5,
+      summary: "Veldig fornøyd med leveransen og oppfølgingen",
+      details: "Rask responstid og god kommunikasjon gjennom hele prosjektet. Anbefales!",
+      feedbackDate: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000),
+      followUpStatus: "CLOSED",
+      followUpOwnerId: hms.id,
+      followUpNotes: "Takket for tilbakemeldingen og registrert i KPI-rapporten.",
+      linkedGoalId: goal2.id, // Kundetilfredshet-målet
+    },
+  });
+
+  const feedback2 = await prisma.customerFeedback.create({
+    data: {
+      tenantId: tenant.id,
+      recordedById: leader.id,
+      customerName: "Kari Nordmann",
+      customerCompany: "Nordmann Industri",
+      contactEmail: "kari@nordmann-industri.no",
+      contactPhone: "+47 987 65 432",
+      source: "PHONE",
+      sentiment: "NEUTRAL",
+      rating: 3,
+      summary: "Ønsker bedre dokumentasjon på leveranser",
+      details: "Produktet er bra, men dokumentasjonen kunne vært bedre. Spesielt ønskes tydeligere brukerveiledning.",
+      feedbackDate: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000),
+      followUpStatus: "FOLLOW_UP",
+      followUpOwnerId: hms.id,
+      followUpNotes: "Skal utarbeide forbedret dokumentasjon innen neste leveranse.",
+    },
+  });
+
+  const feedback3 = await prisma.customerFeedback.create({
+    data: {
+      tenantId: tenant.id,
+      recordedById: hms.id,
+      customerName: "Per Olsen",
+      customerCompany: "Olsen Transport",
+      source: "MEETING",
+      sentiment: "NEGATIVE",
+      rating: 2,
+      summary: "Klage på forsinket leveranse",
+      details: "Leveransen kom 3 dager for sent, noe som skapte problemer for vår produksjon. Ønsker kompensasjon.",
+      feedbackDate: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
+      followUpStatus: "NEW",
+      linkedIncidentId: complaintIncident.id, // Koblet til kundeklage-hendelsen
+    },
+  });
+
+  const feedback4 = await prisma.customerFeedback.create({
+    data: {
+      tenantId: tenant.id,
+      recordedById: employee.id,
+      customerCompany: "Anonym bedrift",
+      source: "SURVEY",
+      sentiment: "POSITIVE",
+      rating: 4,
+      summary: "God kvalitet på HMS-opplæringen",
+      details: "Ansatte satte pris på den grundige HMS-opplæringen som ble gjennomført. Godt forberedt og engasjerende instruktør.",
+      feedbackDate: new Date(Date.now() - 15 * 24 * 60 * 60 * 1000),
+      followUpStatus: "CLOSED",
+    },
+  });
+
+  console.log("✅ Kundetilbakemeldinger opprettet:", 4, "stk");
   } else {
     console.log("ℹ️  Databasen har allerede data - demo-data hoppes over for å beskytte eksisterende data");
   }
@@ -1428,16 +1503,18 @@ async function main() {
   console.log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
   console.log("📄 Dokumenter:               2");
   console.log("⚠️  Risikoer:                 2");
-  console.log("🚨 Hendelser:                2");
+  console.log("🚨 Hendelser:                3");
   console.log("✅ Tiltak:                   2");
   console.log("🎯 Mål:                      4");
   console.log("📚 Opplæring:                2");
   console.log("🧪 Kjemikalier:              2");
+  console.log("🌿 Miljøaspekter:            2");
   console.log("🔍 Vernerunder:              1 (med 2 funn)");
-  console.log("📋 Revisjoner:               1 (med 2 funn)");
+  console.log("📋 Revisjoner:               2 (med 2 funn)");
   console.log("📊 Ledelsens gjennomgang:    1");
   console.log("🤝 AMU-møter:                1 (med 4 deltakere)");
   console.log("🔒 Varslinger:               1 (med 4 meldinger)");
+  console.log("💬 Tilbakemeldinger:         4");
   console.log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
   console.log("\n📝 Test pålogginger:");
   console.log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
