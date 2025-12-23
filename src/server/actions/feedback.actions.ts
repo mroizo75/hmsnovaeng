@@ -69,13 +69,13 @@ export async function createCustomerFeedback(formData: FormData | Record<string,
 
     const normalized = {
       ...input,
-      rating: input.rating,
+      rating: input.rating === "__no_rating__" ? undefined : input.rating,
       followUpOwnerId:
         input.followUpOwnerId && input.followUpOwnerId !== "__none__"
           ? input.followUpOwnerId
           : undefined,
       linkedGoalId:
-        input.linkedGoalId && input.linkedGoalId !== "__none__"
+        input.linkedGoalId && input.linkedGoalId !== "__none__" && input.linkedGoalId !== "__none_goal__"
           ? input.linkedGoalId
           : undefined,
     };

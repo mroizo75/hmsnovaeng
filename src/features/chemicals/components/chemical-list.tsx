@@ -26,6 +26,7 @@ import Image from "next/image";
 import { deleteChemical, downloadSDS, verifyChemical } from "@/server/actions/chemical.actions";
 import { useToast } from "@/hooks/use-toast";
 import type { Chemical } from "@prisma/client";
+import { normalizePpeFile } from "@/lib/pictograms";
 
 interface ChemicalListProps {
   chemicals: Chemical[];
@@ -246,17 +247,22 @@ export function ChemicalList({ chemicals }: ChemicalListProps) {
                   <TableCell>
                     {ppeList.length > 0 ? (
                       <div className="flex gap-1">
-                        {ppeList.slice(0, 3).map((file: string, idx: number) => (
-                          <div key={idx} className="relative w-8 h-8 border border-blue-200 rounded p-0.5 bg-blue-50">
-                            <Image
-                              src={`/ppe/${file}`}
-                              alt="PPE"
-                              width={32}
-                              height={32}
-                              className="object-contain"
-                            />
-                          </div>
-                        ))}
+                        {ppeList.slice(0, 3).map((file: string, idx: number) => {
+                          const normalizedFile = normalizePpeFile(file);
+                          if (!normalizedFile) return null;
+                          return (
+                            <div key={idx} className="relative w-8 h-8 border border-blue-200 rounded p-0.5 bg-blue-50">
+                              <Image
+                                src={`/ppe/${normalizedFile}`}
+                                alt="PPE"
+                                width={32}
+                                height={32}
+                                className="object-contain"
+                                unoptimized
+                              />
+                            </div>
+                          );
+                        })}
                         {ppeList.length > 3 && (
                           <span className="text-xs text-muted-foreground self-center">+{ppeList.length - 3}</span>
                         )}

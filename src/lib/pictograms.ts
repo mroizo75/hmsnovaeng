@@ -106,3 +106,29 @@ export function getHazardPictogram(file: string): HazardPictogram | undefined {
   return hazardMap.get(file);
 }
 
+// Helper: Maps old PPE names to correct file paths
+const ppeNameToFileMap = new Map<string, string>();
+for (const item of PPE_PICTOGRAMS) {
+  ppeNameToFileMap.set(item.name.toLowerCase(), item.file);
+}
+
+// Normalize PPE value to correct file path
+export function normalizePpeFile(value: string): string | null {
+  // Already a valid file path?
+  if (value.startsWith("ISO_7010_") && value.endsWith(".png")) {
+    return value;
+  }
+  // Check if it's a known name (case-insensitive)
+  const normalized = ppeNameToFileMap.get(value.toLowerCase());
+  if (normalized) {
+    return normalized;
+  }
+  // Try partial match
+  for (const [name, file] of ppeNameToFileMap) {
+    if (name.includes(value.toLowerCase()) || value.toLowerCase().includes(name)) {
+      return file;
+    }
+  }
+  return null; // Not found
+}
+

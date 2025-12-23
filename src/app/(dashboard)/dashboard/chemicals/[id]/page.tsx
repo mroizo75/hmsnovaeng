@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { ArrowLeft, Edit, Download, CheckCircle, AlertTriangle, Calendar, MapPin, Package } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
+import { normalizePpeFile } from "@/lib/pictograms";
 
 export default async function ChemicalDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -204,16 +205,21 @@ export default async function ChemicalDetailPage({ params }: { params: Promise<{
               </CardHeader>
               <CardContent>
                 <div className="flex flex-wrap gap-3">
-                  {ppeList.map((file: string, idx: number) => (
-                    <div key={idx} className="relative w-16 h-16 border-2 border-blue-200 rounded-lg p-1 bg-blue-50">
-                      <Image
-                        src={`/ppe/${file}`}
-                        alt="PPE-krav"
-                        fill
-                        className="object-contain"
-                      />
-                    </div>
-                  ))}
+                  {ppeList.map((file: string, idx: number) => {
+                    const normalizedFile = normalizePpeFile(file);
+                    if (!normalizedFile) return null;
+                    return (
+                      <div key={idx} className="relative w-16 h-16 border-2 border-blue-200 rounded-lg p-1 bg-blue-50">
+                        <Image
+                          src={`/ppe/${normalizedFile}`}
+                          alt="PPE-krav"
+                          fill
+                          className="object-contain"
+                          unoptimized
+                        />
+                      </div>
+                    );
+                  })}
                 </div>
               </CardContent>
             </Card>

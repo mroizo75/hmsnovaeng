@@ -8,6 +8,7 @@ import { signOut, useSession } from "next-auth/react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Switch } from "@/components/ui/switch";
 import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/sheet";
 import * as VisuallyHidden from "@radix-ui/react-visually-hidden";
 import {
@@ -26,26 +27,32 @@ import {
   ShieldCheck,
   Menu,
   ThumbsUp,
+  Zap,
+  Sparkles,
 } from "lucide-react";
 import { usePermissions } from "@/hooks/use-permissions";
 import { getRoleDisplayName } from "@/lib/permissions";
 import Image from "next/image";
 import { NotificationBell } from "@/components/notifications/notification-bell";
+import { useSimpleMode } from "@/hooks/use-simple-mode";
 
 const navItems = [
-  { href: "/dashboard", label: "nav.dashboard", icon: LayoutDashboard, permission: "dashboard" as const },
-  { href: "/dashboard/documents", label: "nav.documents", icon: FileText, permission: "documents" as const },
-  { href: "/dashboard/forms", label: "nav.forms", icon: ClipboardList, permission: "forms" as const },
-  { href: "/dashboard/risks", label: "nav.risks", icon: AlertTriangle, permission: "risks" as const },
-  { href: "/dashboard/incidents", label: "nav.incidents", icon: AlertCircle, permission: "incidents" as const },
-  { href: "/dashboard/inspections", label: "nav.inspections", icon: ShieldCheck, permission: "inspections" as const },
-  { href: "/dashboard/chemicals", label: "nav.chemicals", icon: Beaker, permission: "chemicals" as const },
-  { href: "/dashboard/training", label: "nav.training", icon: GraduationCap, permission: "training" as const },
-  { href: "/dashboard/audits", label: "nav.audits", icon: ClipboardCheck, permission: "audits" as const },
-  { href: "/dashboard/actions", label: "nav.actions", icon: ListTodo, permission: "actions" as const },
-  { href: "/dashboard/feedback", label: "nav.feedback", icon: ThumbsUp, permission: "feedback" as const },
-  { href: "/dashboard/goals", label: "nav.goals", icon: Target, permission: "goals" as const },
-  { href: "/dashboard/settings", label: "nav.settings", icon: Settings, permission: "settings" as const },
+  // GRUNNLEGGENDE
+  { href: "/dashboard", label: "nav.dashboard", icon: LayoutDashboard, permission: "dashboard" as const, simple: true },
+  { href: "/dashboard/documents", label: "nav.documents", icon: FileText, permission: "documents" as const, simple: true },
+  { href: "/dashboard/incidents", label: "nav.incidents", icon: AlertCircle, permission: "incidents" as const, simple: true },
+  { href: "/dashboard/inspections", label: "nav.inspections", icon: ShieldCheck, permission: "inspections" as const, simple: true },
+  { href: "/dashboard/training", label: "nav.training", icon: GraduationCap, permission: "training" as const, simple: true },
+  { href: "/dashboard/actions", label: "nav.actions", icon: ListTodo, permission: "actions" as const, simple: true },
+  { href: "/dashboard/chemicals", label: "nav.chemicals", icon: Beaker, permission: "chemicals" as const, simple: true },
+  // AVANSERT
+  { href: "/dashboard/forms", label: "nav.forms", icon: ClipboardList, permission: "forms" as const, simple: false },
+  { href: "/dashboard/risks", label: "nav.risks", icon: AlertTriangle, permission: "risks" as const, simple: false },
+  { href: "/dashboard/audits", label: "nav.audits", icon: ClipboardCheck, permission: "audits" as const, simple: false },
+  { href: "/dashboard/feedback", label: "nav.feedback", icon: ThumbsUp, permission: "feedback" as const, simple: false },
+  { href: "/dashboard/goals", label: "nav.goals", icon: Target, permission: "goals" as const, simple: false },
+  // INNSTILLINGER
+  { href: "/dashboard/settings", label: "nav.settings", icon: Settings, permission: "settings" as const, simple: true },
 ];
 
 export function MobileNav() {
@@ -53,10 +60,15 @@ export function MobileNav() {
   const t = useTranslations();
   const { data: session } = useSession();
   const { visibleNavItems, role } = usePermissions();
+  const { isSimpleMode, toggleMode } = useSimpleMode();
   const [open, setOpen] = useState(false);
 
-  // Filtrer navigasjon basert på tilganger
-  const allowedNavItems = navItems.filter((item) => visibleNavItems[item.permission]);
+  // Filtrer navigasjon basert på tilganger OG enkel/avansert modus
+  const allowedNavItems = navItems.filter((item) => {
+    if (!visibleNavItems[item.permission]) return false;
+    if (isSimpleMode && !item.simple) return false;
+    return true;
+  });
 
   return (
     <div className="lg:hidden">
@@ -85,6 +97,27 @@ export function MobileNav() {
                     </Badge>
                   )}
                 </div>
+
+                {/* Enkel/Avansert toggle */}
+                <div className="border-b px-4 py-3">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      {isSimpleMode ? (
+                        <Zap className="h-4 w-4 text-blue-500" />
+                      ) : (
+                        <Sparkles className="h-4 w-4 text-purple-500" />
+                      )}
+                      <span className="text-sm font-medium">
+                        {isSimpleMode ? "Enkel modus" : "Avansert"}
+                      </span>
+                    </div>
+                    <Switch
+                      checked={!isSimpleMode}
+                      onCheckedChange={() => toggleMode()}
+                    />
+                  </div>
+                </div>
+
                 <nav className="flex-1 space-y-1 p-4 overflow-y-auto">
                   {allowedNavItems.map((item) => {
                     const Icon = item.icon;

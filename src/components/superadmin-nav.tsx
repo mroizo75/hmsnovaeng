@@ -16,6 +16,7 @@ import {
   Headphones,
   UserPlus,
   Newspaper,
+  Stethoscope,
 } from "lucide-react";
 import { Badge } from "./ui/badge";
 
@@ -23,6 +24,7 @@ const allNavItems = [
   { href: "/admin", label: "Oversikt", icon: LayoutDashboard, supportAccess: true },
   { href: "/admin/registrations", label: "Nye registreringer", icon: UserPlus, supportAccess: true },
   { href: "/admin/tenants", label: "Bedrifter", icon: Building2, supportAccess: true },
+  { href: "/admin/bht", label: "BHT-kunder", icon: Stethoscope, supportAccess: true },
   { href: "/admin/invoices", label: "Fakturaer", icon: FileText, supportAccess: true },
   { href: "/admin/blog", label: "Blogg & SEO", icon: Newspaper, supportAccess: false },
   { href: "/admin/newsletter", label: "Nyhetsbrev", icon: FileText, supportAccess: false },

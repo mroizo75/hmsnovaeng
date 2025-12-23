@@ -5,6 +5,7 @@ import { DashboardNav } from "@/components/dashboard-nav";
 import { MobileNav } from "@/components/mobile-nav";
 import { Toaster } from "@/components/ui/toaster";
 import { SessionUser } from "@/types";
+import { DashboardProviders } from "@/components/dashboard-providers";
 
 export default async function DashboardLayout({
   children,
@@ -29,14 +30,16 @@ export default async function DashboardLayout({
   }
 
   return (
-    <div className="flex flex-col lg:flex-row min-h-screen">
-      <MobileNav />
-      <DashboardNav />
-      <main className="flex-1 p-4 lg:p-8">
-        {children}
-      </main>
-      <Toaster />
-    </div>
+    <DashboardProviders>
+      <div className="flex flex-col lg:flex-row min-h-screen">
+        <MobileNav />
+        <DashboardNav />
+        <main className="flex-1 p-4 lg:p-8">
+          {children}
+        </main>
+        <Toaster />
+      </div>
+    </DashboardProviders>
   );
 }
 

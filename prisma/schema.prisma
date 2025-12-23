@@ -213,6 +213,7 @@ model Tenant {
   meetings         Meeting[]        // AMU/VO møter
   whistleblowings  Whistleblowing[] // Varslinger
   scheduledReminders ScheduledReminder[] // Planlagte påminnelser
+  bhtClient        BhtClient?       // BHT-kunde (hvis aktivert)
   createdAt        DateTime         @default(now())
   updatedAt        DateTime         @updatedAt
 
@@ -2210,4 +2211,336 @@ enum ReminderStatus {
   SENT        // Sendt vellykket
   FAILED      // Feilet
   CANCELLED   // Kansellert (f.eks. møte ble avlyst)
+}
+
+// ============================================
+// BHT - Bedriftshelsetjeneste
+// ============================================
+
+// BHT-kunde registrering (kobling mellom BHT-leverandør og kunde-tenant)
+model BhtClient {
+  id                  String   @id @default(cuid())
+  tenantId            String   // Kunden som får BHT-tjenester
+  bhtProviderId       String?  // BHT-leverandørens tenant (null = HMS Nova selv)
+  contractStartDate   DateTime // Avtalestart
+  contractEndDate     DateTime? // Avtalens utløp
+  packageType         BhtPackageType @default(BASIC) // Grunnpakke eller utvidet
+  status              BhtClientStatus @default(ACTIVE)
+  notes               String?  @db.Text
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  tenant              Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  assessments         BhtAssessment[]
+  consultations       BhtConsultation[]
+  amoMeetings         BhtAmoMeeting[]
+  inspections         BhtInspection[]
+  exposureAssessments BhtExposureAssessment[]
+  annualReports       BhtAnnualReport[]
+
+  @@unique([tenantId])
+  @@index([status])
+}
+
+enum BhtPackageType {
+  BASIC    // Grunnpakke
+  EXTENDED // Utvidet pakke
+}
+
+enum BhtClientStatus {
+  ACTIVE
+  PAUSED
+  TERMINATED
+}
+
+// 1. Årlig arbeidsmiljøkartlegging
+model BhtAssessment {
+  id                String   @id @default(cuid())
+  bhtClientId       String
+  year              Int      // Hvilket år kartleggingen gjelder
+  status            BhtAssessmentStatus @default(DRAFT)
+  
+  // AI-foranalyse
+  aiSuggestedRisks  String?  @db.Text // JSON: foreslåtte risikoer
+  aiSuggestedIssues String?  @db.Text // JSON: foreslåtte avvik
+  aiSuggestedActions String? @db.Text // JSON: foreslåtte tiltak
+  aiGeneratedAt     DateTime?
+  
+  // Kundeinvolvering
+  sentToCustomerAt  DateTime?
+  customerConfirmedAt DateTime?
+  customerComments  String?  @db.Text
+  customerAdditions String?  @db.Text
+  
+  // BHT-vurdering
+  bhtReviewedBy     String?  // Bruker-ID
+  bhtReviewedAt     DateTime?
+  bhtComments       String?  @db.Text
+  adjustedRiskLevel String?  @db.Text // JSON: justert risikonivå
+  adjustedActions   String?  @db.Text // JSON: justerte tiltak
+  
+  // Ferdig rapport
+  finalReportUrl    String?
+  completedAt       DateTime?
+  
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  bhtClient         BhtClient @relation(fields: [bhtClientId], references: [id], onDelete: Cascade)
+  
+  @@unique([bhtClientId, year])
+  @@index([status])
+  @@index([year])
+}
+
+enum BhtAssessmentStatus {
+  DRAFT           // Utkast
+  AI_ANALYZED     // AI-analyse ferdig
+  SENT_TO_CUSTOMER // Sendt til kunde
+  CUSTOMER_RESPONDED // Kunde har svart
+  BHT_REVIEWED    // BHT har vurdert
+  COMPLETED       // Ferdigstilt
+}
+
+// 2. HMS-rådgivning logg
+model BhtConsultation {
+  id              String   @id @default(cuid())
+  bhtClientId     String
+  consultationType BhtConsultationType
+  
+  // Hva ble spurt om
+  topic           String
+  description     String   @db.Text
+  
+  // Hva ble anbefalt
+  recommendation  String   @db.Text
+  
+  // Metadata
+  conductedBy     String   // Bruker-ID for BHT-rådgiver
+  conductedAt     DateTime
+  durationMinutes Int?     // Varighet i minutter
+  method          BhtConsultationMethod
+  
+  // Begrensninger
+  isWithinScope   Boolean  @default(true) // Innenfor grunnpakke-scope
+  outOfScopeNotes String?  @db.Text // Hvis utenfor scope, hva ble henvist til
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  bhtClient       BhtClient @relation(fields: [bhtClientId], references: [id], onDelete: Cascade)
+
+  @@index([bhtClientId])
+  @@index([conductedAt])
+}
+
+enum BhtConsultationType {
+  ON_REQUEST      // På forespørsel
+  ASSESSMENT_RELATED // I forbindelse med kartlegging
+  OPERATIONAL_CHANGE // Ved endringer i drift
+  FOLLOW_UP       // Oppfølging
+}
+
+enum BhtConsultationMethod {
+  DIGITAL_MEETING // Digitalt møte
+  PHONE           // Telefon
+  WRITTEN         // Skriftlig i HMS Nova
+  IN_PERSON       // Fysisk møte
+}
+
+// 3a. AMO-møte (Arbeidsmiljøorgan)
+model BhtAmoMeeting {
+  id              String   @id @default(cuid())
+  bhtClientId     String
+  year            Int
+  
+  // Forberedelse
+  preparedIssues  String?  @db.Text // JSON: avvik fra HMS Nova
+  preparedRisks   String?  @db.Text // JSON: risikovurderinger
+  preparedSickLeave String? @db.Text // JSON: sykefraværsstatistikk
+  aiSuggestedAgenda String? @db.Text // JSON: AI-foreslåtte saker
+  
+  // Gjennomføring
+  meetingDate     DateTime?
+  meetingType     BhtMeetingType @default(DIGITAL)
+  participants    String?  @db.Text // JSON: deltakere
+  agenda          String?  @db.Text // Endelig agenda
+  
+  // Referat
+  minutes         String?  @db.Text
+  decisions       String?  @db.Text // JSON: beslutninger
+  
+  // Tiltak
+  actionsRegistered Boolean @default(false)
+  
+  status          BhtAmoStatus @default(PLANNED)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  bhtClient       BhtClient @relation(fields: [bhtClientId], references: [id], onDelete: Cascade)
+
+  @@unique([bhtClientId, year])
+  @@index([status])
+}
+
+enum BhtMeetingType {
+  DIGITAL
+  IN_PERSON
+  HYBRID
+}
+
+enum BhtAmoStatus {
+  PLANNED
+  PREPARED
+  CONDUCTED
+  MINUTES_DONE
+  COMPLETED
+}
+
+// 3b. BHT-vernerunde (alternativ til AMO)
+model BhtInspection {
+  id              String   @id @default(cuid())
+  bhtClientId     String
+  year            Int
+  
+  // Forberedelse
+  aiGeneratedChecklist String? @db.Text // JSON: AI-generert sjekkliste
+  basedOnIndustry String?  // Bransje
+  basedOnPreviousFindings String? @db.Text // Tidligere funn
+  
+  // Gjennomføring
+  inspectionDate  DateTime?
+  inspectionType  BhtMeetingType @default(DIGITAL)
+  participants    String?  @db.Text // JSON: deltakere
+  
+  // Funn
+  findings        String?  @db.Text // JSON: avvik og funn
+  improvements    String?  @db.Text // JSON: forbedringsforslag
+  
+  // Rapport
+  reportUrl       String?
+  actionsRegistered Boolean @default(false)
+  
+  status          BhtInspectionStatus @default(PLANNED)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  bhtClient       BhtClient @relation(fields: [bhtClientId], references: [id], onDelete: Cascade)
+
+  @@unique([bhtClientId, year])
+  @@index([status])
+}
+
+enum BhtInspectionStatus {
+  PLANNED
+  PREPARED
+  CONDUCTED
+  REPORT_DONE
+  COMPLETED
+}
+
+// 4. Eksponeringsvurdering
+model BhtExposureAssessment {
+  id              String   @id @default(cuid())
+  bhtClientId     String
+  year            Int
+  
+  // Datagrunnlag
+  chemicalInventory String? @db.Text // JSON: stoffkartotek
+  jobDescriptions String?  @db.Text // JSON: stillingsbeskrivelser
+  assessmentData  String?  @db.Text // JSON: kartleggingsdata
+  
+  // AI-vurdering
+  aiExposureAnalysis String? @db.Text // JSON: mulig eksponering
+  aiRiskLevel     String?  // Risikonivå
+  aiGeneratedAt   DateTime?
+  
+  // BHT-konklusjon
+  bhtReviewedBy   String?
+  bhtReviewedAt   DateTime?
+  conclusion      BhtExposureConclusion?
+  furtherActionNeeded Boolean @default(false)
+  furtherActionNotes String? @db.Text // Hva anbefales
+  
+  // Dokumentasjon
+  assessmentNotes String?  @db.Text
+  
+  status          BhtExposureStatus @default(DRAFT)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  bhtClient       BhtClient @relation(fields: [bhtClientId], references: [id], onDelete: Cascade)
+
+  @@unique([bhtClientId, year])
+  @@index([status])
+}
+
+enum BhtExposureConclusion {
+  SUFFICIENT      // Tilstrekkelig vurdert
+  NEEDS_FOLLOWUP  // Anbefaler videre kartlegging
+}
+
+enum BhtExposureStatus {
+  DRAFT
+  AI_ANALYZED
+  BHT_REVIEWED
+  COMPLETED
+}
+
+// 5. Årlig BHT-oppsummering og plan
+model BhtAnnualReport {
+  id              String   @id @default(cuid())
+  bhtClientId     String
+  year            Int
+  
+  // Samlet grunnlag
+  assessmentSummary String? @db.Text // Oppsummering av kartlegging
+  consultationsSummary String? @db.Text // Oppsummering av rådgivning
+  amoOrInspectionSummary String? @db.Text // AMO/Vernerunde oppsummering
+  exposureSummary String?  @db.Text // Eksponeringsvurdering oppsummering
+  
+  // AI-utkast
+  aiDraftReport   String?  @db.Text // AI-generert utkast
+  aiSuggestedActions String? @db.Text // Foreslåtte tiltak
+  aiNextYearPlan  String?  @db.Text // Plan for neste år
+  aiGeneratedAt   DateTime?
+  
+  // BHT kvalitetssikring
+  bhtReviewedBy   String?
+  bhtReviewedAt   DateTime?
+  bhtAdjustments  String?  @db.Text // Justeringer gjort
+  
+  // Ferdig rapport
+  finalReportUrl  String?
+  
+  // Ledelsens gjennomgang
+  managementReviewedAt DateTime?
+  managementReviewedBy String? // Kunde-side leder
+  
+  // Kvalitetssjekk
+  checkAssessmentDone Boolean @default(false)
+  checkConsultationsDone Boolean @default(false)
+  checkAmoOrInspectionDone Boolean @default(false)
+  checkExposureDone Boolean @default(false)
+  checkReportDone Boolean @default(false)
+  checkActionsDone Boolean @default(false)
+  
+  status          BhtReportStatus @default(DRAFT)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  bhtClient       BhtClient @relation(fields: [bhtClientId], references: [id], onDelete: Cascade)
+
+  @@unique([bhtClientId, year])
+  @@index([status])
+  @@index([year])
+}
+
+enum BhtReportStatus {
+  DRAFT           // Utkast
+  AI_GENERATED    // AI-utkast ferdig
+  BHT_REVIEWED    // BHT har gjennomgått
+  FINAL           // Ferdigstilt
+  MANAGEMENT_REVIEWED // Ledelsen har gjennomgått
+  COMPLETED       // Alt fullført
 }

@@ -25,6 +25,7 @@ interface FeedbackFormProps {
 
 const NO_OWNER = "__none__";
 const NO_GOAL = "__none_goal__";
+const NO_RATING = "__no_rating__";
 
 const sourceOptions: Array<{ value: FeedbackSource; label: string }> = [
   { value: "EMAIL", label: "E-post" },
@@ -139,12 +140,12 @@ export function FeedbackForm({ users, goals }: FeedbackFormProps) {
             </div>
             <div className="space-y-2">
               <Label htmlFor="rating">Vurdering (1-5)</Label>
-              <Select name="rating" disabled={isPending}>
+              <Select name="rating" defaultValue={NO_RATING} disabled={isPending}>
                 <SelectTrigger>
                   <SelectValue placeholder="Velg (valgfritt)" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Ingen vurdering</SelectItem>
+                  <SelectItem value={NO_RATING}>Ingen vurdering</SelectItem>
                   {[1, 2, 3, 4, 5].map((value) => (
                     <SelectItem key={value} value={value.toString()}>
                       {value}

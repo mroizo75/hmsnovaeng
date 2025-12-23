@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Beaker, Download, AlertTriangle } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
+import { normalizePpeFile } from "@/lib/pictograms";
 
 export default async function AnsattStoffkartotek() {
   const session = await getServerSession(authOptions);
@@ -123,16 +124,21 @@ export default async function AnsattStoffkartotek() {
                             <div className="flex items-center gap-1 text-xs">
                               <span className="text-muted-foreground">Verneutstyr:</span>
                               <div className="flex gap-1">
-                                {ppe.slice(0, 3).map((ppeItem: string, idx: number) => (
-                                  <div key={idx} className="h-6 w-6 relative">
-                                    <Image
-                                      src={`/ppe/${ppeItem}`}
-                                      alt="PPE"
-                                      fill
-                                      className="object-contain"
-                                    />
-                                  </div>
-                                ))}
+                                {ppe.slice(0, 3).map((ppeItem: string, idx: number) => {
+                                  const normalizedFile = normalizePpeFile(ppeItem);
+                                  if (!normalizedFile) return null;
+                                  return (
+                                    <div key={idx} className="h-6 w-6 relative">
+                                      <Image
+                                        src={`/ppe/${normalizedFile}`}
+                                        alt="PPE"
+                                        fill
+                                        className="object-contain"
+                                        unoptimized
+                                      />
+                                    </div>
+                                  );
+                                })}
                               </div>
                             </div>
                           ) : null;
