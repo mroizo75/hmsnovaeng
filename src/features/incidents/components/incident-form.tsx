@@ -76,11 +76,11 @@ export function IncidentForm({ tenantId, userId, risks = [], defaultType }: Inci
         rawRiskReferenceId && rawRiskReferenceId !== NO_RISK_REFERENCE_VALUE
           ? rawRiskReferenceId
           : undefined,
-      customerName: formData.get("customerName") as string | null,
-      customerEmail: formData.get("customerEmail") as string | null,
-      customerPhone: formData.get("customerPhone") as string | null,
-      customerTicketId: formData.get("customerTicketId") as string | null,
-      responseDeadline: formData.get("responseDeadline") as string | null,
+      customerName: formData.get("customerName") as string || undefined,
+      customerEmail: formData.get("customerEmail") as string || undefined,
+      customerPhone: formData.get("customerPhone") as string || undefined,
+      customerTicketId: formData.get("customerTicketId") as string || undefined,
+      responseDeadline: formData.get("responseDeadline") as string || undefined,
       customerSatisfaction: formData.get("customerSatisfaction")
         ? parseInt(formData.get("customerSatisfaction") as string, 10)
         : undefined,
