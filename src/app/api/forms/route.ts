@@ -3,6 +3,62 @@ import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 
+export async function GET(request: NextRequest) {
+  try {
+    const session = await getServerSession(authOptions);
+
+    if (!session?.user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    // Hent tenantId fra session
+    const userTenants = await prisma.userTenant.findMany({
+      where: { userId: session.user.id },
+    });
+
+    if (userTenants.length === 0) {
+      return NextResponse.json({ forms: [] });
+    }
+
+    const tenantId = userTenants[0].tenantId;
+
+    // Hent category fra query parameters
+    const { searchParams } = new URL(request.url);
+    const category = searchParams.get("category");
+
+    // Bygg where-clause
+    const where: any = {
+      tenantId,
+      isActive: true,
+    };
+
+    // Filtrer på kategori hvis spesifisert
+    if (category) {
+      where.category = category;
+    }
+
+    const forms = await prisma.formTemplate.findMany({
+      where,
+      include: {
+        fields: {
+          orderBy: { order: "asc" },
+        },
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
+    });
+
+    return NextResponse.json({ forms });
+  } catch (error: any) {
+    console.error("Get forms error:", error);
+    return NextResponse.json(
+      { error: error.message || "Internal server error" },
+      { status: 500 }
+    );
+  }
+}
+
 export async function POST(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
@@ -105,4 +161,3 @@ export async function PUT(request: NextRequest) {
     );
   }
 }
-

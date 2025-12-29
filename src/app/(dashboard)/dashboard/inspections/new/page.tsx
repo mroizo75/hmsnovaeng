@@ -254,57 +254,7 @@ export default function NewInspectionPage() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="templateId">Inspeksjonsmal (gammel type)</Label>
-                <Select
-                  value={formData.templateId}
-                  onValueChange={(value) => {
-                  if (value === NO_TEMPLATE_VALUE) {
-                    setFormData((prev) => ({
-                      ...prev,
-                      templateId: NO_TEMPLATE_VALUE,
-                    }));
-                    return;
-                  }
-
-                    const selected = templates.find((template) => template.id === value);
-                    setFormData((prev) => ({
-                      ...prev,
-                      templateId: value,
-                      formTemplateId: NO_TEMPLATE_VALUE, // Reset form template hvis inspection template velges
-                      riskCategory: selected?.riskCategory || prev.riskCategory,
-                      title: prev.title || selected?.name || prev.title,
-                      description: prev.description || selected?.description || prev.description,
-                    }));
-                  }}
-                  disabled={loadingTemplates}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder={loadingTemplates ? "Laster maler..." : "Velg mal (valgfritt)"} />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value={NO_TEMPLATE_VALUE}>Ingen mal</SelectItem>
-                    {templates.length === 0 && !loadingTemplates && (
-                      <div className="px-2 py-6 text-sm text-muted-foreground text-center">
-                        <p>Ingen maler tilgjengelig</p>
-                        <p className="text-xs mt-1">Kontakt support for å få tilgang til standardmaler</p>
-                      </div>
-                    )}
-                    {templates.map((template) => (
-                      <SelectItem key={template.id} value={template.id}>
-                        {template.name} {template.isGlobal ? "🌐" : ""}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                {templates.length === 0 && !loadingTemplates && (
-                  <p className="text-xs text-muted-foreground mt-1">
-                    💡 Det finnes ingen vernerundemaler i systemet ennå. Kontakt support@hmsnova.com for å få tilgang til standardmaler.
-                  </p>
-                )}
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="formTemplateId">📋 Vernerunde-skjema (ny type)</Label>
+                <Label htmlFor="formTemplateId">📋 Vernerunde-skjema</Label>
                 <Select
                   value={formData.formTemplateId}
                   onValueChange={(value) => {
@@ -328,14 +278,20 @@ export default function NewInspectionPage() {
                   disabled={loadingFormTemplates}
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder={loadingFormTemplates ? "Laster skjemaer..." : "Velg skjema (valgfritt)"} />
+                    <SelectValue placeholder={loadingFormTemplates ? "Laster skjemaer..." : "Velg skjema (anbefalt)"} />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value={NO_TEMPLATE_VALUE}>Ingen skjema</SelectItem>
                     {formTemplates.length === 0 && !loadingFormTemplates && (
                       <div className="px-2 py-6 text-sm text-muted-foreground text-center">
-                        <p>Ingen vernerunde-skjemaer funnet</p>
-                        <p className="text-xs mt-1">Opprett et skjema med kategori "Inspeksjon / Vernerunde"</p>
+                        <p className="font-semibold">Ingen vernerunde-skjemaer funnet</p>
+                        <p className="text-xs mt-2">Opprett først et skjema:</p>
+                        <ol className="text-xs mt-2 text-left space-y-1">
+                          <li>1. Gå til Skjemaer → Nytt skjema</li>
+                          <li>2. Velg kategori "Inspeksjon / Vernerunde"</li>
+                          <li>3. Bygg skjemaet og lagre</li>
+                          <li>4. Kom tilbake hit og velg skjemaet</li>
+                        </ol>
                       </div>
                     )}
                     {formTemplates.map((template) => (
@@ -346,13 +302,62 @@ export default function NewInspectionPage() {
                   </SelectContent>
                 </Select>
                 {formTemplates.length === 0 && !loadingFormTemplates && (
-                  <p className="text-xs text-muted-foreground mt-1">
-                    💡 Gå til <strong>Skjemaer</strong> → <strong>Nytt skjema</strong> og velg kategori <strong>"Inspeksjon / Vernerunde"</strong> for å opprette et vernerunde-skjema.
-                  </p>
+                  <div className="mt-2 p-3 bg-blue-50 border border-blue-200 rounded-md">
+                    <p className="text-sm text-blue-900 font-medium">
+                      💡 Opprett ditt eget vernerunde-skjema
+                    </p>
+                    <p className="text-xs text-blue-700 mt-1">
+                      Gå til <strong>Skjemaer</strong> → <strong>Nytt skjema</strong> og velg kategori <strong>"Inspeksjon / Vernerunde"</strong>
+                    </p>
+                  </div>
                 )}
                 {formTemplates.length > 0 && (
-                  <p className="text-xs text-success mt-1">
+                  <p className="text-xs text-green-600 mt-1">
                     ✅ {formTemplates.length} vernerunde-skjema tilgjengelig
+                  </p>
+                )}
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="templateId">Inspeksjonsmal (valgfri - gammelt system)</Label>
+                <Select
+                  value={formData.templateId}
+                  onValueChange={(value) => {
+                  if (value === NO_TEMPLATE_VALUE) {
+                    setFormData((prev) => ({
+                      ...prev,
+                      templateId: NO_TEMPLATE_VALUE,
+                    }));
+                    return;
+                  }
+
+                    const selected = templates.find((template) => template.id === value);
+                    setFormData((prev) => ({
+                      ...prev,
+                      templateId: value,
+                      formTemplateId: NO_TEMPLATE_VALUE,
+                      riskCategory: selected?.riskCategory || prev.riskCategory,
+                      title: prev.title || selected?.name || prev.title,
+                      description: prev.description || selected?.description || prev.description,
+                    }));
+                  }}
+                  disabled={loadingTemplates}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder={loadingTemplates ? "Laster..." : "Velg mal (valgfritt)"} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value={NO_TEMPLATE_VALUE}>Ingen mal</SelectItem>
+                    {templates.map((template) => (
+                      <SelectItem key={template.id} value={template.id}>
+                        {template.name} {template.isGlobal ? "🌐" : ""}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                {templates.length === 0 && !loadingTemplates && (
+                  <p className="text-xs text-muted-foreground mt-1">
+                    ℹ️ Ingen gamle maler. Bruk skjemabyggeren over i stedet (anbefalt).
                   </p>
                 )}
               </div>
