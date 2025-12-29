@@ -260,13 +260,24 @@ export default function NewInspectionPage() {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value={NO_TEMPLATE_VALUE}>Ingen mal</SelectItem>
+                    {templates.length === 0 && !loadingTemplates && (
+                      <div className="px-2 py-6 text-sm text-muted-foreground text-center">
+                        <p>Ingen maler tilgjengelig</p>
+                        <p className="text-xs mt-1">Kontakt support for å få tilgang til standardmaler</p>
+                      </div>
+                    )}
                     {templates.map((template) => (
                       <SelectItem key={template.id} value={template.id}>
-                        {template.name} {template.isGlobal ? "(Global)" : ""}
+                        {template.name} {template.isGlobal ? "🌐" : ""}
                       </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
+                {templates.length === 0 && !loadingTemplates && (
+                  <p className="text-xs text-muted-foreground mt-1">
+                    💡 Det finnes ingen vernerundemaler i systemet ennå. Kontakt support@hmsnova.com for å få tilgang til standardmaler.
+                  </p>
+                )}
               </div>
 
               <div className="space-y-2">

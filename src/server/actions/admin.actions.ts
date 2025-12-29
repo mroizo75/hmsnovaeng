@@ -45,9 +45,12 @@ export async function createAdminUser(input: z.infer<typeof createAdminUserSchem
 
     const validated = createAdminUserSchema.parse(input);
 
+    // SIKKERHET: Normaliser e-post til lowercase
+    const normalizedEmail = validated.email.toLowerCase().trim();
+
     // Sjekk om e-post allerede eksisterer
     const existingUser = await prisma.user.findUnique({
-      where: { email: validated.email },
+      where: { email: normalizedEmail },
     });
 
     if (existingUser) {
@@ -60,7 +63,7 @@ export async function createAdminUser(input: z.infer<typeof createAdminUserSchem
     // Opprett bruker
     const user = await prisma.user.create({
       data: {
-        email: validated.email,
+        email: normalizedEmail,
         name: validated.name,
         password: hashedPassword,
         isSuperAdmin: validated.isSuperAdmin,

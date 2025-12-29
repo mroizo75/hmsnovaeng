@@ -138,6 +138,9 @@ export async function activateTenant(input: z.infer<typeof activateTenantSchema>
 
     const validated = activateTenantSchema.parse(input);
 
+    // SIKKERHET: Normaliser e-post til lowercase
+    const normalizedEmail = validated.adminEmail.toLowerCase().trim();
+
     // Hent tenant
     const tenant = await prisma.tenant.findUnique({
       where: { id: validated.tenantId },
@@ -152,7 +155,7 @@ export async function activateTenant(input: z.infer<typeof activateTenantSchema>
 
     // Sjekk om admin-bruker allerede eksisterer
     const existingUser = await prisma.user.findUnique({
-      where: { email: validated.adminEmail },
+      where: { email: normalizedEmail },
       include: {
         tenants: {
           where: { tenantId: validated.tenantId },
@@ -183,7 +186,7 @@ export async function activateTenant(input: z.infer<typeof activateTenantSchema>
       // 1. Opprett admin-bruker med ADMIN-rolle
       const adminUser = await tx.user.create({
         data: {
-          email: validated.adminEmail,
+          email: normalizedEmail,
           name: validated.adminName,
           password: hashedPassword,
           emailVerified: new Date(), // Admin-bruker er automatisk verifisert

@@ -8,6 +8,7 @@ import { ActivityFeed } from "@/features/dashboard/components/activity-feed";
 import { QuickActions } from "@/features/dashboard/components/quick-actions";
 import { MyTasks } from "@/features/dashboard/components/my-tasks";
 import { HMSScoreChart } from "@/features/dashboard/components/hms-score-chart";
+import { TaskCenter } from "@/features/dashboard/components/task-center";
 import { getPermissions } from "@/lib/permissions";
 import { subMonths, format } from "date-fns";
 import { nb } from "date-fns/locale";
@@ -435,6 +436,9 @@ export default async function DashboardPage() {
 
       {/* Quick Actions */}
       <QuickActions permissions={permissions} userRole={userRole} />
+
+      {/* Task Center - Samlet oppgaveoversikt */}
+      <TaskCenter tenantId={tenantId} userId={user.id} />
 
       {/* Main Grid - 2 kolonne layout på desktop */}
       <div className="grid gap-6 lg:grid-cols-2">

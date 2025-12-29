@@ -31,8 +31,11 @@ export const authOptions: NextAuthOptions = {
           throw new Error("Ugyldig pålogging");
         }
 
+        // SIKKERHET: Normaliser e-post til lowercase for konsistent lookup
+        const normalizedEmail = credentials.email.toLowerCase().trim();
+
         const user = await prisma.user.findUnique({
-          where: { email: credentials.email },
+          where: { email: normalizedEmail },
           include: {
             tenants: {
               include: {

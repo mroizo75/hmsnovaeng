@@ -1,0 +1,17 @@
+{
+  "crons": [
+    {
+      "path": "/api/cron/alerts",
+      "schedule": "0 8 * * *"
+    },
+    {
+      "path": "/api/cron/digest?type=daily",
+      "schedule": "0 7 * * 1-5"
+    },
+    {
+      "path": "/api/cron/digest?type=weekly",
+      "schedule": "0 8 * * 1"
+    }
+  ]
+}
+

@@ -213,9 +213,12 @@ export async function inviteUser(data: { email: string; name: string; role: stri
       };
     }
 
+    // SIKKERHET: Normaliser e-postadresse til lowercase for konsistent lagring
+    const normalizedEmail = data.email.toLowerCase().trim();
+
     // Sjekk om bruker allerede eksisterer
     let existingUser = await prisma.user.findUnique({
-      where: { email: data.email },
+      where: { email: normalizedEmail },
     });
 
     // Hvis bruker eksisterer, sjekk om de allerede er med i tenant
@@ -242,20 +245,29 @@ export async function inviteUser(data: { email: string; name: string; role: stri
 
     // Generer ALLTID midlertidig passord når bruker inviteres til tenant
     // Dette sikrer at de får tilgang, uansett om de eksisterer fra før eller ikke
-    const tempPassword = Math.random().toString(36).slice(-8) + Math.random().toString(36).slice(-8);
+    // Bruker en sikker metode som genererer kun alfanumeriske tegn (a-z, 0-9)
+    const generateSecurePassword = () => {
+      const charset = 'abcdefghijklmnopqrstuvwxyz0123456789';
+      let password = '';
+      for (let i = 0; i < 16; i++) {
+        password += charset.charAt(Math.floor(Math.random() * charset.length));
+      }
+      return password;
+    };
+    const tempPassword = generateSecurePassword();
     const hashedPassword = await bcrypt.hash(tempPassword, 10);
     
     if (!existingUser) {
       // Opprett helt ny bruker
       existingUser = await prisma.user.create({
         data: {
-          email: data.email,
+          email: normalizedEmail,
           name: data.name,
           password: hashedPassword,
         },
       });
       
-      console.log(`✅ Ny bruker opprettet: ${data.email}`);
+      console.log(`✅ Ny bruker opprettet: ${normalizedEmail}`);
       console.log(`🔑 Midlertidig passord generert: ${tempPassword}`);
     } else {
       // Bruker eksisterer - oppdater med nytt midlertidig passord
@@ -264,7 +276,7 @@ export async function inviteUser(data: { email: string; name: string; role: stri
         data: { password: hashedPassword },
       });
       
-      console.log(`ℹ️ Eksisterende bruker legges til i tenant: ${data.email}`);
+      console.log(`ℹ️ Eksisterende bruker legges til i tenant: ${normalizedEmail}`);
       console.log(`🔑 Nytt midlertidig passord generert: ${tempPassword}`);
     }
 
@@ -279,26 +291,26 @@ export async function inviteUser(data: { email: string; name: string; role: stri
 
     // Send invitasjonsepost til ALLE inviterte brukere
     try {
-      console.log(`📧 Sender invitasjonsepost til ${data.email}...`);
+      console.log(`📧 Sender invitasjonsepost til ${normalizedEmail}...`);
       
       const { sendUserInvitationEmail } = await import("@/lib/email-service");
       await sendUserInvitationEmail({
-        to: data.email,
+        to: normalizedEmail,
         userName: data.name,
-        userEmail: data.email,
+        userEmail: normalizedEmail,
         tempPassword: tempPassword,
         companyName: tenantInfo?.name || "Bedrift",
         invitedByName: user.name || user.email,
       });
       
-      console.log(`✅ Invitasjonsepost sendt til ${data.email}`);
+      console.log(`✅ Invitasjonsepost sendt til ${normalizedEmail}`);
     } catch (emailError) {
-      console.error(`❌ Failed to send invitation email to ${data.email}:`, emailError);
+      console.error(`❌ Failed to send invitation email to ${normalizedEmail}:`, emailError);
       // Vi fortsetter selv om epost feiler - brukeren er opprettet
     }
 
     await AuditLog.log(tenantId, user.id, "USER_INVITED", "User", existingUser.id, {
-      email: data.email,
+      email: normalizedEmail,
       role: data.role,
     });
 

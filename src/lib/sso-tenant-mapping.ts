@@ -74,9 +74,12 @@ export async function createSSOUser(
   tenantId: string,
   role: "ADMIN" | "HMS" | "LEDER" | "VERNEOMBUD" | "ANSATT" = "ANSATT"
 ) {
+  // SIKKERHET: Normaliser e-post til lowercase
+  const normalizedEmail = email.toLowerCase().trim();
+
   // Sjekk om bruker allerede eksisterer
   const existingUser = await prisma.user.findUnique({
-    where: { email },
+    where: { email: normalizedEmail },
     include: {
       tenants: true,
     },
@@ -100,7 +103,7 @@ export async function createSSOUser(
   // Opprett ny bruker med tenant
   const user = await prisma.user.create({
     data: {
-      email,
+      email: normalizedEmail,
       name,
       emailVerified: new Date(), // SSO-brukere er automatisk verifisert
       tenants: {

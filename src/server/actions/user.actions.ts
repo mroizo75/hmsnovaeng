@@ -17,8 +17,11 @@ const createUserSchema = z.object({
 export const createUser = authAction(
   createUserSchema,
   async (input, ctx) => {
+    // SIKKERHET: Normaliser e-post til lowercase
+    const normalizedEmail = input.email.toLowerCase().trim();
+
     const existingUser = await prisma.user.findUnique({
-      where: { email: input.email },
+      where: { email: normalizedEmail },
     });
 
     if (existingUser) {
@@ -29,7 +32,7 @@ export const createUser = authAction(
 
     const user = await prisma.user.create({
       data: {
-        email: input.email,
+        email: normalizedEmail,
         password: hashedPassword,
         name: input.name,
         tenants: {

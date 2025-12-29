@@ -68,6 +68,12 @@ model User {
   notifyInspections   Boolean  @default(true)  // Varsle om vernerunder/inspeksjoner
   notifyAudits        Boolean  @default(true)  // Varsle om revisjoner
   notifyMeasures      Boolean  @default(true)  // Varsle om tiltak som forfaller
+  notifyIncidents     Boolean  @default(true)  // Varsle om avvik/hendelser
+  notifyDocuments     Boolean  @default(true)  // Varsle om dokumenter
+  notifyTraining      Boolean  @default(true)  // Varsle om opplæring
+  notifyRisks         Boolean  @default(true)  // Varsle om risikoer
+  dailyDigest         Boolean  @default(false) // Motta daglig e-post sammendrag
+  weeklyDigest        Boolean  @default(true)  // Motta ukentlig e-post sammendrag
   
   // Security: Account lockout
   failedLoginAttempts Int       @default(0)
@@ -2150,22 +2156,76 @@ model Notification {
 }
 
 enum NotificationType {
-  NEW_INCIDENT         // Nytt avvik
-  INCIDENT_UPDATED     // Avvik oppdatert
-  INCIDENT_CLOSED      // Avvik lukket
-  FORM_SUBMITTED       // Skjema sendt inn
-  FORM_APPROVED        // Skjema godkjent
-  FORM_REJECTED        // Skjema avvist
-  WHISTLEBLOWING       // Ny varsling
-  WHISTLEBLOWING_MSG   // Ny melding i varslingssak
-  MEASURE_OVERDUE      // Tiltak forfalt
-  MEASURE_ASSIGNED     // Tiltak tildelt deg
-  AUDIT_SCHEDULED      // Revisjon planlagt
-  TRAINING_DUE         // Opplæring forfaller snart
-  MEETING_REMINDER     // Påminnelse om møte
-  INSPECTION_REMINDER  // Påminnelse om vernerunde/inspeksjon
-  AUDIT_REMINDER       // Påminnelse om revisjon
-  MEASURE_REMINDER     // Påminnelse om tiltak som forfaller
+  // Avvik/Hendelser
+  NEW_INCIDENT           // Nytt avvik
+  INCIDENT_UPDATED       // Avvik oppdatert
+  INCIDENT_CLOSED        // Avvik lukket
+  INCIDENT_OVERDUE       // Avvik ikke behandlet innen frist
+  
+  // Skjemaer
+  FORM_SUBMITTED         // Skjema sendt inn
+  FORM_APPROVED          // Skjema godkjent
+  FORM_REJECTED          // Skjema avvist
+  
+  // Varsling (whistleblowing)
+  WHISTLEBLOWING         // Ny varsling
+  WHISTLEBLOWING_MSG     // Ny melding i varslingssak
+  
+  // Tiltak
+  MEASURE_OVERDUE        // Tiltak forfalt
+  MEASURE_ASSIGNED       // Tiltak tildelt deg
+  MEASURE_DUE_SOON       // Tiltak forfaller snart (7 dager)
+  MEASURE_REMINDER       // Påminnelse om tiltak som forfaller
+  
+  // Revisjoner
+  AUDIT_SCHEDULED        // Revisjon planlagt
+  AUDIT_REMINDER         // Påminnelse om revisjon
+  AUDIT_FINDING_OPEN     // Revisjonsfunn ikke lukket
+  
+  // Opplæring
+  TRAINING_DUE           // Opplæring forfaller snart
+  TRAINING_EXPIRED       // Opplæring/sertifikat utløpt
+  TRAINING_ASSIGNED      // Ny opplæring tildelt
+  
+  // Møter
+  MEETING_REMINDER       // Påminnelse om møte
+  MEETING_SCHEDULED      // Nytt møte planlagt
+  
+  // Vernerunder/Inspeksjoner
+  INSPECTION_REMINDER    // Påminnelse om vernerunde/inspeksjon
+  INSPECTION_SCHEDULED   // Vernerunde planlagt
+  INSPECTION_OVERDUE     // Vernerunde ikke gjennomført
+  INSPECTION_FINDING     // Nytt funn fra vernerunde
+  
+  // Risikoer
+  RISK_REVIEW_DUE        // Risiko trenger gjennomgang
+  RISK_HIGH_SCORE        // Høy risikoscore varsling
+  RISK_CONTROL_DUE       // Risikokontroll forfaller
+  
+  // Dokumenter
+  DOCUMENT_REVIEW_DUE    // Dokument trenger revisjon
+  DOCUMENT_EXPIRED       // Dokument utløpt
+  DOCUMENT_APPROVED      // Dokument godkjent
+  
+  // Kjemikalier/Stoffkartotek
+  CHEMICAL_SDS_REVIEW    // SDS trenger oppdatering
+  CHEMICAL_EXPIRED       // Kjemikalie-revisjon forfalt
+  
+  // Mål/KPI
+  GOAL_AT_RISK           // Mål i fare
+  GOAL_MEASUREMENT_DUE   // Tid for ny måling
+  
+  // Miljø
+  ENVIRONMENTAL_LIMIT    // Miljømåling nær/over grense
+  
+  // Ledelsens gjennomgang
+  MGMT_REVIEW_DUE        // Tid for ledelsens gjennomgang
+  MGMT_REVIEW_SCHEDULED  // Ledelsens gjennomgang planlagt
+  
+  // System
+  DAILY_DIGEST           // Daglig sammendrag
+  WEEKLY_DIGEST          // Ukentlig sammendrag
+  SYSTEM_ALERT           // Systemvarsel
 }
 
 // ============================================
@@ -2200,10 +2260,23 @@ model ScheduledReminder {
 }
 
 enum ReminderType {
-  MEETING_UPCOMING      // Møte om X dager
-  INSPECTION_UPCOMING   // Vernerunde om X dager
-  AUDIT_UPCOMING        // Revisjon om X dager
-  MEASURE_DUE_SOON      // Tiltak forfaller snart
+  // Møter og hendelser
+  MEETING_UPCOMING        // Møte om X dager
+  INSPECTION_UPCOMING     // Vernerunde om X dager
+  AUDIT_UPCOMING          // Revisjon om X dager
+  MGMT_REVIEW_UPCOMING    // Ledelsens gjennomgang om X dager
+  
+  // Frister
+  MEASURE_DUE_SOON        // Tiltak forfaller snart
+  TRAINING_EXPIRING       // Opplæring utløper snart
+  DOCUMENT_REVIEW_SOON    // Dokument trenger revisjon snart
+  CHEMICAL_REVIEW_SOON    // Kjemikalie/SDS trenger revisjon snart
+  RISK_REVIEW_SOON        // Risiko trenger gjennomgang snart
+  GOAL_MEASUREMENT_SOON   // Tid for KPI-måling snart
+  
+  // Periodiske
+  DAILY_TASKS             // Daglige oppgaver
+  WEEKLY_SUMMARY          // Ukentlig sammendrag
 }
 
 enum ReminderStatus {
