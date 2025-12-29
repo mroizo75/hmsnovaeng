@@ -63,6 +63,8 @@ export default function NewInspectionPage() {
   const [loadingUsers, setLoadingUsers] = useState(true);
   const [templates, setTemplates] = useState<InspectionTemplate[]>([]);
   const [loadingTemplates, setLoadingTemplates] = useState(true);
+  const [formTemplates, setFormTemplates] = useState<any[]>([]);
+  const [loadingFormTemplates, setLoadingFormTemplates] = useState(true);
 
   const [formData, setFormData] = useState({
     title: "",
@@ -72,6 +74,7 @@ export default function NewInspectionPage() {
     location: "",
     conductedBy: "",
     templateId: NO_TEMPLATE_VALUE,
+    formTemplateId: NO_TEMPLATE_VALUE,
     riskCategory: NO_RISK_CATEGORY_VALUE,
     area: "",
     durationMinutes: "",
@@ -122,6 +125,24 @@ export default function NewInspectionPage() {
     fetchTemplates();
   }, []);
 
+  useEffect(() => {
+    const fetchFormTemplates = async () => {
+      try {
+        const response = await fetch("/api/forms?category=INSPECTION");
+        const data = await response.json();
+        if (response.ok && data.forms) {
+          setFormTemplates(data.forms);
+        }
+      } catch (error) {
+        console.error("Failed to fetch form templates:", error);
+      } finally {
+        setLoadingFormTemplates(false);
+      }
+    };
+
+    fetchFormTemplates();
+  }, []);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -130,6 +151,7 @@ export default function NewInspectionPage() {
       const payload = {
         ...formData,
         templateId: formData.templateId === NO_TEMPLATE_VALUE ? undefined : formData.templateId,
+        formTemplateId: formData.formTemplateId === NO_TEMPLATE_VALUE ? undefined : formData.formTemplateId,
         riskCategory: formData.riskCategory === NO_RISK_CATEGORY_VALUE ? undefined : formData.riskCategory,
         followUpById: formData.followUpById === NO_FOLLOWUP_VALUE ? undefined : formData.followUpById,
         durationMinutes: formData.durationMinutes
@@ -232,7 +254,7 @@ export default function NewInspectionPage() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="templateId">Inspeksjonsmal</Label>
+                <Label htmlFor="templateId">Inspeksjonsmal (gammel type)</Label>
                 <Select
                   value={formData.templateId}
                   onValueChange={(value) => {
@@ -248,6 +270,7 @@ export default function NewInspectionPage() {
                     setFormData((prev) => ({
                       ...prev,
                       templateId: value,
+                      formTemplateId: NO_TEMPLATE_VALUE, // Reset form template hvis inspection template velges
                       riskCategory: selected?.riskCategory || prev.riskCategory,
                       title: prev.title || selected?.name || prev.title,
                       description: prev.description || selected?.description || prev.description,
@@ -276,6 +299,60 @@ export default function NewInspectionPage() {
                 {templates.length === 0 && !loadingTemplates && (
                   <p className="text-xs text-muted-foreground mt-1">
                     💡 Det finnes ingen vernerundemaler i systemet ennå. Kontakt support@hmsnova.com for å få tilgang til standardmaler.
+                  </p>
+                )}
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="formTemplateId">📋 Vernerunde-skjema (ny type)</Label>
+                <Select
+                  value={formData.formTemplateId}
+                  onValueChange={(value) => {
+                    if (value === NO_TEMPLATE_VALUE) {
+                      setFormData((prev) => ({
+                        ...prev,
+                        formTemplateId: NO_TEMPLATE_VALUE,
+                      }));
+                      return;
+                    }
+
+                    const selected = formTemplates.find((template) => template.id === value);
+                    setFormData((prev) => ({
+                      ...prev,
+                      formTemplateId: value,
+                      templateId: NO_TEMPLATE_VALUE, // Reset inspection template hvis form template velges
+                      title: prev.title || selected?.title || prev.title,
+                      description: prev.description || selected?.description || prev.description,
+                    }));
+                  }}
+                  disabled={loadingFormTemplates}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder={loadingFormTemplates ? "Laster skjemaer..." : "Velg skjema (valgfritt)"} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value={NO_TEMPLATE_VALUE}>Ingen skjema</SelectItem>
+                    {formTemplates.length === 0 && !loadingFormTemplates && (
+                      <div className="px-2 py-6 text-sm text-muted-foreground text-center">
+                        <p>Ingen vernerunde-skjemaer funnet</p>
+                        <p className="text-xs mt-1">Opprett et skjema med kategori "Inspeksjon / Vernerunde"</p>
+                      </div>
+                    )}
+                    {formTemplates.map((template) => (
+                      <SelectItem key={template.id} value={template.id}>
+                        📋 {template.title}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                {formTemplates.length === 0 && !loadingFormTemplates && (
+                  <p className="text-xs text-muted-foreground mt-1">
+                    💡 Gå til <strong>Skjemaer</strong> → <strong>Nytt skjema</strong> og velg kategori <strong>"Inspeksjon / Vernerunde"</strong> for å opprette et vernerunde-skjema.
+                  </p>
+                )}
+                {formTemplates.length > 0 && (
+                  <p className="text-xs text-success mt-1">
+                    ✅ {formTemplates.length} vernerunde-skjema tilgjengelig
                   </p>
                 )}
               </div>

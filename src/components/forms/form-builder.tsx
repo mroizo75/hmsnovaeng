@@ -343,14 +343,21 @@ export function FormBuilder({ tenantId, initialData }: FormBuilderProps) {
                 <SelectContent>
                   <SelectItem value="CUSTOM">Egendefinert</SelectItem>
                   <SelectItem value="MEETING">Møtereferat</SelectItem>
-                  <SelectItem value="INSPECTION">Inspeksjon</SelectItem>
+                  <SelectItem value="INSPECTION">🔍 Inspeksjon / Vernerunde</SelectItem>
                   <SelectItem value="INCIDENT">Hendelsesrapport</SelectItem>
                   <SelectItem value="RISK">Risikovurdering</SelectItem>
                   <SelectItem value="TRAINING">Opplæring</SelectItem>
                   <SelectItem value="CHECKLIST">Sjekkliste</SelectItem>
-                  <SelectItem value="WELLBEING">Psykososial puls (WELLBEING)</SelectItem>
+                  <SelectItem value="WELLBEING">Psykososial puls (ISO 45003)</SelectItem>
+                  <SelectItem value="BCM">Beredskap (ISO 22301)</SelectItem>
+                  <SelectItem value="COMPLAINT">Kundeklage (ISO 10002)</SelectItem>
                 </SelectContent>
               </Select>
+              {category === "INSPECTION" && (
+                <p className="text-sm text-muted-foreground mt-2">
+                  💡 Dette skjemaet kan brukes som mal for vernerunder. Når du oppretter en vernerunde, kan du velge dette skjemaet som mal.
+                </p>
+              )}
             </div>
 
             <div className="flex items-center space-x-2">

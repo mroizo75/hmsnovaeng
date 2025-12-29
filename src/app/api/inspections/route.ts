@@ -75,6 +75,7 @@ export async function POST(request: NextRequest) {
         conductedBy: data.conductedBy || session.user.id,
         participants: data.participants ? JSON.stringify(data.participants) : null,
         templateId: data.templateId || null,
+        formTemplateId: data.formTemplateId || null,
         riskCategory: data.riskCategory || null,
         area: data.area || null,
         durationMinutes: data.durationMinutes ?? null,

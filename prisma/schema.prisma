@@ -1545,7 +1545,9 @@ model Inspection {
   location         String?
   area             String?
   riskCategory     RiskCategory?
-  templateId       String?
+  templateId       String?           // Gammelt system: InspectionTemplate
+  formTemplateId   String?           // Nytt system: FormTemplate (skjemabygger)
+  formSubmissionId String?           // Kobling til utfylt skjema
   conductedBy      String            // userId
   participants     String?           @db.Text // JSON array of userIds
   durationMinutes  Int?
@@ -1555,14 +1557,18 @@ model Inspection {
   createdAt        DateTime          @default(now())
   updatedAt        DateTime          @updatedAt
   
-  tenant    Tenant            @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  template  InspectionTemplate? @relation("TemplateInspections", fields: [templateId], references: [id], onDelete: SetNull)
+  tenant          Tenant              @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  template        InspectionTemplate? @relation("TemplateInspections", fields: [templateId], references: [id], onDelete: SetNull)
+  formTemplate    FormTemplate?       @relation("InspectionFormTemplates", fields: [formTemplateId], references: [id], onDelete: SetNull)
+  formSubmission  FormSubmission?     @relation("InspectionFormSubmission", fields: [formSubmissionId], references: [id], onDelete: SetNull)
   
   @@index([tenantId])
   @@index([scheduledDate])
   @@index([status])
   @@index([type])
   @@index([templateId])
+  @@index([formTemplateId])
+  @@index([formSubmissionId])
   @@index([riskCategory])
   @@index([nextInspection])
 }
@@ -1668,6 +1674,7 @@ model FormTemplate {
   createdBy         String
   fields            FormField[]
   submissions       FormSubmission[]
+  inspections       Inspection[]      @relation("InspectionFormTemplates")
   tenant            Tenant            @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   createdAt         DateTime          @default(now())
   updatedAt         DateTime          @updatedAt
@@ -1688,7 +1695,7 @@ enum AccessType {
 
 enum FormCategory {
   MEETING       // Møtereferater
-  INSPECTION    // Inspeksjoner
+  INSPECTION    // Inspeksjoner / Vernerunder
   INCIDENT      // Hendelsesrapporter
   RISK          // Risikovurderinger
   TRAINING      // Opplæring
@@ -1742,6 +1749,7 @@ model FormSubmission {
   approvedById    String?
   approvedAt      DateTime?
   fieldValues     FormFieldValue[]
+  inspections     Inspection[]      @relation("InspectionFormSubmission")
   metadata        String?           @db.Text // JSON: IP, location, etc.
   formTemplate    FormTemplate      @relation(fields: [formTemplateId], references: [id], onDelete: Cascade)
   tenant          Tenant            @relation(fields: [tenantId], references: [id], onDelete: Cascade)
