@@ -105,6 +105,18 @@ export default async function InspectionDetailPage({
       findings: {
         orderBy: { createdAt: "desc" },
       },
+      formTemplate: {
+        include: {
+          fields: {
+            orderBy: { order: "asc" },
+          },
+        },
+      },
+      formSubmission: {
+        include: {
+          fieldValues: true,
+        },
+      },
     },
   });
 
@@ -190,6 +202,60 @@ export default async function InspectionDetailPage({
           </div>
         </div>
       </div>
+
+      {/* Skjema hvis tilgjengelig */}
+      {inspection.formTemplate && (
+        <Card className="mb-6 border-primary/20">
+          <CardHeader>
+            <div className="flex items-center gap-3">
+              <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center">
+                <span className="text-2xl">📋</span>
+              </div>
+              <div className="flex-1">
+                <CardTitle>{inspection.formTemplate.title}</CardTitle>
+                {inspection.formTemplate.description && (
+                  <p className="text-sm text-muted-foreground mt-1">{inspection.formTemplate.description}</p>
+                )}
+              </div>
+              {inspection.formSubmission && (
+                <Badge className="bg-green-100 text-green-800">
+                  <CheckCircle2 className="h-3 w-3 mr-1" />
+                  Utfylt
+                </Badge>
+              )}
+            </div>
+          </CardHeader>
+          <CardContent>
+            {inspection.formSubmission ? (
+              <div className="flex gap-3">
+                <Link href={`/dashboard/forms/${inspection.formTemplate.id}/fill?inspectionId=${id}`} className="flex-1">
+                  <Button variant="outline" className="w-full">
+                    Se utfylt skjema
+                  </Button>
+                </Link>
+                <Link href={`/api/forms/${inspection.formSubmissionId}/pdf`} target="_blank">
+                  <Button variant="outline">
+                    <Download className="h-4 w-4 mr-2" />
+                    Last ned PDF
+                  </Button>
+                </Link>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                <div className="flex items-center gap-2 text-sm text-orange-600 bg-orange-50 p-3 rounded-md">
+                  <AlertTriangle className="h-4 w-4" />
+                  <span>Skjema må fylles ut for å fullføre vernerunden</span>
+                </div>
+                <Link href={`/dashboard/forms/${inspection.formTemplate.id}/fill?inspectionId=${id}`}>
+                  <Button className="w-full">
+                    Fyll ut skjema nå
+                  </Button>
+                </Link>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      )}
 
       <div className="grid gap-6 md:grid-cols-2">
         {/* Basic Info */}

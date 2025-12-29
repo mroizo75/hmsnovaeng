@@ -15,6 +15,18 @@ async function getInspection(id: string, tenantId: string) {
       findings: {
         orderBy: { createdAt: "desc" },
       },
+      formTemplate: {
+        include: {
+          fields: {
+            orderBy: { order: "asc" },
+          },
+        },
+      },
+      formSubmission: {
+        include: {
+          fieldValues: true,
+        },
+      },
     },
   });
 }
@@ -80,6 +92,49 @@ export default async function InspectionMobilePage({
 
       {/* Content */}
       <div className="container max-w-2xl mx-auto px-4 py-6">
+        {/* Skjema hvis tilgjengelig */}
+        {inspection.formTemplate && (
+          <div className="bg-white rounded-lg border p-6 mb-6">
+            <div className="flex items-center gap-2 mb-4">
+              <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
+                <span className="text-xl">📋</span>
+              </div>
+              <div>
+                <h2 className="text-lg font-semibold">{inspection.formTemplate.title}</h2>
+                {inspection.formTemplate.description && (
+                  <p className="text-sm text-muted-foreground">{inspection.formTemplate.description}</p>
+                )}
+              </div>
+            </div>
+            
+            {inspection.formSubmission ? (
+              <div className="space-y-4">
+                <div className="flex items-center gap-2 text-sm text-green-600 bg-green-50 p-3 rounded-md">
+                  <CheckCircle className="h-4 w-4" />
+                  <span>Skjema er utfylt</span>
+                </div>
+                <Link href={`/dashboard/forms/${inspection.formTemplate.id}/fill?inspectionId=${id}`}>
+                  <Button variant="outline" className="w-full">
+                    Se utfylt skjema
+                  </Button>
+                </Link>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                <div className="flex items-center gap-2 text-sm text-orange-600 bg-orange-50 p-3 rounded-md">
+                  <Clock className="h-4 w-4" />
+                  <span>Skjema må fylles ut</span>
+                </div>
+                <Link href={`/dashboard/forms/${inspection.formTemplate.id}/fill?inspectionId=${id}`}>
+                  <Button className="w-full">
+                    Fyll ut skjema
+                  </Button>
+                </Link>
+              </div>
+            )}
+          </div>
+        )}
+
         {/* Statistics */}
         <div className="grid grid-cols-2 gap-3 mb-6">
           <div className="bg-white rounded-lg border p-4 text-center">

@@ -33,13 +33,6 @@ interface TenantUser {
   };
 }
 
-interface InspectionTemplate {
-  id: string;
-  name: string;
-  description: string | null;
-  riskCategory: string | null;
-  isGlobal: boolean;
-}
 
 const riskCategoryOptions = [
   { value: "SAFETY", label: "Sikkerhet" },
@@ -61,8 +54,6 @@ export default function NewInspectionPage() {
   const [loading, setLoading] = useState(false);
   const [users, setUsers] = useState<TenantUser[]>([]);
   const [loadingUsers, setLoadingUsers] = useState(true);
-  const [templates, setTemplates] = useState<InspectionTemplate[]>([]);
-  const [loadingTemplates, setLoadingTemplates] = useState(true);
   const [formTemplates, setFormTemplates] = useState<any[]>([]);
   const [loadingFormTemplates, setLoadingFormTemplates] = useState(true);
 
@@ -73,7 +64,6 @@ export default function NewInspectionPage() {
     scheduledDate: "",
     location: "",
     conductedBy: "",
-    templateId: NO_TEMPLATE_VALUE,
     formTemplateId: NO_TEMPLATE_VALUE,
     riskCategory: NO_RISK_CATEGORY_VALUE,
     area: "",
@@ -108,24 +98,6 @@ export default function NewInspectionPage() {
   }, [session?.user?.tenantId, session?.user?.id]);
 
   useEffect(() => {
-    const fetchTemplates = async () => {
-      try {
-        const response = await fetch("/api/inspection-templates");
-        const data = await response.json();
-        if (response.ok && data.templates) {
-          setTemplates(data.templates);
-        }
-      } catch (error) {
-        console.error("Failed to fetch templates:", error);
-      } finally {
-        setLoadingTemplates(false);
-      }
-    };
-
-    fetchTemplates();
-  }, []);
-
-  useEffect(() => {
     const fetchFormTemplates = async () => {
       try {
         const response = await fetch("/api/forms?category=INSPECTION");
@@ -150,7 +122,6 @@ export default function NewInspectionPage() {
     try {
       const payload = {
         ...formData,
-        templateId: formData.templateId === NO_TEMPLATE_VALUE ? undefined : formData.templateId,
         formTemplateId: formData.formTemplateId === NO_TEMPLATE_VALUE ? undefined : formData.formTemplateId,
         riskCategory: formData.riskCategory === NO_RISK_CATEGORY_VALUE ? undefined : formData.riskCategory,
         followUpById: formData.followUpById === NO_FOLLOWUP_VALUE ? undefined : formData.followUpById,
@@ -270,7 +241,6 @@ export default function NewInspectionPage() {
                     setFormData((prev) => ({
                       ...prev,
                       formTemplateId: value,
-                      templateId: NO_TEMPLATE_VALUE, // Reset inspection template hvis form template velges
                       title: prev.title || selected?.title || prev.title,
                       description: prev.description || selected?.description || prev.description,
                     }));
@@ -318,51 +288,7 @@ export default function NewInspectionPage() {
                 )}
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="templateId">Inspeksjonsmal (valgfri - gammelt system)</Label>
-                <Select
-                  value={formData.templateId}
-                  onValueChange={(value) => {
-                  if (value === NO_TEMPLATE_VALUE) {
-                    setFormData((prev) => ({
-                      ...prev,
-                      templateId: NO_TEMPLATE_VALUE,
-                    }));
-                    return;
-                  }
-
-                    const selected = templates.find((template) => template.id === value);
-                    setFormData((prev) => ({
-                      ...prev,
-                      templateId: value,
-                      formTemplateId: NO_TEMPLATE_VALUE,
-                      riskCategory: selected?.riskCategory || prev.riskCategory,
-                      title: prev.title || selected?.name || prev.title,
-                      description: prev.description || selected?.description || prev.description,
-                    }));
-                  }}
-                  disabled={loadingTemplates}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder={loadingTemplates ? "Laster..." : "Velg mal (valgfritt)"} />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value={NO_TEMPLATE_VALUE}>Ingen mal</SelectItem>
-                    {templates.map((template) => (
-                      <SelectItem key={template.id} value={template.id}>
-                        {template.name} {template.isGlobal ? "🌐" : ""}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                {templates.length === 0 && !loadingTemplates && (
-                  <p className="text-xs text-muted-foreground mt-1">
-                    ℹ️ Ingen gamle maler. Bruk skjemabyggeren over i stedet (anbefalt).
-                  </p>
-                )}
-              </div>
-
-              <div className="space-y-2">
+<div className="space-y-2">
                 <Label htmlFor="riskCategory">Risiko-kategori</Label>
                 <Select
                   value={formData.riskCategory}

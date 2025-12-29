@@ -52,3 +52,6 @@ next-env.d.ts
 
 # scripts (internal testing and utilities)
 /scripts/
+
+# documentation (should not be committed)
+/docs/
