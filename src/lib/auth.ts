@@ -104,16 +104,6 @@ export const authOptions: NextAuthOptions = {
           );
         }
 
-        // SIKKERHET: Auto-sett emailVerified hvis bruker kan logge inn med riktig passord
-        // Dette fikser eksisterende brukere som ble opprettet før emailVerified-kravet
-        if (!user.emailVerified) {
-          await prisma.user.update({
-            where: { id: user.id },
-            data: { emailVerified: new Date() },
-          });
-          console.log(`✅ Auto-verifisert e-post for bruker: ${user.email}`);
-        }
-
         // SUCCESS: Reset failed attempts og lockout
         if (user.failedLoginAttempts > 0 || user.lockedUntil) {
           await prisma.user.update({

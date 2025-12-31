@@ -35,7 +35,6 @@ export const createUser = authAction(
         email: normalizedEmail,
         password: hashedPassword,
         name: input.name,
-        emailVerified: new Date(), // Nye brukere er automatisk verifisert
         tenants: {
           create: {
             tenantId: input.tenantId,

@@ -67,7 +67,6 @@ export async function createAdminUser(input: z.infer<typeof createAdminUserSchem
         name: validated.name,
         password: hashedPassword,
         isSuperAdmin: validated.isSuperAdmin,
-        emailVerified: new Date(), // Admin-brukere er automatisk verifisert
       },
     });
 
