@@ -264,16 +264,20 @@ export async function inviteUser(data: { email: string; name: string; role: stri
           email: normalizedEmail,
           name: data.name,
           password: hashedPassword,
+          emailVerified: new Date(), // Sett emailVerified for inviterte brukere
         },
       });
       
       console.log(`✅ Ny bruker opprettet: ${normalizedEmail}`);
       console.log(`🔑 Midlertidig passord generert: ${tempPassword}`);
     } else {
-      // Bruker eksisterer - oppdater med nytt midlertidig passord
+      // Bruker eksisterer - oppdater med nytt midlertidig passord og sett emailVerified
       await prisma.user.update({
         where: { id: existingUser.id },
-        data: { password: hashedPassword },
+        data: { 
+          password: hashedPassword,
+          emailVerified: new Date(), // Sikre at emailVerified er satt
+        },
       });
       
       console.log(`ℹ️ Eksisterende bruker legges til i tenant: ${normalizedEmail}`);
