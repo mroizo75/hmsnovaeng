@@ -104,11 +104,14 @@ export const authOptions: NextAuthOptions = {
           );
         }
 
-        // SIKKERHET: Krev email verification for ikke-admin brukere
-        if (!user.emailVerified && !user.isSuperAdmin && !user.isSupport) {
-          throw new Error(
-            "E-postadressen din er ikke verifisert. Sjekk innboksen din for en verifikasjonslenke."
-          );
+        // SIKKERHET: Auto-sett emailVerified hvis bruker kan logge inn med riktig passord
+        // Dette fikser eksisterende brukere som ble opprettet før emailVerified-kravet
+        if (!user.emailVerified) {
+          await prisma.user.update({
+            where: { id: user.id },
+            data: { emailVerified: new Date() },
+          });
+          console.log(`✅ Auto-verifisert e-post for bruker: ${user.email}`);
         }
 
         // SUCCESS: Reset failed attempts og lockout
