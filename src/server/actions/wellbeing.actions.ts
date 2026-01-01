@@ -517,3 +517,450 @@ function generateWellbeingMeasures(
 
   return measures;
 }
+
+/**
+ * RAPPORTER OG ANALYSE
+ */
+
+interface WellbeingReport {
+  year: number;
+  totalResponses: number;
+  responseRate?: number; // Hvis vi vet antall ansatte
+  overallScore: number;
+  sectionAverages: Array<{
+    section: string;
+    average: number;
+    responseCount: number;
+    trend?: number; // Sammenligning med forrige år
+  }>;
+  criticalIncidents: {
+    mobbing: number;
+    trakassering: number;
+    press: number;
+    konflikter: number;
+  };
+  riskDistribution: {
+    high: number;
+    medium: number;
+    low: number;
+  };
+  topConcerns: string[];
+  openFeedback: Array<{
+    positive: string[];
+    negative: string[];
+    suggestions: string[];
+  }>;
+  trend?: {
+    previousYear: number;
+    change: number;
+    improving: boolean;
+  };
+  generatedRisks: number;
+  implementedMeasures: number;
+}
+
+/**
+ * Hent aggregert rapport for et år
+ */
+export async function getWellbeingReport(
+  tenantId: string,
+  year: number
+): Promise<WellbeingReport> {
+  const startDate = new Date(`${year}-01-01`);
+  const endDate = new Date(`${year}-12-31T23:59:59`);
+
+  // Hent alle WELLBEING submissions for året
+  const submissions = await prisma.formSubmission.findMany({
+    where: {
+      tenantId,
+      formTemplate: {
+        category: "WELLBEING",
+      },
+      createdAt: {
+        gte: startDate,
+        lte: endDate,
+      },
+      status: { in: ["SUBMITTED", "APPROVED"] }, // Kun godkjente svar
+    },
+    include: {
+      fieldValues: {
+        include: {
+          field: true,
+        },
+      },
+      formTemplate: {
+        include: {
+          fields: true,
+        },
+      },
+    },
+  });
+
+  const totalResponses = submissions.length;
+
+  if (totalResponses === 0) {
+    // Returner tom rapport
+    return {
+      year,
+      totalResponses: 0,
+      overallScore: 0,
+      sectionAverages: [],
+      criticalIncidents: { mobbing: 0, trakassering: 0, press: 0, konflikter: 0 },
+      riskDistribution: { high: 0, medium: 0, low: 0 },
+      topConcerns: [],
+      openFeedback: [{ positive: [], negative: [], suggestions: [] }],
+      generatedRisks: 0,
+      implementedMeasures: 0,
+    };
+  }
+
+  // Definer seksjoner
+  const sections = [
+    { name: "Arbeidsbelastning", keywords: ["arbeidsmengde", "tid", "stress", "krav"] },
+    { name: "Rolle og forutsigbarhet", keywords: ["forvent", "ansvar", "endring", "forutsigbar"] },
+    { name: "Sosialt arbeidsmiljø", keywords: ["stemning", "respekt", "inkludert", "samarbeid"] },
+    { name: "Ledelse og støtte", keywords: ["støtte", "leder", "tilbakemelding", "konflikt", "rettferdig"] },
+  ];
+
+  // Beregn gjennomsnitt per seksjon
+  const sectionAverages = sections.map(section => {
+    const allValues: number[] = [];
+
+    submissions.forEach(submission => {
+      const fields = submission.formTemplate.fields.filter(f =>
+        f.fieldType === "LIKERT_SCALE" &&
+        section.keywords.some(kw => f.label.toLowerCase().includes(kw))
+      );
+
+      fields.forEach(field => {
+        const value = submission.fieldValues.find(v => v.fieldId === field.id);
+        if (value?.value) {
+          const numValue = parseInt(value.value, 10);
+          if (!isNaN(numValue)) {
+            allValues.push(numValue);
+          }
+        }
+      });
+    });
+
+    const average = allValues.length > 0
+      ? allValues.reduce((sum, v) => sum + v, 0) / allValues.length
+      : 0;
+
+    return {
+      section: section.name,
+      average: parseFloat(average.toFixed(2)),
+      responseCount: allValues.length,
+      trend: undefined as number | undefined, // Fylles inn senere
+    };
+  });
+
+  // Beregn overall score
+  const overallScore = sectionAverages.length > 0
+    ? sectionAverages.reduce((sum, s) => sum + s.average, 0) / sectionAverages.length
+    : 0;
+
+  // Tell kritiske hendelser
+  const criticalIncidents = {
+    mobbing: 0,
+    trakassering: 0,
+    press: 0,
+    konflikter: 0,
+  };
+
+  submissions.forEach(submission => {
+    submission.fieldValues.forEach(value => {
+      const field = value.field;
+      if (field.fieldType === "RADIO" && value.value && value.value !== "Aldri") {
+        if (field.label.toLowerCase().includes("mobbing")) criticalIncidents.mobbing++;
+        if (field.label.toLowerCase().includes("trakassering")) criticalIncidents.trakassering++;
+        if (field.label.toLowerCase().includes("press")) criticalIncidents.press++;
+        if (field.label.toLowerCase().includes("konflikt")) criticalIncidents.konflikter++;
+      }
+    });
+  });
+
+  // Risikofordeling
+  const riskDistribution = {
+    high: sectionAverages.filter(s => s.average < 2.5).length * submissions.length,
+    medium: sectionAverages.filter(s => s.average >= 2.5 && s.average < 3.5).length * submissions.length,
+    low: sectionAverages.filter(s => s.average >= 3.5).length * submissions.length,
+  };
+
+  // Top bekymringer (basert på laveste scores)
+  const topConcerns = sectionAverages
+    .sort((a, b) => a.average - b.average)
+    .slice(0, 3)
+    .filter(s => s.average < 3.5)
+    .map(s => s.section);
+
+  // Åpen feedback (samle tekstsvar)
+  const openFeedback = {
+    positive: [] as string[],
+    negative: [] as string[],
+    suggestions: [] as string[],
+  };
+
+  submissions.forEach(submission => {
+    submission.fieldValues.forEach(value => {
+      const field = value.field;
+      if (field.fieldType === "TEXTAREA" && value.value) {
+        const label = field.label.toLowerCase();
+        if (label.includes("godt") || label.includes("fungerer")) {
+          openFeedback.positive.push(value.value);
+        } else if (label.includes("belastende")) {
+          openFeedback.negative.push(value.value);
+        } else if (label.includes("forslag") || label.includes("forbedring")) {
+          openFeedback.suggestions.push(value.value);
+        }
+      }
+    });
+  });
+
+  // Tell genererte risikoer
+  const generatedRisks = await prisma.risk.count({
+    where: {
+      tenantId,
+      category: "HEALTH",
+      title: { contains: "psykososial" },
+      createdAt: { gte: startDate, lte: endDate },
+    },
+  });
+
+  // Tell implementerte tiltak
+  const implementedMeasures = await prisma.measure.count({
+    where: {
+      tenantId,
+      risk: {
+        category: "HEALTH",
+        title: { contains: "psykososial" },
+      },
+      status: "DONE",
+      createdAt: { gte: startDate, lte: endDate },
+    },
+  });
+
+  // Hent trend (sammenlign med forrige år)
+  const previousYearScore = await getPreviousYearScore(tenantId, year - 1);
+  const trend = previousYearScore
+    ? {
+        previousYear: previousYearScore,
+        change: parseFloat((overallScore - previousYearScore).toFixed(2)),
+        improving: overallScore > previousYearScore,
+      }
+    : undefined;
+
+  // Legg til trend på seksjoner
+  for (const section of sectionAverages) {
+    const prevScore = await getPreviousYearSectionScore(tenantId, year - 1, section.section);
+    if (prevScore !== null) {
+      section.trend = parseFloat((section.average - prevScore).toFixed(2));
+    }
+  }
+
+  return {
+    year,
+    totalResponses,
+    overallScore: parseFloat(overallScore.toFixed(2)),
+    sectionAverages,
+    criticalIncidents,
+    riskDistribution,
+    topConcerns,
+    openFeedback: [openFeedback],
+    trend,
+    generatedRisks,
+    implementedMeasures,
+  };
+}
+
+/**
+ * Hent forrige års overall score
+ */
+async function getPreviousYearScore(tenantId: string, year: number): Promise<number | null> {
+  const startDate = new Date(`${year}-01-01`);
+  const endDate = new Date(`${year}-12-31T23:59:59`);
+
+  const submissions = await prisma.formSubmission.findMany({
+    where: {
+      tenantId,
+      formTemplate: { category: "WELLBEING" },
+      createdAt: { gte: startDate, lte: endDate },
+      status: { in: ["SUBMITTED", "APPROVED"] },
+    },
+    include: {
+      fieldValues: { include: { field: true } },
+    },
+  });
+
+  if (submissions.length === 0) return null;
+
+  // Beregn overall score
+  const likertValues: number[] = [];
+  submissions.forEach(sub => {
+    sub.fieldValues.forEach(val => {
+      if (val.field.fieldType === "LIKERT_SCALE" && val.value) {
+        const num = parseInt(val.value, 10);
+        if (!isNaN(num)) likertValues.push(num);
+      }
+    });
+  });
+
+  return likertValues.length > 0
+    ? likertValues.reduce((sum, v) => sum + v, 0) / likertValues.length
+    : null;
+}
+
+/**
+ * Hent forrige års score for en spesifikk seksjon
+ */
+async function getPreviousYearSectionScore(
+  tenantId: string,
+  year: number,
+  sectionName: string
+): Promise<number | null> {
+  const startDate = new Date(`${year}-01-01`);
+  const endDate = new Date(`${year}-12-31T23:59:59`);
+
+  const keywords = getSectionKeywords(sectionName);
+  if (!keywords) return null;
+
+  const submissions = await prisma.formSubmission.findMany({
+    where: {
+      tenantId,
+      formTemplate: { category: "WELLBEING" },
+      createdAt: { gte: startDate, lte: endDate },
+      status: { in: ["SUBMITTED", "APPROVED"] },
+    },
+    include: {
+      fieldValues: { include: { field: true } },
+      formTemplate: { include: { fields: true } },
+    },
+  });
+
+  if (submissions.length === 0) return null;
+
+  const values: number[] = [];
+  submissions.forEach(sub => {
+    const fields = sub.formTemplate.fields.filter(f =>
+      f.fieldType === "LIKERT_SCALE" &&
+      keywords.some(kw => f.label.toLowerCase().includes(kw))
+    );
+
+    fields.forEach(field => {
+      const val = sub.fieldValues.find(v => v.fieldId === field.id);
+      if (val?.value) {
+        const num = parseInt(val.value, 10);
+        if (!isNaN(num)) values.push(num);
+      }
+    });
+  });
+
+  return values.length > 0
+    ? values.reduce((sum, v) => sum + v, 0) / values.length
+    : null;
+}
+
+/**
+ * Hjelpefunksjon for å hente keywords per seksjon
+ */
+function getSectionKeywords(sectionName: string): string[] | null {
+  const sectionMap: Record<string, string[]> = {
+    "Arbeidsbelastning": ["arbeidsmengde", "tid", "stress", "krav"],
+    "Rolle og forutsigbarhet": ["forvent", "ansvar", "endring", "forutsigbar"],
+    "Sosialt arbeidsmiljø": ["stemning", "respekt", "inkludert", "samarbeid"],
+    "Ledelse og støtte": ["støtte", "leder", "tilbakemelding", "konflikt", "rettferdig"],
+  };
+
+  return sectionMap[sectionName] || null;
+}
+
+/**
+ * Generer sammendr
+
+ag for Ledelsens gjennomgang
+ */
+export async function getWellbeingSummaryForManagementReview(
+  tenantId: string,
+  year: number
+): Promise<string> {
+  const report = await getWellbeingReport(tenantId, year);
+
+  let summary = `## Psykososialt Arbeidsmiljø ${year}\n\n`;
+
+  if (report.totalResponses === 0) {
+    summary += `⚠️ Ingen psykososiale kartlegginger gjennomført i ${year}.\n\n`;
+    summary += `**Anbefaling:** Gjennomfør psykososial kartlegging i henhold til Arbeidsmiljøloven § 4-3.\n`;
+    return summary;
+  }
+
+  summary += `**Antall besvarelser:** ${report.totalResponses}\n`;
+  summary += `**Samlet score:** ${report.overallScore.toFixed(2)}/5 `;
+
+  if (report.trend) {
+    const trendEmoji = report.trend.improving ? "📈" : "📉";
+    summary += `${trendEmoji} (${report.trend.change > 0 ? "+" : ""}${report.trend.change.toFixed(2)} fra ${year - 1})\n\n`;
+  } else {
+    summary += `(ingen historikk)\n\n`;
+  }
+
+  // Seksjonsvurdering
+  summary += `**Seksjonsvurdering:**\n`;
+  report.sectionAverages.forEach(section => {
+    const emoji = section.average >= 3.5 ? "🟢" : section.average >= 2.5 ? "🟡" : "🔴";
+    summary += `- ${emoji} ${section.section}: ${section.average.toFixed(2)}/5`;
+    if (section.trend !== undefined) {
+      summary += ` (${section.trend > 0 ? "+" : ""}${section.trend.toFixed(2)})`;
+    }
+    summary += `\n`;
+  });
+  summary += `\n`;
+
+  // Kritiske forhold
+  const totalCritical = 
+    report.criticalIncidents.mobbing +
+    report.criticalIncidents.trakassering +
+    report.criticalIncidents.press +
+    report.criticalIncidents.konflikter;
+
+  if (totalCritical > 0) {
+    summary += `**🚨 Kritiske forhold rapportert:**\n`;
+    if (report.criticalIncidents.mobbing > 0) 
+      summary += `- Mobbing: ${report.criticalIncidents.mobbing} tilfeller\n`;
+    if (report.criticalIncidents.trakassering > 0) 
+      summary += `- Trakassering: ${report.criticalIncidents.trakassering} tilfeller\n`;
+    if (report.criticalIncidents.press > 0) 
+      summary += `- Utilbørlig press: ${report.criticalIncidents.press} tilfeller\n`;
+    if (report.criticalIncidents.konflikter > 0) 
+      summary += `- Uhåndterte konflikter: ${report.criticalIncidents.konflikter} tilfeller\n`;
+    summary += `\n`;
+  }
+
+  // Top bekymringer
+  if (report.topConcerns.length > 0) {
+    summary += `**Hovedutfordringer:**\n`;
+    report.topConcerns.forEach(concern => {
+      summary += `- ${concern}\n`;
+    });
+    summary += `\n`;
+  }
+
+  // Tiltak
+  summary += `**Iverksatte tiltak:**\n`;
+  summary += `- ${report.generatedRisks} risikovurderinger opprettet\n`;
+  summary += `- ${report.implementedMeasures} tiltak gjennomført\n\n`;
+
+  // Konklusjon
+  if (report.overallScore >= 3.5) {
+    summary += `**Konklusjon:** ✅ Det psykososiale arbeidsmiljøet vurderes som tilfredsstillende.\n`;
+  } else if (report.overallScore >= 2.5) {
+    summary += `**Konklusjon:** ⚠️ Det psykososiale arbeidsmiljøet har forbedringsområder som må følges opp.\n`;
+  } else {
+    summary += `**Konklusjon:** 🔴 Det psykososiale arbeidsmiljøet krever umiddelbar oppfølging og tiltak.\n`;
+  }
+
+  if (totalCritical > 0) {
+    summary += `\n**VIKTIG:** Kritiske forhold er rapportert og må håndteres i henhold til lov og regelverk.\n`;
+  }
+
+  return summary;
+}
