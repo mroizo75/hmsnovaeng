@@ -19,6 +19,8 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { CopyFormButton } from "@/components/forms/copy-form-button";
+import { WellbeingReport } from "@/components/wellbeing/wellbeing-report";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Table,
   TableBody,
@@ -147,8 +149,21 @@ export default async function WellbeingPage() {
         </p>
       </div>
 
-      {/* Info box */}
-      <Card className="border-l-4 border-l-blue-500 bg-blue-50">
+      <Tabs defaultValue="overview" className="w-full">
+        <TabsList>
+          <TabsTrigger value="overview">
+            <Heart className="h-4 w-4 mr-2" />
+            Oversikt
+          </TabsTrigger>
+          <TabsTrigger value="report">
+            <BarChart3 className="h-4 w-4 mr-2" />
+            Årsrapport
+          </TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="overview" className="space-y-6">
+          {/* Info box */}
+          <Card className="border-l-4 border-l-blue-500 bg-blue-50">
         <CardContent className="p-4">
           <div className="flex items-start gap-3">
             <Heart className="h-5 w-5 text-blue-700 mt-0.5" />
@@ -444,6 +459,12 @@ export default async function WellbeingPage() {
           </CardContent>
         </Card>
       </div>
+        </TabsContent>
+
+        <TabsContent value="report">
+          <WellbeingReport />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }

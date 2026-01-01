@@ -11,6 +11,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { useToast } from "@/hooks/use-toast";
 import { ArrowLeft, Save, Trash2 } from "lucide-react";
 import Link from "next/link";
+import { WellbeingSummaryCard } from "@/components/wellbeing/wellbeing-summary-card";
 import {
   Select,
   SelectContent,
@@ -61,6 +62,7 @@ export default function EditManagementReviewPage() {
     trainingStatus: "",
     resourcesReview: "",
     externalChanges: "",
+    wellbeingSummary: "",
     conclusions: "",
     notes: "",
     nextReviewDate: "",
@@ -113,6 +115,7 @@ export default function EditManagementReviewPage() {
           trainingStatus: review.trainingStatus || "",
           resourcesReview: review.resourcesReview || "",
           externalChanges: review.externalChanges || "",
+          wellbeingSummary: review.wellbeingSummary || "",
           conclusions: review.conclusions || "",
           notes: review.notes || "",
           nextReviewDate: review.nextReviewDate
@@ -152,6 +155,7 @@ export default function EditManagementReviewPage() {
         trainingStatus: formData.trainingStatus,
         resourcesReview: formData.resourcesReview,
         externalChanges: formData.externalChanges,
+        wellbeingSummary: formData.wellbeingSummary,
         conclusions: formData.conclusions,
         notes: formData.notes,
       };
@@ -469,6 +473,43 @@ export default function EditManagementReviewPage() {
                 }
                 rows={4}
               />
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Psykososialt arbeidsmiljø */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Psykososialt arbeidsmiljø</CardTitle>
+            <CardDescription>
+              Automatisk oppsummering basert på psykososiale kartlegginger
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {/* Hent året fra reviewDate eller period */}
+            {formData.reviewDate && (
+              <WellbeingSummaryCard
+                year={new Date(formData.reviewDate).getFullYear()}
+                onDataLoaded={(summary) => {
+                  setFormData({ ...formData, wellbeingSummary: summary });
+                }}
+              />
+            )}
+            
+            <div className="space-y-2">
+              <Label htmlFor="wellbeingSummary">Oppsummering (auto-generert)</Label>
+              <Textarea
+                id="wellbeingSummary"
+                value={formData.wellbeingSummary}
+                onChange={(e) =>
+                  setFormData({ ...formData, wellbeingSummary: e.target.value })
+                }
+                rows={10}
+                placeholder="Klikk 'Last inn data' over for å generere oppsummering"
+              />
+              <p className="text-xs text-muted-foreground">
+                Oppsummeringen kan redigeres manuelt om nødvendig
+              </p>
             </div>
           </CardContent>
         </Card>

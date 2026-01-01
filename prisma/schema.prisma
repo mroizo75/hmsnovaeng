@@ -1884,6 +1884,7 @@ model ManagementReview {
   trainingStatus        String?               @db.Text // Opplæringsstatus
   resourcesReview       String?               @db.Text // Ressurser og budsjett
   externalChanges       String?               @db.Text // Eksterne endringer (lover, etc)
+  wellbeingSummary      String?               @db.Text // Psykososialt arbeidsmiljø oppsummering
   
   // Output data
   conclusions           String?               @db.Text // Konklusjoner

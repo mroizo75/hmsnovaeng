@@ -224,6 +224,15 @@ export default async function ManagementReviewDetailPage({
               </p>
             </div>
           )}
+
+          {review.wellbeingSummary && (
+            <div>
+              <h3 className="mb-2 font-semibold">Psykososialt arbeidsmiljø</h3>
+              <div className="whitespace-pre-wrap text-sm text-muted-foreground bg-blue-50 p-4 rounded-lg border border-blue-200">
+                {review.wellbeingSummary}
+              </div>
+            </div>
+          )}
         </CardContent>
       </Card>
 
