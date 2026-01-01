@@ -1,251 +1,449 @@
-import { redirect } from "next/navigation";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
+import { redirect } from "next/navigation";
 import { prisma } from "@/lib/db";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { 
+  FileText, 
+  Users, 
+  TrendingUp, 
+  AlertTriangle,
+  Calendar,
+  Eye,
+  Heart,
+  BarChart3,
+  MessageSquare,
+  Copy
+} from "lucide-react";
 import Link from "next/link";
-import type { Prisma } from "@prisma/client";
-
-function formatDate(date: Date) {
-  return new Date(date).toLocaleDateString("nb-NO", {
-    day: "2-digit",
-    month: "short",
-    year: "numeric",
-  });
-}
-
-type SubmissionWithValues = Prisma.FormSubmissionGetPayload<{
-  include: {
-    fieldValues: {
-      include: {
-        field: true;
-      };
-    };
-  };
-}>;
+import { CopyFormButton } from "@/components/forms/copy-form-button";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 
 export default async function WellbeingPage() {
   const session = await getServerSession(authOptions);
 
-  if (!session?.user?.email) {
+  if (!session?.user?.tenantId) {
     redirect("/login");
   }
 
-  const user = await prisma.user.findUnique({
-    where: { email: session.user.email },
-    include: { tenants: true },
-  });
+  const userRole = session.user.role;
+  const tenantId = session.user.tenantId;
 
-  if (!user || user.tenants.length === 0) {
-    redirect("/login");
-  }
-
-  const tenantId = user.tenants[0].tenantId;
-
-  const wellbeingTemplate = await prisma.formTemplate.findFirst({
+  // Hent alle WELLBEING-skjemaer (globale + tenant-spesifikke)
+  const wellbeingForms = await prisma.formTemplate.findMany({
     where: {
-      tenantId,
-      category: "WELLBEING",
+      OR: [
+        { tenantId, category: "WELLBEING" },
+        { isGlobal: true, category: "WELLBEING" },
+      ],
       isActive: true,
     },
     include: {
       fields: {
         orderBy: { order: "asc" },
       },
-    },
-  });
-
-  const submissions: SubmissionWithValues[] = wellbeingTemplate
-    ? await prisma.formSubmission.findMany({
-        where: { tenantId, formTemplateId: wellbeingTemplate.id },
-        include: {
-          fieldValues: {
-            include: {
-              field: true,
+      _count: {
+        select: {
+          submissions: {
+            where: {
+              tenantId, // VIKTIG: Kun tenant-spesifikke submissions
             },
           },
         },
+      },
+      submissions: {
+        where: { tenantId },
         orderBy: { createdAt: "desc" },
-        take: 50,
-      })
-    : [];
+        take: 1,
+        select: {
+          createdAt: true,
+        },
+      },
+    },
+    orderBy: { createdAt: "desc" },
+  });
 
-  const numericAverage = (label: string) => {
-    if (!wellbeingTemplate) return null;
-    const fieldIds = wellbeingTemplate.fields
-      .filter((field) => field.label === label)
-      .map((field) => field.id);
+  // Hent alle submissions for statistikk
+  const allSubmissions = await prisma.formSubmission.findMany({
+    where: {
+      tenantId,
+      formTemplate: {
+        category: "WELLBEING",
+      },
+    },
+    include: {
+      fieldValues: {
+        include: {
+          field: true,
+        },
+      },
+      formTemplate: {
+        select: {
+          title: true,
+        },
+      },
+    },
+    orderBy: { createdAt: "desc" },
+  });
 
-    if (fieldIds.length === 0) return null;
+  // Hent risikoer generert fra psykososiale skjemaer
+  const wellbeingRisks = await prisma.risk.findMany({
+    where: {
+      tenantId,
+      category: "HEALTH",
+      title: {
+        contains: "psykososial",
+      },
+    },
+    orderBy: { createdAt: "desc" },
+    take: 5,
+  });
 
-    const values: number[] = [];
-    submissions.forEach((submission) => {
-      submission.fieldValues.forEach((value) => {
-        if (fieldIds.includes(value.fieldId) && value.value) {
-          const parsed = Number(value.value);
-          if (!Number.isNaN(parsed)) {
-            values.push(parsed);
-          }
-        }
-      });
-    });
+  // Beregn statistikk
+  const totalSubmissions = allSubmissions.length;
+  const submissionsThisMonth = allSubmissions.filter((s) => {
+    const date = new Date(s.createdAt);
+    const now = new Date();
+    return date.getMonth() === now.getMonth() && date.getFullYear() === now.getFullYear();
+  }).length;
 
-    if (values.length === 0) return null;
-    return values.reduce((sum, current) => sum + current, 0) / values.length;
-  };
+  // Beregn gjennomsnittlig score for Likert-felt
+  const likertValues = allSubmissions.flatMap((s) =>
+    s.fieldValues
+      .filter((fv) => fv.field.fieldType === "LIKERT_SCALE")
+      .map((fv) => parseInt(fv.value || "0"))
+      .filter((v) => v > 0)
+  );
 
-  const comments = wellbeingTemplate
-    ? submissions.flatMap((submission) =>
-        submission.fieldValues
-          .filter((value) => value.field.fieldType === "TEXTAREA" && value.value?.trim())
-          .map((value) => ({
-            text: value.value!,
-            date: submission.createdAt,
-          })),
-      )
-    : [];
+  const averageScore = likertValues.length > 0
+    ? (likertValues.reduce((sum, val) => sum + val, 0) / likertValues.length).toFixed(1)
+    : null;
+
+  // Tell kritiske hendelser (fra RADIO-felt med "Ofte")
+  const criticalIncidents = allSubmissions.filter((s) =>
+    s.fieldValues.some(
+      (fv) =>
+        fv.field.fieldType === "RADIO" &&
+        fv.value === "Ofte"
+    )
+  ).length;
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
-        <div>
-          <h1 className="text-3xl font-bold">Psykososial puls</h1>
-          <p className="text-muted-foreground">
-            ISO 45003: Oversikt over trivsel, arbeidsbelastning og støtte i organisasjonen
-          </p>
-        </div>
-        {wellbeingTemplate && (
-          <div className="flex gap-2">
-            <Button variant="outline" asChild>
-              <Link href={`/dashboard/forms/${wellbeingTemplate.id}`}>Administrer skjema</Link>
-            </Button>
-            <Button asChild>
-              <Link href={`/dashboard/forms/${wellbeingTemplate.id}/fill`}>Start ny puls</Link>
-            </Button>
-          </div>
-        )}
+      {/* Header */}
+      <div>
+        <h1 className="text-3xl font-bold">Psykososialt arbeidsmiljø</h1>
+        <p className="text-muted-foreground mt-1">
+          Kartlegging og oppfølging av psykososialt arbeidsmiljø i henhold til Arbeidsmiljøloven § 4-3
+        </p>
       </div>
 
-      {!wellbeingTemplate ? (
+      {/* Info box */}
+      <Card className="border-l-4 border-l-blue-500 bg-blue-50">
+        <CardContent className="p-4">
+          <div className="flex items-start gap-3">
+            <Heart className="h-5 w-5 text-blue-700 mt-0.5" />
+            <div>
+              <p className="text-sm text-blue-900">
+                <strong>Om psykososial kartlegging:</strong> Arbeidsgivere er pålagt å kartlegge psykososialt arbeidsmiljø årlig
+                (Arbeidsmiljøloven § 4-3). Skjemaene nedenfor er utarbeidet i tråd med ISO 45003 og Arbeidstilsynets anbefalinger.
+              </p>
+              {(userRole === "ADMIN" || userRole === "LEDER") && (
+                <p className="text-sm text-blue-900 mt-2">
+                  💡 <strong>Ledelse:</strong> Du kan sende ut skjemaer til ansatte og følge opp resultatene her.
+                  Alle svar behandles konfidensielt.
+                </p>
+              )}
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Stats cards */}
+      <div className="grid md:grid-cols-4 gap-4">
+        <Card>
+          <CardHeader className="pb-3">
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-sm font-medium text-muted-foreground">
+                Totalt svar
+              </CardTitle>
+              <FileText className="h-4 w-4 text-muted-foreground" />
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{totalSubmissions}</div>
+            <p className="text-xs text-muted-foreground mt-1">Alle kartlegginger</p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="pb-3">
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-sm font-medium text-muted-foreground">
+                Denne måneden
+              </CardTitle>
+              <Calendar className="h-4 w-4 text-muted-foreground" />
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{submissionsThisMonth}</div>
+            <p className="text-xs text-muted-foreground mt-1">Siste 30 dager</p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="pb-3">
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-sm font-medium text-muted-foreground">
+                Gjennomsnittscore
+              </CardTitle>
+              <BarChart3 className="h-4 w-4 text-muted-foreground" />
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">
+              {averageScore || "—"}
+            </div>
+            <p className="text-xs text-muted-foreground mt-1">
+              {averageScore ? (parseFloat(averageScore) >= 3.5 ? "God score" : parseFloat(averageScore) >= 2.5 ? "Middels" : "Lav score") : "Ingen data"}
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card className={criticalIncidents > 0 ? "border-red-200" : ""}>
+          <CardHeader className="pb-3">
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-sm font-medium text-muted-foreground">
+                Kritiske hendelser
+              </CardTitle>
+              <AlertTriangle className={`h-4 w-4 ${criticalIncidents > 0 ? "text-red-600" : "text-muted-foreground"}`} />
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className={`text-2xl font-bold ${criticalIncidents > 0 ? "text-red-600" : ""}`}>
+              {criticalIncidents}
+            </div>
+            <p className="text-xs text-muted-foreground mt-1">
+              {criticalIncidents > 0 ? "Krever oppfølging" : "Ingen rapportert"}
+            </p>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Tilgjengelige skjemaer */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Tilgjengelige kartleggingsskjemaer</CardTitle>
+          <CardDescription>
+            Velg riktig skjema basert på type stilling. Alle skjemaer er i tråd med Arbeidstilsynets anbefalinger.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          {wellbeingForms.length === 0 ? (
+            <div className="text-center py-12">
+              <Heart className="h-12 w-12 text-gray-300 mx-auto mb-3" />
+              <p className="text-muted-foreground">Ingen psykososiale skjemaer tilgjengelig</p>
+              <p className="text-sm text-muted-foreground mt-1">
+                Kontakt systemadministrator for å aktivere standardskjemaer
+              </p>
+            </div>
+          ) : (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Skjemanavn</TableHead>
+                  <TableHead>Type</TableHead>
+                  <TableHead>Antall felt</TableHead>
+                  <TableHead className="text-right">Utfyllinger</TableHead>
+                  <TableHead>Sist brukt</TableHead>
+                  <TableHead className="text-right">Handlinger</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {wellbeingForms.map((form) => (
+                  <TableRow key={form.id}>
+                    <TableCell>
+                      <div>
+                        <p className="font-medium">{form.title}</p>
+                        {form.description && (
+                          <p className="text-sm text-muted-foreground line-clamp-1">
+                            {form.description}
+                          </p>
+                        )}
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      {form.isGlobal ? (
+                        <Badge variant="secondary" className="bg-purple-100 text-purple-700">
+                          Global
+                        </Badge>
+                      ) : (
+                        <Badge variant="outline">Egendefinert</Badge>
+                      )}
+                    </TableCell>
+                    <TableCell>
+                      <span className="text-muted-foreground">{form.fields.length}</span>
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <div className="flex items-center justify-end gap-2">
+                        <span className="font-medium">{form._count.submissions}</span>
+                        {form._count.submissions > 0 && (
+                          <TrendingUp className="h-4 w-4 text-green-600" />
+                        )}
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      {form.submissions.length > 0 ? (
+                        <span className="text-sm text-muted-foreground">
+                          {new Date(form.submissions[0].createdAt).toLocaleDateString("nb-NO", {
+                            day: "2-digit",
+                            month: "short",
+                            year: "numeric",
+                          })}
+                        </span>
+                      ) : (
+                        <span className="text-sm text-muted-foreground">Aldri</span>
+                      )}
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex items-center justify-end gap-2">
+                        <Link href={`/dashboard/forms/${form.id}`}>
+                          <Button variant="ghost" size="sm" title="Se detaljer">
+                            <Eye className="h-4 w-4" />
+                          </Button>
+                        </Link>
+                        {form.isGlobal ? (
+                          <CopyFormButton formId={form.id} formTitle={form.title} />
+                        ) : (
+                          <Link href={`/dashboard/forms/${form.id}/edit`}>
+                            <Button variant="ghost" size="sm" title="Rediger">
+                              <Eye className="h-4 w-4" />
+                            </Button>
+                          </Link>
+                        )}
+                        <Link href={`/dashboard/forms/${form.id}/fill`}>
+                          <Button size="sm" className="bg-green-600 hover:bg-green-700">
+                            <FileText className="h-4 w-4 mr-1" />
+                            Fyll ut
+                          </Button>
+                        </Link>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Siste innsendelser og risikoer */}
+      <div className="grid md:grid-cols-2 gap-6">
+        {/* Siste kartlegginger */}
         <Card>
           <CardHeader>
-            <CardTitle>Ingen puls registrert</CardTitle>
-            <CardDescription>
-              Opprett et skjema i skjema-modulen og velg kategorien <strong>Psykososial puls (WELLBEING)</strong> for å
-              starte pulsmåling av arbeidsmiljøet.
-            </CardDescription>
+            <CardTitle>Siste kartlegginger</CardTitle>
+            <CardDescription>Nylig innsendte psykososiale skjemaer</CardDescription>
           </CardHeader>
-        </Card>
-      ) : (
-        <>
-          <div className="grid gap-4 md:grid-cols-4">
-            <Card>
-              <CardHeader>
-                <CardTitle>Totalt svar</CardTitle>
-                <CardDescription>Siste 50 innsendinger</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <p className="text-4xl font-bold">{submissions.length}</p>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardHeader>
-                <CardTitle>Trivsel</CardTitle>
-                <CardDescription>Snittscore (1-5)</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <p className="text-4xl font-bold">
-                  {numericAverage("Hvordan har du det i dag? (1-5)")?.toFixed(1) ?? "—"}
-                </p>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardHeader>
-                <CardTitle>Arbeidsbelastning</CardTitle>
-                <CardDescription>Snittscore (1-5)</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <p className="text-4xl font-bold">
-                  {numericAverage("Hvordan oppleves arbeidsbelastningen? (1-5)")?.toFixed(1) ?? "—"}
-                </p>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardHeader>
-                <CardTitle>Støtte</CardTitle>
-                <CardDescription>Snittscore (1-5)</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <p className="text-4xl font-bold">
-                  {numericAverage("Føler du deg ivaretatt av leder/kollegaer? (1-5)")?.toFixed(1) ?? "—"}
-                </p>
-              </CardContent>
-            </Card>
-          </div>
-
-          <div className="grid gap-4 md:grid-cols-2">
-            <Card>
-              <CardHeader>
-                <CardTitle>Siste innsendelser</CardTitle>
-                <CardDescription>Et utdrag av de siste pulsene</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                {submissions.slice(0, 6).map((submission) => {
-                  const moodValue = submission.fieldValues.find((value) =>
-                    value.field.label.startsWith("Hvordan har du det"),
-                  );
-                  const workloadValue = submission.fieldValues.find((value) =>
-                    value.field.label.startsWith("Hvordan oppleves arbeidsbelastningen"),
-                  );
-                  return (
-                    <div key={submission.id} className="flex items-center justify-between text-sm border-b pb-2 last:border-b-0">
-                      <div>
-                        <p className="font-medium">{formatDate(submission.createdAt)}</p>
-                        <p className="text-xs text-muted-foreground">
-                          Trivsel {moodValue?.value ?? "-"} · Belastning {workloadValue?.value ?? "-"}
-                        </p>
-                      </div>
-                      {submission.status === "APPROVED" && (
-                        <Badge variant="outline" className="text-green-700 border-green-200">
-                          Godkjent
-                        </Badge>
-                      )}
+          <CardContent>
+            {allSubmissions.length === 0 ? (
+              <div className="text-center py-8">
+                <MessageSquare className="h-8 w-8 text-gray-300 mx-auto mb-2" />
+                <p className="text-sm text-muted-foreground">Ingen kartlegginger ennå</p>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {allSubmissions.slice(0, 5).map((submission) => (
+                  <div
+                    key={submission.id}
+                    className="flex items-center justify-between p-3 rounded-lg bg-muted/50"
+                  >
+                    <div className="flex-1">
+                      <p className="text-sm font-medium">{submission.formTemplate.title}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {new Date(submission.createdAt).toLocaleDateString("nb-NO", {
+                          day: "2-digit",
+                          month: "short",
+                          year: "numeric",
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })}
+                      </p>
                     </div>
-                  );
-                })}
-                {submissions.length === 0 && (
-                  <p className="text-sm text-muted-foreground text-center py-6">Ingen pulsmålinger ennå</p>
-                )}
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle>Tilbakemeldinger</CardTitle>
-                <CardDescription>Seneste fritekstsvar</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                {comments.slice(0, 5).map((comment, index) => (
-                  <div key={index} className="border rounded-lg p-3">
-                    <p className="text-sm">{comment.text}</p>
-                    {comment.date && (
-                      <p className="text-xs text-muted-foreground mt-2">{formatDate(comment.date)}</p>
-                    )}
+                    <Badge
+                      variant={
+                        submission.status === "SUBMITTED" || submission.status === "APPROVED"
+                          ? "default"
+                          : "secondary"
+                      }
+                    >
+                      {submission.status === "SUBMITTED" ? "Innsendt" : 
+                       submission.status === "APPROVED" ? "Godkjent" : 
+                       submission.status === "DRAFT" ? "Kladd" : "Avvist"}
+                    </Badge>
                   </div>
                 ))}
-                {comments.length === 0 && (
-                  <p className="text-sm text-muted-foreground text-center py-6">
-                    Ingen kommentarer registrert ennå
-                  </p>
-                )}
-              </CardContent>
-            </Card>
-          </div>
-        </>
-      )}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Genererte risikoer */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Identifiserte risikoer</CardTitle>
+            <CardDescription>Automatisk genererte risikoer fra kartlegginger</CardDescription>
+          </CardHeader>
+          <CardContent>
+            {wellbeingRisks.length === 0 ? (
+              <div className="text-center py-8">
+                <Heart className="h-8 w-8 text-gray-300 mx-auto mb-2" />
+                <p className="text-sm text-muted-foreground">Ingen risikoer identifisert</p>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Risikoer genereres automatisk ved lav score eller kritiske hendelser
+                </p>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {wellbeingRisks.map((risk) => (
+                  <Link
+                    key={risk.id}
+                    href={`/dashboard/risks/${risk.id}`}
+                    className="block p-3 rounded-lg bg-red-50 border border-red-200 hover:bg-red-100 transition-colors"
+                  >
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1">
+                        <p className="text-sm font-medium text-red-900">{risk.title}</p>
+                        <p className="text-xs text-red-700 mt-1 line-clamp-2">
+                          {risk.description}
+                        </p>
+                        <div className="flex items-center gap-2 mt-2">
+                          <Badge variant="destructive" className="text-xs">
+                            Risiko: {risk.score}
+                          </Badge>
+                          <span className="text-xs text-muted-foreground">
+                            {new Date(risk.createdAt).toLocaleDateString("nb-NO")}
+                          </span>
+                        </div>
+                      </div>
+                      <AlertTriangle className="h-5 w-5 text-red-600 ml-2" />
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 }
-

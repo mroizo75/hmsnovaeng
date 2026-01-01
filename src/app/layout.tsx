@@ -3,6 +3,7 @@ import { Providers } from "./providers";
 import { CookieConsent } from "@/components/cookie-consent";
 import { AITracker } from "@/components/ai-tracker";
 import { StructuredData } from "@/components/seo/structured-data";
+import { Toaster } from "sonner";
 import {
   SITE_CONFIG,
   PRIMARY_KEYWORDS,
@@ -68,6 +69,7 @@ export default async function RootLayout({
         <Providers>
           <AITracker />
           {children}
+          <Toaster position="top-right" richColors />
         </Providers>
         <CookieConsent />
       </body>

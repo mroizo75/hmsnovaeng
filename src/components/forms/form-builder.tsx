@@ -141,6 +141,8 @@ export function FormBuilder({ tenantId, initialData }: FormBuilderProps) {
       SELECT: "Rullegardin",
       FILE: "Fil",
       SIGNATURE: "Signatur",
+      LIKERT_SCALE: "Vurderingsspørsmål",
+      SECTION_HEADER: "Seksjonstittel",
     };
     return labels[type] || "Nytt felt";
   }

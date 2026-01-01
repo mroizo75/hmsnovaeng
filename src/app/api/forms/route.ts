@@ -26,10 +26,12 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const category = searchParams.get("category");
 
-    // Bygg where-clause
+    // Bygg where-clause - hent både tenant-spesifikke og globale skjemaer
     const where: any = {
-      tenantId,
-      isActive: true,
+      OR: [
+        { tenantId, isActive: true },
+        { isGlobal: true, isActive: true },
+      ],
     };
 
     // Filtrer på kategori hvis spesifisert

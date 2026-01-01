@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Plus, FileText, TrendingUp, BarChart3, Download, Eye, Pencil } from "lucide-react";
 import Link from "next/link";
+import { CopyFormButton } from "@/components/forms/copy-form-button";
 import {
   Table,
   TableBody,
@@ -42,24 +43,41 @@ export default async function FormsPage({
   const currentPage = parseInt(params.page || "1", 10);
   const skip = (currentPage - 1) * ITEMS_PER_PAGE;
 
-  // Hent totalt antall skjemaer
+  // Hent totalt antall skjemaer (tenant + globale)
   const totalForms = await prisma.formTemplate.count({
-    where: { tenantId: session.user.tenantId },
+    where: {
+      OR: [
+        { tenantId: session.user.tenantId },
+        { isGlobal: true },
+      ],
+    },
   });
 
   const totalPages = Math.ceil(totalForms / ITEMS_PER_PAGE);
 
-  // Hent skjemaer for current page
+  // Hent skjemaer for current page (tenant + globale)
   const forms = await prisma.formTemplate.findMany({
-    where: { tenantId: session.user.tenantId },
+    where: {
+      OR: [
+        { tenantId: session.user.tenantId },
+        { isGlobal: true },
+      ],
+    },
     include: {
       _count: {
         select: {
           fields: true,
-          submissions: true,
+          submissions: {
+            where: {
+              tenantId: session.user.tenantId, // VIKTIG: Kun tenant-spesifikke submissions
+            },
+          },
         },
       },
       submissions: {
+        where: {
+          tenantId: session.user.tenantId, // VIKTIG: Kun tenant-spesifikke submissions
+        },
         orderBy: { createdAt: "desc" },
         take: 1,
         select: {
@@ -72,13 +90,22 @@ export default async function FormsPage({
     take: ITEMS_PER_PAGE,
   });
 
-  // Beregn stats (alle skjemaer)
+  // Beregn stats (alle skjemaer - tenant + globale, men KUN tenant-submissions)
   const allForms = await prisma.formTemplate.findMany({
-    where: { tenantId: session.user.tenantId },
+    where: {
+      OR: [
+        { tenantId: session.user.tenantId },
+        { isGlobal: true },
+      ],
+    },
     include: {
       _count: {
         select: {
-          submissions: true,
+          submissions: {
+            where: {
+              tenantId: session.user.tenantId, // VIKTIG: Kun tenant-spesifikke submissions
+            },
+          },
         },
       },
     },
@@ -217,7 +244,14 @@ export default async function FormsPage({
                   <TableRow key={form.id} className="hover:bg-muted/50">
                     <TableCell>
                       <div>
-                        <p className="font-medium">{form.title}</p>
+                        <div className="flex items-center gap-2">
+                          <p className="font-medium">{form.title}</p>
+                          {form.isGlobal && (
+                            <Badge variant="secondary" className="bg-purple-100 text-purple-700 text-xs">
+                              Global
+                            </Badge>
+                          )}
+                        </div>
                         {form.description && (
                           <p className="text-sm text-muted-foreground line-clamp-1">
                             {form.description}
@@ -273,11 +307,15 @@ export default async function FormsPage({
                             <Eye className="h-4 w-4" />
                           </Button>
                         </Link>
-                        <Link href={`/dashboard/forms/${form.id}/edit`}>
-                          <Button variant="ghost" size="sm" title="Rediger skjema">
-                            <Pencil className="h-4 w-4" />
-                          </Button>
-                        </Link>
+                        {form.isGlobal ? (
+                          <CopyFormButton formId={form.id} formTitle={form.title} />
+                        ) : (
+                          <Link href={`/dashboard/forms/${form.id}/edit`}>
+                            <Button variant="ghost" size="sm" title="Rediger skjema">
+                              <Pencil className="h-4 w-4" />
+                            </Button>
+                          </Link>
+                        )}
                         {form._count.submissions > 0 && (
                           <Button
                             variant="ghost"

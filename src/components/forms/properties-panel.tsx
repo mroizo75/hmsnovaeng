@@ -71,7 +71,7 @@ export function PropertiesPanel({ selectedField, onUpdateField }: PropertiesPane
         </div>
 
         {/* Placeholder */}
-        {!["CHECKBOX", "RADIO", "FILE", "SIGNATURE"].includes(selectedField.type) && (
+        {!["CHECKBOX", "RADIO", "FILE", "SIGNATURE", "LIKERT_SCALE", "SECTION_HEADER"].includes(selectedField.type) && (
           <div>
             <Label>Plassholder</Label>
             <Input
@@ -96,18 +96,44 @@ export function PropertiesPanel({ selectedField, onUpdateField }: PropertiesPane
         </div>
 
         {/* Required */}
-        <div className="flex items-center space-x-2 pt-2">
-          <Checkbox
-            id="required"
-            checked={selectedField.isRequired}
-            onCheckedChange={(checked) =>
-              onUpdateField(selectedField.id, { isRequired: !!checked })
-            }
-          />
-          <Label htmlFor="required" className="cursor-pointer">
-            Påkrevd felt
-          </Label>
-        </div>
+        {selectedField.type !== "SECTION_HEADER" && (
+          <div className="flex items-center space-x-2 pt-2">
+            <Checkbox
+              id="required"
+              checked={selectedField.isRequired}
+              onCheckedChange={(checked) =>
+                onUpdateField(selectedField.id, { isRequired: !!checked })
+              }
+            />
+            <Label htmlFor="required" className="cursor-pointer">
+              Påkrevd felt
+            </Label>
+          </div>
+        )}
+
+        {/* Likert Scale Info */}
+        {selectedField.type === "LIKERT_SCALE" && (
+          <div className="p-3 bg-blue-50 rounded-lg border border-blue-200">
+            <p className="text-sm font-medium text-blue-900 mb-1">Likert-skala (1-5)</p>
+            <div className="text-xs text-blue-700 space-y-1">
+              <div>1 = Svært uenig</div>
+              <div>2 = Uenig</div>
+              <div>3 = Nøytral</div>
+              <div>4 = Enig</div>
+              <div>5 = Svært enig</div>
+            </div>
+          </div>
+        )}
+
+        {/* Section Header Info */}
+        {selectedField.type === "SECTION_HEADER" && (
+          <div className="p-3 bg-purple-50 rounded-lg border border-purple-200">
+            <p className="text-sm font-medium text-purple-900 mb-1">📋 Seksjonsoverskrift</p>
+            <p className="text-xs text-purple-700">
+              Brukes til å dele opp skjemaet i seksjoner (f.eks. "DEL 1 - Arbeidsbelastning")
+            </p>
+          </div>
+        )}
 
         {/* Options for SELECT, RADIO, CHECKBOX */}
         {hasOptions && (

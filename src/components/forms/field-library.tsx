@@ -2,7 +2,7 @@
 
 import { useDraggable } from "@dnd-kit/core";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Type, AlignLeft, Hash, Calendar, Clock, CheckSquare, Circle, ChevronDown, FileUp, PenTool } from "lucide-react";
+import { Type, AlignLeft, Hash, Calendar, Clock, CheckSquare, Circle, ChevronDown, FileUp, PenTool, BarChart3, Heading2 } from "lucide-react";
 
 const FIELD_TYPES = [
   { id: "TEXT", label: "Kort tekst", icon: Type, description: "Enkel tekstlinje" },
@@ -13,8 +13,10 @@ const FIELD_TYPES = [
   { id: "CHECKBOX", label: "Avkrysning", icon: CheckSquare, description: "Ja/Nei checkbox" },
   { id: "RADIO", label: "Radioknapper", icon: Circle, description: "Velg ett alternativ" },
   { id: "SELECT", label: "Rullegardin", icon: ChevronDown, description: "Dropdown-meny" },
+  { id: "LIKERT_SCALE", label: "Likert-skala", icon: BarChart3, description: "1-5 skala (Enig/Uenig)" },
   { id: "FILE", label: "Filopplasting", icon: FileUp, description: "Last opp fil/bilde" },
   { id: "SIGNATURE", label: "Signatur", icon: PenTool, description: "Digital signatur" },
+  { id: "SECTION_HEADER", label: "Seksjonsoverskrift", icon: Heading2, description: "Overskrift for gruppering" },
 ];
 
 function DraggableField({ field }: { field: typeof FIELD_TYPES[0] }) {

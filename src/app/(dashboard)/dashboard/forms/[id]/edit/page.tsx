@@ -25,6 +25,11 @@ export default async function EditFormPage({ params }: { params: Promise<{ id: s
     redirect("/dashboard/forms");
   }
 
+  // Hindre redigering av globale skjemaer
+  if (form.isGlobal) {
+    redirect("/dashboard/forms");
+  }
+
   // Transform data for form builder
   const initialData = {
     id: form.id,

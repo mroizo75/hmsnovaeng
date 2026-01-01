@@ -4,6 +4,7 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { getStorage, generateFileKey } from "@/lib/storage";
 import { notifyUsersByRole } from "@/server/actions/notification.actions";
+import { analyzeWellbeingSubmission } from "@/server/actions/wellbeing.actions";
 
 export async function POST(request: NextRequest) {
   try {
@@ -88,6 +89,41 @@ export async function POST(request: NextRequest) {
         message: `${form.title} - venter på godkjenning`,
         link: `/dashboard/forms/submissions/${submission.id}`,
       });
+    }
+
+    // AUTOMATISK VURDERING: Hvis dette er et WELLBEING-skjema
+    if (status === "SUBMITTED" && form.category === "WELLBEING") {
+      try {
+        console.log(`🧠 [Wellbeing] Analyserer submission: ${submission.id}`);
+        const analysis = await analyzeWellbeingSubmission(submission.id);
+        
+        console.log(`✅ [Wellbeing] Analyse ferdig:`, {
+          overallScore: analysis.overallScore,
+          riskLevel: analysis.riskLevel,
+          requiresAction: analysis.requiresAction,
+          riskId: analysis.riskId,
+          measures: analysis.measures.length,
+        });
+
+        // Lagre analyse-resultatet i submission metadata
+        await prisma.formSubmission.update({
+          where: { id: submission.id },
+          data: {
+            metadata: JSON.stringify({
+              ...JSON.parse(submission.metadata || "{}"),
+              wellbeingAnalysis: {
+                overallScore: analysis.overallScore,
+                riskLevel: analysis.riskLevel,
+                riskId: analysis.riskId,
+                analyzedAt: new Date().toISOString(),
+              }
+            })
+          }
+        });
+      } catch (error) {
+        console.error("❌ [Wellbeing] Analyse feilet:", error);
+        // Ikke la analyse-feil stoppe submission
+      }
     }
 
     return NextResponse.json({ success: true, submission }, { status: 201 });

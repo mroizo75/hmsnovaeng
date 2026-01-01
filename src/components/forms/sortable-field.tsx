@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
-import { GripVertical, Trash, Type, AlignLeft, Hash, Calendar, CheckSquare, Circle, ChevronDown, FileUp, PenTool } from "lucide-react";
+import { GripVertical, Trash, Type, AlignLeft, Hash, Calendar, CheckSquare, Circle, ChevronDown, FileUp, PenTool, BarChart3, Heading2 } from "lucide-react";
 import { FormField } from "./form-builder";
 
 interface SortableFieldProps {
@@ -40,6 +40,8 @@ export function SortableField({ field, isSelected, onSelect, onDelete }: Sortabl
     SELECT: ChevronDown,
     FILE: FileUp,
     SIGNATURE: PenTool,
+    LIKERT_SCALE: BarChart3,
+    SECTION_HEADER: Heading2,
   };
 
   const Icon = icons[field.type] || Type;
@@ -79,6 +81,32 @@ export function SortableField({ field, isSelected, onSelect, onDelete }: Sortabl
               )}
 
               {/* Preview of field */}
+              {field.type === "SECTION_HEADER" && (
+                <div className="py-2">
+                  <h3 className="text-lg font-bold text-primary border-b-2 border-primary pb-2">
+                    {field.label}
+                  </h3>
+                  {field.helpText && (
+                    <p className="text-sm text-muted-foreground mt-2">{field.helpText}</p>
+                  )}
+                </div>
+              )}
+              {field.type === "LIKERT_SCALE" && (
+                <div className="space-y-2">
+                  <div className="flex justify-between items-center gap-2">
+                    {[1, 2, 3, 4, 5].map((value) => (
+                      <div key={value} className="flex flex-col items-center flex-1">
+                        <input type="radio" name={`likert-${field.id}`} disabled className="mb-1" />
+                        <span className="text-xs text-center">{value}</span>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="flex justify-between text-xs text-muted-foreground">
+                    <span>Svært uenig</span>
+                    <span>Svært enig</span>
+                  </div>
+                </div>
+              )}
               {field.type === "TEXT" && (
                 <Input placeholder={field.placeholder || "Skriv her..."} disabled />
               )}

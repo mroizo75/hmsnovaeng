@@ -16,6 +16,7 @@ import {
   Eye
 } from "lucide-react";
 import Link from "next/link";
+import { CopyFormButton } from "@/components/forms/copy-form-button";
 import {
   Table,
   TableBody,
@@ -55,14 +56,18 @@ export default async function FormDetailPage({
   const skip = (currentPage - 1) * ITEMS_PER_PAGE;
 
   const form = await prisma.formTemplate.findUnique({
-    where: { id, tenantId: session.user.tenantId },
+    where: { id },
     include: {
       fields: {
         orderBy: { order: "asc" },
       },
       _count: {
         select: {
-          submissions: true,
+          submissions: {
+            where: {
+              tenantId: session.user.tenantId, // VIKTIG: Kun tenant-spesifikke submissions
+            },
+          },
         },
       },
     },
@@ -72,9 +77,17 @@ export default async function FormDetailPage({
     redirect("/dashboard/forms");
   }
 
-  // Hent submissions med paginering
+  // Sjekk tilgang: enten eier av skjemaet eller globalt skjema
+  if (form.tenantId && form.tenantId !== session.user.tenantId) {
+    redirect("/dashboard/forms");
+  }
+
+  // Hent submissions med paginering (KUN for denne tenanten)
   const submissions = await prisma.formSubmission.findMany({
-    where: { formTemplateId: id },
+    where: { 
+      formTemplateId: id,
+      tenantId: session.user.tenantId, // VIKTIG: Kun tenant-spesifikke submissions
+    },
     orderBy: { createdAt: "desc" },
     include: {
       fieldValues: true,
@@ -85,9 +98,12 @@ export default async function FormDetailPage({
 
   const totalPages = Math.ceil(form._count.submissions / ITEMS_PER_PAGE);
 
-  // Hent alle submissions for statistikk
+  // Hent alle submissions for statistikk (KUN for denne tenanten)
   const allSubmissions = await prisma.formSubmission.findMany({
-    where: { formTemplateId: id },
+    where: { 
+      formTemplateId: id,
+      tenantId: session.user.tenantId, // VIKTIG: Kun tenant-spesifikke submissions
+    },
     select: {
       createdAt: true,
       status: true,
@@ -136,12 +152,16 @@ export default async function FormDetailPage({
               Fyll ut skjema
             </Button>
           </Link>
-          <Link href={`/dashboard/forms/${form.id}/edit`}>
-            <Button variant="outline">
-              <Pencil className="h-4 w-4 mr-2" />
-              Rediger
-            </Button>
-          </Link>
+          {form.isGlobal ? (
+            <CopyFormButton formId={form.id} formTitle={form.title} />
+          ) : (
+            <Link href={`/dashboard/forms/${form.id}/edit`}>
+              <Button variant="outline">
+                <Pencil className="h-4 w-4 mr-2" />
+                Rediger
+              </Button>
+            </Link>
+          )}
         </div>
       </div>
 
@@ -450,6 +470,7 @@ function getCategoryLabel(category: string): string {
     RISK: "Risikovurdering",
     TRAINING: "Opplæring",
     CHECKLIST: "Sjekkliste",
+    WELLBEING: "Psykososialt arbeidsmiljø",
   };
   return labels[category] || category;
 }
@@ -476,6 +497,8 @@ function getFieldTypeLabel(fieldType: string): string {
     SELECT: "Rullegardin",
     FILE: "Fil",
     SIGNATURE: "Signatur",
+    LIKERT_SCALE: "Likert-skala (1-5)",
+    SECTION_HEADER: "Seksjonsoverskrift",
   };
   return labels[fieldType] || fieldType;
 }

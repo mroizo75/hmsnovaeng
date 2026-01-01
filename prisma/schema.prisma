@@ -1656,7 +1656,7 @@ enum InspectionFindingStatus {
 
 model FormTemplate {
   id                String            @id @default(cuid())
-  tenantId          String
+  tenantId          String?
   title             String            // "HMS Morgenmøte"
   description       String?           @db.Text
   category          FormCategory      @default(CUSTOM)
@@ -1665,6 +1665,7 @@ model FormTemplate {
   requiresApproval  Boolean           @default(false)
   isRecurring       Boolean           @default(false)
   recurrenceRule    String?           @db.Text // RRULE format (daglig/ukentlig)
+  isGlobal          Boolean           @default(false) // For globale/system-templates
   
   // Tilgangsstyring
   accessType        AccessType        @default(ALL) // Hvem har tilgang
@@ -1675,7 +1676,7 @@ model FormTemplate {
   fields            FormField[]
   submissions       FormSubmission[]
   inspections       Inspection[]      @relation("InspectionFormTemplates")
-  tenant            Tenant            @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  tenant            Tenant?           @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   createdAt         DateTime          @default(now())
   updatedAt         DateTime          @updatedAt
   

@@ -175,7 +175,22 @@ export function FormFiller({ form, userId, tenantId, returnUrl = "/dashboard/for
 
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Form fields */}
-        {form.fields.map((field) => (
+        {form.fields.map((field) => {
+          // SECTION_HEADER vises ikke som et felt, men som en overskrift
+          if (field.type === "SECTION_HEADER") {
+            return (
+              <div key={field.id} className="mt-8 mb-4">
+                <h2 className="text-2xl font-bold text-primary border-b-2 border-primary pb-2">
+                  {field.label}
+                </h2>
+                {field.helpText && (
+                  <p className="text-muted-foreground mt-2">{field.helpText}</p>
+                )}
+              </div>
+            );
+          }
+
+          return (
           <Card key={field.id}>
             <CardContent className="pt-6">
               <div className="space-y-3">
@@ -185,6 +200,39 @@ export function FormFiller({ form, userId, tenantId, returnUrl = "/dashboard/for
                 </Label>
                 {field.helpText && (
                   <p className="text-sm text-muted-foreground">{field.helpText}</p>
+                )}
+
+                {/* LIKERT_SCALE */}
+                {field.type === "LIKERT_SCALE" && (
+                  <div className="space-y-3">
+                    <RadioGroup
+                      value={formValues[field.id] || ""}
+                      onValueChange={(value) => handleFieldChange(field.id, value)}
+                      required={field.isRequired}
+                      className="flex justify-between items-center gap-2"
+                    >
+                      {[1, 2, 3, 4, 5].map((value) => (
+                        <div key={value} className="flex flex-col items-center flex-1">
+                          <RadioGroupItem 
+                            value={value.toString()} 
+                            id={`${field.id}-${value}`} 
+                            className="mb-2"
+                          />
+                          <Label 
+                            htmlFor={`${field.id}-${value}`} 
+                            className="cursor-pointer text-center font-semibold text-lg"
+                          >
+                            {value}
+                          </Label>
+                        </div>
+                      ))}
+                    </RadioGroup>
+                    <div className="flex justify-between text-xs text-muted-foreground px-2">
+                      <span>Svært uenig</span>
+                      <span>Nøytral</span>
+                      <span>Svært enig</span>
+                    </div>
+                  </div>
                 )}
 
                 {/* TEXT */}
@@ -313,7 +361,8 @@ export function FormFiller({ form, userId, tenantId, returnUrl = "/dashboard/for
               </div>
             </CardContent>
           </Card>
-        ))}
+          );
+        })}
 
         {/* Signature */}
         {form.requiresSignature && (

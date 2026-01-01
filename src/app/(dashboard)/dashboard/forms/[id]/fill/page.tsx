@@ -13,7 +13,7 @@ export default async function FillFormPage({ params }: { params: Promise<{ id: s
   }
 
   const form = await prisma.formTemplate.findUnique({
-    where: { id, tenantId: session.user.tenantId },
+    where: { id },
     include: {
       fields: {
         orderBy: { order: "asc" },
@@ -22,6 +22,11 @@ export default async function FillFormPage({ params }: { params: Promise<{ id: s
   });
 
   if (!form || !form.isActive) {
+    redirect("/dashboard/forms");
+  }
+
+  // Sjekk tilgang: enten eier av skjemaet eller globalt skjema
+  if (form.tenantId && form.tenantId !== session.user.tenantId) {
     redirect("/dashboard/forms");
   }
 
