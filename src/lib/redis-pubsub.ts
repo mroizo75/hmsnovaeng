@@ -25,28 +25,47 @@ export function getRedisPublisher(): Redis | null {
   if (!publisherClient) {
     try {
       // Parse Upstash REST URL til ioredis format
-      // Format: https://host:port → rediss://default:token@host:port
+      // Upstash format: https://example.upstash.io:6379
+      // ioredis format: rediss://default:token@example.upstash.io:6379
       const url = new URL(UPSTASH_REDIS_URL);
-      const redisUrl = `rediss://default:${UPSTASH_REDIS_TOKEN}@${url.hostname}:${url.port || '6379'}`;
+      const port = url.port || '6379';
+      const redisUrl = `rediss://default:${UPSTASH_REDIS_TOKEN}@${url.hostname}:${port}`;
+
+      console.log(`🔧 [Redis Pub/Sub] Connecting to Upstash Redis: ${url.hostname}:${port}`);
 
       publisherClient = new Redis(redisUrl, {
-        family: 6, // IPv6
+        family: 0, // Auto-detect IPv4/IPv6
         tls: {
-          rejectUnauthorized: false, // Nødvendig for Upstash
+          rejectUnauthorized: true, // Sikker TLS for Upstash
         },
         retryStrategy(times) {
-          const delay = Math.min(times * 50, 2000);
+          if (times > 10) {
+            console.error('❌ [Redis Pub/Sub] Max retries reached, giving up');
+            return null; // Stop retrying
+          }
+          const delay = Math.min(times * 100, 3000);
+          console.log(`🔄 [Redis Pub/Sub] Retry ${times} in ${delay}ms`);
           return delay;
         },
         maxRetriesPerRequest: 3,
+        enableReadyCheck: true,
+        lazyConnect: false,
       });
 
       publisherClient.on('connect', () => {
-        console.log('✅ [Redis Pub/Sub] Publisher connected');
+        console.log('✅ [Redis Pub/Sub] Publisher connected to Upstash');
+      });
+
+      publisherClient.on('ready', () => {
+        console.log('✅ [Redis Pub/Sub] Publisher ready to publish');
       });
 
       publisherClient.on('error', (err) => {
         console.error('❌ [Redis Pub/Sub] Publisher error:', err.message);
+      });
+
+      publisherClient.on('close', () => {
+        console.warn('⚠️ [Redis Pub/Sub] Publisher connection closed');
       });
     } catch (error) {
       console.error('❌ [Redis Pub/Sub] Failed to create publisher:', error);
@@ -68,18 +87,26 @@ export function createRedisSubscriber(): Redis | null {
 
   try {
     const url = new URL(UPSTASH_REDIS_URL);
-    const redisUrl = `rediss://default:${UPSTASH_REDIS_TOKEN}@${url.hostname}:${url.port || '6379'}`;
+    const port = url.port || '6379';
+    const redisUrl = `rediss://default:${UPSTASH_REDIS_TOKEN}@${url.hostname}:${port}`;
 
     const subscriber = new Redis(redisUrl, {
-      family: 6,
+      family: 0, // Auto-detect IPv4/IPv6
       tls: {
-        rejectUnauthorized: false,
+        rejectUnauthorized: true,
       },
       retryStrategy(times) {
-        const delay = Math.min(times * 50, 2000);
+        if (times > 10) return null;
+        const delay = Math.min(times * 100, 3000);
         return delay;
       },
       maxRetriesPerRequest: 3,
+      enableReadyCheck: true,
+      lazyConnect: false,
+    });
+
+    subscriber.on('connect', () => {
+      console.log('🔔 [Redis Pub/Sub] Subscriber connected');
     });
 
     subscriber.on('error', (err) => {
