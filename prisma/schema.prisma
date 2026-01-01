@@ -1737,6 +1737,8 @@ enum FieldType {
   SELECT        // Dropdown
   FILE          // Filopplasting
   SIGNATURE     // Digital signatur
+  LIKERT_SCALE  // 1-5 skala (Svært uenig → Svært enig)
+  SECTION_HEADER // Overskrift/seksjon i skjema
 }
 
 model FormSubmission {
