@@ -3,26 +3,7 @@
 import { prisma } from "@/lib/db";
 import { getAuthContext } from "@/lib/server-authorization";
 import { NotificationType, Role } from "@prisma/client";
-import { Redis } from "@upstash/redis";
-
-// Opprett Upstash Redis-tilkobling hvis credentials er tilgjengelige
-let redis: Redis | null = null;
-
-const hasUpstashConfig = 
-  process.env.UPSTASH_REDIS_REST_URL && 
-  process.env.UPSTASH_REDIS_REST_TOKEN;
-
-if (hasUpstashConfig) {
-  try {
-    redis = Redis.fromEnv();
-    console.log('✅ [Notifications] Upstash Redis connected - Varsler lagres i database');
-  } catch (error) {
-    console.warn('⚠️ [Notifications] Upstash Redis feilet - varsler lagres fortsatt i database');
-    redis = null;
-  }
-} else {
-  console.log('ℹ️ [Notifications] Varsler lagres i MySQL database');
-}
+import { publishNotification } from "@/lib/redis-pubsub";
 
 interface CreateNotificationInput {
   tenantId: string;
@@ -46,9 +27,8 @@ export async function createNotification(input: CreateNotificationInput) {
       },
     });
 
-    // Upstash REST API støtter ikke pub/sub
-    // Varsler lagres i database og hentes via polling eller refresh
-    // For ekte real-time ville vi trengt WebSockets eller Upstash med TCP connection
+    // Publiser til Redis pub/sub for real-time oppdatering
+    await publishNotification(input.userId, notification);
 
     return { success: true, data: notification };
   } catch (error: any) {

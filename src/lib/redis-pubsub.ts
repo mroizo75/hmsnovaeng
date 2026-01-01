@@ -1,0 +1,147 @@
+/**
+ * Redis Pub/Sub for Real-time Notifications
+ * 
+ * Bruker ioredis for pub/sub-støtte med Upstash Redis.
+ * Dette gir ekte real-time notifikasjoner uten polling.
+ */
+
+import Redis from "ioredis";
+
+const UPSTASH_REDIS_URL = process.env.UPSTASH_REDIS_REST_URL;
+const UPSTASH_REDIS_TOKEN = process.env.UPSTASH_REDIS_REST_TOKEN;
+
+let publisherClient: Redis | null = null;
+
+/**
+ * Hent Redis publisher-klient (for å publisere events)
+ * Returnerer null hvis Upstash ikke er konfigurert
+ */
+export function getRedisPublisher(): Redis | null {
+  if (!UPSTASH_REDIS_URL || !UPSTASH_REDIS_TOKEN) {
+    console.warn('⚠️ [Redis Pub/Sub] Upstash Redis ikke konfigurert - notifikasjoner lagres kun i database');
+    return null;
+  }
+
+  if (!publisherClient) {
+    try {
+      // Parse Upstash REST URL til ioredis format
+      // Format: https://host:port → rediss://default:token@host:port
+      const url = new URL(UPSTASH_REDIS_URL);
+      const redisUrl = `rediss://default:${UPSTASH_REDIS_TOKEN}@${url.hostname}:${url.port || '6379'}`;
+
+      publisherClient = new Redis(redisUrl, {
+        family: 6, // IPv6
+        tls: {
+          rejectUnauthorized: false, // Nødvendig for Upstash
+        },
+        retryStrategy(times) {
+          const delay = Math.min(times * 50, 2000);
+          return delay;
+        },
+        maxRetriesPerRequest: 3,
+      });
+
+      publisherClient.on('connect', () => {
+        console.log('✅ [Redis Pub/Sub] Publisher connected');
+      });
+
+      publisherClient.on('error', (err) => {
+        console.error('❌ [Redis Pub/Sub] Publisher error:', err.message);
+      });
+    } catch (error) {
+      console.error('❌ [Redis Pub/Sub] Failed to create publisher:', error);
+      publisherClient = null;
+    }
+  }
+
+  return publisherClient;
+}
+
+/**
+ * Opprett en ny subscriber-klient (for SSE-streaming)
+ * Hver SSE-connection trenger sin egen subscriber
+ */
+export function createRedisSubscriber(): Redis | null {
+  if (!UPSTASH_REDIS_URL || !UPSTASH_REDIS_TOKEN) {
+    return null;
+  }
+
+  try {
+    const url = new URL(UPSTASH_REDIS_URL);
+    const redisUrl = `rediss://default:${UPSTASH_REDIS_TOKEN}@${url.hostname}:${url.port || '6379'}`;
+
+    const subscriber = new Redis(redisUrl, {
+      family: 6,
+      tls: {
+        rejectUnauthorized: false,
+      },
+      retryStrategy(times) {
+        const delay = Math.min(times * 50, 2000);
+        return delay;
+      },
+      maxRetriesPerRequest: 3,
+    });
+
+    subscriber.on('error', (err) => {
+      console.error('❌ [Redis Pub/Sub] Subscriber error:', err.message);
+    });
+
+    return subscriber;
+  } catch (error) {
+    console.error('❌ [Redis Pub/Sub] Failed to create subscriber:', error);
+    return null;
+  }
+}
+
+/**
+ * Publiser en notifikasjon til en brukers channel
+ */
+export async function publishNotification(userId: string, notification: any): Promise<boolean> {
+  const publisher = getRedisPublisher();
+  
+  if (!publisher) {
+    // Redis ikke tilgjengelig - notifikasjonen er allerede lagret i database
+    return false;
+  }
+
+  try {
+    const channel = `notifications:${userId}`;
+    await publisher.publish(channel, JSON.stringify(notification));
+    console.log(`📢 [Redis Pub/Sub] Published notification to ${channel}`);
+    return true;
+  } catch (error) {
+    console.error('❌ [Redis Pub/Sub] Failed to publish:', error);
+    return false;
+  }
+}
+
+/**
+ * Subscribe til en brukers notification channel
+ */
+export async function subscribeToNotifications(
+  subscriber: Redis,
+  userId: string,
+  onNotification: (notification: any) => void
+): Promise<() => void> {
+  const channel = `notifications:${userId}`;
+
+  subscriber.on('message', (ch, message) => {
+    if (ch === channel) {
+      try {
+        const notification = JSON.parse(message);
+        onNotification(notification);
+      } catch (error) {
+        console.error('❌ [Redis Pub/Sub] Failed to parse notification:', error);
+      }
+    }
+  });
+
+  await subscriber.subscribe(channel);
+  console.log(`🔔 [Redis Pub/Sub] Subscribed to ${channel}`);
+
+  // Returner cleanup-funksjon
+  return () => {
+    subscriber.unsubscribe(channel);
+    subscriber.disconnect();
+  };
+}

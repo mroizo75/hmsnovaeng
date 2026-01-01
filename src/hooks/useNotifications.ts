@@ -38,27 +38,37 @@ export function useNotifications() {
 
       eventSource.addEventListener("message", (event) => {
         try {
-          const notification = JSON.parse(event.data);
+          const data = JSON.parse(event.data);
           
-          if (notification.type !== "connected") {
-            // Legg til ny varsling
-            setNotifications((prev) => [notification, ...prev].slice(0, 10));
-            setUnreadCount((prev) => prev + 1);
+          // Ignorer connection-bekreftelse
+          if (data.type === "connected") {
+            console.log("✅ Connected to notification stream:", data.userId);
+            return;
+          }
 
-            // Vis browser-notifikasjon hvis tillatt
-            if (Notification.permission === "granted") {
-              new Notification(notification.title, {
-                body: notification.message,
-                icon: "/favicon.ico",
-              });
-            }
+          // Ny notifikasjon mottatt!
+          console.log("📬 New notification received:", data);
+          
+          // Legg til ny notifikasjon øverst
+          setNotifications((prev) => [data, ...prev].slice(0, 10));
+          setUnreadCount((prev) => prev + 1);
+
+          // Vis browser-notifikasjon hvis tillatt
+          if (Notification.permission === "granted") {
+            new Notification(data.title, {
+              body: data.message,
+              icon: "/favicon.ico",
+              badge: "/favicon.ico",
+              tag: data.id, // Unngå duplikater
+            });
           }
         } catch (error) {
           console.error("Failed to parse notification:", error);
         }
       });
 
-      eventSource.addEventListener("error", () => {
+      eventSource.addEventListener("error", (error) => {
+        console.warn("⚠️ SSE connection error, will reconnect...", error);
         eventSource?.close();
         // Prøv å koble til igjen etter 5 sekunder
         reconnectTimeout = setTimeout(connect, 5000);
@@ -70,7 +80,11 @@ export function useNotifications() {
     // Be om tillatelse til browser-notifikasjoner
     if (typeof window !== "undefined" && "Notification" in window) {
       if (Notification.permission === "default") {
-        Notification.requestPermission();
+        Notification.requestPermission().then((permission) => {
+          if (permission === "granted") {
+            console.log("✅ Browser notifications enabled");
+          }
+        });
       }
     }
 

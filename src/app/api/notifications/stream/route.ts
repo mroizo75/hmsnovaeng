@@ -1,10 +1,13 @@
 import { NextRequest } from "next/server";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
+import { createRedisSubscriber, subscribeToNotifications } from "@/lib/redis-pubsub";
 
-// Upstash REST API støtter ikke pub/sub for SSE
-// SSE holder forbindelsen åpen med heartbeat
-// Varsler hentes fra database ved refresh/polling
+/**
+ * Real-time notification streaming via Server-Sent Events (SSE)
+ * Bruker Redis pub/sub for å sende notifikasjoner instant når de opprettes
+ * Ingen polling - kun events når det skjer endringer!
+ */
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -19,12 +22,39 @@ export async function GET(request: NextRequest) {
   const userId = session.user.id;
   const encoder = new TextEncoder();
 
+  // Opprett Redis subscriber for denne SSE-tilkoblingen
+  const subscriber = createRedisSubscriber();
+
   const stream = new ReadableStream({
     async start(controller) {
       // Send initial connection message
       controller.enqueue(
-        encoder.encode(`data: ${JSON.stringify({ type: "connected", mode: "database" })}\n\n`)
+        encoder.encode(`data: ${JSON.stringify({ type: "connected", userId })}\n\n`)
       );
+
+      let cleanup: (() => void) | null = null;
+
+      if (subscriber) {
+        // Subscribe til brukerens notification channel
+        cleanup = await subscribeToNotifications(
+          subscriber,
+          userId,
+          (notification) => {
+            // Send notifikasjon til klienten via SSE
+            try {
+              controller.enqueue(
+                encoder.encode(`data: ${JSON.stringify(notification)}\n\n`)
+              );
+              console.log(`📤 [SSE] Sent notification to user ${userId}`);
+            } catch (error) {
+              console.error(`❌ [SSE] Failed to send notification:`, error);
+            }
+          }
+        );
+      } else {
+        // Fallback: Redis ikke tilgjengelig
+        console.warn(`⚠️ [SSE] Redis pub/sub not available for user ${userId}`);
+      }
 
       // Send heartbeat hvert 30. sekund for å holde forbindelsen åpen
       const heartbeat = setInterval(() => {
@@ -37,7 +67,9 @@ export async function GET(request: NextRequest) {
 
       // Cleanup når klienten kobler fra
       request.signal.addEventListener("abort", () => {
+        console.log(`🔌 [SSE] Client disconnected: ${userId}`);
         clearInterval(heartbeat);
+        if (cleanup) cleanup();
         controller.close();
       });
     },
