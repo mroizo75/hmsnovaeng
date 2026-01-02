@@ -1284,6 +1284,8 @@ model Audit {
   summary         String?     @db.Text // Oppsummering av revisjon
   conclusion      String?     @db.Text // Konklusjon og anbefaling
   reportKey       String?     // PDF-rapport i storage
+  approvedBy      String?     // Hvem som godkjente revisjonen
+  approvedAt      DateTime?   // Når revisjonen ble godkjent
   createdAt       DateTime    @default(now())
   updatedAt       DateTime    @updatedAt
 
@@ -1310,6 +1312,7 @@ enum AuditStatus {
   PLANNED      // Planlagt
   IN_PROGRESS  // Pågår
   COMPLETED    // Fullført
+  APPROVED     // Godkjent
   CANCELLED    // Avbrutt
 }
 

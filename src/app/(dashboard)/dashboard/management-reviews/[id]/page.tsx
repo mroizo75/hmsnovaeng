@@ -10,7 +10,8 @@ import { Separator } from "@/components/ui/separator";
 import Link from "next/link";
 import { format } from "date-fns";
 import { nb } from "date-fns/locale";
-import { ArrowLeft, Edit, FileText, Calendar, Users, CheckCircle2, AlertCircle } from "lucide-react";
+import { ArrowLeft, Edit, FileText, Calendar, Users, CheckCircle2, AlertCircle, Check } from "lucide-react";
+import { ApproveManagementReviewButton } from "@/components/management-review/approve-button";
 
 async function getManagementReview(id: string, tenantId: string) {
   const review = await db.managementReview.findFirst({
@@ -37,10 +38,25 @@ async function getManagementReview(id: string, tenantId: string) {
       })
     : null;
 
+  // Hent alle dokumenter som skulle vært gjennomgått innen denne datoen
+  const reviewDate = new Date(review.reviewDate);
+  const documentsToReview = await db.document.findMany({
+    where: {
+      tenantId,
+      nextReviewDate: {
+        lte: reviewDate,
+      },
+    },
+    orderBy: {
+      nextReviewDate: "asc",
+    },
+  });
+
   return {
     ...review,
     conductedByName: conductedByUser?.name || conductedByUser?.email || "Ukjent",
     approvedByName: approvedByUser?.name || approvedByUser?.email || null,
+    documentsToReview,
   };
 }
 
@@ -102,7 +118,22 @@ export default async function ManagementReviewDetailPage({
         </div>
         <div className="flex items-center gap-2">
           {getStatusBadge(review.status)}
-          {permissions.canCreateManagementReviews && (
+          {permissions.canCreateManagementReviews && review.status !== "APPROVED" && (
+            <>
+              <ApproveManagementReviewButton
+                reviewId={review.id}
+                canApprove={review.status === "COMPLETED"}
+                documentsCount={review.documentsToReview.length}
+              />
+              <Button asChild>
+                <Link href={`/dashboard/management-reviews/${review.id}/edit`}>
+                  <Edit className="mr-2 h-4 w-4" />
+                  Rediger
+                </Link>
+              </Button>
+            </>
+          )}
+          {review.status === "APPROVED" && permissions.canCreateManagementReviews && (
             <Button asChild>
               <Link href={`/dashboard/management-reviews/${review.id}/edit`}>
                 <Edit className="mr-2 h-4 w-4" />
@@ -177,6 +208,57 @@ export default async function ManagementReviewDetailPage({
           )}
         </CardContent>
       </Card>
+
+      {/* Dokumenter til gjennomgang */}
+      {review.documentsToReview.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <FileText className="h-5 w-5" />
+              Dokumenter til gjennomgang
+            </CardTitle>
+            <CardDescription>
+              {review.documentsToReview.length} dokument(er) som skulle vært gjennomgått innen denne datoen
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              {review.documentsToReview.map((doc) => (
+                <div
+                  key={doc.id}
+                  className="flex items-center justify-between p-3 rounded-lg border bg-muted/50"
+                >
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2">
+                      <p className="font-medium">{doc.title}</p>
+                      <Badge variant={doc.status === "APPROVED" ? "default" : "secondary"}>
+                        {doc.status === "APPROVED" ? "Godkjent" : doc.status === "DRAFT" ? "Utkast" : "Arkivert"}
+                      </Badge>
+                    </div>
+                    <div className="flex items-center gap-4 mt-1 text-sm text-muted-foreground">
+                      <span>Versjon: {doc.version}</span>
+                      <span>
+                        Skulle vært gjennomgått: {format(new Date(doc.nextReviewDate!), "dd. MMM yyyy", { locale: nb })}
+                      </span>
+                      {doc.status === "APPROVED" && doc.approvedAt && (
+                        <span className="text-green-600 flex items-center gap-1">
+                          <Check className="h-3 w-3" />
+                          Godkjent {format(new Date(doc.approvedAt), "dd. MMM yyyy", { locale: nb })}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                  <Link href={`/dashboard/documents/${doc.id}`}>
+                    <Button variant="ghost" size="sm">
+                      Se dokument
+                    </Button>
+                  </Link>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* HMS-gjennomgang */}
       <Card>
