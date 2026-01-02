@@ -13,12 +13,35 @@ import { nb } from "date-fns/locale";
 import { ArrowLeft, Edit, FileText, Calendar, Users, CheckCircle2, AlertCircle } from "lucide-react";
 
 async function getManagementReview(id: string, tenantId: string) {
-  return await db.managementReview.findFirst({
+  const review = await db.managementReview.findFirst({
     where: {
       id,
       tenantId,
     },
   });
+
+  if (!review) return null;
+
+  // Hent bruker-navn for conductedBy og approvedBy
+  const conductedByUser = review.conductedBy
+    ? await db.user.findUnique({
+        where: { id: review.conductedBy },
+        select: { name: true, email: true },
+      })
+    : null;
+
+  const approvedByUser = review.approvedBy
+    ? await db.user.findUnique({
+        where: { id: review.approvedBy },
+        select: { name: true, email: true },
+      })
+    : null;
+
+  return {
+    ...review,
+    conductedByName: conductedByUser?.name || conductedByUser?.email || "Ukjent",
+    approvedByName: approvedByUser?.name || approvedByUser?.email || null,
+  };
 }
 
 function getStatusBadge(status: string) {
@@ -103,7 +126,7 @@ export default async function ManagementReviewDetailPage({
             </div>
             <div>
               <p className="text-sm font-medium text-muted-foreground">Gjennomført av</p>
-              <p className="text-lg">{review.conductedBy}</p>
+              <p className="text-lg">{review.conductedByName}</p>
             </div>
             <div>
               <p className="text-sm font-medium text-muted-foreground">Opprettet</p>
@@ -119,14 +142,14 @@ export default async function ManagementReviewDetailPage({
             </div>
           </div>
 
-          {review.approvedAt && review.approvedBy && (
+          {review.approvedAt && review.approvedByName && (
             <>
               <Separator />
               <div className="flex items-center gap-2 rounded-lg bg-green-50 p-4 dark:bg-green-950">
                 <CheckCircle2 className="h-5 w-5 text-green-600" />
                 <div>
                   <p className="font-medium text-green-900 dark:text-green-100">
-                    Godkjent av {review.approvedBy}
+                    Godkjent av {review.approvedByName}
                   </p>
                   <p className="text-sm text-green-700 dark:text-green-300">
                     {format(new Date(review.approvedAt), "dd. MMMM yyyy 'kl.' HH:mm", { locale: nb })}
