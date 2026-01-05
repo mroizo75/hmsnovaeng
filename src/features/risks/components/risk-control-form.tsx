@@ -152,7 +152,6 @@ export function RiskControlForm({ riskId, users, documents }: RiskControlFormPro
                   <SelectValue placeholder="Velg ansvarlig (valgfritt)" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Ingen</SelectItem>
                   {users.map((user) => (
                     <SelectItem key={user.id} value={user.id}>
                       {user.name || user.email}
@@ -168,10 +167,9 @@ export function RiskControlForm({ riskId, users, documents }: RiskControlFormPro
               <Label htmlFor="frequency">Revisjonsfrekvens</Label>
               <Select name="frequency" disabled={isPending}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Velg frekvens" />
+                  <SelectValue placeholder="Velg frekvens (valgfritt)" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Ikke satt</SelectItem>
                   {frequencyOptions.map((option) => (
                     <SelectItem key={option.value} value={option.value}>
                       {option.label}
@@ -245,7 +243,6 @@ export function RiskControlForm({ riskId, users, documents }: RiskControlFormPro
                     <SelectValue placeholder="Velg dokument (valgfritt)" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">Ingen</SelectItem>
                     {documents.map((doc) => (
                       <SelectItem key={doc.id} value={doc.id}>
                         {doc.title}
