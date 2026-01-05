@@ -6,6 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import { BcmHelpDialog } from "@/components/bcm/bcm-help-dialog";
 
 function formatDate(date?: Date | null) {
   if (!date) return "—";
@@ -104,11 +105,14 @@ export default async function BcmPage() {
   return (
     <div className="space-y-6">
       <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
-        <div>
-          <h1 className="text-3xl font-bold">Beredskap og kontinuitet</h1>
-          <p className="text-muted-foreground">
-            ISO 22301: Følg opp BCM-planer, krisehåndbok og øvelser
-          </p>
+        <div className="flex items-start gap-2">
+          <div>
+            <h1 className="text-3xl font-bold">Beredskap og kontinuitet</h1>
+            <p className="text-muted-foreground">
+              ISO 22301: Følg opp BCM-planer, krisehåndbok og øvelser
+            </p>
+          </div>
+          <BcmHelpDialog />
         </div>
         <div className="flex gap-2">
           <Button variant="outline" asChild>
