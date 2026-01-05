@@ -34,8 +34,7 @@ async function getSessionContext() {
   return { user, tenantId, role };
 }
 
-// Kun de 3 rollene som er tilgjengelige i brukerbehandling
-const allowedRoles: Role[] = ["ADMIN", "LEDER", "ANSATT"];
+const allowedRoles: Role[] = ["ADMIN", "HMS", "LEDER", "VERNEOMBUD", "ANSATT", "BHT", "REVISOR"];
 
 /**
  * Oppdater Azure AD/Microsoft SSO innstillinger for tenant

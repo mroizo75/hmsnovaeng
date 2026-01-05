@@ -186,6 +186,10 @@ export function AzureAdIntegration({ tenant, isAdmin }: AzureAdIntegrationProps)
                 <SelectContent>
                   <SelectItem value="ANSATT">👤 Ansatt</SelectItem>
                   <SelectItem value="LEDER">👔 Leder</SelectItem>
+                  <SelectItem value="HMS">🦺 HMS-ansvarlig</SelectItem>
+                  <SelectItem value="VERNEOMBUD">🛡️ Verneombud</SelectItem>
+                  <SelectItem value="BHT">🩺 Bedriftshelsetjeneste</SelectItem>
+                  <SelectItem value="REVISOR">📋 Revisor</SelectItem>
                   <SelectItem value="ADMIN">⚙️ Administrator</SelectItem>
                 </SelectContent>
               </Select>

@@ -159,11 +159,19 @@ export function UserManagement({ users, currentUserId, isAdmin, pricingTier, max
   const getRoleBadge = (role: string) => {
     switch (role) {
       case "ADMIN":
-        return <Badge className="bg-purple-100 text-purple-800 border-purple-200">Admin</Badge>;
+        return <Badge className="bg-purple-100 text-purple-800 border-purple-200">⚙️ Admin</Badge>;
       case "LEDER":
-        return <Badge className="bg-blue-100 text-blue-800 border-blue-200">Leder</Badge>;
+        return <Badge className="bg-blue-100 text-blue-800 border-blue-200">👔 Leder</Badge>;
+      case "HMS":
+        return <Badge className="bg-orange-100 text-orange-800 border-orange-200">🦺 HMS-ansvarlig</Badge>;
+      case "VERNEOMBUD":
+        return <Badge className="bg-green-100 text-green-800 border-green-200">🛡️ Verneombud</Badge>;
+      case "BHT":
+        return <Badge className="bg-teal-100 text-teal-800 border-teal-200">🩺 BHT</Badge>;
+      case "REVISOR":
+        return <Badge className="bg-indigo-100 text-indigo-800 border-indigo-200">📋 Revisor</Badge>;
       case "ANSATT":
-        return <Badge className="bg-gray-100 text-gray-800 border-gray-200">Ansatt</Badge>;
+        return <Badge className="bg-gray-100 text-gray-800 border-gray-200">👤 Ansatt</Badge>;
       default:
         return <Badge variant="outline">{role}</Badge>;
     }
@@ -258,9 +266,13 @@ export function UserManagement({ users, currentUserId, isAdmin, pricingTier, max
                         <SelectValue placeholder="Velg rolle" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="ANSATT">Ansatt</SelectItem>
-                        <SelectItem value="LEDER">Leder</SelectItem>
-                        <SelectItem value="ADMIN">Admin</SelectItem>
+                        <SelectItem value="ANSATT">👤 Ansatt</SelectItem>
+                        <SelectItem value="LEDER">👔 Leder</SelectItem>
+                        <SelectItem value="HMS">🦺 HMS-ansvarlig</SelectItem>
+                        <SelectItem value="VERNEOMBUD">🛡️ Verneombud</SelectItem>
+                        <SelectItem value="BHT">🩺 Bedriftshelsetjeneste</SelectItem>
+                        <SelectItem value="REVISOR">📋 Revisor</SelectItem>
+                        <SelectItem value="ADMIN">⚙️ Administrator</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
@@ -329,9 +341,13 @@ export function UserManagement({ users, currentUserId, isAdmin, pricingTier, max
                               <SelectValue />
                             </SelectTrigger>
                             <SelectContent>
-                              <SelectItem value="ANSATT">Ansatt</SelectItem>
-                              <SelectItem value="LEDER">Leder</SelectItem>
-                              <SelectItem value="ADMIN">Admin</SelectItem>
+                              <SelectItem value="ANSATT">👤 Ansatt</SelectItem>
+                              <SelectItem value="LEDER">👔 Leder</SelectItem>
+                              <SelectItem value="HMS">🦺 HMS-ansvarlig</SelectItem>
+                              <SelectItem value="VERNEOMBUD">🛡️ Verneombud</SelectItem>
+                              <SelectItem value="BHT">🩺 Bedriftshelsetjeneste</SelectItem>
+                              <SelectItem value="REVISOR">📋 Revisor</SelectItem>
+                              <SelectItem value="ADMIN">⚙️ Administrator</SelectItem>
                             </SelectContent>
                           </Select>
                         ) : (
