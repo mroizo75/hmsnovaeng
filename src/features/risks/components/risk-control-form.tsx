@@ -235,19 +235,25 @@ export function RiskControlForm({ riskId, users, documents }: RiskControlFormPro
             </div>
             <div className="space-y-2">
               <Label htmlFor="evidenceDocumentId">Evidens (dokument)</Label>
-              <Select name="evidenceDocumentId" disabled={isPending || documents.length === 0}>
-                <SelectTrigger>
-                  <SelectValue placeholder={documents.length ? "Velg dokument" : "Ingen dokumenter"} />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="">Ingen</SelectItem>
-                  {documents.map((doc) => (
-                    <SelectItem key={doc.id} value={doc.id}>
-                      {doc.title}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              {documents.length === 0 ? (
+                <div className="rounded-md border border-dashed px-3 py-2 text-sm text-muted-foreground">
+                  Ingen dokumenter tilgjengelig. Opprett dokumenter først.
+                </div>
+              ) : (
+                <Select name="evidenceDocumentId" disabled={isPending}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Velg dokument (valgfritt)" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="">Ingen</SelectItem>
+                    {documents.map((doc) => (
+                      <SelectItem key={doc.id} value={doc.id}>
+                        {doc.title}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
             </div>
           </div>
 
