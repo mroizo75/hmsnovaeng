@@ -29,7 +29,7 @@ export default async function AnsattFillFormPage({ params }: { params: Promise<{
   const userId = session.user.id;
 
   const form = await prisma.formTemplate.findUnique({
-    where: { id, tenantId: session.user.tenantId },
+    where: { id },
     include: {
       fields: {
         orderBy: { order: "asc" },
@@ -38,6 +38,11 @@ export default async function AnsattFillFormPage({ params }: { params: Promise<{
   });
 
   if (!form || !form.isActive) {
+    redirect("/ansatt/skjemaer");
+  }
+
+  // Sjekk at skjemaet enten er globalt eller tilhører tenant
+  if (form.tenantId && form.tenantId !== session.user.tenantId) {
     redirect("/ansatt/skjemaer");
   }
 
