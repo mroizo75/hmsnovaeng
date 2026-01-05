@@ -229,7 +229,7 @@ export const authOptions: NextAuthOptions = {
       // Credentials provider - standard håndtering
       return true;
     },
-    async jwt({ token, user, account }) {
+    async jwt({ token, user, account, trigger, session }) {
       if (user) {
         token.id = user.id;
         
@@ -238,7 +238,49 @@ export const authOptions: NextAuthOptions = {
           where: { id: user.id },
           include: {
             tenants: {
-              take: 1,
+              include: {
+                tenant: {
+                  select: {
+                    name: true,
+                    status: true,
+                  },
+                },
+              },
+            },
+          },
+        });
+        
+        if (dbUser) {
+          token.isSuperAdmin = dbUser.isSuperAdmin;
+          token.isSupport = dbUser.isSupport || false;
+          token.hasMultipleTenants = dbUser.tenants.length > 1;
+          
+          // Velg tenant basert på lastTenantId hvis det finnes, ellers første aktive tenant
+          let selectedTenant = dbUser.tenants[0];
+          
+          if (dbUser.lastTenantId) {
+            const lastTenant = dbUser.tenants.find(t => t.tenantId === dbUser.lastTenantId);
+            if (lastTenant && (lastTenant.tenant.status === "ACTIVE" || lastTenant.tenant.status === "TRIAL")) {
+              selectedTenant = lastTenant;
+            }
+          }
+          
+          token.tenantId = selectedTenant?.tenantId || null;
+          token.role = selectedTenant?.role || undefined;
+          token.tenantName = selectedTenant?.tenant?.name || null;
+        }
+      }
+      
+      // Håndter session update (når tenant byttes)
+      if (trigger === "update" && session?.tenantId) {
+        token.tenantId = session.tenantId;
+        
+        // Hent oppdatert tenant info
+        const dbUser = await prisma.user.findUnique({
+          where: { id: token.id as string },
+          include: {
+            tenants: {
+              where: { tenantId: session.tenantId },
               include: {
                 tenant: {
                   select: {
@@ -250,14 +292,12 @@ export const authOptions: NextAuthOptions = {
           },
         });
         
-        if (dbUser) {
-          token.isSuperAdmin = dbUser.isSuperAdmin;
-          token.isSupport = dbUser.isSupport || false;
-          token.tenantId = dbUser.tenants[0]?.tenantId || null;
-          token.role = dbUser.tenants[0]?.role || undefined;
-          token.tenantName = dbUser.tenants[0]?.tenant?.name || null;
+        if (dbUser && dbUser.tenants[0]) {
+          token.role = dbUser.tenants[0].role;
+          token.tenantName = dbUser.tenants[0].tenant.name;
         }
       }
+      
       return token;
     },
     async session({ session, token }) {
@@ -268,6 +308,7 @@ export const authOptions: NextAuthOptions = {
         session.user.tenantId = token.tenantId as string | null;
         session.user.role = token.role as any;
         session.user.tenantName = token.tenantName as string | null;
+        session.user.hasMultipleTenants = token.hasMultipleTenants as boolean;
       }
       return session;
     },

@@ -53,6 +53,7 @@ model User {
   password      String?
   isSuperAdmin  Boolean      @default(false)
   isSupport     Boolean      @default(false) // Support rolle: kan kun administrere tenants
+  lastTenantId  String?      // Siste valgte tenant for brukere med flere tenants
   
   // Kontaktinformasjon
   phone         String?      // Telefonnummer

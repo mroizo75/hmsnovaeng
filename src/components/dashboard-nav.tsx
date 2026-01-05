@@ -39,6 +39,7 @@ import { getRoleDisplayName } from "@/lib/permissions";
 import Image from "next/image";
 import { NotificationBell } from "@/components/notifications/notification-bell";
 import { useSimpleMode, SIMPLE_MODE_PERMISSIONS } from "@/hooks/use-simple-mode";
+import { TenantSwitcher } from "@/components/auth/tenant-switcher";
 
 const navItems = [
   // === GRUNNLEGGENDE HMS (vises alltid) ===
@@ -106,6 +107,11 @@ export function DashboardNav() {
               {getRoleDisplayName(role)}
             </Badge>
           )}
+          
+          {/* Tenant Switcher (kun hvis brukeren har flere tenants) */}
+          <div className="mt-3">
+            <TenantSwitcher />
+          </div>
         </div>
 
         {/* Enkel/Avansert toggle */}

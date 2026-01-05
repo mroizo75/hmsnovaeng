@@ -72,6 +72,16 @@ export async function middleware(request: NextRequest) {
       return NextResponse.redirect(url);
     }
 
+    // Multi-tenant: Redirect til tenant-velger hvis brukeren har flere tenants og ingen tenant er valgt
+    if (
+      token.hasMultipleTenants === true &&
+      !token.tenantId &&
+      !pathname.startsWith("/select-tenant") &&
+      !pathname.startsWith("/api")
+    ) {
+      return NextResponse.redirect(new URL("/select-tenant", request.url));
+    }
+
     // Superadmin/Support access control
     if (pathname.startsWith("/admin")) {
       const isSuperAdmin = token.isSuperAdmin === true;

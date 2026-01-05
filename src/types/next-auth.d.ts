@@ -10,6 +10,7 @@ declare module "next-auth" {
     tenantId?: string | null;
     tenantName?: string | null;
     role?: Role;
+    hasMultipleTenants?: boolean;
   }
 
   interface Session {
@@ -23,6 +24,7 @@ declare module "next-auth" {
       tenantId?: string | null;
       tenantName?: string | null;
       role?: Role;
+      hasMultipleTenants?: boolean;
     };
   }
 }
@@ -35,5 +37,6 @@ declare module "next-auth/jwt" {
     tenantId?: string | null;
     tenantName?: string | null;
     role?: Role;
+    hasMultipleTenants?: boolean;
   }
 }
