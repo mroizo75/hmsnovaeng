@@ -8,9 +8,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { Bell, Mail, Smartphone, Calendar, ClipboardCheck, AlertCircle, Target } from "lucide-react";
+import { Bell, Mail, Smartphone, Calendar, ClipboardCheck, AlertCircle, Target, TestTube } from "lucide-react";
 import type { User } from "@prisma/client";
 import { updateNotificationSettings } from "@/server/actions/notification-settings.actions";
+import Link from "next/link";
 
 interface NotificationSettingsProps {
   user: User & {
@@ -291,7 +292,13 @@ export function NotificationSettings({ user }: NotificationSettingsProps) {
       )}
 
       {/* Actions */}
-      <div className="flex gap-3">
+      <div className="flex justify-between items-center">
+        <Link href="/dashboard/settings/test-notifications">
+          <Button type="button" variant="outline">
+            <TestTube className="mr-2 h-4 w-4" />
+            Test e-postvarsling
+          </Button>
+        </Link>
         <Button type="submit" disabled={loading}>
           {loading ? "Lagrer..." : "Lagre innstillinger"}
         </Button>
