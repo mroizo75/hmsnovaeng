@@ -55,7 +55,7 @@ const navItems = [
   { href: "/dashboard/risks", label: "nav.risks", icon: AlertTriangle, permission: "risks" as const, simple: false },
   { href: "/dashboard/risk-register", label: "nav.riskRegister", icon: Layers, permission: "risks" as const, simple: false },
   { href: "/dashboard/security", label: "nav.security", icon: Shield, permission: "security" as const, simple: false },
-  { href: "/dashboard/wellbeing", label: "nav.wellbeing", icon: HeartPulse, permission: "forms" as const, simple: false },
+  { href: "/dashboard/wellbeing", label: "nav.wellbeing", icon: HeartPulse, permission: "forms" as const, simple: true }, // Psykososial = lovpålagt for alle
   { href: "/dashboard/complaints", label: "nav.complaints", icon: MessageSquare, permission: "incidents" as const, simple: false },
   { href: "/dashboard/feedback", label: "nav.feedback", icon: ThumbsUp, permission: "feedback" as const, simple: false },
   { href: "/dashboard/environment", label: "nav.environment", icon: Leaf, permission: "environment" as const, simple: false },

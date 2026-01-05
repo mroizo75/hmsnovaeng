@@ -29,6 +29,7 @@ import {
   ThumbsUp,
   Zap,
   Sparkles,
+  HeartPulse,
 } from "lucide-react";
 import { usePermissions } from "@/hooks/use-permissions";
 import { getRoleDisplayName } from "@/lib/permissions";
@@ -45,6 +46,7 @@ const navItems = [
   { href: "/dashboard/training", label: "nav.training", icon: GraduationCap, permission: "training" as const, simple: true },
   { href: "/dashboard/actions", label: "nav.actions", icon: ListTodo, permission: "actions" as const, simple: true },
   { href: "/dashboard/chemicals", label: "nav.chemicals", icon: Beaker, permission: "chemicals" as const, simple: true },
+  { href: "/dashboard/wellbeing", label: "nav.wellbeing", icon: HeartPulse, permission: "forms" as const, simple: true }, // Psykososial = lovpålagt
   // AVANSERT
   { href: "/dashboard/forms", label: "nav.forms", icon: ClipboardList, permission: "forms" as const, simple: false },
   { href: "/dashboard/risks", label: "nav.risks", icon: AlertTriangle, permission: "risks" as const, simple: false },
