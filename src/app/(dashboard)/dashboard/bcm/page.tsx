@@ -34,7 +34,7 @@ export default async function BcmPage() {
 
   const tenantId = user.tenants[0].tenantId;
 
-  const [bcmDocuments, auditsRaw] = await Promise.all([
+  const [bcmDocuments, auditsRaw, bcmForms] = await Promise.all([
     prisma.document.findMany({
       where: {
         tenantId,
@@ -67,6 +67,28 @@ export default async function BcmPage() {
       },
       orderBy: { scheduledDate: "asc" },
     }),
+    prisma.formTemplate.findMany({
+      where: {
+        OR: [
+          { tenantId, category: "BCM" },
+          { isGlobal: true, category: "BCM" },
+        ],
+        isActive: true,
+      },
+      select: {
+        id: true,
+        title: true,
+        description: true,
+        _count: {
+          select: {
+            submissions: {
+              where: { tenantId },
+            },
+          },
+        },
+      },
+      orderBy: { createdAt: "desc" },
+    }),
   ]);
 
   const continuityAudits = auditsRaw.filter((audit) => {
@@ -90,10 +112,10 @@ export default async function BcmPage() {
         </div>
         <div className="flex gap-2">
           <Button variant="outline" asChild>
-            <Link href="/dashboard/documents">Åpne dokumenter</Link>
+            <Link href="/dashboard/documents">Se alle dokumenter</Link>
           </Button>
-          <Button variant="outline" asChild>
-            <Link href="/dashboard/audits/new">Planlegg øvelse</Link>
+          <Button asChild>
+            <Link href="/dashboard/audits/new">Registrer øvelse/test</Link>
           </Button>
         </div>
       </div>
@@ -109,20 +131,22 @@ export default async function BcmPage() {
               <p className="text-sm text-muted-foreground">Ingen BCM-dokumenter registrert enda.</p>
             )}
             {bcmDocuments.map((doc) => (
-              <div key={doc.id} className="flex items-center justify-between border rounded-lg p-3">
-                <div>
-                  <p className="font-medium">{doc.title}</p>
-                  <p className="text-xs text-muted-foreground">
-                    {doc.template?.name || "Plan"} · Revidert {formatDate(doc.updatedAt)}
-                  </p>
+              <Link key={doc.id} href={`/dashboard/documents/${doc.id}`}>
+                <div className="flex items-center justify-between border rounded-lg p-3 hover:bg-accent transition-colors cursor-pointer">
+                  <div>
+                    <p className="font-medium">{doc.title}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {doc.template?.name || "Plan"} · Revidert {formatDate(doc.updatedAt)}
+                    </p>
+                  </div>
+                  <div className="text-right space-y-1">
+                    <Badge variant="outline">{doc.status}</Badge>
+                    <p className="text-xs text-muted-foreground">
+                      Neste gjennomgang: {formatDate(doc.nextReviewDate)}
+                    </p>
+                  </div>
                 </div>
-                <div className="text-right space-y-1">
-                  <Badge variant="outline">{doc.status}</Badge>
-                  <p className="text-xs text-muted-foreground">
-                    Neste gjennomgang: {formatDate(doc.nextReviewDate)}
-                  </p>
-                </div>
-              </div>
+              </Link>
             ))}
           </CardContent>
         </Card>
@@ -137,19 +161,50 @@ export default async function BcmPage() {
               <p className="text-sm text-muted-foreground">Ingen øvelser planlagt.</p>
             )}
             {continuityAudits.map((audit) => (
-              <div key={audit.id} className="flex items-center justify-between border rounded-lg p-3">
-                <div>
-                  <p className="font-medium">{audit.title}</p>
-                  <p className="text-xs text-muted-foreground">
-                    {audit.area || "Kontinuitet"} · {formatDate(audit.scheduledDate)}
-                  </p>
+              <Link key={audit.id} href={`/dashboard/audits/${audit.id}`}>
+                <div className="flex items-center justify-between border rounded-lg p-3 hover:bg-accent transition-colors cursor-pointer">
+                  <div>
+                    <p className="font-medium">{audit.title}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {audit.area || "Kontinuitet"} · {formatDate(audit.scheduledDate)}
+                    </p>
+                  </div>
+                  <Badge variant="outline">{audit.status}</Badge>
                 </div>
-                <Badge variant="outline">{audit.status}</Badge>
-              </div>
+              </Link>
             ))}
           </CardContent>
         </Card>
       </div>
+
+      {/* BCM-skjemaer */}
+      {bcmForms.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Beredskapsrelaterte skjemaer</CardTitle>
+            <CardDescription>Skjemaer for ROS-analyse, beredskapsplaner og øvelsesrapporter</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="grid gap-3 md:grid-cols-2">
+              {bcmForms.map((form) => (
+                <Link key={form.id} href={`/dashboard/forms/${form.id}`}>
+                  <div className="border rounded-lg p-4 hover:bg-accent transition-colors cursor-pointer">
+                    <div className="flex items-start justify-between mb-2">
+                      <h3 className="font-medium">{form.title}</h3>
+                      <Badge variant="secondary">{form._count.submissions} svar</Badge>
+                    </div>
+                    {form.description && (
+                      <p className="text-xs text-muted-foreground line-clamp-2">
+                        {form.description}
+                      </p>
+                    )}
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 }
