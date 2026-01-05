@@ -42,7 +42,8 @@ function getStatusLabel(status: string) {
   return labels[status] || status;
 }
 
-export default async function DocumentDetailPage({ params }: { params: { id: string } }) {
+export default async function DocumentDetailPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
   const session = await getServerSession(authOptions);
 
   if (!session?.user?.email) {
@@ -62,7 +63,7 @@ export default async function DocumentDetailPage({ params }: { params: { id: str
 
   const document = await prisma.document.findUnique({
     where: {
-      id: params.id,
+      id,
       tenantId,
     },
     include: {
@@ -74,7 +75,7 @@ export default async function DocumentDetailPage({ params }: { params: { id: str
       approvedByUser: {
         select: { name: true, email: true },
       },
-      createdByUser: {
+      owner: {
         select: { name: true, email: true },
       },
     },
@@ -154,22 +155,15 @@ export default async function DocumentDetailPage({ params }: { params: { id: str
           <CardTitle>Dokumentdetaljer</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          {document.description && (
-            <div>
-              <h3 className="text-sm font-medium mb-1">Beskrivelse</h3>
-              <p className="text-sm text-muted-foreground">{document.description}</p>
-            </div>
-          )}
-
           <div className="grid gap-4 md:grid-cols-2">
             <div className="flex items-start gap-3">
               <User className="h-5 w-5 text-muted-foreground mt-0.5" />
               <div>
-                <p className="text-sm font-medium">Opprettet av</p>
+                <p className="text-sm font-medium">Eier</p>
                 <p className="text-sm text-muted-foreground">
-                  {document.createdByUser?.name || document.createdByUser?.email || "—"}
+                  {document.owner?.name || document.owner?.email || "—"}
                 </p>
-                <p className="text-xs text-muted-foreground">{formatDate(document.createdAt)}</p>
+                <p className="text-xs text-muted-foreground">Opprettet {formatDate(document.createdAt)}</p>
               </div>
             </div>
 
@@ -209,19 +203,6 @@ export default async function DocumentDetailPage({ params }: { params: { id: str
               </div>
             )}
           </div>
-
-          {document.tags && document.tags.length > 0 && (
-            <div>
-              <h3 className="text-sm font-medium mb-2">Tagger</h3>
-              <div className="flex flex-wrap gap-2">
-                {document.tags.map((tag, index) => (
-                  <Badge key={index} variant="secondary">
-                    {tag}
-                  </Badge>
-                ))}
-              </div>
-            </div>
-          )}
         </CardContent>
       </Card>
 
@@ -240,10 +221,10 @@ export default async function DocumentDetailPage({ params }: { params: { id: str
                   className="flex items-center justify-between border rounded-lg p-3"
                 >
                   <div>
-                    <p className="font-medium">Versjon {version.versionNumber}</p>
+                    <p className="font-medium">Versjon {version.version}</p>
                     <p className="text-xs text-muted-foreground">
                       {formatDate(version.createdAt)}
-                      {version.changeNotes && ` · ${version.changeNotes}`}
+                      {version.changeComment && ` · ${version.changeComment}`}
                     </p>
                   </div>
                   <Button variant="ghost" size="sm" asChild>
