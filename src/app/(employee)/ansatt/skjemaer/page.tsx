@@ -30,10 +30,13 @@ export default async function AnsattSkjemaer() {
   const userRole = userTenant?.role || "ANSATT";
   const userId = session.user.id;
 
-  // Hent alle aktive skjemaer
+  // Hent alle aktive skjemaer (inkl. globale)
   const allForms = await prisma.formTemplate.findMany({
     where: {
-      tenantId: session.user.tenantId,
+      OR: [
+        { tenantId: session.user.tenantId },
+        { isGlobal: true },
+      ],
       isActive: true,
     },
     include: {
@@ -182,6 +185,7 @@ function getCategoryLabel(category: string): string {
     RISK: "Risikovurdering",
     TRAINING: "Opplæring",
     CHECKLIST: "Sjekkliste",
+    WELLBEING: "Psykososialt arbeidsmiljø",
   };
   return labels[category] || category;
 }
