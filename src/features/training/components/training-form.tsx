@@ -23,17 +23,18 @@ import {
 } from "@/components/ui/dialog";
 import { Card, CardContent } from "@/components/ui/card";
 import { createTraining } from "@/server/actions/training.actions";
-import { STANDARD_COURSES } from "@/features/training/schemas/training.schema";
 import { useToast } from "@/hooks/use-toast";
 import { Plus, Upload } from "lucide-react";
+import type { CourseTemplate } from "@prisma/client";
 
 interface TrainingFormProps {
   tenantId: string;
   users: Array<{ id: string; name: string | null; email: string }>;
+  courseTemplates: CourseTemplate[];
   trigger?: React.ReactNode;
 }
 
-export function TrainingForm({ tenantId, users, trigger }: TrainingFormProps) {
+export function TrainingForm({ tenantId, users, courseTemplates, trigger }: TrainingFormProps) {
   const router = useRouter();
   const { toast } = useToast();
   const [open, setOpen] = useState(false);
@@ -89,7 +90,7 @@ export function TrainingForm({ tenantId, users, trigger }: TrainingFormProps) {
     }
   };
 
-  const selectedCourseInfo = STANDARD_COURSES.find(c => c.key === selectedCourse);
+  const selectedCourseInfo = courseTemplates.find(c => c.courseKey === selectedCourse);
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -136,7 +137,7 @@ export function TrainingForm({ tenantId, users, trigger }: TrainingFormProps) {
                 value={selectedCourse}
                 onValueChange={(value) => {
                   setSelectedCourse(value);
-                  const course = STANDARD_COURSES.find(c => c.key === value);
+                  const course = courseTemplates.find(c => c.courseKey === value);
                   if (course) {
                     const form = document.querySelector("form") as HTMLFormElement;
                     const titleInput = form?.querySelector('[name="title"]') as HTMLInputElement;
@@ -148,9 +149,10 @@ export function TrainingForm({ tenantId, users, trigger }: TrainingFormProps) {
                   <SelectValue placeholder="Velg kurs" />
                 </SelectTrigger>
                 <SelectContent>
-                  {STANDARD_COURSES.map((course) => (
-                    <SelectItem key={course.key} value={course.key}>
+                  {courseTemplates.map((course) => (
+                    <SelectItem key={course.id} value={course.courseKey}>
                       {course.title}
+                      {course.isGlobal && " (Standard HMS)"}
                     </SelectItem>
                   ))}
                   <SelectItem value="custom">Egendefinert kurs</SelectItem>

@@ -7,50 +7,102 @@ import { GraduationCap, CheckCircle2, AlertTriangle, XCircle, Clock, Download } 
 import {
   getTrainingStatus,
   getTrainingStatusLabel,
-  STANDARD_COURSES,
 } from "@/features/training/schemas/training.schema";
-import type { Training } from "@prisma/client";
+import type { Training, CourseTemplate } from "@prisma/client";
 import { useRef, useState } from "react";
+import { useToast } from "@/hooks/use-toast";
 
 interface CompetenceMatrixProps {
   matrix: Array<{
     user: { id: string; name: string | null; email: string };
     trainings: Training[];
   }>;
+  courseTemplates: CourseTemplate[];
+  tenantId: string;
 }
 
-export function CompetenceMatrix({ matrix }: CompetenceMatrixProps) {
+export function CompetenceMatrix({ matrix, courseTemplates, tenantId }: CompetenceMatrixProps) {
   const tableRef = useRef<HTMLDivElement>(null);
+  const { toast } = useToast();
+  const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
 
-  // Get all unique course keys from trainings
-  const allCourseKeys = Array.from(
-    new Set(matrix.flatMap((m) => m.trainings.map((t) => t.courseKey)))
-  );
-
-  // Merge with standard courses
-  const courses = STANDARD_COURSES.map((c) => ({
-    key: c.key,
-    title: c.title,
-    isRequired: c.isRequired,
+  // Bruk courseTemplates fra databasen
+  const courses = courseTemplates.map((template) => ({
+    key: template.courseKey,
+    title: template.title,
+    isRequired: template.isRequired,
   }));
 
-  // Add custom courses
-  allCourseKeys.forEach((key) => {
-    if (!courses.find((c) => c.key === key)) {
-      const training = matrix
-        .flatMap((m) => m.trainings)
-        .find((t) => t.courseKey === key);
-      if (training) {
-        courses.push({
-          key,
-          title: training.title,
-          isRequired: false,
-        });
-      }
-    }
-  });
-
   const handleExportPDF = async () => {
+    setIsGeneratingPDF(true);
+
+    try {
+      // Forbered data for PDF-generering
+      const matrixData = matrix.map((item) => ({
+        userName: item.user.name || item.user.email,
+        courses: courses.map((course) => {
+          const training = item.trainings.find((t) => t.courseKey === course.key);
+          if (!training) {
+            return {
+              courseTitle: course.title,
+              status: course.isRequired ? "MISSING_REQUIRED" : "NOT_TAKEN",
+              isRequired: course.isRequired,
+            };
+          }
+          const status = getTrainingStatus(training);
+          return {
+            courseTitle: course.title,
+            status,
+            completedAt: training.completedAt?.toISOString(),
+            validUntil: training.validUntil?.toISOString(),
+            isRequired: course.isRequired,
+          };
+        }),
+      }));
+
+      const response = await fetch("/api/training/competence-matrix/pdf", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          matrixData,
+          courseHeaders: courses.map((c) => c.title),
+          tenantId,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Kunne ikke generere PDF");
+      }
+
+      // Last ned PDFen
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `kompetansematrise-${new Date().toISOString().split("T")[0]}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+
+      toast({
+        title: "PDF generert",
+        description: "Kompetansematrisen er lastet ned",
+      });
+    } catch (error) {
+      console.error("PDF export error:", error);
+      toast({
+        title: "Feil",
+        description: "Kunne ikke generere PDF",
+        variant: "destructive",
+      });
+    } finally {
+      setIsGeneratingPDF(false);
+    }
+  };
+
+  // Fallback til jsPDF hvis Adobe ikke virker
+  const handleExportPDFFallback = async () => {
     try {
       const { default: jsPDF } = await import("jspdf");
       const { default: autoTable } = await import("jspdf-autotable");
@@ -61,7 +113,6 @@ export function CompetenceMatrix({ matrix }: CompetenceMatrixProps) {
         format: "a4",
       });
 
-      // Tittel
       doc.setFontSize(16);
       doc.text("Kompetansematrise", 148, 12, { align: "center" });
       
@@ -73,9 +124,7 @@ export function CompetenceMatrix({ matrix }: CompetenceMatrixProps) {
         { align: "center" }
       );
 
-      // Forbered tabell data med kortere kurs-navn
       const shortCourseTitles = courses.map((c) => {
-        // Forkorte lange kursnavn
         if (c.title.length > 20) {
           return c.title.substring(0, 17) + "...";
         }
@@ -243,9 +292,14 @@ export function CompetenceMatrix({ matrix }: CompetenceMatrixProps) {
               Oversikt over hvilken kompetanse hver ansatt har. ISO 9001: Dokumentert kompetanse.
             </CardDescription>
           </div>
-          <Button onClick={handleExportPDF} variant="outline" className="print:hidden">
+          <Button 
+            onClick={handleExportPDF} 
+            variant="outline" 
+            className="print:hidden"
+            disabled={isGeneratingPDF}
+          >
             <Download className="mr-2 h-4 w-4" />
-            Eksporter til PDF
+            {isGeneratingPDF ? "Genererer PDF..." : "Eksporter til PDF"}
           </Button>
         </div>
       </CardHeader>

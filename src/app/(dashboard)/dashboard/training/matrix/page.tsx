@@ -45,6 +45,17 @@ export default async function CompetenceMatrixPage() {
     orderBy: { courseKey: "asc" },
   });
 
+  // Hent kursmaler (globale + tenant-spesifikke)
+  const courseTemplates = await prisma.courseTemplate.findMany({
+    where: {
+      OR: [
+        { tenantId, isActive: true },
+        { isGlobal: true, isActive: true },
+      ],
+    },
+    orderBy: { title: "asc" },
+  });
+
   // Bygg matrise: Grupperopplæring per bruker
   const matrix = users.map((u) => ({
     user: u,
@@ -66,7 +77,7 @@ export default async function CompetenceMatrixPage() {
       </div>
 
       <div className="print:pt-0">
-        <CompetenceMatrix matrix={matrix} />
+        <CompetenceMatrix matrix={matrix} courseTemplates={courseTemplates} tenantId={tenantId} />
       </div>
     </div>
   );

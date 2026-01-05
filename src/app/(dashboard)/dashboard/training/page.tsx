@@ -82,6 +82,17 @@ export default async function TrainingPage() {
     },
   });
 
+  // Hent kursmaler (globale + tenant-spesifikke)
+  const courseTemplates = await prisma.courseTemplate.findMany({
+    where: {
+      OR: [
+        { tenantId, isActive: true },
+        { isGlobal: true, isActive: true },
+      ],
+    },
+    orderBy: { title: "asc" },
+  });
+
   // Calculate statistics
   const now = new Date();
   const completed = trainings.filter((t) => t.completedAt).length;
@@ -121,7 +132,7 @@ export default async function TrainingPage() {
               Kompetansematrise
             </Button>
           </Link>
-          <TrainingForm tenantId={tenantId} users={tenantUsers} />
+          <TrainingForm tenantId={tenantId} users={tenantUsers} courseTemplates={courseTemplates} />
         </div>
       </div>
 
