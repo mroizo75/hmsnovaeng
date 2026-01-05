@@ -199,6 +199,7 @@ model Tenant {
   customerFeedbacks CustomerFeedback[]
   incidents        Incident[]
   trainings        Training[]
+  courseTemplates  CourseTemplate[]
   actions          Measure[]
   environmentalAspects EnvironmentalAspect[]
   environmentalMeasurements EnvironmentalMeasurement[]
@@ -1261,6 +1262,29 @@ model Training {
   @@index([courseKey])
   @@index([validUntil])
   @@index([completedAt])
+}
+
+// Kursmal/template som definerer hvilke kurs en tenant bruker
+model CourseTemplate {
+  id              String   @id @default(cuid())
+  tenantId        String?  // Null = globalt kurs, String = tenant-spesifikt
+  courseKey       String   // Unik nøkkel (f.eks. "first-aid", "forklift")
+  title           String   // "Førstehjelp", "Truckførerbevis"
+  description     String?  @db.Text
+  provider        String?  // Standard leverandør (f.eks. "Røde Kors")
+  isRequired      Boolean  @default(false) // Obligatorisk for alle
+  validityYears   Int?     // Hvor lenge er kurset gyldig (null = ikke utløpsdato)
+  isGlobal        Boolean  @default(false) // Globalt standard HMS-kurs
+  isActive        Boolean  @default(true)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  tenant Tenant? @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@unique([tenantId, courseKey])
+  @@index([tenantId])
+  @@index([isGlobal])
+  @@index([isActive])
 }
 
 // ============================================
