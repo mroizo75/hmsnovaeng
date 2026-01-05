@@ -10,9 +10,9 @@ import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { Cloud, CheckCircle2, AlertCircle, RefreshCw, Users, Info } from "lucide-react";
+import { Cloud, CheckCircle2, AlertCircle, Info, Sparkles } from "lucide-react";
 import type { Tenant } from "@prisma/client";
-import { updateAzureAdSettings, syncAzureAdUsers } from "@/server/actions/azure-ad.actions";
+import { updateAzureAdSettings } from "@/server/actions/azure-ad.actions";
 
 interface AzureAdIntegrationProps {
   tenant: Tenant & {
@@ -30,9 +30,7 @@ export function AzureAdIntegration({ tenant, isAdmin }: AzureAdIntegrationProps)
   const router = useRouter();
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
-  const [syncing, setSyncing] = useState(false);
   const [enabled, setEnabled] = useState(tenant.azureAdEnabled || false);
-  const [syncEnabled, setSyncEnabled] = useState(tenant.azureAdSyncEnabled || false);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -49,9 +47,7 @@ export function AzureAdIntegration({ tenant, isAdmin }: AzureAdIntegrationProps)
 
     const formData = new FormData(e.currentTarget);
     const data = {
-      azureAdTenantId: formData.get("azureAdTenantId") as string || undefined,
       azureAdEnabled: enabled,
-      azureAdSyncEnabled: syncEnabled,
       azureAdDomain: formData.get("azureAdDomain") as string || undefined,
       azureAdAutoRole: formData.get("azureAdAutoRole") as string || undefined,
     };
@@ -60,8 +56,8 @@ export function AzureAdIntegration({ tenant, isAdmin }: AzureAdIntegrationProps)
 
     if (result.success) {
       toast({
-        title: "✅ Azure AD konfigurert",
-        description: "Office 365-integrasjonen er oppdatert",
+        title: "✅ Office 365 SSO aktivert!",
+        description: "Ansatte kan nå logge inn med sine Microsoft-kontoer",
         className: "bg-green-50 border-green-200",
       });
       router.refresh();
@@ -76,40 +72,7 @@ export function AzureAdIntegration({ tenant, isAdmin }: AzureAdIntegrationProps)
     setLoading(false);
   };
 
-  const handleSync = async () => {
-    if (!isAdmin) return;
-    if (!tenant.azureAdTenantId || !tenant.azureAdEnabled) {
-      toast({
-        variant: "destructive",
-        title: "Azure AD ikke konfigurert",
-        description: "Du må først konfigurere Azure AD-integrasjonen",
-      });
-      return;
-    }
-
-    setSyncing(true);
-
-    const result = await syncAzureAdUsers();
-
-    if (result.success) {
-      toast({
-        title: "✅ Synkronisering fullført",
-        description: `${result.data?.created || 0} nye brukere opprettet`,
-        className: "bg-green-50 border-green-200",
-      });
-      router.refresh();
-    } else {
-      toast({
-        variant: "destructive",
-        title: "Synkronisering feilet",
-        description: result.error || "Kunne ikke synkronisere brukere",
-      });
-    }
-
-    setSyncing(false);
-  };
-
-  const isConfigured = !!tenant.azureAdTenantId && tenant.azureAdEnabled;
+  const isConfigured = !!tenant.azureAdDomain && tenant.azureAdEnabled;
 
   return (
     <div className="space-y-6">
@@ -149,25 +112,27 @@ export function AzureAdIntegration({ tenant, isAdmin }: AzureAdIntegrationProps)
       </Card>
 
       {/* Info Card */}
-      <Card className="border-blue-200 bg-blue-50/50">
+      <Card className="border-green-200 bg-green-50/50">
         <CardContent className="pt-6">
           <div className="flex gap-3">
-            <Info className="h-5 w-5 text-blue-600 flex-shrink-0 mt-0.5" />
+            <Sparkles className="h-5 w-5 text-green-600 flex-shrink-0 mt-0.5" />
             <div className="space-y-2 text-sm">
-              <p className="font-medium text-blue-900">
-                Hvordan fungerer Office 365-integrasjonen?
+              <p className="font-medium text-green-900">
+                ✨ Så enkelt er det!
               </p>
-              <ol className="list-decimal list-inside space-y-1 text-blue-800">
-                <li>Admin konfigurerer Azure AD Tenant ID (hentes fra Azure Portal)</li>
-                <li>Alle ansatte med @{tenant.azureAdDomain || "bedrift.no"}-kontoer kan logge inn</li>
-                <li>Brukere opprettes automatisk første gang de logger inn</li>
-                <li>Valgfritt: Auto-synkroniser alle brukere fra Office 365</li>
+              <ol className="list-decimal list-inside space-y-2 text-green-800">
+                <li className="font-medium">Skriv inn ditt e-postdomene (f.eks. "bedrift.no")</li>
+                <li>Velg standard rolle for nye ansatte</li>
+                <li>Aktiver SSO med én klikk</li>
+                <li className="text-green-900 font-semibold">✅ FERDIG! Alle ansatte kan nå logge inn!</li>
               </ol>
-              <p className="text-blue-700 mt-3">
-                📚 <a href="/docs/azure-ad-setup" className="underline hover:text-blue-900" target="_blank">
-                  Les full guide for oppsett av Azure AD →
-                </a>
-              </p>
+              <div className="bg-white rounded-md p-3 mt-3 border border-green-200">
+                <p className="text-green-900 font-medium mb-1">🔐 Hvordan fungerer det?</p>
+                <p className="text-green-700 text-xs">
+                  Når en ansatt logger inn med Microsoft for første gang, opprettes kontoen deres automatisk i HMS Nova. 
+                  Ingen komplisert oppsett i Azure Portal nødvendig!
+                </p>
+              </div>
             </div>
           </div>
         </CardContent>
@@ -177,34 +142,16 @@ export function AzureAdIntegration({ tenant, isAdmin }: AzureAdIntegrationProps)
       <form onSubmit={handleSubmit} className="space-y-6">
         <Card>
           <CardHeader>
-            <CardTitle>Konfigurasjon</CardTitle>
+            <CardTitle>Office 365 / Microsoft 365 SSO</CardTitle>
             <CardDescription>
-              Koble din bedrifts Office 365 / Azure AD organisasjon
+              La alle ansatte logge inn med sine eksisterende Microsoft-kontoer
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
-            {/* Azure AD Tenant ID */}
-            <div className="space-y-2">
-              <Label htmlFor="azureAdTenantId">
-                Azure AD Tenant ID *
-              </Label>
-              <Input
-                id="azureAdTenantId"
-                name="azureAdTenantId"
-                placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
-                defaultValue={tenant.azureAdTenantId || ""}
-                disabled={!isAdmin || loading}
-                required
-              />
-              <p className="text-xs text-muted-foreground">
-                Finnes i Azure Portal → Azure Active Directory → Overview
-              </p>
-            </div>
-
             {/* Primary Domain */}
             <div className="space-y-2">
-              <Label htmlFor="azureAdDomain">
-                Primært e-postdomene *
+              <Label htmlFor="azureAdDomain" className="text-base">
+                E-postdomene for bedriften *
               </Label>
               <Input
                 id="azureAdDomain"
@@ -213,46 +160,54 @@ export function AzureAdIntegration({ tenant, isAdmin }: AzureAdIntegrationProps)
                 defaultValue={tenant.azureAdDomain || ""}
                 disabled={!isAdmin || loading}
                 required
+                className="text-lg"
               />
-              <p className="text-xs text-muted-foreground">
-                Kun brukere med @bedrift.no kan logge inn
-              </p>
+              <div className="bg-blue-50 p-3 rounded-md border border-blue-200 mt-2">
+                <p className="text-sm text-blue-900">
+                  💡 <strong>Eksempel:</strong> Hvis ansatte har e-poster som <code className="bg-blue-100 px-1 rounded">ansatt@bedrift.no</code>, 
+                  skriv kun <code className="bg-blue-100 px-1 rounded">bedrift.no</code> (uten @)
+                </p>
+              </div>
             </div>
 
             {/* Default Role for new users */}
             <div className="space-y-2">
-              <Label htmlFor="azureAdAutoRole">
-                Standard rolle for nye brukere
+              <Label htmlFor="azureAdAutoRole" className="text-base">
+                Standard rolle for nye ansatte
               </Label>
               <Select
                 name="azureAdAutoRole"
                 defaultValue={tenant.azureAdAutoRole || "ANSATT"}
                 disabled={!isAdmin || loading}
               >
-                <SelectTrigger>
+                <SelectTrigger className="text-base">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="ANSATT">Ansatt</SelectItem>
-                  <SelectItem value="LEDER">Leder</SelectItem>
-                  <SelectItem value="HMS">HMS-ansvarlig</SelectItem>
-                  <SelectItem value="VERNEOMBUD">Verneombud</SelectItem>
-                  <SelectItem value="BHT">Bedriftshelsetjeneste</SelectItem>
-                  <SelectItem value="REVISOR">Revisor</SelectItem>
-                  <SelectItem value="ADMIN">Administrator</SelectItem>
+                  <SelectItem value="ANSATT">👤 Ansatt</SelectItem>
+                  <SelectItem value="LEDER">👔 Leder</SelectItem>
+                  <SelectItem value="HMS">🦺 HMS-ansvarlig</SelectItem>
+                  <SelectItem value="VERNEOMBUD">🛡️ Verneombud</SelectItem>
+                  <SelectItem value="BHT">🩺 Bedriftshelsetjeneste</SelectItem>
+                  <SelectItem value="REVISOR">📋 Revisor</SelectItem>
+                  <SelectItem value="ADMIN">⚙️ Administrator</SelectItem>
                 </SelectContent>
               </Select>
-              <p className="text-xs text-muted-foreground">
-                Hvilken rolle skal nye brukere få automatisk?
+              <p className="text-sm text-muted-foreground">
+                Hvilken rolle skal ansatte få automatisk når de logger inn første gang?
+                <br />
+                <span className="text-xs">💡 Du kan endre roller manuelt senere under "Brukere"</span>
               </p>
             </div>
 
             {/* Enable SSO */}
-            <div className="flex items-center justify-between rounded-lg border p-4">
-              <div className="space-y-0.5">
-                <Label htmlFor="azureAdEnabled">Aktiver SSO med Microsoft</Label>
-                <p className="text-sm text-muted-foreground">
-                  La ansatte logge inn med Office 365-kontoene sine
+            <div className="flex items-center justify-between rounded-lg border-2 border-green-200 bg-green-50/50 p-4">
+              <div className="space-y-1">
+                <Label htmlFor="azureAdEnabled" className="text-base font-semibold text-green-900">
+                  ✨ Aktiver Microsoft SSO
+                </Label>
+                <p className="text-sm text-green-700">
+                  La alle ansatte logge inn med sine @{tenant.azureAdDomain || "bedrift.no"} kontoer
                 </p>
               </div>
               <Switch
@@ -260,26 +215,9 @@ export function AzureAdIntegration({ tenant, isAdmin }: AzureAdIntegrationProps)
                 checked={enabled}
                 onCheckedChange={setEnabled}
                 disabled={!isAdmin || loading}
+                className="data-[state=checked]:bg-green-600"
               />
             </div>
-
-            {/* Enable Auto-Sync */}
-            {enabled && (
-              <div className="flex items-center justify-between rounded-lg border p-4">
-                <div className="space-y-0.5">
-                  <Label htmlFor="azureAdSyncEnabled">Automatisk synkronisering</Label>
-                  <p className="text-sm text-muted-foreground">
-                    Synkroniser alle brukere fra Azure AD automatisk (daglig)
-                  </p>
-                </div>
-                <Switch
-                  id="azureAdSyncEnabled"
-                  checked={syncEnabled}
-                  onCheckedChange={setSyncEnabled}
-                  disabled={!isAdmin || loading}
-                />
-              </div>
-            )}
 
             {!isAdmin && (
               <p className="text-sm text-yellow-600 bg-yellow-50 p-3 rounded-md border border-yellow-200">
@@ -291,39 +229,65 @@ export function AzureAdIntegration({ tenant, isAdmin }: AzureAdIntegrationProps)
 
         {/* Actions */}
         {isAdmin && (
-          <div className="flex gap-3">
-            <Button type="submit" disabled={loading}>
-              {loading ? "Lagrer..." : "Lagre innstillinger"}
+          <div className="flex flex-col gap-3">
+            <Button type="submit" disabled={loading} size="lg" className="bg-green-600 hover:bg-green-700">
+              {loading ? "Lagrer..." : enabled ? "✅ Lagre og aktiver SSO" : "Lagre innstillinger"}
             </Button>
+            
             {isConfigured && (
-              <Button
-                type="button"
-                variant="outline"
-                onClick={handleSync}
-                disabled={syncing || loading}
-              >
-                <RefreshCw className={`mr-2 h-4 w-4 ${syncing ? "animate-spin" : ""}`} />
-                {syncing ? "Synkroniserer..." : "Synkroniser brukere nå"}
-              </Button>
+              <div className="bg-green-50 p-4 rounded-lg border border-green-200">
+                <div className="flex items-start gap-2">
+                  <CheckCircle2 className="h-5 w-5 text-green-600 mt-0.5" />
+                  <div className="text-sm">
+                    <p className="font-medium text-green-900">Microsoft SSO er aktivert!</p>
+                    <p className="text-green-700 mt-1">
+                      Ansatte kan nå gå til <strong>hmsnova.com/login</strong> og klikke 
+                      <strong> "Logg inn med Microsoft"</strong> for å logge inn automatisk.
+                    </p>
+                  </div>
+                </div>
+              </div>
             )}
           </div>
         )}
       </form>
 
-      {/* Instructions Card */}
+      {/* FAQ Card */}
       <Card className="border-gray-200">
         <CardHeader>
-          <CardTitle className="text-base">Hvordan få Azure AD Tenant ID?</CardTitle>
+          <CardTitle className="text-base">❓ Vanlige spørsmål</CardTitle>
         </CardHeader>
-        <CardContent className="space-y-3 text-sm">
-          <ol className="list-decimal list-inside space-y-2">
-            <li>Gå til <a href="https://portal.azure.com" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">Azure Portal</a></li>
-            <li>Velg <strong>Azure Active Directory</strong> fra menyen</li>
-            <li>Under "Overview", finn <strong>Tenant ID</strong></li>
-            <li>Kopier ID-en og lim inn over</li>
-          </ol>
-          <p className="text-muted-foreground mt-4">
-            💡 Trenger du hjelp? Kontakt support@hmsnova.com for assistanse med oppsett.
+        <CardContent className="space-y-4 text-sm">
+          <div>
+            <p className="font-medium text-gray-900 mb-1">Må vi gjøre noe i Azure Portal eller Microsoft 365 Admin?</p>
+            <p className="text-gray-600">Nei! Du trenger kun å skrive inn domenet ditt her. Ingen teknisk konfigurasjon nødvendig.</p>
+          </div>
+          
+          <div>
+            <p className="font-medium text-gray-900 mb-1">Hva skjer når en ansatt logger inn første gang?</p>
+            <p className="text-gray-600">
+              Kontoen deres opprettes automatisk i HMS Nova med rollen du har valgt. 
+              De får umiddelbar tilgang til systemet.
+            </p>
+          </div>
+          
+          <div>
+            <p className="font-medium text-gray-900 mb-1">Kan ansatte fortsatt bruke passord?</p>
+            <p className="text-gray-600">
+              Ja! SSO er et tillegg. Ansatte kan velge mellom Microsoft-innlogging eller vanlig passord.
+            </p>
+          </div>
+          
+          <div>
+            <p className="font-medium text-gray-900 mb-1">Hva hvis en ansatt slutter?</p>
+            <p className="text-gray-600">
+              Deaktiver eller slett brukeren under "Brukere" i HMS Nova. 
+              Hvis de deaktiveres i Microsoft 365, kan de heller ikke logge inn via SSO.
+            </p>
+          </div>
+
+          <p className="text-muted-foreground mt-4 pt-4 border-t">
+            💡 Trenger du hjelp? Kontakt <strong>support@hmsnova.com</strong>
           </p>
         </CardContent>
       </Card>

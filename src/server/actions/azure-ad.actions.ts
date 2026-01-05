@@ -36,10 +36,12 @@ async function getSessionContext() {
 
 const allowedRoles: Role[] = ["ADMIN", "HMS", "LEDER", "VERNEOMBUD", "ANSATT", "BHT", "REVISOR"];
 
+/**
+ * Oppdater Azure AD/Microsoft SSO innstillinger for tenant
+ * FORENKLET: Krever kun domene, ikke Tenant ID fra kunde
+ */
 export async function updateAzureAdSettings(data: {
-  azureAdTenantId?: string;
   azureAdEnabled?: boolean;
-  azureAdSyncEnabled?: boolean;
   azureAdDomain?: string;
   azureAdAutoRole?: string;
 }) {
@@ -51,24 +53,20 @@ export async function updateAzureAdSettings(data: {
 
     const { tenantId } = context;
 
-    // Valider at Tenant ID er en gyldig GUID hvis oppgitt
-    if (data.azureAdTenantId) {
-      const guidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-      if (!guidRegex.test(data.azureAdTenantId)) {
-        return {
-          success: false,
-          error: "Ugyldig Azure AD Tenant ID format. Må være en GUID.",
-        };
-      }
+    // Valider domene-format (påkrevd hvis SSO aktiveres)
+    if (data.azureAdEnabled && !data.azureAdDomain) {
+      return {
+        success: false,
+        error: "E-postdomene er påkrevd for å aktivere SSO",
+      };
     }
 
-    // Valider domene-format
     if (data.azureAdDomain) {
       const domainRegex = /^[a-z0-9]+([\-\.]{1}[a-z0-9]+)*\.[a-z]{2,}$/i;
       if (!domainRegex.test(data.azureAdDomain)) {
         return {
           success: false,
-          error: "Ugyldig domene-format. Eksempel: bedrift.no",
+          error: "Ugyldig domene-format. Eksempel: bedrift.no (uten @)",
         };
       }
     }
@@ -83,9 +81,7 @@ export async function updateAzureAdSettings(data: {
     await prisma.tenant.update({
       where: { id: tenantId },
       data: {
-        azureAdTenantId: data.azureAdTenantId,
         azureAdEnabled: data.azureAdEnabled,
-        azureAdSyncEnabled: data.azureAdSyncEnabled,
         azureAdDomain: data.azureAdDomain?.toLowerCase(),
         azureAdAutoRole: data.azureAdAutoRole ? (data.azureAdAutoRole as Role) : null,
       },
@@ -98,11 +94,16 @@ export async function updateAzureAdSettings(data: {
     console.error("Error updating Azure AD settings:", error);
     return {
       success: false,
-      error: "Kunne ikke oppdatere Azure AD-innstillinger",
+      error: "Kunne ikke oppdatere Microsoft SSO-innstillinger",
     };
   }
 }
 
+/**
+ * @deprecated Synkronisering krever Microsoft Graph API admin consent fra HVER kunde.
+ * Dette er for komplisert for små bedrifter. Bruk heller JIT provisioning (automatisk opprettelse ved innlogging).
+ * Beholdes for bakoverkompatibilitet.
+ */
 export async function syncAzureAdUsers() {
   try {
     const context = await getSessionContext();
