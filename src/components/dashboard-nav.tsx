@@ -86,6 +86,8 @@ export function DashboardNav() {
     return true;
   });
 
+  const tenantName = session?.user?.tenantName;
+
   return (
     <aside className="hidden lg:block w-64 border-r bg-card">
       <div className="flex h-full flex-col">
@@ -94,6 +96,11 @@ export function DashboardNav() {
             <Image src="/logo-nova.png" alt="HMS Nova" width={155} height={100} />
             <NotificationBell />
           </div>
+          {tenantName && (
+            <p className="text-sm font-semibold text-foreground mt-3 truncate">
+              {tenantName}
+            </p>
+          )}
           {role && (
             <Badge variant="outline" className="mt-2 text-xs">
               {getRoleDisplayName(role)}

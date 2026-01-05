@@ -24,6 +24,9 @@ export default async function AnsattDashboard() {
     },
   });
 
+  // Hent tenant-navn fra session
+  const tenantName = session.user.tenantName;
+
   return (
     <div className="space-y-6">
       {/* Velkommen-melding - Ren og profesjonell */}
@@ -34,6 +37,13 @@ export default async function AnsattDashboard() {
         <p className="text-gray-600">
           Her finner du alt du trenger for trygt arbeid
         </p>
+        {tenantName && (
+          <div className="mt-3 pt-3 border-t border-gray-200 lg:hidden">
+            <p className="text-sm text-gray-500">
+              <span className="font-medium">{tenantName}</span>
+            </p>
+          </div>
+        )}
       </div>
 
       {/* Viktige varsler */}

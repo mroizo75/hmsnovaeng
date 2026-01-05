@@ -8,6 +8,7 @@ declare module "next-auth" {
     isSuperAdmin?: boolean;
     isSupport?: boolean;
     tenantId?: string | null;
+    tenantName?: string | null;
     role?: Role;
   }
 
@@ -20,6 +21,7 @@ declare module "next-auth" {
       isSuperAdmin?: boolean;
       isSupport?: boolean;
       tenantId?: string | null;
+      tenantName?: string | null;
       role?: Role;
     };
   }
@@ -31,6 +33,7 @@ declare module "next-auth/jwt" {
     isSuperAdmin?: boolean;
     isSupport?: boolean;
     tenantId?: string | null;
+    tenantName?: string | null;
     role?: Role;
   }
 }

@@ -239,6 +239,13 @@ export const authOptions: NextAuthOptions = {
           include: {
             tenants: {
               take: 1,
+              include: {
+                tenant: {
+                  select: {
+                    name: true,
+                  },
+                },
+              },
             },
           },
         });
@@ -248,6 +255,7 @@ export const authOptions: NextAuthOptions = {
           token.isSupport = dbUser.isSupport || false;
           token.tenantId = dbUser.tenants[0]?.tenantId || null;
           token.role = dbUser.tenants[0]?.role || undefined;
+          token.tenantName = dbUser.tenants[0]?.tenant?.name || null;
         }
       }
       return token;
@@ -259,6 +267,7 @@ export const authOptions: NextAuthOptions = {
         session.user.isSupport = token.isSupport as boolean;
         session.user.tenantId = token.tenantId as string | null;
         session.user.role = token.role as any;
+        session.user.tenantName = token.tenantName as string | null;
       }
       return session;
     },

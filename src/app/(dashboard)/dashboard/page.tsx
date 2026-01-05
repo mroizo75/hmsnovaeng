@@ -416,6 +416,8 @@ export default async function DashboardPage() {
     });
   }
 
+  const tenantName = session.user.tenantName;
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -426,6 +428,13 @@ export default async function DashboardPage() {
         <p className="text-muted-foreground">
           Din HMS-oversikt for i dag
         </p>
+        {tenantName && (
+          <div className="mt-2 lg:hidden">
+            <p className="text-sm text-muted-foreground">
+              <span className="font-medium text-foreground">{tenantName}</span>
+            </p>
+          </div>
+        )}
       </div>
 
       {/* Hero Stats */}
