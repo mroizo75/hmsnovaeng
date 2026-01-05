@@ -47,14 +47,22 @@ export default async function AnsattOpplaering() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div>
-        <h1 className="text-2xl font-bold mb-2 flex items-center gap-2">
-          <GraduationCap className="h-7 w-7 text-blue-600" />
-          Min opplæring
-        </h1>
-        <p className="text-muted-foreground">
-          Oversikt over påkrevd og gjennomført opplæring
-        </p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold mb-2 flex items-center gap-2">
+            <GraduationCap className="h-7 w-7 text-blue-600" />
+            Min opplæring
+          </h1>
+          <p className="text-muted-foreground">
+            Oversikt over påkrevd og gjennomført opplæring
+          </p>
+        </div>
+        <Link href="/ansatt/opplaering/ny">
+          <Button>
+            <GraduationCap className="h-4 w-4 mr-2" />
+            Legg til egen kompetanse
+          </Button>
+        </Link>
       </div>
 
       {/* Info om godkjenning */}

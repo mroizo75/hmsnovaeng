@@ -436,7 +436,7 @@ export const rolePermissions: Record<Role, RolePermissions> = {
     canDeleteChemicals: false,
     canReadOwnTraining: true,
     canReadAllTraining: false,
-    canCreateTraining: false,
+    canCreateTraining: true, // Kan registrere egen kompetanse (krever godkjenning)
     canAssignTraining: false,
     canEvaluateTraining: false,
     canReadAudits: false,
