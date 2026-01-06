@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Leaf, AlertTriangle, TimerReset, Activity } from "lucide-react";
 import Link from "next/link";
 import { EnvironmentAspectList } from "@/features/environment/components/environment-aspect-list";
+import { CO2CalculatorCard } from "@/features/environment/components/co2-calculator-card";
 
 export default async function EnvironmentPage() {
   const session = await getServerSession(authOptions);
@@ -17,7 +18,18 @@ export default async function EnvironmentPage() {
 
   const user = await prisma.user.findUnique({
     where: { email: session.user.email },
-    include: { tenants: true },
+    include: {
+      tenants: {
+        include: {
+          tenant: {
+            select: {
+              id: true,
+              name: true,
+            },
+          },
+        },
+      },
+    },
   });
 
   if (!user || user.tenants.length === 0) {
@@ -25,8 +37,9 @@ export default async function EnvironmentPage() {
   }
 
   const tenantId = user.tenants[0].tenantId;
+  const tenant = user.tenants[0].tenant;
 
-  const [aspects, nonCompliantCount] = await Promise.all([
+  const [aspects, nonCompliantCount, allMeasurements] = await Promise.all([
     prisma.environmentalAspect.findMany({
       where: { tenantId },
       include: {
@@ -44,6 +57,23 @@ export default async function EnvironmentPage() {
     }),
     prisma.environmentalMeasurement.count({
       where: { tenantId, status: "NON_COMPLIANT" },
+    }),
+    prisma.environmentalMeasurement.findMany({
+      where: {
+        tenantId,
+        measurementDate: {
+          gte: new Date(new Date().getFullYear(), 0, 1), // Fra 1. januar i år
+        },
+      },
+      include: {
+        aspect: {
+          select: {
+            category: true,
+            title: true,
+          },
+        },
+      },
+      orderBy: { measurementDate: "desc" },
     }),
   ]);
 
@@ -115,6 +145,12 @@ export default async function EnvironmentPage() {
           </CardContent>
         </Card>
       </div>
+
+      {/* CO2 Calculator */}
+      <CO2CalculatorCard 
+        measurements={allMeasurements} 
+        companyName={tenant.name}
+      />
 
       <EnvironmentAspectList aspects={aspects} />
     </div>
