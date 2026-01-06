@@ -3,9 +3,18 @@
  * Genererer profesjonell årlig miljørapport med Adobe PDF Services
  */
 
-import PDFDocument from "pdfkit";
 import { format } from "date-fns";
 import { nb } from "date-fns/locale";
+import {
+  PDFServices,
+  MimeType,
+  CreatePDFJob,
+  CreatePDFResult,
+  SDKError,
+  ServiceUsageError,
+  ServiceApiError,
+} from "@adobe/pdfservices-node-sdk";
+import { Readable } from "stream";
 import type {
   EnvironmentalAspect,
   EnvironmentalMeasurement,
@@ -63,175 +72,70 @@ const CO2_FACTORS = {
 };
 
 export async function generateEnvironmentalReport(data: ReportData): Promise<Buffer> {
-  return new Promise((resolve, reject) => {
-    try {
-      const doc = new PDFDocument({
-        size: "A4",
-        margins: { top: 50, bottom: 50, left: 50, right: 50 },
-        info: {
-          Title: `Miljørapport ${data.year} - ${data.tenant.name}`,
-          Author: data.tenant.name,
-          Subject: "Årlig miljørapport for Miljøfyrtårn",
-          Keywords: "miljø, bærekraft, miljøfyrtårn, ISO 14001",
-          Creator: "HMS Nova",
-        },
-      });
+  try {
+    // Generer HTML-rapport
+    const html = generateEnvironmentalReportHTML(data);
 
-      const chunks: Buffer[] = [];
-      doc.on("data", (chunk) => chunks.push(chunk));
-      doc.on("end", () => resolve(Buffer.concat(chunks)));
-      doc.on("error", reject);
+    // Konverter HTML til PDF med Adobe PDF Services
+    const pdfBuffer = await convertHTMLToPDF(html, data);
 
-      // FORSIDE
-      generateCoverPage(doc, data);
+    return pdfBuffer;
+  } catch (error) {
+    console.error("Error generating environmental report:", error);
+    throw new Error("Kunne ikke generere miljørapport");
+  }
+}
 
-      // INNHOLDSFORTEGNELSE
-      doc.addPage();
-      generateTableOfContents(doc);
+async function convertHTMLToPDF(html: string, data: ReportData): Promise<Buffer> {
+  try {
+    // Opprett credentials
+    const credentials = {
+      clientId: process.env.ADOBE_CLIENT_ID!,
+      clientSecret: process.env.ADOBE_CLIENT_SECRET!,
+    };
 
-      // 1. SAMMENDRAG
-      doc.addPage();
-      generateExecutiveSummary(doc, data);
+    // Opprett PDF Services instans
+    const pdfServices = new PDFServices({ credentials });
 
-      // 2. OM BEDRIFTEN
-      doc.addPage();
-      generateCompanyInfo(doc, data);
+    // Konverter HTML string til readable stream
+    const htmlStream = Readable.from(Buffer.from(html, "utf-8"));
 
-      // 3. MILJØASPEKTER OG PÅVIRKNING
-      doc.addPage();
-      generateAspectsSection(doc, data);
+    // Opprett asset fra HTML
+    const inputAsset = await pdfServices.upload({
+      readStream: htmlStream,
+      mimeType: MimeType.HTML,
+    });
 
-      // 4. MILJØMÅL OG RESULTATER
-      doc.addPage();
-      generateGoalsSection(doc, data);
+    // Opprett PDF-konverteringsjobb
+    const job = new CreatePDFJob({ inputAsset });
 
-      // 5. MÅLINGER OG DATA
-      doc.addPage();
-      generateMeasurementsSection(doc, data);
+    // Kjør jobben
+    const pollingURL = await pdfServices.submit({ job });
+    const pdfServicesResponse = await pdfServices.getJobResult({
+      pollingURL,
+      resultType: CreatePDFResult,
+    });
 
-      // 6. CO2-FOTAVTRYKK OG BESPARELSER
-      doc.addPage();
-      generateCO2Section(doc, data);
+    // Hent resultat
+    const resultAsset = pdfServicesResponse.result.asset;
+    const streamAsset = await pdfServices.getContent({ asset: resultAsset });
 
-      // 7. TILTAK OG HANDLINGSPLAN
-      doc.addPage();
-      generateActionsSection(doc, data);
-
-      // 8. KONKLUSJON OG NESTE STEG
-      doc.addPage();
-      generateConclusion(doc, data);
-
-      // VEDLEGG
-      doc.addPage();
-      generateAppendix(doc, data);
-
-      doc.end();
-    } catch (error) {
-      reject(error);
+    // Konverter stream til buffer
+    const chunks: Buffer[] = [];
+    for await (const chunk of streamAsset.readStream) {
+      chunks.push(Buffer.from(chunk));
     }
-  });
+
+    return Buffer.concat(chunks);
+  } catch (error) {
+    if (error instanceof SDKError || error instanceof ServiceUsageError || error instanceof ServiceApiError) {
+      console.error("Adobe PDF Services error:", error);
+    }
+    throw error;
+  }
 }
 
-function generateCoverPage(doc: PDFKit.PDFDocument, data: ReportData) {
-  const pageWidth = doc.page.width;
-  const pageHeight = doc.page.height;
-
-  // Grønn header-boks
-  doc
-    .rect(0, 0, pageWidth, 200)
-    .fill("#10b981");
-
-  // Logo/ikon område (hvit sirkel)
-  doc
-    .circle(pageWidth / 2, 100, 50)
-    .fill("#ffffff");
-
-  // Grønt blad-ikon (emoji eller tekst)
-  doc
-    .fontSize(40)
-    .fillColor("#10b981")
-    .text("🌿", pageWidth / 2 - 20, 75);
-
-  // Tittel
-  doc
-    .fontSize(32)
-    .fillColor("#1f2937")
-    .font("Helvetica-Bold")
-    .text("MILJØRAPPORT", 50, 250, { align: "center" });
-
-  doc
-    .fontSize(48)
-    .fillColor("#10b981")
-    .text(data.year.toString(), 50, 295, { align: "center" });
-
-  // Bedriftsnavn
-  doc
-    .fontSize(24)
-    .fillColor("#4b5563")
-    .font("Helvetica")
-    .text(data.tenant.name, 50, 370, { align: "center" });
-
-  // Undertekst
-  doc
-    .fontSize(14)
-    .fillColor("#6b7280")
-    .text("Årlig rapport for Miljøfyrtårn-sertifisering", 50, 420, { align: "center" });
-  
-  doc
-    .fontSize(12)
-    .text("I henhold til ISO 14001:2015", 50, 445, { align: "center" });
-
-  // Bunntekst
-  const generatedDate = format(new Date(), "d. MMMM yyyy", { locale: nb });
-  doc
-    .fontSize(10)
-    .fillColor("#9ca3af")
-    .text(`Generert: ${generatedDate}`, 50, pageHeight - 100, { align: "center" });
-
-  doc
-    .text("HMS Nova - Digitalt HMS-system", 50, pageHeight - 80, { align: "center" });
-
-  // Grønn footer-stripe
-  doc
-    .rect(0, pageHeight - 50, pageWidth, 50)
-    .fill("#10b981");
-}
-
-function generateTableOfContents(doc: PDFKit.PDFDocument) {
-  addSectionHeader(doc, "Innholdsfortegnelse");
-
-  const contents = [
-    { title: "1. Sammendrag", page: 3 },
-    { title: "2. Om bedriften", page: 4 },
-    { title: "3. Miljøaspekter og påvirkning", page: 5 },
-    { title: "4. Miljømål og resultater", page: 6 },
-    { title: "5. Målinger og data", page: 7 },
-    { title: "6. CO₂-fotavtrykk og besparelser", page: 8 },
-    { title: "7. Tiltak og handlingsplan", page: 9 },
-    { title: "8. Konklusjon og neste steg", page: 10 },
-    { title: "Vedlegg", page: 11 },
-  ];
-
-  let y = doc.y + 20;
-  contents.forEach((item) => {
-    doc
-      .fontSize(12)
-      .fillColor("#374151")
-      .font("Helvetica")
-      .text(item.title, 70, y);
-
-    doc
-      .fontSize(12)
-      .fillColor("#6b7280")
-      .text(`Side ${item.page}`, 500, y, { align: "right" });
-
-    y += 25;
-  });
-}
-
-function generateExecutiveSummary(doc: PDFKit.PDFDocument, data: ReportData) {
-  addSectionHeader(doc, "1. Sammendrag");
-
+function generateEnvironmentalReportHTML(data: ReportData): string {
   const totalAspects = data.aspects.length;
   const criticalAspects = data.aspects.filter((a) => a.significanceScore >= 20).length;
   const totalMeasurements = data.measurements.length;
@@ -242,96 +146,676 @@ function generateExecutiveSummary(doc: PDFKit.PDFDocument, data: ReportData) {
 
   // Beregn CO2
   let totalCO2Savings = 0;
+  const co2ByCategory: Record<string, number> = {};
+  
   data.measurements.forEach((m) => {
     const category = m.aspect.category as keyof typeof CO2_FACTORS;
     const factor = CO2_FACTORS[category] || 0;
     if (m.targetValue && m.measuredValue < m.targetValue) {
-      totalCO2Savings += (m.targetValue - m.measuredValue) * factor;
+      const savings = (m.targetValue - m.measuredValue) * factor;
+      totalCO2Savings += savings;
+      co2ByCategory[category] = (co2ByCategory[category] || 0) + savings;
     }
   });
 
-  addBodyText(
-    doc,
-    `Dette er ${data.tenant.name} sin miljørapport for ${data.year}. Rapporten dokumenterer bedriftens miljøprestasjon, mål, tiltak og resultater i henhold til kravene for Miljøfyrtårn-sertifisering og ISO 14001:2015.`
-  );
+  const trees = Math.round(totalCO2Savings / 21);
+  const cars = totalCO2Savings / 4600;
 
-  doc.moveDown();
-  addBodyText(doc, "**Nøkkeltall for " + data.year + ":**");
-  doc.moveDown(0.5);
+  const generatedDate = format(new Date(), "d. MMMM yyyy", { locale: nb });
 
-  const keyStats = [
-    `• Registrerte miljøaspekter: ${totalAspects} (${criticalAspects} kritiske)`,
-    `• Gjennomførte målinger: ${totalMeasurements}`,
-    `• Miljømål oppnådd: ${goalsAchieved} av ${totalGoals}`,
-    `• Tiltak gjennomført: ${completedMeasures} av ${totalMeasures}`,
-    `• Estimert CO₂-besparelse: ${totalCO2Savings.toFixed(0)} kg`,
-  ];
+  return `
+<!DOCTYPE html>
+<html lang="no">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Miljørapport ${data.year} - ${data.tenant.name}</title>
+  <style>
+    @page {
+      size: A4;
+      margin: 2cm;
+    }
 
-  keyStats.forEach((stat) => {
-    addBodyText(doc, stat);
-  });
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
 
-  doc.moveDown();
-  addBodyText(
-    doc,
-    `Bedriften har i ${data.year} arbeidet systematisk med miljøstyring og har oppnådd gode resultater innenfor reduksjon av miljøpåvirkning. Rapporten viser en positiv utvikling og kontinuerlig forbedring.`
-  );
+    body {
+      font-family: 'Helvetica', 'Arial', sans-serif;
+      font-size: 11pt;
+      line-height: 1.6;
+      color: #1f2937;
+    }
+
+    .cover-page {
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      page-break-after: always;
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      color: white;
+      padding: 2cm;
+    }
+
+    .cover-logo {
+      font-size: 72pt;
+      margin-bottom: 30px;
+    }
+
+    .cover-title {
+      font-size: 36pt;
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+
+    .cover-year {
+      font-size: 48pt;
+      font-weight: bold;
+      margin-bottom: 30px;
+    }
+
+    .cover-company {
+      font-size: 24pt;
+      margin-bottom: 40px;
+    }
+
+    .cover-subtitle {
+      font-size: 14pt;
+      opacity: 0.9;
+    }
+
+    .cover-footer {
+      position: absolute;
+      bottom: 2cm;
+      font-size: 10pt;
+      opacity: 0.8;
+    }
+
+    h1 {
+      font-size: 24pt;
+      color: #10b981;
+      margin-top: 20px;
+      margin-bottom: 15px;
+      border-bottom: 3px solid #10b981;
+      padding-bottom: 10px;
+      page-break-after: avoid;
+    }
+
+    h2 {
+      font-size: 18pt;
+      color: #059669;
+      margin-top: 25px;
+      margin-bottom: 12px;
+      page-break-after: avoid;
+    }
+
+    h3 {
+      font-size: 14pt;
+      color: #047857;
+      margin-top: 15px;
+      margin-bottom: 10px;
+      page-break-after: avoid;
+    }
+
+    p {
+      margin-bottom: 10px;
+      text-align: justify;
+    }
+
+    .page-break {
+      page-break-before: always;
+    }
+
+    .key-stats {
+      background: #f0fdf4;
+      border-left: 4px solid #10b981;
+      padding: 15px;
+      margin: 20px 0;
+      page-break-inside: avoid;
+    }
+
+    .key-stats ul {
+      list-style: none;
+      margin-left: 0;
+    }
+
+    .key-stats li {
+      padding: 5px 0;
+    }
+
+    .key-stats li:before {
+      content: "✓ ";
+      color: #10b981;
+      font-weight: bold;
+      margin-right: 8px;
+    }
+
+    .info-box {
+      background: #eff6ff;
+      border: 1px solid #3b82f6;
+      border-radius: 8px;
+      padding: 15px;
+      margin: 15px 0;
+      page-break-inside: avoid;
+    }
+
+    .warning-box {
+      background: #fef3c7;
+      border: 1px solid #f59e0b;
+      border-radius: 8px;
+      padding: 15px;
+      margin: 15px 0;
+      page-break-inside: avoid;
+    }
+
+    .success-box {
+      background: #d1fae5;
+      border: 1px solid #10b981;
+      border-radius: 8px;
+      padding: 15px;
+      margin: 15px 0;
+      page-break-inside: avoid;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 15px 0;
+      page-break-inside: avoid;
+    }
+
+    th {
+      background: #10b981;
+      color: white;
+      padding: 12px;
+      text-align: left;
+      font-weight: bold;
+    }
+
+    td {
+      padding: 10px 12px;
+      border-bottom: 1px solid #e5e7eb;
+    }
+
+    tr:nth-child(even) {
+      background: #f9fafb;
+    }
+
+    .aspect-card {
+      background: white;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      padding: 15px;
+      margin: 15px 0;
+      page-break-inside: avoid;
+    }
+
+    .aspect-card h4 {
+      color: #10b981;
+      margin-bottom: 8px;
+    }
+
+    .aspect-meta {
+      font-size: 9pt;
+      color: #6b7280;
+      margin-top: 8px;
+    }
+
+    .co2-highlight {
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      color: white;
+      padding: 30px;
+      border-radius: 12px;
+      text-align: center;
+      margin: 20px 0;
+      page-break-inside: avoid;
+    }
+
+    .co2-value {
+      font-size: 48pt;
+      font-weight: bold;
+      margin: 10px 0;
+    }
+
+    .co2-equivalents {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 15px;
+      margin: 20px 0;
+    }
+
+    .equivalent-card {
+      background: white;
+      border: 2px solid #10b981;
+      border-radius: 8px;
+      padding: 15px;
+      text-align: center;
+    }
+
+    .equivalent-icon {
+      font-size: 32pt;
+      margin-bottom: 10px;
+    }
+
+    .equivalent-value {
+      font-size: 24pt;
+      font-weight: bold;
+      color: #10b981;
+      margin: 10px 0;
+    }
+
+    .equivalent-label {
+      font-size: 10pt;
+      color: #6b7280;
+    }
+
+    .signature-line {
+      margin-top: 40px;
+      padding-top: 50px;
+      border-top: 2px solid #1f2937;
+      width: 300px;
+    }
+
+    .signature-label {
+      font-size: 9pt;
+      color: #6b7280;
+      margin-top: 5px;
+    }
+
+    .footer {
+      margin-top: 30px;
+      padding-top: 15px;
+      border-top: 1px solid #e5e7eb;
+      font-size: 9pt;
+      color: #6b7280;
+      text-align: center;
+    }
+
+    .toc {
+      margin: 30px 0;
+    }
+
+    .toc-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 10px 0;
+      border-bottom: 1px dotted #d1d5db;
+    }
+
+    .toc-title {
+      font-weight: bold;
+      color: #374151;
+    }
+
+    .toc-page {
+      color: #6b7280;
+    }
+  </style>
+</head>
+<body>
+
+<!-- FORSIDE -->
+<div class="cover-page">
+  <div class="cover-logo">🌿</div>
+  <div class="cover-title">MILJØRAPPORT</div>
+  <div class="cover-year">${data.year}</div>
+  <div class="cover-company">${data.tenant.name}</div>
+  <div class="cover-subtitle">
+    Årlig rapport for Miljøfyrtårn-sertifisering<br>
+    I henhold til ISO 14001:2015
+  </div>
+  <div class="cover-footer">
+    Generert: ${generatedDate}<br>
+    HMS Nova - Digitalt HMS-system
+  </div>
+</div>
+
+<!-- INNHOLDSFORTEGNELSE -->
+<div class="page-break">
+  <h1>Innholdsfortegnelse</h1>
+  <div class="toc">
+    <div class="toc-item">
+      <span class="toc-title">1. Sammendrag</span>
+      <span class="toc-page">3</span>
+    </div>
+    <div class="toc-item">
+      <span class="toc-title">2. Om bedriften</span>
+      <span class="toc-page">4</span>
+    </div>
+    <div class="toc-item">
+      <span class="toc-title">3. Miljøaspekter og påvirkning</span>
+      <span class="toc-page">5</span>
+    </div>
+    <div class="toc-item">
+      <span class="toc-title">4. Miljømål og resultater</span>
+      <span class="toc-page">6</span>
+    </div>
+    <div class="toc-item">
+      <span class="toc-title">5. Målinger og data</span>
+      <span class="toc-page">7</span>
+    </div>
+    <div class="toc-item">
+      <span class="toc-title">6. CO₂-fotavtrykk og besparelser</span>
+      <span class="toc-page">8</span>
+    </div>
+    <div class="toc-item">
+      <span class="toc-title">7. Tiltak og handlingsplan</span>
+      <span class="toc-page">9</span>
+    </div>
+    <div class="toc-item">
+      <span class="toc-title">8. Konklusjon og neste steg</span>
+      <span class="toc-page">10</span>
+    </div>
+    <div class="toc-item">
+      <span class="toc-title">Vedlegg</span>
+      <span class="toc-page">11</span>
+    </div>
+  </div>
+</div>
+
+<!-- 1. SAMMENDRAG -->
+<div class="page-break">
+  <h1>1. Sammendrag</h1>
+  
+  <p>
+    Dette er ${data.tenant.name} sin miljørapport for ${data.year}. Rapporten dokumenterer bedriftens 
+    miljøprestasjon, mål, tiltak og resultater i henhold til kravene for Miljøfyrtårn-sertifisering 
+    og ISO 14001:2015.
+  </p>
+
+  <div class="key-stats">
+    <h3>Nøkkeltall for ${data.year}:</h3>
+    <ul>
+      <li>Registrerte miljøaspekter: ${totalAspects} (${criticalAspects} kritiske)</li>
+      <li>Gjennomførte målinger: ${totalMeasurements}</li>
+      <li>Miljømål oppnådd: ${goalsAchieved} av ${totalGoals}</li>
+      <li>Tiltak gjennomført: ${completedMeasures} av ${totalMeasures}</li>
+      <li>Estimert CO₂-besparelse: ${totalCO2Savings.toFixed(0)} kg</li>
+    </ul>
+  </div>
+
+  <p>
+    Bedriften har i ${data.year} arbeidet systematisk med miljøstyring og har oppnådd gode resultater 
+    innenfor reduksjon av miljøpåvirkning. Rapporten viser en positiv utvikling og kontinuerlig forbedring.
+  </p>
+</div>
+
+<!-- 2. OM BEDRIFTEN -->
+<div class="page-break">
+  <h1>2. Om bedriften</h1>
+  
+  <h2>Bedriftsinformasjon</h2>
+  <table>
+    <tr>
+      <td style="font-weight: bold; width: 30%;">Bedriftsnavn</td>
+      <td>${data.tenant.name}</td>
+    </tr>
+    ${data.tenant.orgNumber ? `
+    <tr>
+      <td style="font-weight: bold;">Organisasjonsnummer</td>
+      <td>${data.tenant.orgNumber}</td>
+    </tr>
+    ` : ''}
+    ${data.tenant.address ? `
+    <tr>
+      <td style="font-weight: bold;">Adresse</td>
+      <td>${data.tenant.address}${data.tenant.postalCode && data.tenant.city ? `, ${data.tenant.postalCode} ${data.tenant.city}` : ''}</td>
+    </tr>
+    ` : ''}
+    ${data.tenant.contactEmail ? `
+    <tr>
+      <td style="font-weight: bold;">E-post</td>
+      <td>${data.tenant.contactEmail}</td>
+    </tr>
+    ` : ''}
+    ${data.tenant.contactPhone ? `
+    <tr>
+      <td style="font-weight: bold;">Telefon</td>
+      <td>${data.tenant.contactPhone}</td>
+    </tr>
+    ` : ''}
+    ${data.tenant.industry ? `
+    <tr>
+      <td style="font-weight: bold;">Bransje</td>
+      <td>${data.tenant.industry}</td>
+    </tr>
+    ` : ''}
+  </table>
+
+  <h2>Miljøpolicy</h2>
+  <p>
+    ${data.tenant.name} er forpliktet til å drive virksomheten på en miljømessig forsvarlig måte. 
+    Vi jobber kontinuerlig for å redusere vår miljøpåvirkning gjennom systematisk miljøstyring i 
+    henhold til ISO 14001 og Miljøfyrtårn-kravene.
+  </p>
+
+  <div class="success-box">
+    <h3>Våre forpliktelser:</h3>
+    <ul>
+      <li>Forebygge forurensning og redusere miljøpåvirkning</li>
+      <li>Overholde gjeldende miljølovgivning og forskrifter</li>
+      <li>Sette målbare miljømål og arbeide for kontinuerlig forbedring</li>
+      <li>Involvere ansatte i miljøarbeidet</li>
+      <li>Være åpne om vår miljøprestasjon</li>
+    </ul>
+  </div>
+</div>
+
+<!-- 3. MILJØASPEKTER -->
+<div class="page-break">
+  <h1>3. Miljøaspekter og påvirkning</h1>
+  
+  <p>
+    Bedriften har identifisert ${totalAspects} miljøaspekter som er vurdert for betydning. 
+    Nedenfor følger en oversikt over de mest vesentlige miljøaspektene.
+  </p>
+
+  ${generateAspectsHTML(data.aspects)}
+</div>
+
+<!-- 4. MILJØMÅL -->
+<div class="page-break">
+  <h1>4. Miljømål og resultater</h1>
+  
+  ${data.goals.length === 0 ? `
+    <p>Ingen miljømål er registrert for dette året.</p>
+  ` : `
+    <p>
+      Bedriften har satt ${totalGoals} miljømål for ${data.year}. 
+      Nedenfor følger en oversikt over målene og status.
+    </p>
+    ${generateGoalsHTML(data.goals)}
+  `}
+</div>
+
+<!-- 5. MÅLINGER -->
+<div class="page-break">
+  <h1>5. Målinger og data</h1>
+  
+  ${totalMeasurements === 0 ? `
+    <p>Ingen målinger er registrert for dette året.</p>
+  ` : `
+    <p>
+      Totalt ${totalMeasurements} målinger er gjennomført i ${data.year}. 
+      Nedenfor følger en oppsummering av måledata.
+    </p>
+    ${generateMeasurementsHTML(data.measurements)}
+  `}
+</div>
+
+<!-- 6. CO2 -->
+<div class="page-break">
+  <h1>6. CO₂-fotavtrykk og besparelser</h1>
+  
+  <div class="co2-highlight">
+    <div style="font-size: 14pt; margin-bottom: 10px;">Total CO₂-besparelse for ${data.year}</div>
+    <div class="co2-value">${totalCO2Savings.toFixed(0)} kg</div>
+    <div style="font-size: 10pt; opacity: 0.9;">Basert på ${totalMeasurements} registrerte målinger</div>
+  </div>
+
+  ${Object.keys(co2ByCategory).length > 0 ? `
+    <h2>Besparelse per kategori</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Kategori</th>
+          <th style="text-align: right;">Besparelse (kg CO₂)</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${Object.entries(co2ByCategory).map(([cat, value]) => `
+          <tr>
+            <td>${getCategoryLabel(cat)}</td>
+            <td style="text-align: right; font-weight: bold;">${value.toFixed(1)}</td>
+          </tr>
+        `).join('')}
+      </tbody>
+    </table>
+  ` : ''}
+
+  <h2>Dette tilsvarer:</h2>
+  <div class="co2-equivalents">
+    <div class="equivalent-card">
+      <div class="equivalent-icon">🌲</div>
+      <div class="equivalent-value">${trees}</div>
+      <div class="equivalent-label">Trær som absorberer CO₂ i ett år</div>
+    </div>
+    ${cars >= 0.1 ? `
+      <div class="equivalent-card">
+        <div class="equivalent-icon">🚗</div>
+        <div class="equivalent-value">${cars.toFixed(1)}</div>
+        <div class="equivalent-label">Biler fjernet fra veien i ett år</div>
+      </div>
+    ` : ''}
+  </div>
+
+  <div class="info-box" style="font-size: 9pt;">
+    <strong>Beregningsmetode:</strong> Beregninger er basert på standardfaktorer for norske forhold 
+    og er estimater. Energi: ${CO2_FACTORS.ENERGY} kg CO₂/kWh, Vann: ${CO2_FACTORS.WATER * 1000} kg CO₂/m³, 
+    Avfall: ${CO2_FACTORS.WASTE} kg CO₂/kg.
+  </div>
+</div>
+
+<!-- 7. TILTAK -->
+<div class="page-break">
+  <h1>7. Tiltak og handlingsplan</h1>
+  
+  ${totalMeasures === 0 ? `
+    <p>Ingen miljøtiltak er registrert for dette året.</p>
+  ` : `
+    <p>
+      Totalt ${totalMeasures} miljøtiltak er registrert for ${data.year}. 
+      Status: ${completedMeasures} fullført, ${data.measures.filter(m => m.status === 'IN_PROGRESS').length} pågående, 
+      ${data.measures.filter(m => m.status === 'PENDING').length} planlagt.
+    </p>
+    ${generateMeasuresHTML(data.measures)}
+  `}
+</div>
+
+<!-- 8. KONKLUSJON -->
+<div class="page-break">
+  <h1>8. Konklusjon og neste steg</h1>
+  
+  <p>
+    ${data.tenant.name} har i ${data.year} arbeidet systematisk med miljøstyring og kontinuerlig forbedring. 
+    Bedriften har oppnådd ${goalsAchieved} av ${totalGoals} miljømål og gjennomført ${completedMeasures} miljøtiltak.
+  </p>
+
+  <p>
+    Resultatene viser en positiv utvikling, og bedriften oppfyller kravene til Miljøfyrtårn-sertifisering. 
+    Miljøstyringssystemet er velfungerende og bidrar til redusert miljøpåvirkning.
+  </p>
+
+  <h2>Planer for neste år</h2>
+  <ul>
+    <li>Videreføre systematisk miljøovervåking og måling</li>
+    <li>Oppdatere og forsterke miljømål basert på årets resultater</li>
+    <li>Gjennomføre planlagte miljøtiltak</li>
+    <li>Involvere ansatte i kontinuerlig forbedring</li>
+    <li>Evaluere og oppdatere miljøaspekter årlig</li>
+  </ul>
+
+  <p style="margin-top: 40px;">
+    <strong>Godkjent av ledelsen, ${generatedDate}</strong>
+  </p>
+
+  <div class="signature-line">
+    <div class="signature-label">Signatur</div>
+  </div>
+</div>
+
+<!-- VEDLEGG -->
+<div class="page-break">
+  <h1>Vedlegg</h1>
+  
+  <h2>A. Definisjoner og forkortelser</h2>
+  <table>
+    <tr>
+      <td style="font-weight: bold; width: 30%;">ISO 14001</td>
+      <td>Internasjonal standard for miljøledelse</td>
+    </tr>
+    <tr>
+      <td style="font-weight: bold;">Miljøfyrtårn</td>
+      <td>Norsk miljøsertifiseringsordning</td>
+    </tr>
+    <tr>
+      <td style="font-weight: bold;">Miljøaspekt</td>
+      <td>Element i virksomhetens aktiviteter som kan påvirke miljøet</td>
+    </tr>
+    <tr>
+      <td style="font-weight: bold;">Betydning</td>
+      <td>Kombinasjon av alvorlighet og sannsynlighet (1-25)</td>
+    </tr>
+    <tr>
+      <td style="font-weight: bold;">CO₂-ekvivalent</td>
+      <td>Mengde klimagasser målt i karbondioksid-ekvivalenter</td>
+    </tr>
+  </table>
+
+  <h2>B. Beregningsmetoder</h2>
+  <div class="info-box">
+    <strong>CO₂-faktorer brukt i rapporten:</strong>
+    <ul>
+      <li>Energi: ${CO2_FACTORS.ENERGY} kg CO₂/kWh (norsk strømmiks)</li>
+      <li>Vann: ${CO2_FACTORS.WATER * 1000} kg CO₂/m³</li>
+      <li>Avfall: ${CO2_FACTORS.WASTE} kg CO₂/kg</li>
+      <li>Utslipp: ${CO2_FACTORS.EMISSIONS} kg CO₂/kg (direkte)</li>
+      <li>Ressursbruk: ${CO2_FACTORS.RESOURCE_USE} kg CO₂/enhet</li>
+    </ul>
+    <p style="font-size: 9pt; margin-top: 10px;">
+      Faktorer er basert på norske forhold og standarder fra Miljødirektoratet og Statistisk sentralbyrå.
+    </p>
+  </div>
+
+  <h2>C. Kontaktinformasjon</h2>
+  <p>For spørsmål om denne rapporten, kontakt:</p>
+  <div class="info-box">
+    <strong>${data.tenant.name}</strong><br>
+    ${data.tenant.contactEmail ? `E-post: ${data.tenant.contactEmail}<br>` : ''}
+    ${data.tenant.contactPhone ? `Telefon: ${data.tenant.contactPhone}` : ''}
+  </div>
+
+  <div class="footer">
+    <p>
+      Denne rapporten er generert av HMS Nova - Digitalt HMS-system<br>
+      www.hmsnova.no • Miljørapport ${data.year} • Side 11 av 11
+    </p>
+  </div>
+</div>
+
+</body>
+</html>
+  `;
 }
 
-function generateCompanyInfo(doc: PDFKit.PDFDocument, data: ReportData) {
-  addSectionHeader(doc, "2. Om bedriften");
+// Hjelpefunksjoner for HTML-generering
 
-  addSubHeader(doc, "Bedriftsinformasjon");
-
-  const companyInfo = [
-    `Navn: ${data.tenant.name}`,
-    data.tenant.orgNumber ? `Org.nr: ${data.tenant.orgNumber}` : null,
-    data.tenant.address ? `Adresse: ${data.tenant.address}` : null,
-    data.tenant.postalCode && data.tenant.city
-      ? `${data.tenant.postalCode} ${data.tenant.city}`
-      : null,
-    data.tenant.contactEmail ? `E-post: ${data.tenant.contactEmail}` : null,
-    data.tenant.contactPhone ? `Telefon: ${data.tenant.contactPhone}` : null,
-    data.tenant.industry ? `Bransje: ${data.tenant.industry}` : null,
-  ].filter(Boolean);
-
-  companyInfo.forEach((info) => {
-    addBodyText(doc, info!);
-  });
-
-  doc.moveDown();
-  addSubHeader(doc, "Miljøpolicy");
-  addBodyText(
-    doc,
-    `${data.tenant.name} er forpliktet til å drive virksomheten på en miljømessig forsvarlig måte. Vi jobber kontinuerlig for å redusere vår miljøpåvirkning gjennom systematisk miljøstyring i henhold til ISO 14001 og Miljøfyrtårn-kravene.`
-  );
-
-  doc.moveDown();
-  addBodyText(doc, "**Våre forpliktelser:**");
-  doc.moveDown(0.5);
-
-  const commitments = [
-    "• Forebygge forurensning og redusere miljøpåvirkning",
-    "• Overholde gjeldende miljølovgivning og forskrifter",
-    "• Sette målbare miljømål og arbeide for kontinuerlig forbedring",
-    "• Involvere ansatte i miljøarbeidet",
-    "• Være åpne om vår miljøprestasjon",
-  ];
-
-  commitments.forEach((c) => addBodyText(doc, c));
-}
-
-function generateAspectsSection(doc: PDFKit.PDFDocument, data: ReportData) {
-  addSectionHeader(doc, "3. Miljøaspekter og påvirkning");
-
-  addBodyText(
-    doc,
-    `Bedriften har identifisert ${data.aspects.length} miljøaspekter som er vurdert for betydning. Nedenfor følger en oversikt over de mest vesentlige miljøaspektene.`
-  );
-
-  doc.moveDown();
-
-  // Gruppér etter kategori
+function generateAspectsHTML(aspects: ReportData['aspects']): string {
   const categories = {
     ENERGY: "Energibruk",
     WATER: "Vannforbruk",
@@ -342,106 +826,69 @@ function generateAspectsSection(doc: PDFKit.PDFDocument, data: ReportData) {
     OTHER: "Annet",
   };
 
+  let html = '';
+
   Object.entries(categories).forEach(([key, label]) => {
-    const aspectsInCategory = data.aspects.filter((a) => a.category === key);
+    const aspectsInCategory = aspects.filter((a) => a.category === key);
     if (aspectsInCategory.length === 0) return;
 
-    addSubHeader(doc, label);
+    html += `<h2>${label}</h2>`;
 
     aspectsInCategory.slice(0, 3).forEach((aspect) => {
-      addBodyText(doc, `**${aspect.title}**`);
-      if (aspect.description) {
-        addBodyText(doc, aspect.description, { indent: 20 });
-      }
-      addBodyText(
-        doc,
-        `Betydning: ${aspect.significanceScore}/25 • Status: ${getStatusLabel(aspect.status)}`,
-        { indent: 20, fontSize: 10, color: "#6b7280" }
-      );
-      if (aspect.controlMeasures) {
-        addBodyText(doc, `Kontrolltiltak: ${aspect.controlMeasures}`, {
-          indent: 20,
-          fontSize: 10,
-        });
-      }
-      doc.moveDown(0.5);
+      html += `
+        <div class="aspect-card">
+          <h4>${aspect.title}</h4>
+          ${aspect.description ? `<p>${aspect.description}</p>` : ''}
+          <div class="aspect-meta">
+            Betydning: ${aspect.significanceScore}/25 • 
+            Status: ${getStatusLabel(aspect.status)}
+            ${aspect.controlMeasures ? ` • Kontrolltiltak: ${aspect.controlMeasures}` : ''}
+          </div>
+        </div>
+      `;
     });
 
     if (aspectsInCategory.length > 3) {
-      addBodyText(doc, `... og ${aspectsInCategory.length - 3} flere aspekter`, {
-        fontSize: 10,
-        color: "#6b7280",
-      });
+      html += `<p style="font-size: 9pt; color: #6b7280;">... og ${aspectsInCategory.length - 3} flere aspekter</p>`;
     }
-
-    doc.moveDown();
   });
+
+  return html;
 }
 
-function generateGoalsSection(doc: PDFKit.PDFDocument, data: ReportData) {
-  addSectionHeader(doc, "4. Miljømål og resultater");
+function generateGoalsHTML(goals: ReportData['goals']): string {
+  let html = '';
 
-  if (data.goals.length === 0) {
-    addBodyText(doc, "Ingen miljømål er registrert for dette året.");
-    return;
-  }
-
-  addBodyText(
-    doc,
-    `Bedriften har satt ${data.goals.length} miljømål for ${data.year}. Nedenfor følger en oversikt over målene og status.`
-  );
-
-  doc.moveDown();
-
-  data.goals.forEach((goal, index) => {
-    addSubHeader(doc, `Mål ${index + 1}: ${goal.title}`);
-
-    if (goal.description) {
-      addBodyText(doc, goal.description);
-    }
-
+  goals.forEach((goal, index) => {
     const status = getGoalStatusLabel(goal.status);
     const progress = goal.targetValue && goal.currentValue
       ? Math.round((goal.currentValue / goal.targetValue) * 100)
       : 0;
 
-    addBodyText(doc, `**Status:** ${status}`);
-    if (goal.targetValue) {
-      addBodyText(
-        doc,
-        `**Målverdi:** ${goal.targetValue} ${goal.unit || ""} • **Oppnådd:** ${goal.currentValue || 0} ${goal.unit || ""} (${progress}%)`
-      );
-    }
-
-    if (goal.deadline) {
-      addBodyText(
-        doc,
-        `**Frist:** ${format(new Date(goal.deadline), "d. MMMM yyyy", { locale: nb })}`
-      );
-    }
-
-    doc.moveDown();
+    html += `
+      <div class="aspect-card">
+        <h3>Mål ${index + 1}: ${goal.title}</h3>
+        ${goal.description ? `<p>${goal.description}</p>` : ''}
+        <p><strong>Status:</strong> ${status}</p>
+        ${goal.targetValue ? `
+          <p>
+            <strong>Målverdi:</strong> ${goal.targetValue} ${goal.unit || ''} • 
+            <strong>Oppnådd:</strong> ${goal.currentValue || 0} ${goal.unit || ''} (${progress}%)
+          </p>
+        ` : ''}
+        ${goal.deadline ? `
+          <p><strong>Frist:</strong> ${format(new Date(goal.deadline), 'd. MMMM yyyy', { locale: nb })}</p>
+        ` : ''}
+      </div>
+    `;
   });
+
+  return html;
 }
 
-function generateMeasurementsSection(doc: PDFKit.PDFDocument, data: ReportData) {
-  addSectionHeader(doc, "5. Målinger og data");
-
-  if (data.measurements.length === 0) {
-    addBodyText(doc, "Ingen målinger er registrert for dette året.");
-    return;
-  }
-
-  addBodyText(
-    doc,
-    `Totalt ${data.measurements.length} målinger er gjennomført i ${data.year}. Nedenfor følger en oppsummering av måledata.`
-  );
-
-  doc.moveDown();
-
-  // Gruppér målinger per kategori
-  const measurementsByCategory: Record<string, typeof data.measurements> = {};
-  data.measurements.forEach((m) => {
+function generateMeasurementsHTML(measurements: ReportData['measurements']): string {
+  const measurementsByCategory: Record<string, typeof measurements> = {};
+  measurements.forEach((m) => {
     const cat = m.aspect.category;
     if (!measurementsByCategory[cat]) {
       measurementsByCategory[cat] = [];
@@ -449,280 +896,60 @@ function generateMeasurementsSection(doc: PDFKit.PDFDocument, data: ReportData) 
     measurementsByCategory[cat].push(m);
   });
 
+  let html = '';
+
   Object.entries(measurementsByCategory).forEach(([category, measurements]) => {
     const categoryLabel = getCategoryLabel(category);
-    addSubHeader(doc, categoryLabel);
-
-    // Beregn statistikk
     const values = measurements.map((m) => m.measuredValue);
     const avg = values.reduce((sum, v) => sum + v, 0) / values.length;
     const min = Math.min(...values);
     const max = Math.max(...values);
     const compliant = measurements.filter((m) => m.status === "COMPLIANT").length;
 
-    addBodyText(doc, `Antall målinger: ${measurements.length}`);
-    addBodyText(doc, `Gjennomsnitt: ${avg.toFixed(2)} ${measurements[0].unit || ""}`);
-    addBodyText(doc, `Min: ${min.toFixed(2)} • Maks: ${max.toFixed(2)}`);
-    addBodyText(doc, `I samsvar: ${compliant}/${measurements.length} målinger`);
-
-    doc.moveDown();
+    html += `
+      <h2>${categoryLabel}</h2>
+      <div class="info-box">
+        <p><strong>Antall målinger:</strong> ${measurements.length}</p>
+        <p><strong>Gjennomsnitt:</strong> ${avg.toFixed(2)} ${measurements[0].unit || ''}</p>
+        <p><strong>Min:</strong> ${min.toFixed(2)} • <strong>Maks:</strong> ${max.toFixed(2)}</p>
+        <p><strong>I samsvar:</strong> ${compliant}/${measurements.length} målinger</p>
+      </div>
+    `;
   });
+
+  return html;
 }
 
-function generateCO2Section(doc: PDFKit.PDFDocument, data: ReportData) {
-  addSectionHeader(doc, "6. CO₂-fotavtrykk og besparelser");
+function generateMeasuresHTML(measures: ReportData['measures']): string {
+  const completed = measures.filter((m) => m.status === "DONE");
+  const inProgress = measures.filter((m) => m.status === "IN_PROGRESS");
+  const pending = measures.filter((m) => m.status === "PENDING");
 
-  // Beregn CO2-besparelser per kategori
-  const co2ByCategory: Record<string, number> = {};
-  let totalCO2 = 0;
+  let html = '';
 
-  data.measurements.forEach((m) => {
-    const category = m.aspect.category as keyof typeof CO2_FACTORS;
-    const factor = CO2_FACTORS[category] || 0;
-
-    if (m.targetValue && m.measuredValue < m.targetValue) {
-      const savings = (m.targetValue - m.measuredValue) * factor;
-      co2ByCategory[category] = (co2ByCategory[category] || 0) + savings;
-      totalCO2 += savings;
-    }
-  });
-
-  addBodyText(
-    doc,
-    `Basert på registrerte målinger og miljøaspekter har bedriften oppnådd en estimert CO₂-besparelse på **${totalCO2.toFixed(0)} kg CO₂** i ${data.year}.`
-  );
-
-  doc.moveDown();
-  addSubHeader(doc, "Besparelse per kategori");
-
-  Object.entries(co2ByCategory).forEach(([category, savings]) => {
-    const label = getCategoryLabel(category);
-    addBodyText(doc, `• ${label}: ${savings.toFixed(0)} kg CO₂`);
-  });
-
-  doc.moveDown();
-  addSubHeader(doc, "Dette tilsvarer:");
-
-  const trees = Math.round(totalCO2 / 21);
-  const cars = totalCO2 / 4600;
-
-  addBodyText(doc, `• ${trees} trær som absorberer CO₂ i ett år`);
-  if (cars >= 0.1) {
-    addBodyText(doc, `• ${cars.toFixed(1)} biler fjernet fra veien i ett år`);
-  }
-
-  doc.moveDown();
-  addBodyText(
-    doc,
-    "*Beregninger er basert på standardfaktorer for norske forhold og er estimater.",
-    { fontSize: 9, color: "#6b7280" }
-  );
-}
-
-function generateActionsSection(doc: PDFKit.PDFDocument, data: ReportData) {
-  addSectionHeader(doc, "7. Tiltak og handlingsplan");
-
-  if (data.measures.length === 0) {
-    addBodyText(doc, "Ingen miljøtiltak er registrert for dette året.");
-    return;
-  }
-
-  const completed = data.measures.filter((m) => m.status === "DONE").length;
-  const inProgress = data.measures.filter((m) => m.status === "IN_PROGRESS").length;
-  const pending = data.measures.filter((m) => m.status === "PENDING").length;
-
-  addBodyText(
-    doc,
-    `Totalt ${data.measures.length} miljøtiltak er registrert for ${data.year}. Status: ${completed} fullført, ${inProgress} pågående, ${pending} planlagt.`
-  );
-
-  doc.moveDown();
-  addSubHeader(doc, "Gjennomførte tiltak");
-
-  data.measures
-    .filter((m) => m.status === "DONE")
-    .slice(0, 5)
-    .forEach((measure) => {
-      addBodyText(doc, `**${measure.description}**`);
-      if (measure.environmentalAspect) {
-        addBodyText(doc, `Relatert til: ${measure.environmentalAspect.title}`, {
-          indent: 20,
-          fontSize: 10,
-        });
-      }
-      if (measure.responsible?.name) {
-        addBodyText(doc, `Ansvarlig: ${measure.responsible.name}`, {
-          indent: 20,
-          fontSize: 10,
-        });
-      }
-      if (measure.completedAt) {
-        addBodyText(
-          doc,
-          `Fullført: ${format(new Date(measure.completedAt), "d. MMMM yyyy", { locale: nb })}`,
-          { indent: 20, fontSize: 10 }
-        );
-      }
-      doc.moveDown(0.5);
+  if (completed.length > 0) {
+    html += '<h2>Gjennomførte tiltak</h2>';
+    completed.slice(0, 5).forEach((measure) => {
+      html += `
+        <div class="aspect-card">
+          <h4>${measure.description}</h4>
+          ${measure.environmentalAspect ? `<p><strong>Relatert til:</strong> ${measure.environmentalAspect.title}</p>` : ''}
+          ${measure.responsible?.name ? `<p><strong>Ansvarlig:</strong> ${measure.responsible.name}</p>` : ''}
+          ${measure.completedAt ? `<p><strong>Fullført:</strong> ${format(new Date(measure.completedAt), 'd. MMMM yyyy', { locale: nb })}</p>` : ''}
+        </div>
+      `;
     });
-
-  if (inProgress > 0 || pending > 0) {
-    doc.moveDown();
-    addSubHeader(doc, "Pågående og planlagte tiltak");
-
-    data.measures
-      .filter((m) => m.status === "IN_PROGRESS" || m.status === "PENDING")
-      .slice(0, 5)
-      .forEach((measure) => {
-        addBodyText(doc, `• ${measure.description}`);
-      });
   }
-}
 
-function generateConclusion(doc: PDFKit.PDFDocument, data: ReportData) {
-  addSectionHeader(doc, "8. Konklusjon og neste steg");
-
-  const goalsAchieved = data.goals.filter((g) => g.status === "ACHIEVED").length;
-  const totalGoals = data.goals.length;
-  const completedMeasures = data.measures.filter((m) => m.status === "DONE").length;
-
-  addBodyText(
-    doc,
-    `${data.tenant.name} har i ${data.year} arbeidet systematisk med miljøstyring og kontinuerlig forbedring. Bedriften har oppnådd ${goalsAchieved} av ${totalGoals} miljømål og gjennomført ${completedMeasures} miljøtiltak.`
-  );
-
-  doc.moveDown();
-  addBodyText(
-    doc,
-    "Resultatene viser en positiv utvikling, og bedriften oppfyller kravene til Miljøfyrtårn-sertifisering. Miljøstyringssystemet er velfungerende og bidrar til redusert miljøpåvirkning."
-  );
-
-  doc.moveDown();
-  addSubHeader(doc, "Planer for neste år");
-
-  const nextYearActions = [
-    "• Videreføre systematisk miljøovervåking og måling",
-    "• Oppdatere og forsterke miljømål basert på årets resultater",
-    "• Gjennomføre planlagte miljøtiltak",
-    "• Involvere ansatte i kontinuerlig forbedring",
-    "• Evaluere og oppdatere miljøaspekter årlig",
-  ];
-
-  nextYearActions.forEach((action) => addBodyText(doc, action));
-
-  doc.moveDown(2);
-
-  // Signatur
-  addBodyText(doc, `Godkjent av ledelsen, ${format(new Date(), "d. MMMM yyyy", { locale: nb })}`);
-  doc.moveDown(3);
-  doc
-    .moveTo(100, doc.y)
-    .lineTo(300, doc.y)
-    .stroke("#d1d5db");
-  doc.moveDown(0.5);
-  addBodyText(doc, "Signatur", { fontSize: 10, color: "#6b7280" });
-}
-
-function generateAppendix(doc: PDFKit.PDFDocument, data: ReportData) {
-  addSectionHeader(doc, "Vedlegg");
-
-  addSubHeader(doc, "A. Definisjoner og forkortelser");
-  const definitions = [
-    "**ISO 14001:** Internasjonal standard for miljøledelse",
-    "**Miljøfyrtårn:** Norsk miljøsertifiseringsordning",
-    "**Miljøaspekt:** Element i virksomhetens aktiviteter som kan påvirke miljøet",
-    "**Betydning:** Kombinasjon av alvorlighet og sannsynlighet (1-25)",
-    "**CO₂-ekvivalent:** Mengde klimagasser målt i karbondioksid-ekvivalenter",
-  ];
-
-  definitions.forEach((def) => {
-    addBodyText(doc, def);
-    doc.moveDown(0.3);
-  });
-
-  doc.moveDown();
-  addSubHeader(doc, "B. Beregningsmetoder");
-  addBodyText(doc, "**CO₂-faktorer brukt i rapporten:**");
-  doc.moveDown(0.5);
-
-  const factors = [
-    `• Energi: ${CO2_FACTORS.ENERGY} kg CO₂/kWh`,
-    `• Vann: ${CO2_FACTORS.WATER * 1000} kg CO₂/m³`,
-    `• Avfall: ${CO2_FACTORS.WASTE} kg CO₂/kg`,
-    `• Utslipp: ${CO2_FACTORS.EMISSIONS} kg CO₂/kg`,
-    `• Ressursbruk: ${CO2_FACTORS.RESOURCE_USE} kg CO₂/enhet`,
-  ];
-
-  factors.forEach((f) => addBodyText(doc, f));
-
-  doc.moveDown();
-  addBodyText(
-    doc,
-    "*Faktorer er basert på norske forhold og standarder fra Miljødirektoratet og Statistisk sentralbyrå.",
-    { fontSize: 9, color: "#6b7280" }
-  );
-
-  doc.moveDown(2);
-  addSubHeader(doc, "C. Kontaktinformasjon");
-  addBodyText(doc, "For spørsmål om denne rapporten, kontakt:");
-  doc.moveDown(0.5);
-  addBodyText(doc, data.tenant.name);
-  if (data.tenant.contactEmail) {
-    addBodyText(doc, `E-post: ${data.tenant.contactEmail}`);
+  if (inProgress.length > 0 || pending.length > 0) {
+    html += '<h2>Pågående og planlagte tiltak</h2><ul>';
+    [...inProgress, ...pending].slice(0, 5).forEach((measure) => {
+      html += `<li>${measure.description}</li>`;
+    });
+    html += '</ul>';
   }
-  if (data.tenant.contactPhone) {
-    addBodyText(doc, `Telefon: ${data.tenant.contactPhone}`);
-  }
-}
 
-// HJELPEFUNKSJONER
-
-function addSectionHeader(doc: PDFKit.PDFDocument, text: string) {
-  doc
-    .fontSize(18)
-    .fillColor("#10b981")
-    .font("Helvetica-Bold")
-    .text(text);
-
-  doc
-    .moveTo(50, doc.y + 5)
-    .lineTo(550, doc.y + 5)
-    .lineWidth(2)
-    .stroke("#10b981");
-
-  doc.moveDown(1.5);
-  doc.fillColor("#1f2937").font("Helvetica");
-}
-
-function addSubHeader(doc: PDFKit.PDFDocument, text: string) {
-  doc
-    .fontSize(14)
-    .fillColor("#374151")
-    .font("Helvetica-Bold")
-    .text(text);
-
-  doc.moveDown(0.5);
-  doc.fillColor("#1f2937").font("Helvetica");
-}
-
-function addBodyText(
-  doc: PDFKit.PDFDocument,
-  text: string,
-  options?: {
-    indent?: number;
-    fontSize?: number;
-    color?: string;
-  }
-) {
-  const fontSize = options?.fontSize || 11;
-  const color = options?.color || "#374151";
-  const indent = options?.indent || 0;
-
-  doc
-    .fontSize(fontSize)
-    .fillColor(color)
-    .font("Helvetica")
-    .text(text, { indent });
+  return html;
 }
 
 function getStatusLabel(status: string): string {
