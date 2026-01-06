@@ -4,8 +4,9 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Leaf, AlertTriangle, TimerReset, Activity } from "lucide-react";
+import { Leaf, AlertTriangle, TimerReset, Activity, FileText } from "lucide-react";
 import Link from "next/link";
+import { EnvironmentReportButton } from "@/features/environment/components/environment-report-button";
 import { EnvironmentAspectList } from "@/features/environment/components/environment-aspect-list";
 import { CO2CalculatorCard } from "@/features/environment/components/co2-calculator-card";
 
@@ -95,9 +96,12 @@ export default async function EnvironmentPage() {
             Oversikt over miljøaspekter, målinger og oppfølging
           </p>
         </div>
-        <Button asChild>
-          <Link href="/dashboard/environment/new">Nytt miljøaspekt</Link>
-        </Button>
+        <div className="flex gap-2">
+          <EnvironmentReportButton />
+          <Button asChild>
+            <Link href="/dashboard/environment/new">Nytt miljøaspekt</Link>
+          </Button>
+        </div>
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
