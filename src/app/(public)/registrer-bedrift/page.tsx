@@ -114,17 +114,17 @@ export default function RegistrerBedriftPage() {
 
                 {/* Antall ansatte */}
                 <div className="space-y-2">
-                  <Label htmlFor="bindingPeriod">
-                    Ønsket bindingsperiode <span className="text-destructive">*</span>
+                  <Label htmlFor="employeeCount">
+                    Antall ansatte <span className="text-destructive">*</span>
                   </Label>
-                  <Select name="bindingPeriod" required>
+                  <Select name="employeeCount" required>
                     <SelectTrigger>
-                      <SelectValue placeholder="Velg bindingsperiode" />
+                      <SelectValue placeholder="Velg antall ansatte" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="none">Ingen binding (300 kr/mnd)</SelectItem>
-                      <SelectItem value="1year">1 år binding (275 kr/mnd)</SelectItem>
-                      <SelectItem value="2year">2 år binding (225 kr/mnd)</SelectItem>
+                      <SelectItem value="1-20">1-20 ansatte</SelectItem>
+                      <SelectItem value="21-50">21-50 ansatte</SelectItem>
+                      <SelectItem value="51+">51+ ansatte</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
