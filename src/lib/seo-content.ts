@@ -20,7 +20,7 @@ export const SEO_CONTENT = {
     secondary: [
       "Erstatt Excel-ark og papirrot med et moderne HMS-system",
       "500+ norske bedrifter stoler på HMS Nova",
-      "Fra 225 kr/mnd - ingen skjulte kostnader, valgfri binding",
+      "Fra 250 kr/mnd - ingen skjulte kostnader, valgfri binding",
     ],
   },
 
@@ -72,7 +72,7 @@ export const SEO_CONTENT = {
     },
     {
       feature: "Pris",
-      hmsnova: "Fra 225 kr/mnd (2.700 kr/år)",
+      hmsnova: "Fra 250 kr/mnd (3.000 kr/år)",
       competitors: "Fra 7.080-12.000 kr/år",
       benefit: "Best verdi for pengene - ubegrenset brukere",
     },
@@ -94,7 +94,7 @@ export const SEO_CONTENT = {
       "HMS Nova er Norges mest moderne HMS-system. Vi bygger trygghet gjennom digitalisering av HMS-arbeid. Med HMS Nova får bedrifter et komplett verktøy for risikovurdering, hendelsesrapportering, dokumenthåndtering og ISO 9001 compliance. Systemet erstatter Excel-ark og papirrot med en moderne, mobilbasert løsning.",
 
     howMuchCost:
-      "HMS Nova koster fra 225 kr/mnd med 2 års binding, 275 kr/mnd med 1 års binding, eller 300 kr/mnd uten binding. Ubegrenset antall brukere inkludert. Ingen oppstartskostnader, alt inkludert. 20% rabatt på HMS-kurs og 10% rabatt på BHT for medlemmer.",
+      "HMS Nova koster fra 250 kr/mnd med 2 års binding, 275 kr/mnd med 1 års binding, eller 300 kr/mnd uten binding. Ubegrenset antall brukere inkludert. Ingen oppstartskostnader, alt inkludert. 20% rabatt på HMS-kurs og 10% rabatt på BHT for medlemmer.",
 
     howDifferent:
       "HMS Nova skiller seg fra Grønn Jobb, Avonova og Kuba ved å være 100% digitalt og moderne. Vi har digital signatur inkludert (ikke ekstrakostnad), valgfri bindingstid (0-2 år), mobilapp med offline-støtte, og betydelig lavere priser fra kun 225 kr/mnd. Vår visjon er enkel: HMS Nova bygger trygghet - ikke byråkrati.",

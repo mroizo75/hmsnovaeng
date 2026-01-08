@@ -112,7 +112,7 @@ export default function VilkarPage() {
                 <ul className="list-disc list-inside space-y-1 text-sm text-muted-foreground">
                   <li><strong>Ingen binding:</strong> 300 kr/mnd</li>
                   <li><strong>1 år binding:</strong> 275 kr/mnd (spar 300 kr/år)</li>
-                  <li><strong>2 år binding:</strong> 225 kr/mnd (spar 900 kr/år)</li>
+                  <li><strong>2 år binding:</strong> 250 kr/mnd (spar 600 kr/år)</li>
                 </ul>
                 <p className="text-sm text-muted-foreground mt-2">
                   Alle planer inkluderer ubegrenset antall brukere.

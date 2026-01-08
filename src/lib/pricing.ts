@@ -44,7 +44,7 @@ export interface PricingPlan {
  * Prismodell basert på bindingstid:
  * - Ingen binding: 300 kr/mnd - fleksibilitet, si opp når du vil
  * - 1 år binding: 275 kr/mnd - spar 300 kr/år
- * - 2 år binding: 225 kr/mnd - spar 900 kr/år (beste verdi)
+ * - 2 år binding: 250 kr/mnd - spar 600 kr/år (beste verdi)
  * 
  * HMS Nova fordeler:
  * - Ingen oppstartskostnader: 0 kr (konkurrenter: 20.000-50.000 kr)
@@ -73,10 +73,10 @@ export const BINDING_PLANS: BindingPlan[] = [
   {
     period: "2year",
     name: "2 år binding",
-    description: "Beste verdi - spar 900 kr/år",
-    monthlyPrice: 225,
-    yearlyPrice: 2700,
-    savings: "Spar 900 kr/år",
+    description: "Beste verdi - spar 600 kr/år",
+    monthlyPrice: 250,
+    yearlyPrice: 3000,
+    savings: "Spar 600 kr/år",
   },
 ];
 

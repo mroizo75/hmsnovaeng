@@ -5,7 +5,7 @@
  * Ny prismodell (kun software):
  * - Ingen binding: 300 kr/mnd (3600 kr/år)
  * - 1 år binding: 275 kr/mnd (3300 kr/år) - default
- * - 2 år binding: 225 kr/mnd (2700 kr/år)
+ * - 2 år binding: 250 kr/mnd (3000 kr/år)
  * 
  * Alle planer inkluderer ubegrenset antall brukere.
  */
@@ -46,8 +46,8 @@ export const BINDING_PRICES: Record<BindingPeriod, BindingPricing> = {
   },
   "2year": {
     period: "2year",
-    monthlyPrice: 225,
-    yearlyPrice: 2700,
+    monthlyPrice: 250,
+    yearlyPrice: 3000,
     name: "2 år binding",
   },
 };
