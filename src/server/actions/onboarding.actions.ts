@@ -163,41 +163,55 @@ export async function activateTenant(input: z.infer<typeof activateTenantSchema>
       },
     });
 
-    if (existingUser) {
-      // Hvis brukeren allerede er koblet til denne tenanten, returner suksess
-      if (existingUser.tenants.length > 0) {
-        return {
-          success: false,
-          error: "Denne bedriften er allerede aktivert med denne admin-brukeren",
-        };
-      }
-      // Hvis brukeren eksisterer men ikke er koblet til denne tenanten
-      return {
-        success: false,
-        error: "En bruker med denne e-postadressen eksisterer allerede. Bruk en annen e-postadresse.",
-      };
-    }
-
-    // Hash password
+    // Hash password (trenger det uansett)
     const hashedPassword = await bcrypt.hash(validated.adminPassword, 10);
 
-    // SIKKERHET: Opprett admin-bruker, subscription og aktiver tenant i én transaksjon
+    // SIKKERHET: Opprett eller koble admin-bruker, subscription og aktiver tenant i én transaksjon
     const result = await prisma.$transaction(async (tx) => {
-      // 1. Opprett admin-bruker med ADMIN-rolle
-      const adminUser = await tx.user.create({
-        data: {
-          email: normalizedEmail,
-          name: validated.adminName,
-          password: hashedPassword,
-          emailVerified: new Date(), // Admin-bruker er automatisk verifisert
-          tenants: {
-            create: {
-              tenantId: validated.tenantId,
-              role: "ADMIN",
+      let adminUser;
+
+      if (existingUser) {
+        // Brukeren eksisterer allerede
+        if (existingUser.tenants.length > 0) {
+          // Allerede koblet til denne tenanten
+          throw new Error("Denne bedriften er allerede aktivert med denne admin-brukeren");
+        }
+        
+        // Bruker eksisterer, men er IKKE koblet til denne tenanten
+        // → Koble brukeren til den nye tenanten
+        await tx.userTenant.create({
+          data: {
+            userId: existingUser.id,
+            tenantId: validated.tenantId,
+            role: "ADMIN",
+          },
+        });
+
+        // Oppdater passord til det nye (slik at de får riktig passord for ny tenant)
+        adminUser = await tx.user.update({
+          where: { id: existingUser.id },
+          data: {
+            password: hashedPassword,
+            name: validated.adminName, // Oppdater navn også
+          },
+        });
+      } else {
+        // Bruker eksisterer ikke - opprett ny bruker med ADMIN-rolle
+        adminUser = await tx.user.create({
+          data: {
+            email: normalizedEmail,
+            name: validated.adminName,
+            password: hashedPassword,
+            emailVerified: new Date(), // Admin-bruker er automatisk verifisert
+            tenants: {
+              create: {
+                tenantId: validated.tenantId,
+                role: "ADMIN",
+              },
             },
           },
-        },
-      });
+        });
+      }
 
       // 2. Beregn pris basert på bindingsperiode (nye HMS Nova priser)
       // Standard er 1 år binding: 275 kr/mnd = 3300 kr/år
