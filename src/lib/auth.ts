@@ -77,8 +77,9 @@ export const authOptions: NextAuthOptions = {
         );
 
         if (!isPasswordValid) {
-          // Inkrementer failed attempts
-          const newFailedAttempts = user.failedLoginAttempts + 1;
+          // Inkrementer failed attempts (håndter null-verdier)
+          const currentAttempts = user.failedLoginAttempts || 0;
+          const newFailedAttempts = currentAttempts + 1;
           const shouldLock = newFailedAttempts >= MAX_ATTEMPTS;
 
           await prisma.user.update({
@@ -104,8 +105,8 @@ export const authOptions: NextAuthOptions = {
           );
         }
 
-        // SUCCESS: Reset failed attempts og lockout
-        if (user.failedLoginAttempts > 0 || user.lockedUntil) {
+        // SUCCESS: Reset failed attempts og lockout (håndter null-verdier)
+        if ((user.failedLoginAttempts || 0) > 0 || user.lockedUntil) {
           await prisma.user.update({
             where: { id: user.id },
             data: {
