@@ -140,7 +140,7 @@ export async function submitRegistrationRequest(formData: FormData) {
     if (process.env.RESEND_API_KEY) {
       try {
         await resend.emails.send({
-          from: "HMS Nova <noreply@hmsnova.com>",
+          from: "HMS Nova <noreply@hmsnova.no>",
           to: validated.contactEmail,
           subject: "Velkommen til HMS Nova - Din søknad er mottatt 🎉",
           html: getCustomerWelcomeEmail({
@@ -159,11 +159,11 @@ export async function submitRegistrationRequest(formData: FormData) {
     }
 
     // Send notification to admin/support
-    if (process.env.RESEND_API_KEY && process.env.ADMIN_EMAIL) {
+    if (process.env.RESEND_API_KEY) {
       try {
         await resend.emails.send({
-          from: "HMS Nova <noreply@hmsnova.com>",
-          to: process.env.ADMIN_EMAIL,
+          from: "HMS Nova <noreply@hmsnova.no>",
+          to: "kenneth@kksas.no",
           subject: `🎯 Ny registrering: ${validated.companyName}`,
           html: getAdminNotificationEmail({
             companyName: validated.companyName,
