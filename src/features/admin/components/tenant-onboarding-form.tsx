@@ -70,6 +70,7 @@ export function TenantOnboardingForm({ salesRep }: TenantOnboardingFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [employeeCount, setEmployeeCount] = useState<number>(5);
   const [selectedIndustry, setSelectedIndustry] = useState<string>("other");
+  const [selectedTier, setSelectedTier] = useState<PricingTier>("MICRO");
 
   const {
     register,
@@ -85,8 +86,8 @@ export function TenantOnboardingForm({ salesRep }: TenantOnboardingFormProps) {
     },
   });
 
-  // Beregn pricing tier dynamisk
-  const currentTier = calculatePricingTier(employeeCount);
+  // Beregn pricing tier dynamisk (kan overstyres manuelt)
+  const currentTier = selectedTier;
   const currentPlan = getPricingPlan(currentTier);
 
   const onSubmit = async (data: TenantOnboardingFormData) => {
@@ -337,10 +338,43 @@ export function TenantOnboardingForm({ salesRep }: TenantOnboardingFormProps) {
           <Alert>
             <TrendingUp className="h-4 w-4" />
             <AlertDescription>
-              <strong>Dynamisk prisberegning:</strong> Prisen beregnes automatisk basert på antall ansatte.
-              Juster antall ansatte i "Bedriftsinfo"-fanen for å se oppdatert pris.
+              <strong>Velg prisplan:</strong> Velg ønsket prisplan for kunden. Standard er MICRO (kr 3.300/år).
             </AlertDescription>
           </Alert>
+
+          {/* Velg Pricing Tier */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Velg abonnementsplan</CardTitle>
+              <CardDescription>
+                Velg hvilken plan kunden skal ha
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-2">
+                <Label htmlFor="pricingTier">
+                  Prisplan <span className="text-red-500">*</span>
+                </Label>
+                <Select
+                  value={selectedTier}
+                  onValueChange={(value) => setSelectedTier(value as PricingTier)}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Velg plan" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="MICRO">MICRO - HMS Nova Software (kr 3.300/år)</SelectItem>
+                    <SelectItem value="SMALL">SMALL - HMS Nova Software (kr 3.300/år)</SelectItem>
+                    <SelectItem value="MEDIUM">MEDIUM - HMS Nova Software (kr 3.300/år)</SelectItem>
+                    <SelectItem value="LARGE">LARGE - Enterprise (kontakt for pris)</SelectItem>
+                  </SelectContent>
+                </Select>
+                <p className="text-xs text-muted-foreground">
+                  Alle planer har samme pris og funksjoner (kr 3.300/år med 1 års binding)
+                </p>
+              </div>
+            </CardContent>
+          </Card>
 
           <div className="grid gap-6 md:grid-cols-2">
             {/* Valgt plan */}
