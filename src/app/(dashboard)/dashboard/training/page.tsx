@@ -15,6 +15,8 @@ import {
   Users,
 } from "lucide-react";
 import Link from "next/link";
+import { PageHelpDialog } from "@/components/dashboard/page-help-dialog";
+import { helpContent } from "@/lib/help-content";
 
 export default async function TrainingPage() {
   const session = await getServerSession(authOptions);
@@ -116,14 +118,17 @@ export default async function TrainingPage() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold flex items-center gap-2">
-            <GraduationCap className="h-8 w-8" />
-            Opplæring og kompetanse
-          </h1>
-          <p className="text-muted-foreground">
-            ISO 9001 - 7.2: Dokumenter og følg opp kompetanse
-          </p>
+        <div className="flex items-center gap-3">
+          <div>
+            <h1 className="text-3xl font-bold flex items-center gap-2">
+              <GraduationCap className="h-8 w-8" />
+              Opplæring og kompetanse
+            </h1>
+            <p className="text-muted-foreground">
+              ISO 9001 - 7.2: Dokumenter og følg opp kompetanse
+            </p>
+          </div>
+          <PageHelpDialog content={helpContent.training} />
         </div>
         <div className="flex gap-2">
           <Link href="/dashboard/training/matrix">

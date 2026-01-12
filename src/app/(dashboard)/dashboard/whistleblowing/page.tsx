@@ -19,6 +19,8 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { WhistleblowStatus, WhistleblowCategory, WhistleblowSeverity } from "@prisma/client";
+import { PageHelpDialog } from "@/components/dashboard/page-help-dialog";
+import { helpContent } from "@/lib/help-content";
 
 async function getWhistleblowings(tenantId: string) {
   return await db.whistleblowing.findMany({
@@ -110,11 +112,14 @@ export default async function WhistleblowingListPage() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Varslinger</h1>
-          <p className="text-muted-foreground">
-            Saksbehandling av mottatte varslinger
-          </p>
+        <div className="flex items-center gap-3">
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight">Varslinger</h1>
+            <p className="text-muted-foreground">
+              Saksbehandling av mottatte varslinger
+            </p>
+          </div>
+          <PageHelpDialog content={helpContent.whistleblowing} />
         </div>
         <Button asChild variant="outline">
           <Link href="/varsling">

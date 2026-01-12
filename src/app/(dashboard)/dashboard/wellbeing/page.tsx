@@ -29,6 +29,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { PageHelpDialog } from "@/components/dashboard/page-help-dialog";
+import { helpContent } from "@/lib/help-content";
 
 export default async function WellbeingPage() {
   const session = await getServerSession(authOptions);
@@ -142,11 +144,14 @@ export default async function WellbeingPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div>
-        <h1 className="text-3xl font-bold">Psykososialt arbeidsmiljø</h1>
-        <p className="text-muted-foreground mt-1">
-          Kartlegging og oppfølging av psykososialt arbeidsmiljø i henhold til Arbeidsmiljøloven § 4-3
-        </p>
+      <div className="flex items-center gap-3">
+        <div>
+          <h1 className="text-3xl font-bold">Psykososialt arbeidsmiljø</h1>
+          <p className="text-muted-foreground mt-1">
+            Kartlegging og oppfølging av psykososialt arbeidsmiljø i henhold til Arbeidsmiljøloven § 4-3
+          </p>
+        </div>
+        <PageHelpDialog content={helpContent.wellbeing} />
       </div>
 
       <Tabs defaultValue="overview" className="w-full">

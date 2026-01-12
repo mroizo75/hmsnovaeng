@@ -24,6 +24,8 @@ import { Badge } from "@/components/ui/badge";
 import { Plus, ClipboardList, AlertCircle } from "lucide-react";
 import { format } from "date-fns";
 import { nb } from "date-fns/locale";
+import { PageHelpDialog } from "@/components/dashboard/page-help-dialog";
+import { helpContent } from "@/lib/help-content";
 
 export const dynamic = "force-dynamic";
 
@@ -174,11 +176,14 @@ export default function AuditsPage() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Revisjoner</h1>
-          <p className="text-muted-foreground">
-            Internrevisjoner, ISO 9001, ISO 14001 og andre revisjoner
-          </p>
+        <div className="flex items-center gap-3">
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight">Revisjoner</h1>
+            <p className="text-muted-foreground">
+              Internrevisjoner, ISO 9001, ISO 14001 og andre revisjoner
+            </p>
+          </div>
+          <PageHelpDialog content={helpContent.audits} />
         </div>
         <Link href="/dashboard/audits/new">
           <Button>

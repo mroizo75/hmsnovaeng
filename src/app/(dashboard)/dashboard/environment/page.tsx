@@ -9,6 +9,8 @@ import Link from "next/link";
 import { EnvironmentReportButton } from "@/features/environment/components/environment-report-button";
 import { EnvironmentAspectList } from "@/features/environment/components/environment-aspect-list";
 import { CO2CalculatorCard } from "@/features/environment/components/co2-calculator-card";
+import { PageHelpDialog } from "@/components/dashboard/page-help-dialog";
+import { helpContent } from "@/lib/help-content";
 
 export default async function EnvironmentPage() {
   const session = await getServerSession(authOptions);
@@ -89,12 +91,15 @@ export default async function EnvironmentPage() {
   return (
     <div className="space-y-6">
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-        <div>
-          <p className="text-sm text-muted-foreground">ISO 14001</p>
-          <h1 className="text-3xl font-bold">Miljøstyring</h1>
-          <p className="text-muted-foreground">
-            Oversikt over miljøaspekter, målinger og oppfølging
-          </p>
+        <div className="flex items-center gap-3">
+          <div>
+            <p className="text-sm text-muted-foreground">ISO 14001</p>
+            <h1 className="text-3xl font-bold">Miljøstyring</h1>
+            <p className="text-muted-foreground">
+              Oversikt over miljøaspekter, målinger og oppfølging
+            </p>
+          </div>
+          <PageHelpDialog content={helpContent.environment} />
         </div>
         <div className="flex gap-2">
           <EnvironmentReportButton />

@@ -10,6 +10,8 @@ import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
 import { nb } from "date-fns/locale";
 import { Plus, Calendar, MapPin, User, Smartphone } from "lucide-react";
+import { PageHelpDialog } from "@/components/dashboard/page-help-dialog";
+import { helpContent } from "@/lib/help-content";
 import {
   Table,
   TableBody,
@@ -73,11 +75,14 @@ export default async function InspectionsPage() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold">Vernerunde</h1>
-          <p className="text-muted-foreground mt-1">
-            Gjennomfør og administrer vernerunder og HMS-inspeksjoner
-          </p>
+        <div className="flex items-center gap-3">
+          <div>
+            <h1 className="text-3xl font-bold">Vernerunde</h1>
+            <p className="text-muted-foreground mt-1">
+              Gjennomfør og administrer vernerunder og HMS-inspeksjoner
+            </p>
+          </div>
+          <PageHelpDialog content={helpContent.inspections} />
         </div>
         {permissions.canCreateInspections && (
           <Link href="/dashboard/inspections/new">

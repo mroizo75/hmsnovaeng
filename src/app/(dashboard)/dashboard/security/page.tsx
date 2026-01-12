@@ -12,6 +12,8 @@ import { SecurityEvidenceForm } from "@/features/security/components/security-ev
 import { SecurityAccessReviewForm } from "@/features/security/components/security-access-review-form";
 import { SecurityAccessReviewList } from "@/features/security/components/security-access-review-list";
 import { Button } from "@/components/ui/button";
+import { PageHelpDialog } from "@/components/dashboard/page-help-dialog";
+import { helpContent } from "@/lib/help-content";
 
 export default async function SecurityPage() {
   const session = await getServerSession(authOptions);
@@ -97,9 +99,12 @@ export default async function SecurityPage() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold">Informasjonssikkerhet (ISO 27001)</h1>
-          <p className="text-muted-foreground">Kontroller, evidens og tilgangsgjennomganger for ISMS-et</p>
+        <div className="flex items-center gap-3">
+          <div>
+            <h1 className="text-3xl font-bold">Informasjonssikkerhet (ISO 27001)</h1>
+            <p className="text-muted-foreground">Kontroller, evidens og tilgangsgjennomganger for ISMS-et</p>
+          </div>
+          <PageHelpDialog content={helpContent.security} />
         </div>
         <Button variant="outline" asChild>
           <a href="/dashboard/documents?filter=ISMS">ISMS-dokumenter</a>

@@ -25,6 +25,8 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
+import { PageHelpDialog } from "@/components/dashboard/page-help-dialog";
+import { helpContent } from "@/lib/help-content";
 
 const ITEMS_PER_PAGE = 10;
 
@@ -118,11 +120,14 @@ export default async function FormsPage({
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold">Digitale skjemaer</h1>
-          <p className="text-muted-foreground mt-1">
-            Lag, administrer og analyser egendefinerte skjemaer
-          </p>
+        <div className="flex items-center gap-3">
+          <div>
+            <h1 className="text-3xl font-bold">Digitale skjemaer</h1>
+            <p className="text-muted-foreground mt-1">
+              Lag, administrer og analyser egendefinerte skjemaer
+            </p>
+          </div>
+          <PageHelpDialog content={helpContent.forms} />
         </div>
         <Link href="/dashboard/forms/new">
           <Button size="lg">

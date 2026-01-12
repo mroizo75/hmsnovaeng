@@ -7,6 +7,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Target, Plus, TrendingUp, TrendingDown, AlertTriangle, CheckCircle } from "lucide-react";
 import Link from "next/link";
 import { GoalList } from "@/features/goals/components/goal-list";
+import { PageHelpDialog } from "@/components/dashboard/page-help-dialog";
+import { helpContent } from "@/lib/help-content";
 
 export default async function GoalsPage() {
   const session = await getServerSession(authOptions);
@@ -57,11 +59,14 @@ export default async function GoalsPage() {
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold">Mål og KPIer</h1>
-          <p className="text-muted-foreground">
-            ISO 9001 - 6.2 Kvalitetsmål og planlegging
-          </p>
+        <div className="flex items-center gap-3">
+          <div>
+            <h1 className="text-3xl font-bold">Mål og KPIer</h1>
+            <p className="text-muted-foreground">
+              ISO 9001 - 6.2 Kvalitetsmål og planlegging
+            </p>
+          </div>
+          <PageHelpDialog content={helpContent.goals} />
         </div>
         <Link href="/dashboard/goals/new">
           <Button>

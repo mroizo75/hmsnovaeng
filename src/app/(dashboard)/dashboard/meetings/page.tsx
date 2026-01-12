@@ -19,6 +19,8 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { MeetingStatus, MeetingType } from "@prisma/client";
+import { PageHelpDialog } from "@/components/dashboard/page-help-dialog";
+import { helpContent } from "@/lib/help-content";
 
 async function getMeetings(tenantId: string) {
   return await db.meeting.findMany({
@@ -81,11 +83,14 @@ export default async function MeetingsPage() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Møter (AMU/VO)</h1>
-          <p className="text-muted-foreground">
-            Arbeidsmiljøutvalg, verneombudsmøter og HMS-komitéer
-          </p>
+        <div className="flex items-center gap-3">
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight">Møter (AMU/VO)</h1>
+            <p className="text-muted-foreground">
+              Arbeidsmiljøutvalg, verneombudsmøter og HMS-komitéer
+            </p>
+          </div>
+          <PageHelpDialog content={helpContent.meetings} />
         </div>
         {permissions.canCreateMeetings && (
           <Link href="/dashboard/meetings/new">

@@ -7,6 +7,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { IncidentList } from "@/features/incidents/components/incident-list";
 import { Plus, AlertCircle, Clock, CheckCircle, FileSearch } from "lucide-react";
 import Link from "next/link";
+import { PageHelpDialog } from "@/components/dashboard/page-help-dialog";
+import { helpContent } from "@/lib/help-content";
 
 export default async function IncidentsPage() {
   const session = await getServerSession(authOptions);
@@ -52,11 +54,14 @@ export default async function IncidentsPage() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold">Avvik og hendelser</h1>
-          <p className="text-muted-foreground">
-            ISO 9001: Rapporter og følg opp avvik systematisk
-          </p>
+        <div className="flex items-center gap-3">
+          <div>
+            <h1 className="text-3xl font-bold">Avvik og hendelser</h1>
+            <p className="text-muted-foreground">
+              ISO 9001: Rapporter og følg opp avvik systematisk
+            </p>
+          </div>
+          <PageHelpDialog content={helpContent.incidents} />
         </div>
         <Button asChild>
           <Link href="/dashboard/incidents/new">

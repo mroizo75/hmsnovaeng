@@ -7,6 +7,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { FileText, Plus, AlertTriangle, CheckCircle, Clock, Archive } from "lucide-react";
 import Link from "next/link";
 import { ChemicalList } from "@/features/chemicals/components/chemical-list";
+import { PageHelpDialog } from "@/components/dashboard/page-help-dialog";
+import { helpContent } from "@/lib/help-content";
 
 export default async function ChemicalsPage() {
   const session = await getServerSession(authOptions);
@@ -58,11 +60,14 @@ export default async function ChemicalsPage() {
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold">Stoffkartotek</h1>
-          <p className="text-muted-foreground">
-            HMS - Oversikt over kjemikalier og sikkerhetsdatablad
-          </p>
+        <div className="flex items-center gap-3">
+          <div>
+            <h1 className="text-3xl font-bold">Stoffkartotek</h1>
+            <p className="text-muted-foreground">
+              HMS - Oversikt over kjemikalier og sikkerhetsdatablad
+            </p>
+          </div>
+          <PageHelpDialog content={helpContent.chemicals} />
         </div>
         <Link href="/dashboard/chemicals/new">
           <Button>

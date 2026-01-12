@@ -18,6 +18,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { PageHelpDialog } from "@/components/dashboard/page-help-dialog";
+import { helpContent } from "@/lib/help-content";
 
 async function getManagementReviews(tenantId: string) {
   return await db.managementReview.findMany({
@@ -61,11 +63,14 @@ export default async function ManagementReviewsPage() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold">Ledelsens Gjennomgang</h1>
-          <p className="text-muted-foreground mt-1">
-            Årlig/periodisk gjennomgang av HMS-systemet
-          </p>
+        <div className="flex items-center gap-3">
+          <div>
+            <h1 className="text-3xl font-bold">Ledelsens Gjennomgang</h1>
+            <p className="text-muted-foreground mt-1">
+              Årlig/periodisk gjennomgang av HMS-systemet
+            </p>
+          </div>
+          <PageHelpDialog content={helpContent["management-reviews"]} />
         </div>
         {permissions.canCreateManagementReviews && (
           <Link href="/dashboard/management-reviews/new">

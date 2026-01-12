@@ -10,6 +10,8 @@ import { SubscriptionInfo } from "@/features/settings/components/subscription-in
 import { AzureAdIntegration } from "@/features/settings/components/azure-ad-integration";
 import { NotificationSettings } from "@/features/settings/components/notification-settings";
 import { Building2, User, Users, CreditCard, Cloud, Bell } from "lucide-react";
+import { PageHelpDialog } from "@/components/dashboard/page-help-dialog";
+import { helpContent } from "@/lib/help-content";
 
 export default async function SettingsPage() {
   const session = await getServerSession(authOptions);
@@ -68,11 +70,14 @@ export default async function SettingsPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div>
-        <h1 className="text-3xl font-bold">Innstillinger</h1>
-        <p className="text-muted-foreground">
-          Administrer bedrift, brukere og system
-        </p>
+      <div className="flex items-center gap-3">
+        <div>
+          <h1 className="text-3xl font-bold">Innstillinger</h1>
+          <p className="text-muted-foreground">
+            Administrer bedrift, brukere og system
+          </p>
+        </div>
+        <PageHelpDialog content={helpContent.settings} />
       </div>
 
       {/* Tabs */}

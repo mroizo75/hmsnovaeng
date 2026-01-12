@@ -7,6 +7,8 @@ import { FeedbackList } from "@/features/feedback/components/feedback-list";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { CustomerFeedback } from "@prisma/client";
+import { PageHelpDialog } from "@/components/dashboard/page-help-dialog";
+import { helpContent } from "@/lib/help-content";
 
 export const dynamic = "force-dynamic";
 
@@ -57,11 +59,14 @@ export default async function FeedbackPage() {
   return (
     <div className="space-y-6">
       <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
-        <div>
-          <h1 className="text-3xl font-bold">Kundetilbakemeldinger</h1>
-          <p className="text-muted-foreground">
-            ISO 9001 – dokumenter og del positive erfaringer fra kunder (9.1.2 Kundetilfredshet)
-          </p>
+        <div className="flex items-center gap-3">
+          <div>
+            <h1 className="text-3xl font-bold">Kundetilbakemeldinger</h1>
+            <p className="text-muted-foreground">
+              ISO 9001 – dokumenter og del positive erfaringer fra kunder (9.1.2 Kundetilfredshet)
+            </p>
+          </div>
+          <PageHelpDialog content={helpContent.feedback} />
         </div>
         <Button asChild>
           <Link href="/dashboard/feedback/new">Ny tilbakemelding</Link>

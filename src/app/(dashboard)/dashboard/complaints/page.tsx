@@ -7,6 +7,8 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { getIncidentStatusColor, getIncidentStatusLabel } from "@/features/incidents/schemas/incident.schema";
+import { PageHelpDialog } from "@/components/dashboard/page-help-dialog";
+import { helpContent } from "@/lib/help-content";
 
 function formatDate(date?: Date | null) {
   if (!date) return "—";
@@ -61,11 +63,14 @@ export default async function ComplaintsPage() {
   return (
     <div className="space-y-6">
       <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
-        <div>
-          <h1 className="text-3xl font-bold">Kunde- og brukerklager</h1>
-          <p className="text-muted-foreground">
-            ISO 10002: Samle inn, vurder og lukk kundetilbakemeldinger på en strukturert måte
-          </p>
+        <div className="flex items-center gap-3">
+          <div>
+            <h1 className="text-3xl font-bold">Kunde- og brukerklager</h1>
+            <p className="text-muted-foreground">
+              ISO 10002: Samle inn, vurder og lukk kundetilbakemeldinger på en strukturert måte
+            </p>
+          </div>
+          <PageHelpDialog content={helpContent.complaints} />
         </div>
         <Button asChild>
           <Link href="/dashboard/incidents/new?type=CUSTOMER">Registrer klage</Link>

@@ -8,6 +8,8 @@ import { RiskList } from "@/features/risks/components/risk-list";
 import { RiskMatrix } from "@/features/risks/components/risk-matrix";
 import { Plus, AlertTriangle, CheckCircle, Clock, Shield } from "lucide-react";
 import Link from "next/link";
+import { PageHelpDialog } from "@/components/dashboard/page-help-dialog";
+import { helpContent } from "@/lib/help-content";
 
 export default async function RisksPage() {
   const session = await getServerSession(authOptions);
@@ -60,11 +62,14 @@ export default async function RisksPage() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold">Risikovurdering</h1>
-          <p className="text-muted-foreground">
-            5x5 risikomatrise for systematisk vurdering av HMS-risikoer
-          </p>
+        <div className="flex items-center gap-3">
+          <div>
+            <h1 className="text-3xl font-bold">Risikovurdering</h1>
+            <p className="text-muted-foreground">
+              5x5 risikomatrise for systematisk vurdering av HMS-risikoer
+            </p>
+          </div>
+          <PageHelpDialog content={helpContent.risks} />
         </div>
         <Button asChild>
           <Link href="/dashboard/risks/new">

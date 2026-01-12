@@ -7,6 +7,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { MeasureForm } from "@/features/measures/components/measure-form";
 import { MeasureList } from "@/features/measures/components/measure-list";
 import { ListTodo, Clock, CheckCircle, AlertTriangle } from "lucide-react";
+import { PageHelpDialog } from "@/components/dashboard/page-help-dialog";
+import { helpContent } from "@/lib/help-content";
 
 export default async function ActionsPage() {
   const session = await getServerSession(authOptions);
@@ -62,11 +64,14 @@ export default async function ActionsPage() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold">Tiltak</h1>
-          <p className="text-muted-foreground">
-            ISO 9001: Planlagte tiltak med ansvarlige og tidsplaner
-          </p>
+        <div className="flex items-center gap-3">
+          <div>
+            <h1 className="text-3xl font-bold">Tiltak</h1>
+            <p className="text-muted-foreground">
+              ISO 9001: Planlagte tiltak med ansvarlige og tidsplaner
+            </p>
+          </div>
+          <PageHelpDialog content={helpContent.actions} />
         </div>
         <MeasureForm tenantId={tenantId} users={tenantUsers} />
       </div>

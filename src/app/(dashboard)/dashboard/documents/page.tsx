@@ -6,6 +6,8 @@ import { Button } from "@/components/ui/button";
 import { DocumentList } from "@/features/documents/components/document-list";
 import Link from "next/link";
 import { Plus, FileText } from "lucide-react";
+import { PageHelpDialog } from "@/components/dashboard/page-help-dialog";
+import { helpContent } from "@/lib/help-content";
 
 export default async function DocumentsPage() {
   const user = await getCurrentUser();
@@ -43,11 +45,14 @@ export default async function DocumentsPage() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold">Dokumenter</h1>
-          <p className="text-muted-foreground">
-            Administrer lover, prosedyrer, sjekklister og mer
-          </p>
+        <div className="flex items-center gap-3">
+          <div>
+            <h1 className="text-3xl font-bold">Dokumenter</h1>
+            <p className="text-muted-foreground">
+              Administrer lover, prosedyrer, sjekklister og mer
+            </p>
+          </div>
+          <PageHelpDialog content={helpContent.documents} />
         </div>
         <Button asChild>
           <Link href="/dashboard/documents/new">
