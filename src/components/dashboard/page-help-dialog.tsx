@@ -18,7 +18,7 @@ export interface HelpContent {
   sections: Array<{
     heading: string;
     emoji?: string;
-    content: string | React.ReactNode;
+    content?: string | React.ReactNode;
     items?: Array<{
       title: string;
       description: string;
@@ -55,10 +55,12 @@ export function PageHelpDialog({ content }: PageHelpDialogProps) {
                   {section.emoji && <span>{section.emoji}</span>}
                   {section.heading}
                 </h3>
-                {typeof section.content === "string" ? (
-                  <p className="text-sm text-muted-foreground">{section.content}</p>
-                ) : (
-                  section.content
+                {section.content && (
+                  typeof section.content === "string" ? (
+                    <p className="text-sm text-muted-foreground">{section.content}</p>
+                  ) : (
+                    section.content
+                  )
                 )}
                 {section.items && (
                   <div className="space-y-3 text-sm mt-3">
