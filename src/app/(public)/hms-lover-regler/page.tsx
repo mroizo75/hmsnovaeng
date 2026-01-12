@@ -135,12 +135,12 @@ export default function HMSLoverReglerPage() {
                 <Button size="lg" asChild className="w-full md:w-auto">
                   <Link href="/gratis-hms-system">
                     <Download className="mr-2 h-5 w-5" />
-                    Få lovguide + system som følger alle lover
+                    Få lovguide + verktøy for HMS-arbeid
                     <ArrowRight className="ml-2 h-5 w-5" />
                   </Link>
                 </Button>
                 <p className="text-xs text-muted-foreground mt-3">
-                  Ingen kredittkort. Ingen skjulte kostnader. Gratis for alltid.
+                  Gratis HMS-pakke med maler og veiledning
                 </p>
               </div>
             </CardContent>
@@ -153,10 +153,10 @@ export default function HMSLoverReglerPage() {
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold mb-4">
-              HMS Nova holder deg oppdatert på alle lovkrav
+              HMS Nova hjelper deg med å følge lovkravene
             </h2>
             <p className="text-muted-foreground">
-              Istedenfor å lese lovtekster, få et system som automatisk følger gjeldende lovverk
+              Et verktøy som gjør det enklere å organisere og dokumentere HMS-arbeidet ditt
             </p>
           </div>
 
@@ -164,12 +164,12 @@ export default function HMSLoverReglerPage() {
             <Card>
               <CardHeader>
                 <Scale className="h-10 w-10 text-primary mb-2" />
-                <CardTitle className="text-lg">Alltid oppdatert</CardTitle>
+                <CardTitle className="text-lg">Strukturert HMS-arbeid</CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-sm text-muted-foreground">
-                  Når lover og forskrifter endres, oppdaterer vi HMS Nova automatisk. 
-                  Du får beskjed hvis det er noe du må gjøre.
+                  HMS Nova gir deg verktøy for risikovurdering, vernerunder og avvikshåndtering 
+                  - slik lovverket krever.
                 </p>
               </CardContent>
             </Card>
@@ -177,12 +177,12 @@ export default function HMSLoverReglerPage() {
             <Card>
               <CardHeader>
                 <Shield className="h-10 w-10 text-primary mb-2" />
-                <CardTitle className="text-lg">Innebygd compliance</CardTitle>
+                <CardTitle className="text-lg">Du har ansvaret</CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-sm text-muted-foreground">
-                  HMS Nova er bygget for å oppfylle alle krav i Arbeidsmiljøloven, 
-                  HMS-forskriften og ISO 9001.
+                  HMS Nova er et hjelpemiddel. Det er bedriften som må sørge for at 
+                  HMS-arbeidet faktisk gjennomføres i henhold til loven.
                 </p>
               </CardContent>
             </Card>
@@ -190,12 +190,12 @@ export default function HMSLoverReglerPage() {
             <Card>
               <CardHeader>
                 <FileText className="h-10 w-10 text-primary mb-2" />
-                <CardTitle className="text-lg">Dokumentasjonsklart</CardTitle>
+                <CardTitle className="text-lg">Enkel dokumentasjon</CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-sm text-muted-foreground">
-                  Alle handlinger dokumenteres automatisk. 
-                  Hvis Arbeidstilsynet kommer på besøk, er du forberedt.
+                  Systemet dokumenterer automatisk, så du har oversikt over 
+                  hva som er gjort hvis Arbeidstilsynet spør.
                 </p>
               </CardContent>
             </Card>
@@ -205,13 +205,13 @@ export default function HMSLoverReglerPage() {
             <Card className="bg-primary text-primary-foreground border-0 inline-block">
               <CardContent className="p-8">
                 <Scale className="h-12 w-12 mx-auto mb-4" />
-                <h3 className="text-2xl font-bold mb-2">Gratis for bedrifter med 1-20 ansatte</h3>
+                <h3 className="text-2xl font-bold mb-2">HMS Nova - fra 225 kr/mnd</h3>
                 <p className="text-primary-foreground/90 mb-6">
-                  System som følger alle HMS-lover + automatiske oppdateringer
+                  Verktøy som hjelper deg med å organisere HMS-arbeidet etter lovens krav
                 </p>
                 <Button size="lg" className="bg-green-700 hover:bg-green-800 text-white" asChild>
-                  <Link href="/gratis-hms-system">
-                    Kom i gang nå – helt gratis
+                  <Link href="/registrer-bedrift">
+                    Prøv gratis i 14 dager
                     <ArrowRight className="ml-2 h-5 w-5" />
                   </Link>
                 </Button>

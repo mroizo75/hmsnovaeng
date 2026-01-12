@@ -10,6 +10,8 @@ import {
   ORGANIZATION_SCHEMA,
   ROBOTS_CONFIG,
 } from "@/lib/seo-config";
+import { LOCAL_BUSINESS_SCHEMA } from "@/lib/seo-schemas";
+import { MultipleStructuredData } from "@/components/seo/structured-data";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -63,7 +65,7 @@ export default async function RootLayout({
   return (
     <html lang="nb">
       <head>
-        <StructuredData data={ORGANIZATION_SCHEMA} />
+        <MultipleStructuredData dataArray={[ORGANIZATION_SCHEMA, LOCAL_BUSINESS_SCHEMA]} />
       </head>
       <body>
         <Providers>

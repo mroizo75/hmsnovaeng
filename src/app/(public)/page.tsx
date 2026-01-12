@@ -8,6 +8,8 @@ import { RegisterDialog } from "@/components/register-dialog";
 import { MultipleStructuredData } from "@/components/seo/structured-data";
 import { FAQSection } from "@/components/faq-section";
 import { getFAQsForPage } from "@/lib/faq-data";
+import { TestimonialsSection } from "@/components/testimonials-section";
+import { TrustBadges } from "@/components/trust-badges";
 import {
   PAGE_METADATA,
   getOpenGraphDefaults,
@@ -499,12 +501,22 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* Trust Badges Section */}
+      <section className="container mx-auto px-4 py-12">
+        <div className="max-w-6xl mx-auto">
+          <TrustBadges variant="default" />
+        </div>
+      </section>
+
+      {/* Testimonials Section */}
+      <TestimonialsSection />
+
       {/* FAQ Section - AI Optimization */}
       <FAQSection 
         faqs={getFAQsForPage('home')} 
         title="Ofte stilte spørsmål"
         description="Svar på de vanligste spørsmålene om HMS Nova"
-        enableSchema={false}
+        enableSchema={true}
       />
 
       {/* CTA Section - StoryBrand: Call to Action */}

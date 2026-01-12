@@ -79,6 +79,16 @@ export function PublicFooter() {
                 </Link>
               </li>
               <li>
+                <Link href="/anmeldelser" className="text-muted-foreground hover:text-foreground transition-colors">
+                  Kundeomtaler
+                </Link>
+              </li>
+              <li>
+                <Link href="/forfatter/kenneth-kristiansen" className="text-muted-foreground hover:text-foreground transition-colors">
+                  Om grunnleggeren
+                </Link>
+              </li>
+              <li>
                 <Link href="/login" className="text-muted-foreground hover:text-foreground transition-colors">
                   Logg inn
                 </Link>

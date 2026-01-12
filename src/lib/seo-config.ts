@@ -239,52 +239,52 @@ export const getBreadcrumbSchema = (items: Array<{ name: string; url: string }>)
 export const PAGE_METADATA = {
   home: {
     title: "HMS Nova - Norges Mest Moderne HMS-system | HMS Nova Bygger Trygghet",
-    description: "HMS Nova bygger trygghet. Få kontroll på HMS med digital signatur, automatiske påminnelser, mobilapp og ISO 9001 compliance. 500+ norske bedrifter stoler på oss. Prøv gratis i 14 dager.",
+    description: "⚡ HMS Nova bygger trygghet · Fra 225 kr/mnd · Ubegrenset brukere · Digital signatur inkludert · ISO 9001 støtte · 14 dagers gratis prøve · Prøv i dag!",
     keywords: [...PRIMARY_KEYWORDS, ...SECONDARY_KEYWORDS.slice(0, 10)].join(", "),
   },
   priser: {
     title: "Priser - HMS Nova | Fra 225 kr/mnd | Ingen Skjulte Kostnader",
-    description: "Transparente priser på HMS-system. Fra 225 kr/mnd med 2 års binding, 275 kr/mnd med 1 år, eller 300 kr/mnd uten binding. Ubegrenset brukere inkludert. Ingen oppstartskostnader. Se alle priser.",
+    description: "💰 Transparente priser: 225 kr/mnd (2 år), 275 kr/mnd (1 år), 300 kr/mnd (ingen binding) · Ubegrenset brukere · Digital signatur inkludert · 0 kr oppstart · Se alle priser →",
     keywords: "hms system pris, hms programvare kostnad, billig hms system, hms system alle bedrifter, beste hms system pris",
   },
   kurs: {
     title: "HMS-kurs - Lovpålagte Kurs & Førstehjelp | HMS Nova",
-    description: "20% rabatt på alle HMS-kurs for HMS Nova-medlemmer. Verneombud, ledelse, førstehjelp, diisocyanater. Godkjent av KKS AS. Fysisk, digitalt eller hybrid. Bestill i dag.",
+    description: "🎓 20% rabatt på HMS-kurs for medlemmer · Verneombud · Førstehjelp · Diisocyanater · Godkjent av KKS AS · Fysisk, digitalt eller hybrid · Bestill i dag!",
     keywords: "hms kurs, verneombud kurs, førstehjelp kurs, hms opplæring, lovpålagt hms kurs",
   },
   bht: {
     title: "Bedriftshelsetjeneste - 10% Rabatt for Medlemmer | HMS Nova",
-    description: "Godkjent bedriftshelsetjeneste fra Dr. Dropin. HMS Nova-medlemmer får 10% rabatt. Digital integrasjon, ingen bindingstid. 3000+ bedrifter stoler på Dr. Dropin BHT.",
+    description: "🏥 Godkjent BHT fra Dr. Dropin · 10% rabatt for HMS Nova-medlemmer · Digital integrasjon · Ingen bindingstid · 3000+ bedrifter stoler på oss · Kom i gang →",
     keywords: "bedriftshelsetjeneste, BHT, godkjent bedriftshelsetjeneste, arbeidstilsynet bht, dr dropin bht",
   },
   gratisPakke: {
     title: "Gratis HMS-pakke - Last Ned Ferdig HMS-håndbok | HMS Nova",
-    description: "Få gratis HMS-pakke med ferdig HMS-håndbok, risikovurderingsmaler, vernerundemal og mer. Perfekt for små bedrifter. Last ned i dag - ingen forpliktelser.",
+    description: "🎁 Gratis HMS-pakke: Ferdig HMS-håndbok + Risikovurderingsmaler + Vernerundemal · Perfekt for små bedrifter · Last ned nå · 0 kr · Ingen forpliktelser →",
     keywords: "gratis hms håndbok, hms mal gratis, vernerunde mal, risikovurdering mal, gratis hms dokumenter",
   },
   handbook: {
     title: "HMS-håndbok - Digital & Oppdatert | HMS Nova",
-    description: "Ferdig HMS-håndbok tilpasset din bedrift. Alltid oppdatert med siste lovkrav. Digital signatur, versjonskontroll og automatisk distribusjon. Spar uker med arbeid.",
+    description: "📚 Ferdig HMS-håndbok tilpasset din bedrift · Alltid oppdatert med lovkrav · Digital signatur · Versjonskontroll · Spar uker med arbeid · Prøv gratis →",
     keywords: "hms håndbok, digital hms håndbok, hms dokumentasjon, arbeidsmiljøhåndbok",
   },
   risikovurdering: {
     title: "Risikovurdering - 5x5 Matrise & Analyse | HMS Nova",
-    description: "Profesjonell risikovurdering med 5x5 matrise (ISO 9001). Enkelt å bruke, automatisk oppfølging av tiltak. Bestå revisjoner med glans. Prøv gratis.",
+    description: "📊 Profesjonell risikovurdering med 5x5 matrise (ISO 9001) · Enkelt å bruke · Automatisk oppfølging · Bestå revisjoner med glans · Prøv gratis i 14 dager →",
     keywords: "risikovurdering, risikoanalyse, 5x5 matrise, risikostyring, hms risikovurdering",
   },
   vernerunde: {
     title: "Vernerunde-guide - Digital Vernerunde på Mobil | HMS Nova",
-    description: "Gjennomfør vernerunder digitalt på mobil. Fungerer offline. Automatisk rapportering og oppfølging. Perfekt for byggeplasser og verksteder.",
+    description: "📱 Digital vernerunde på mobil · Fungerer offline · Automatisk rapportering · Perfekt for byggeplasser · Spar timer hver uke · Prøv gratis →",
     keywords: "vernerunde, digital vernerunde, vernerunde mal, sikkerhetsinspeksjon, bygningsvernerunde",
   },
   lover: {
     title: "HMS Lover & Regler - Arbeidsmiljøloven & ISO 9001 | HMS Nova",
-    description: "Komplett oversikt over HMS-lover og regler i Norge. Arbeidsmiljøloven, Internkontrollforskriften, ISO 9001. Oppdatert med siste endringer.",
+    description: "⚖️ Komplett oversikt over HMS-lover i Norge · Arbeidsmiljøloven · Internkontrollforskriften · ISO 9001 · Oppdatert 2026 · Les mer →",
     keywords: "arbeidsmiljøloven, internkontrollforskriften, iso 9001, hms lovverk, arbeidstilsynet regler",
   },
   iso: {
     title: "ISO 9001 Sjekkliste - Gratis Last Ned | HMS Nova",
-    description: "Komplett ISO 9001 sjekkliste. Sikre full compliance med kvalitetsstyringsstandarden. HMS Nova har innebygd ISO 9001-støtte.",
+    description: "✅ Gratis ISO 9001 sjekkliste · Full compliance med kvalitetsstyringsstandarden · HMS Nova har innebygd ISO 9001-støtte · Last ned nå →",
     keywords: "iso 9001 sjekkliste, iso 9001 compliance, kvalitetsstyring, iso sertifisering",
   },
 } as const;
