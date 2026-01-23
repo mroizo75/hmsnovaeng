@@ -6,6 +6,15 @@ import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import { generateFileKey, getStorage } from "@/lib/storage";
 import { AuditLog } from "@/lib/audit-log";
+import { 
+  searchSubstanceByCAS, 
+  calculateHazardLevel, 
+  isCMRSubstance,
+  calculateSubstitutionPriority,
+  suggestAlternatives
+} from "@/lib/echa-api";
+import { parseSDSFile, mapPictogramsToFiles, suggestPPE } from "@/lib/sds-parser";
+import { checkAndUpdateSDSOnCreate } from "./chemical-auto-update.actions";
 
 async function getSessionContext() {
   const session = await getServerSession(authOptions);
@@ -68,10 +77,33 @@ export async function createChemical(input: any) {
   try {
     const { user, tenantId } = await getSessionContext();
 
-    // Beregn neste revisjonsdato (1 år frem hvis ikke oppgitt)
+    // Beregn neste revisjonsdato (3 år frem hvis ikke oppgitt)
     const nextReviewDate = input.nextReviewDate
       ? new Date(input.nextReviewDate)
-      : new Date(Date.now() + 365 * 24 * 60 * 60 * 1000);
+      : new Date(Date.now() + 3 * 365 * 24 * 60 * 60 * 1000);
+
+    // Berik data med ECHA hvis CAS-nummer er oppgitt
+    let echaData = null;
+    let hazardLevel = null;
+    let isCMR = false;
+    let substitutionPriority = null;
+
+    if (input.casNumber) {
+      echaData = await searchSubstanceByCAS(input.casNumber);
+      
+      // Parse H-setninger hvis de er oppgitt
+      const hStatements = input.hazardStatements 
+        ? (typeof input.hazardStatements === 'string' ? [input.hazardStatements] : input.hazardStatements)
+        : [];
+      
+      hazardLevel = calculateHazardLevel(hStatements);
+      isCMR = isCMRSubstance(hStatements);
+      substitutionPriority = calculateSubstitutionPriority(
+        isCMR, 
+        echaData?.isSVHC || false, 
+        hazardLevel
+      );
+    }
 
     const chemical = await prisma.chemical.create({
       data: {
@@ -81,8 +113,10 @@ export async function createChemical(input: any) {
         casNumber: input.casNumber,
         hazardClass: input.hazardClass,
         hazardStatements: input.hazardStatements,
+        precautionaryStatements: input.precautionaryStatements,
         warningPictograms: input.warningPictograms,
         requiredPPE: input.requiredPPE,
+        containsIsocyanates: input.containsIsocyanates || false,
         sdsKey: input.sdsKey,
         sdsVersion: input.sdsVersion,
         sdsDate: input.sdsDate ? new Date(input.sdsDate) : undefined,
@@ -92,12 +126,39 @@ export async function createChemical(input: any) {
         unit: input.unit,
         status: input.status || "ACTIVE",
         notes: input.notes,
+        
+        // ECHA-berikede felter
+        ecNumber: echaData?.ecNumber,
+        isCMR,
+        isSVHC: echaData?.isSVHC || false,
+        reachStatus: echaData?.reachStatus,
+        hazardLevel,
+        substitutionPriority,
+        lastEchaSync: echaData ? new Date() : undefined,
       },
     });
 
     await AuditLog.log(tenantId, user.id, "CHEMICAL_CREATED", "Chemical", chemical.id, {
       productName: chemical.productName,
+      isCMR,
+      hazardLevel,
     });
+
+    // ✨ AUTOMATISK SJEKK FOR NYESTE VERSJON
+    // Kjøres i bakgrunnen etter opprettelse
+    if (chemical.supplier && chemical.casNumber) {
+      checkAndUpdateSDSOnCreate(chemical.id, tenantId)
+        .then((result) => {
+          if (result.wasUpdated) {
+            console.log(`✅ ${chemical.productName}: Automatisk oppdatert til ${result.newVersion}`);
+          } else {
+            console.log(`✅ ${chemical.productName}: Nyeste versjon allerede lastet opp`);
+          }
+        })
+        .catch((err) => {
+          console.warn(`⚠️ Kunne ikke sjekke versjon for ${chemical.productName}:`, err);
+        });
+    }
 
     revalidatePath("/dashboard/chemicals");
     return { success: true, data: chemical };
@@ -137,6 +198,7 @@ export async function updateChemical(chemicalId: string, input: any) {
       hazardStatements: input.hazardStatements,
       warningPictograms: input.warningPictograms,
       requiredPPE: input.requiredPPE,
+      containsIsocyanates: input.containsIsocyanates || false,
       sdsVersion: input.sdsVersion,
       sdsDate: input.sdsDate ? new Date(input.sdsDate) : undefined,
       nextReviewDate: input.nextReviewDate ? new Date(input.nextReviewDate) : undefined,
@@ -277,6 +339,7 @@ export async function getChemicalStats(tenantId: string) {
 
     const now = new Date();
     const thirtyDaysFromNow = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
+    const threeYearsAgo = new Date(Date.now() - 3 * 365 * 24 * 60 * 60 * 1000);
 
     const stats = {
       total: chemicals.length,
@@ -290,6 +353,12 @@ export async function getChemicalStats(tenantId: string) {
       overdue: chemicals.filter(
         (c) => c.nextReviewDate && new Date(c.nextReviewDate) < now
       ).length,
+      cmrSubstances: chemicals.filter((c) => c.isCMR).length,
+      svhcSubstances: chemicals.filter((c) => c.isSVHC).length,
+      highSubstitutionPriority: chemicals.filter((c) => c.substitutionPriority === "HIGH").length,
+      outdatedSDS: chemicals.filter(
+        (c) => c.sdsDate && new Date(c.sdsDate) < threeYearsAgo
+      ).length,
     };
 
     return { success: true, data: stats };
@@ -299,3 +368,232 @@ export async function getChemicalStats(tenantId: string) {
   }
 }
 
+// AI-parsing av SDS fra PDF
+export async function parseSDSFromFile(sdsKey: string, chemicalId?: string) {
+  try {
+    const { user, tenantId } = await getSessionContext();
+
+    // Hent fil fra storage
+    const storage = getStorage();
+    const fileUrl = await storage.getUrl(sdsKey);
+
+    // Last ned filen
+    const response = await fetch(fileUrl);
+    if (!response.ok) {
+      return { success: false, error: "Kunne ikke laste ned fil" };
+    }
+
+    const arrayBuffer = await response.arrayBuffer();
+    const fileBuffer = Buffer.from(arrayBuffer);
+
+    // Parse SDS med AI
+    const extractedData = await parseSDSFile(fileBuffer);
+
+    // Hvis chemicalId er oppgitt, oppdater kjemikaliet automatisk
+    if (chemicalId && extractedData.confidence && extractedData.confidence > 0.7) {
+      const updateData: any = {};
+
+      if (extractedData.hazardStatements) {
+        updateData.hazardStatements = JSON.stringify(extractedData.hazardStatements);
+        
+        // Beregn farenivå og CMR-status
+        updateData.hazardLevel = calculateHazardLevel(extractedData.hazardStatements);
+        updateData.isCMR = isCMRSubstance(extractedData.hazardStatements);
+      }
+
+      if (extractedData.precautionaryStatements) {
+        updateData.precautionaryStatements = JSON.stringify(extractedData.precautionaryStatements);
+      }
+
+      if (extractedData.pictograms) {
+        updateData.warningPictograms = JSON.stringify(mapPictogramsToFiles(extractedData.pictograms));
+      }
+
+      if (extractedData.hazardStatements) {
+        const ppe = suggestPPE(extractedData.hazardStatements);
+        updateData.requiredPPE = JSON.stringify(ppe);
+      }
+
+      if (extractedData.casNumbers && extractedData.casNumbers.length > 0) {
+        updateData.casNumber = extractedData.casNumbers[0];
+      }
+
+      updateData.aiExtractedData = JSON.stringify(extractedData);
+
+      await prisma.chemical.update({
+        where: { id: chemicalId, tenantId },
+        data: updateData,
+      });
+
+      await AuditLog.log(tenantId, user.id, "CHEMICAL_AI_PARSED", "Chemical", chemicalId, {
+        confidence: extractedData.confidence,
+        extractedFields: Object.keys(updateData),
+      });
+
+      revalidatePath(`/dashboard/chemicals/${chemicalId}`);
+    }
+
+    return { success: true, data: extractedData };
+  } catch (error: any) {
+    console.error("Parse SDS error:", error);
+    return { success: false, error: error.message || "Kunne ikke parse SDS" };
+  }
+}
+
+// Synkroniser med ECHA for oppdatert faredata
+export async function syncWithECHA(chemicalId: string) {
+  try {
+    const { user, tenantId } = await getSessionContext();
+
+    const chemical = await prisma.chemical.findFirst({
+      where: { id: chemicalId, tenantId },
+    });
+
+    if (!chemical) {
+      return { success: false, error: "Kjemikalie ikke funnet" };
+    }
+
+    if (!chemical.casNumber) {
+      return { success: false, error: "CAS-nummer mangler" };
+    }
+
+    // Søk i ECHA
+    const echaData = await searchSubstanceByCAS(chemical.casNumber);
+
+    if (!echaData) {
+      return { success: false, error: "Ingen data funnet i ECHA" };
+    }
+
+    // Oppdater kjemikalie med ECHA-data
+    const hStatements = chemical.hazardStatements 
+      ? JSON.parse(chemical.hazardStatements as string)
+      : [];
+
+    const hazardLevel = calculateHazardLevel(hStatements);
+    const isCMR = isCMRSubstance(hStatements);
+    const substitutionPriority = calculateSubstitutionPriority(
+      isCMR,
+      echaData.isSVHC,
+      hazardLevel
+    );
+
+    const updatedChemical = await prisma.chemical.update({
+      where: { id: chemicalId },
+      data: {
+        ecNumber: echaData.ecNumber,
+        isCMR,
+        isSVHC: echaData.isSVHC,
+        reachStatus: echaData.reachStatus,
+        hazardLevel,
+        substitutionPriority,
+        lastEchaSync: new Date(),
+      },
+    });
+
+    await AuditLog.log(tenantId, user.id, "CHEMICAL_ECHA_SYNCED", "Chemical", chemicalId, {
+      echaData: {
+        isCMR,
+        isSVHC: echaData.isSVHC,
+        hazardLevel,
+      },
+    });
+
+    revalidatePath(`/dashboard/chemicals/${chemicalId}`);
+    revalidatePath("/dashboard/chemicals");
+
+    return { success: true, data: updatedChemical };
+  } catch (error: any) {
+    console.error("ECHA sync error:", error);
+    return { success: false, error: error.message || "Kunne ikke synkronisere med ECHA" };
+  }
+}
+
+// Finn substitusjonsalternativer
+export async function findSubstitutionAlternatives(chemicalId: string) {
+  try {
+    const { user, tenantId } = await getSessionContext();
+
+    const chemical = await prisma.chemical.findFirst({
+      where: { id: chemicalId, tenantId },
+    });
+
+    if (!chemical) {
+      return { success: false, error: "Kjemikalie ikke funnet" };
+    }
+
+    if (!chemical.casNumber) {
+      return { success: false, error: "CAS-nummer mangler" };
+    }
+
+    // Finn alternativer
+    const alternatives = await suggestAlternatives(
+      chemical.casNumber,
+      chemical.productName,
+      chemical.hazardClass || undefined
+    );
+
+    // Oppdater kjemikalie med forslag
+    if (alternatives.length > 0) {
+      await prisma.chemical.update({
+        where: { id: chemicalId },
+        data: {
+          autoSuggestedAlternatives: JSON.stringify(alternatives),
+        },
+      });
+
+      revalidatePath(`/dashboard/chemicals/${chemicalId}`);
+    }
+
+    return { success: true, data: alternatives };
+  } catch (error: any) {
+    console.error("Find alternatives error:", error);
+    return { success: false, error: error.message || "Kunne ikke finne alternativer" };
+  }
+}
+
+// Batch-synkroniser alle kjemikalier med CAS-nummer
+export async function batchSyncWithECHA(tenantId: string) {
+  try {
+    const { user } = await getSessionContext();
+
+    const chemicals = await prisma.chemical.findMany({
+      where: { 
+        tenantId,
+        casNumber: { not: null },
+        status: "ACTIVE",
+      },
+    });
+
+    let synced = 0;
+    let failed = 0;
+
+    for (const chemical of chemicals) {
+      try {
+        const result = await syncWithECHA(chemical.id);
+        if (result.success) {
+          synced++;
+        } else {
+          failed++;
+        }
+      } catch (error) {
+        failed++;
+        console.error(`Failed to sync ${chemical.id}:`, error);
+      }
+
+      // Vent litt mellom kall for å unngå rate limiting
+      await new Promise(resolve => setTimeout(resolve, 500));
+    }
+
+    return { 
+      success: true, 
+      data: { 
+        total: chemicals.length, 
+        synced, 
+        failed 
+      } 
+    };
+  } catch (error: any) {
+    console.error("Batch ECHA sync error:", error);
+    return { success: false, error: error.message || "Kunne ikke synkronisere" };
+  }
+}

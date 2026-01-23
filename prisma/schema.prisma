@@ -191,6 +191,8 @@ model Tenant {
   riskControls     RiskControl[]
   riskDocumentLinks RiskDocumentLink[]
   riskAuditLinks   RiskAuditLink[]
+  riskChemicalLinks RiskChemicalLink[]
+  riskTrainingRequirements RiskTrainingRequirement[]
   securityAssets   SecurityAsset[]
   securityControls SecurityControl[]
   securityControlDocuments SecurityControlDocument[]
@@ -222,6 +224,7 @@ model Tenant {
   whistleblowings  Whistleblowing[] // Varslinger
   scheduledReminders ScheduledReminder[] // Planlagte påminnelser
   bhtClient        BhtClient?       // BHT-kunde (hvis aktivert)
+  navigationItems  NavigationItem[] // Meny-konfigurasjoner
   createdAt        DateTime         @default(now())
   updatedAt        DateTime         @updatedAt
 
@@ -420,6 +423,26 @@ model UserTenant {
   tenantId   String
   role       Role
   department String?
+  
+  // Tenant-spesifikke brukerinnstillinger (kan være ulike per tenant)
+  displayName  String?      // Visningsnavn i denne tenanten (kan være annerledes enn User.name)
+  phone        String?      // Telefonnummer for denne tenanten
+  
+  // Varslingsinnstillinger (per tenant)
+  notifyByEmail       Boolean  @default(true)  // Motta e-postvarsler
+  notifyBySms         Boolean  @default(false) // Motta SMS-varsler (krever phone)
+  reminderDaysBefore  Int      @default(1)     // Hvor mange dager før hendelser skal varsles
+  notifyMeetings      Boolean  @default(true)  // Varsle om møter
+  notifyInspections   Boolean  @default(true)  // Varsle om vernerunder/inspeksjoner
+  notifyAudits        Boolean  @default(true)  // Varsle om revisjoner
+  notifyMeasures      Boolean  @default(true)  // Varsle om tiltak som forfaller
+  notifyIncidents     Boolean  @default(true)  // Varsle om avvik/hendelser
+  notifyDocuments     Boolean  @default(true)  // Varsle om dokumenter
+  notifyTraining      Boolean  @default(true)  // Varsle om opplæring
+  notifyRisks         Boolean  @default(true)  // Varsle om risikoer
+  dailyDigest         Boolean  @default(false) // Motta daglig e-post sammendrag
+  weeklyDigest        Boolean  @default(true)  // Motta ukentlig e-post sammendrag
+  
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
 
@@ -454,6 +477,7 @@ model Document {
   version    String       // Gjeldende versjon (v1.0, v1.1, v2.0)
   status     DocStatus    @default(DRAFT)
   fileKey    String       // Gjeldende fil
+  mime       String       // MIME-type (f.eks. application/pdf, application/vnd.openxmlformats-officedocument.wordprocessingml.document)
   approvedBy String?
   approvedAt DateTime?
   updatedBy  String?
@@ -493,6 +517,7 @@ model DocumentVersion {
   documentId      String
   version         String    // v1.0, v1.1, v2.0
   fileKey         String    // Fil for denne versjonen
+  mime            String    // MIME-type for denne versjonen
   changeComment   String?   @db.Text // Hva ble endret?
   uploadedBy      String
   approvedBy      String?
@@ -590,6 +615,8 @@ model Risk {
   auditLinks          RiskAuditLink[]
   controls            RiskControl[]
   securityControls    SecurityControl[]
+  chemicalLinks       RiskChemicalLink[]
+  trainingRequirements RiskTrainingRequirement[]
 
   @@index([tenantId])
   @@index([status])
@@ -731,6 +758,60 @@ model RiskControl {
   @@index([ownerId])
   @@index([controlType])
   @@index([status])
+}
+
+// ============================================
+// Risk → Chemical Linking (ISO 45001 / 14001)
+// ============================================
+
+model RiskChemicalLink {
+  id          String        @id @default(cuid())
+  tenantId    String
+  riskId      String
+  chemicalId  String
+  exposure    ExposureLevel @default(MEDIUM)
+  ppRequired  Boolean       @default(false) // Personlig verneutstyr påkrevd
+  note        String?       @db.Text
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  tenant   Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  risk     Risk     @relation(fields: [riskId], references: [id], onDelete: Cascade)
+  chemical Chemical @relation(fields: [chemicalId], references: [id], onDelete: Cascade)
+
+  @@unique([riskId, chemicalId])
+  @@index([tenantId])
+  @@index([chemicalId])
+  @@index([exposure])
+}
+
+enum ExposureLevel {
+  LOW      // Minimal eksponering - lav risiko
+  MEDIUM   // Moderat eksponering - standard sikkerhetstiltak
+  HIGH     // Høy eksponering - krever ekstra tiltak og overvåking
+  CRITICAL // Kritisk eksponering - CMR, diisocyanater, SVHC (krever spesialtiltak)
+}
+
+// ============================================
+// Risk → Training Requirement (ISO 45001: 7.2)
+// ============================================
+
+model RiskTrainingRequirement {
+  id          String   @id @default(cuid())
+  tenantId    String
+  riskId      String
+  courseKey   String   // Nøkkel fra CourseTemplate (f.eks. "diisocyanate-handling")
+  isMandatory Boolean  @default(true) // Obligatorisk opplæring
+  reason      String?  @db.Text // Begrunnelse (f.eks. "EU REACH Annex XVII")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  risk   Risk   @relation(fields: [riskId], references: [id], onDelete: Cascade)
+
+  @@unique([riskId, courseKey])
+  @@index([tenantId])
+  @@index([courseKey])
 }
 
 enum ControlFrequency {
@@ -1479,6 +1560,7 @@ model Chemical {
   casNumber        String?         // CAS-nummer
   hazardClass      String?         // Fareklasse (GHS/CLP)
   hazardStatements String?         @db.Text // H-setninger (H226, H315, etc)
+  precautionaryStatements String?  @db.Text // P-setninger (P210, P261, etc)
   warningPictograms String?        @db.Text // JSON array av faresymboler (filnavn)
   requiredPPE      String?         @db.Text // JSON array av påkrevd PPE (ISO 7010)
   sdsKey           String?         // Sikkerhetsdatablad (PDF) i storage
@@ -1492,15 +1574,33 @@ model Chemical {
   notes            String?         @db.Text // Notater/kommentarer
   lastVerifiedAt   DateTime?       // Sist verifisert i revisjon
   lastVerifiedBy   String?         // Hvem verifiserte sist
+  
+  // ECHA/AI-berikede data (automatisk)
+  ecNumber         String?         // EC-nummer fra ECHA
+  isCMR            Boolean         @default(false) // Carcinogenic, Mutagenic, Reprotoxic
+  isSVHC           Boolean         @default(false) // Substance of Very High Concern
+  containsIsocyanates Boolean      @default(false) // Inneholder diisocyanater - krever spesialkurs
+  reachStatus      String?         // REACH-status
+  hazardLevel      Int?            // 1-5 (beregnet fra H-setninger)
+  substitutionPriority String?     // HIGH, MEDIUM, LOW
+  autoSuggestedAlternatives String? @db.Text // JSON array av foreslåtte alternativer
+  lastEchaSync     DateTime?       // Sist synkronisert med ECHA
+  aiExtractedData  String?         @db.Text // JSON med AI-ekstraherte data fra SDS
+  
   createdAt        DateTime        @default(now())
   updatedAt        DateTime        @updatedAt
 
-  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  tenant     Tenant             @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  riskLinks  RiskChemicalLink[] // Kobling til risikovurderinger
 
   @@index([tenantId])
   @@index([status])
   @@index([nextReviewDate])
   @@index([casNumber])
+  @@index([isCMR])
+  @@index([isSVHC])
+  @@index([containsIsocyanates])
+  @@index([hazardLevel])
 }
 
 enum ChemicalStatus {
@@ -2656,4 +2756,31 @@ enum BhtReportStatus {
   FINAL           // Ferdigstilt
   MANAGEMENT_REVIEWED // Ledelsen har gjennomgått
   COMPLETED       // Alt fullført
+}
+
+// ============================================
+// Navigation Menu Configuration
+// ============================================
+
+model NavigationItem {
+  id              String   @id @default(cuid())
+  tenantId        String?  // Null = global default, String = tenant-specific
+  key             String   // Unique identifier (e.g. "dashboard", "documents")
+  label           String   // Display label or i18n key (e.g. "nav.dashboard")
+  icon            String?  // Icon name (e.g. "LayoutDashboard")
+  href            String   // Navigation path (e.g. "/dashboard")
+  permission      String   // Permission key to check (e.g. "dashboard")
+  isSimpleMode    Boolean  @default(false) // Show in simple mode
+  isActive        Boolean  @default(true)  // Is this menu item active
+  order           Int      @default(0)     // Sort order
+  parentKey       String?  // For nested menus (null = top level)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  tenant Tenant? @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@unique([tenantId, key])
+  @@index([tenantId])
+  @@index([isActive])
+  @@index([order])
 }

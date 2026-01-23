@@ -237,19 +237,27 @@ export async function syncAzureAdUsers() {
 
 /**
  * Validerer om en bruker kan logge inn via Azure AD basert på tenant-konfigurasjon
+ * @param upnOrEmail - UserPrincipalName fra Azure AD (for domene-sjekk)
+ * @param primaryEmail - Primær e-post som skal brukes for brukeroppretting (optional)
  */
-export async function validateAzureAdLogin(email: string): Promise<{
+export async function validateAzureAdLogin(
+  upnOrEmail: string,
+  primaryEmail?: string
+): Promise<{
   allowed: boolean;
   tenantId?: string;
   role?: Role;
   error?: string;
+  email?: string; // E-posten som skal brukes for brukeren
 }> {
   try {
-    // Hent domene fra e-post
-    const domain = email.split("@")[1];
+    // Hent domene fra UPN/e-post (for tenant-matching)
+    const domain = upnOrEmail.split("@")[1];
     if (!domain) {
       return { allowed: false, error: "Ugyldig e-postadresse" };
     }
+
+    console.log(`🔍 Validating SSO: UPN domain="${domain}", primaryEmail="${primaryEmail || upnOrEmail}"`);
 
     // Finn tenant med matching domene og aktivert Azure AD
     const tenant = await prisma.tenant.findFirst({
@@ -261,10 +269,12 @@ export async function validateAzureAdLogin(email: string): Promise<{
         id: true,
         azureAdAutoRole: true,
         status: true,
+        name: true,
       },
     });
 
     if (!tenant) {
+      console.log(`❌ No tenant found for domain: ${domain}`);
       return {
         allowed: false,
         error: "Ingen aktiv HMS Nova-konto funnet for dette domenet",
@@ -278,9 +288,16 @@ export async function validateAzureAdLogin(email: string): Promise<{
       };
     }
 
-    // Sjekk om bruker allerede eksisterer
+    // Bruk primær e-post hvis oppgitt, ellers UPN
+    const userEmail = (primaryEmail || upnOrEmail).toLowerCase();
+
+    console.log(`✅ Tenant found: ${tenant.name} (${tenant.id}) for domain ${domain}`);
+    console.log(`📧 User email to use: ${userEmail}`);
+
+    // Sjekk om bruker allerede eksisterer (med HVILKEN SOM HELST e-post)
+    // Dette håndterer tilfeller hvor bruker har byttet fra gmail.com til bedrift.no
     const existingUser = await prisma.user.findUnique({
-      where: { email: email.toLowerCase() },
+      where: { email: userEmail },
       include: {
         tenants: {
           where: {
@@ -292,18 +309,22 @@ export async function validateAzureAdLogin(email: string): Promise<{
 
     if (existingUser && existingUser.tenants.length > 0) {
       // Bruker eksisterer allerede
+      console.log(`✅ Existing user found with tenant: ${userEmail}`);
       return {
         allowed: true,
         tenantId: tenant.id,
         role: existingUser.tenants[0].role,
+        email: userEmail,
       };
     }
 
     // Ny bruker - skal opprettes med standard rolle
+    console.log(`🆕 New user will be created: ${userEmail} in tenant ${tenant.name}`);
     return {
       allowed: true,
       tenantId: tenant.id,
       role: (tenant.azureAdAutoRole as Role) || "ANSATT",
+      email: userEmail,
     };
   } catch (error) {
     console.error("Error validating Azure AD login:", error);

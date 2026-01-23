@@ -11,6 +11,7 @@ import { getStorage, generateFileKey } from "@/lib/storage";
 import { DocStatus } from "@prisma/client";
 import { requirePermission, requireResourceAccess } from "@/lib/server-authorization";
 import { calculateNextReviewDate, parseDateInput } from "@/lib/document-utils";
+import { convertDocumentToPDF } from "@/lib/adobe-pdf";
 
 // Helper: Logg til audit log
 async function logAudit(
@@ -241,6 +242,7 @@ export async function createDocument(formData: FormData) {
         version: validated.version,
         status: DocStatus.DRAFT, // ALLTID DRAFT først - MÅ godkjennes
         fileKey,
+        mime: file.type || "application/octet-stream",
         updatedBy: context.userEmail,
         ownerId: validated.ownerId,
         templateId: validated.templateId,
@@ -258,6 +260,7 @@ export async function createDocument(formData: FormData) {
             tenantId: validated.tenantId,
             version: validated.version,
             fileKey,
+            mime: file.type || "application/octet-stream",
             uploadedBy: context.userEmail,
             changeComment: changeComment || "Første versjon opprettet",
           },
@@ -350,6 +353,7 @@ export async function uploadNewVersion(formData: FormData) {
         documentId: document.id,
         version,
         fileKey,
+        mime: file.type || "application/octet-stream",
         uploadedBy: context.userEmail,
         changeComment,
       },
@@ -361,6 +365,7 @@ export async function uploadNewVersion(formData: FormData) {
       data: {
         version,
         fileKey,
+        mime: file.type || "application/octet-stream",
         status: DocStatus.DRAFT, // Tilbake til DRAFT - må godkjennes
         approvedBy: null,
         approvedAt: null,
@@ -656,5 +661,51 @@ export async function getDocumentDownloadUrl(id: string) {
   } catch (error: any) {
     console.error("Get download URL error:", error);
     return { success: false, error: error.message || "Kunne ikke generere nedlastingslenke" };
+  }
+}
+
+export async function convertDocumentToPDFAction(id: string) {
+  try {
+    const context = await requireResourceAccess("document", id);
+
+    const document = await prisma.document.findUnique({
+      where: { id },
+    });
+
+    if (!document) {
+      return { success: false, error: "Dokument ikke funnet" };
+    }
+
+    const isWordDocument = 
+      document.mime === "application/vnd.openxmlformats-officedocument.wordprocessingml.document" ||
+      document.mime === "application/msword";
+
+    if (!isWordDocument) {
+      return { success: false, error: "Kun Word-dokumenter kan konverteres til PDF" };
+    }
+
+    const storage = getStorage();
+    const documentBuffer = await storage.get(document.fileKey);
+
+    if (!documentBuffer) {
+      return { success: false, error: "Kunne ikke laste dokument" };
+    }
+
+    const pdfBuffer = await convertDocumentToPDF(documentBuffer, document.mime);
+
+    const pdfKey = generateFileKey(
+      context.tenantId,
+      "documents/pdf",
+      `${document.title}-converted.pdf`
+    );
+
+    await storage.upload(pdfKey, pdfBuffer, { "Content-Type": "application/pdf" });
+
+    const pdfUrl = await storage.getUrl(pdfKey, 3600);
+
+    return { success: true, data: { url: pdfUrl, filename: `${document.title}.pdf` } };
+  } catch (error: any) {
+    console.error("Convert to PDF error:", error);
+    return { success: false, error: error.message || "Kunne ikke konvertere til PDF" };
   }
 }

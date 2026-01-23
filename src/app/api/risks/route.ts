@@ -1,0 +1,191 @@
+import { NextRequest, NextResponse } from "next/server";
+import { getServerSession } from "next-auth/next";
+import { authOptions } from "@/lib/auth";
+import { prisma } from "@/lib/db";
+import { AuditLog } from "@/lib/audit-log";
+
+export async function POST(request: NextRequest) {
+  try {
+    const session = await getServerSession(authOptions);
+
+    if (!session?.user?.email) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const user = await prisma.user.findUnique({
+      where: { email: session.user.email },
+      include: { tenants: true },
+    });
+
+    if (!user || user.tenants.length === 0) {
+      return NextResponse.json(
+        { error: "User not associated with tenant" },
+        { status: 403 }
+      );
+    }
+
+    const tenantId = user.tenants[0].tenantId;
+    const body = await request.json();
+
+    const {
+      title,
+      context,
+      category,
+      likelihood,
+      consequence,
+      score,
+      chemicalId,
+      exposure,
+      suggestedControls,
+      trainingRequired,
+    } = body;
+
+    // Opprett risiko
+    const risk = await prisma.risk.create({
+      data: {
+        tenantId,
+        title,
+        context,
+        category,
+        likelihood,
+        consequence,
+        score,
+        ownerId: user.id,
+        status: "OPEN",
+      },
+    });
+
+    // Koble kjemikalie hvis angitt
+    if (chemicalId && exposure) {
+      await prisma.riskChemicalLink.create({
+        data: {
+          tenantId,
+          riskId: risk.id,
+          chemicalId,
+          exposure,
+          ppRequired: exposure === "HIGH" || exposure === "CRITICAL",
+        },
+      });
+    }
+
+    // Legg til foreslåtte tiltak som measures
+    if (suggestedControls && Array.isArray(suggestedControls)) {
+      const dueDate = new Date();
+      dueDate.setDate(dueDate.getDate() + 30); // 30 dager frem
+
+      for (const control of suggestedControls) {
+        await prisma.measure.create({
+          data: {
+            title: control,
+            description: `Sikkerhetstiltak for risiko: ${title}`,
+            status: "PENDING",
+            dueAt: dueDate,
+            tenant: {
+              connect: { id: tenantId },
+            },
+            responsible: {
+              connect: { id: user.id },
+            },
+            risk: {
+              connect: { id: risk.id },
+            },
+          },
+        });
+      }
+    }
+
+    // Legg til opplæringskrav hvis angitt
+    if (trainingRequired && Array.isArray(trainingRequired)) {
+      for (const courseKey of trainingRequired) {
+        try {
+          await prisma.riskTrainingRequirement.create({
+            data: {
+              tenantId,
+              riskId: risk.id,
+              courseKey,
+              isMandatory: true,
+              reason: "Automatisk foreslått basert på kjemikaliedata",
+            },
+          });
+        } catch (error) {
+          // Ignorer hvis kurset ikke finnes eller allerede er lagt til
+          console.error(`Failed to add training requirement: ${courseKey}`, error);
+        }
+      }
+    }
+
+    await AuditLog.log(
+      tenantId,
+      user.id,
+      "RISK_CREATED",
+      "Risk",
+      risk.id,
+      {
+        title,
+        category,
+        score,
+        fromChemical: !!chemicalId,
+      }
+    );
+
+    return NextResponse.json({ risk }, { status: 201 });
+  } catch (error: any) {
+    console.error("Create risk error:", error);
+    return NextResponse.json(
+      { error: error.message || "Failed to create risk" },
+      { status: 500 }
+    );
+  }
+}
+
+export async function GET(request: NextRequest) {
+  try {
+    const session = await getServerSession(authOptions);
+
+    if (!session?.user?.email) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const user = await prisma.user.findUnique({
+      where: { email: session.user.email },
+      include: { tenants: true },
+    });
+
+    if (!user || user.tenants.length === 0) {
+      return NextResponse.json(
+        { error: "User not associated with tenant" },
+        { status: 403 }
+      );
+    }
+
+    const tenantId = user.tenants[0].tenantId;
+
+    const risks = await prisma.risk.findMany({
+      where: { tenantId },
+      include: {
+        owner: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+          },
+        },
+        measures: true,
+        chemicalLinks: {
+          include: {
+            chemical: true,
+          },
+        },
+      },
+      orderBy: { createdAt: "desc" },
+    });
+
+    return NextResponse.json({ risks });
+  } catch (error: any) {
+    console.error("Get risks error:", error);
+    return NextResponse.json(
+      { error: error.message || "Failed to fetch risks" },
+      { status: 500 }
+    );
+  }
+}

@@ -9,37 +9,31 @@ import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { Bell, Mail, Smartphone, Calendar, ClipboardCheck, AlertCircle, Target, TestTube } from "lucide-react";
-import type { User } from "@prisma/client";
+import type { User, UserTenant } from "@prisma/client";
 import { updateNotificationSettings } from "@/server/actions/notification-settings.actions";
 import Link from "next/link";
 
 interface NotificationSettingsProps {
-  user: User & {
-    notifyByEmail?: boolean;
-    notifyBySms?: boolean;
-    reminderDaysBefore?: number;
-    notifyMeetings?: boolean;
-    notifyInspections?: boolean;
-    notifyAudits?: boolean;
-    notifyMeasures?: boolean;
-    phone?: string | null;
-  };
+  user: User;
+  userTenant: UserTenant;
 }
 
-export function NotificationSettings({ user }: NotificationSettingsProps) {
+export function NotificationSettings({ user, userTenant }: NotificationSettingsProps) {
   const router = useRouter();
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
   
-  const [notifyByEmail, setNotifyByEmail] = useState(user.notifyByEmail ?? true);
-  const [notifyBySms, setNotifyBySms] = useState(user.notifyBySms ?? false);
-  const [reminderDaysBefore, setReminderDaysBefore] = useState(user.reminderDaysBefore ?? 1);
-  const [notifyMeetings, setNotifyMeetings] = useState(user.notifyMeetings ?? true);
-  const [notifyInspections, setNotifyInspections] = useState(user.notifyInspections ?? true);
-  const [notifyAudits, setNotifyAudits] = useState(user.notifyAudits ?? true);
-  const [notifyMeasures, setNotifyMeasures] = useState(user.notifyMeasures ?? true);
+  // Bruk innstillinger fra UserTenant (tenant-spesifikk)
+  const [notifyByEmail, setNotifyByEmail] = useState(userTenant.notifyByEmail);
+  const [notifyBySms, setNotifyBySms] = useState(userTenant.notifyBySms);
+  const [reminderDaysBefore, setReminderDaysBefore] = useState(userTenant.reminderDaysBefore);
+  const [notifyMeetings, setNotifyMeetings] = useState(userTenant.notifyMeetings);
+  const [notifyInspections, setNotifyInspections] = useState(userTenant.notifyInspections);
+  const [notifyAudits, setNotifyAudits] = useState(userTenant.notifyAudits);
+  const [notifyMeasures, setNotifyMeasures] = useState(userTenant.notifyMeasures);
 
-  const hasPhoneNumber = !!user.phone;
+  // Sjekk telefonnummer fra både UserTenant og User (fallback)
+  const hasPhoneNumber = !!userTenant.phone || !!user.phone;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -136,7 +130,7 @@ export function NotificationSettings({ user }: NotificationSettingsProps) {
                 <Label htmlFor="notifyBySms">SMS-varsler</Label>
                 <p className="text-sm text-muted-foreground">
                   {hasPhoneNumber
-                    ? `Motta påminnelser på SMS (${user.phone})`
+                    ? `Motta påminnelser på SMS (${userTenant.phone || user.phone})`
                     : "Legg til telefonnummer i profilen for å aktivere SMS"}
                 </p>
                 {notifyBySms && !hasPhoneNumber && (

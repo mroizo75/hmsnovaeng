@@ -13,6 +13,8 @@ import {
   XCircle,
   Clock,
   Users,
+  Target,
+  Settings,
 } from "lucide-react";
 import Link from "next/link";
 import { PageHelpDialog } from "@/components/dashboard/page-help-dialog";
@@ -131,6 +133,18 @@ export default async function TrainingPage() {
           <PageHelpDialog content={helpContent.training} />
         </div>
         <div className="flex gap-2">
+          <Link href="/dashboard/goals?category=COMPETENCE">
+            <Button variant="outline">
+              <Target className="mr-2 h-4 w-4" />
+              Kompetansemål
+            </Button>
+          </Link>
+          <Link href="/dashboard/training/courses">
+            <Button variant="outline">
+              <Settings className="mr-2 h-4 w-4" />
+              Kursmaler
+            </Button>
+          </Link>
           <Link href="/dashboard/training/matrix">
             <Button variant="outline">
               <Users className="mr-2 h-4 w-4" />

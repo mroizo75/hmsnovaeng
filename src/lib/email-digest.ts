@@ -49,10 +49,10 @@ export async function sendDigestEmails(type: "DAILY" | "WEEKLY" = "DAILY") {
     for (const userTenant of tenant.users) {
       const user = userTenant.user;
 
-      // Sjekk om brukeren vil ha digest-varsler
-      if (!user.notifyByEmail) continue;
-      if (type === "DAILY" && !user.dailyDigest) continue;
-      if (type === "WEEKLY" && !user.weeklyDigest) continue;
+      // Sjekk om brukeren vil ha digest-varsler (fra UserTenant - tenant-spesifikk)
+      if (!userTenant.notifyByEmail) continue;
+      if (type === "DAILY" && !userTenant.dailyDigest) continue;
+      if (type === "WEEKLY" && !userTenant.weeklyDigest) continue;
 
       try {
         const digestData = await gatherDigestData(user.id, tenant.id, tenant.name, type);

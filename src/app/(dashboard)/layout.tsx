@@ -31,11 +31,13 @@ export default async function DashboardLayout({
 
   return (
     <DashboardProviders>
-      <div className="flex flex-col lg:flex-row min-h-screen">
+      <div className="flex flex-col lg:flex-row min-h-screen overflow-hidden">
         <MobileNav />
         <DashboardNav />
-        <main className="flex-1 p-4 lg:p-8">
-          {children}
+        <main className="flex-1 p-4 lg:p-8 overflow-x-auto overflow-y-auto">
+          <div className="max-w-[100vw] lg:max-w-none">
+            {children}
+          </div>
         </main>
         <Toaster />
       </div>

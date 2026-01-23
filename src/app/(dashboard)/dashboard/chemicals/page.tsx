@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 import { prisma } from "@/lib/db";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { FileText, Plus, AlertTriangle, CheckCircle, Clock, Archive } from "lucide-react";
+import { FileText, Plus, AlertTriangle, CheckCircle, Clock, Archive, Search } from "lucide-react";
 import Link from "next/link";
 import { ChemicalList } from "@/features/chemicals/components/chemical-list";
 import { PageHelpDialog } from "@/components/dashboard/page-help-dialog";
@@ -57,24 +57,33 @@ export default async function ChemicalsPage() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 w-full">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div>
-            <h1 className="text-3xl font-bold">Stoffkartotek</h1>
-            <p className="text-muted-foreground">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex items-start gap-2">
+          <div className="min-w-0 flex-1">
+            <h1 className="text-2xl sm:text-3xl font-bold truncate">Stoffkartotek</h1>
+            <p className="text-sm text-muted-foreground">
               HMS - Oversikt over kjemikalier og sikkerhetsdatablad
             </p>
           </div>
           <PageHelpDialog content={helpContent.chemicals} />
         </div>
-        <Link href="/dashboard/chemicals/new">
-          <Button>
-            <Plus className="mr-2 h-4 w-4" />
-            Registrer kjemikalie
-          </Button>
-        </Link>
+        <div className="flex gap-2 shrink-0">
+          <Link href="/dashboard/chemicals/isocyanate-scan">
+            <Button variant="outline" className="w-full sm:w-auto">
+              <Search className="mr-2 h-4 w-4" />
+              <span className="hidden sm:inline">Skann for isocyanater</span>
+              <span className="sm:hidden">Skann</span>
+            </Button>
+          </Link>
+          <Link href="/dashboard/chemicals/new">
+            <Button className="w-full sm:w-auto">
+              <Plus className="mr-2 h-4 w-4" />
+              Registrer
+            </Button>
+          </Link>
+        </div>
       </div>
 
       {/* HMS Info Card */}
@@ -99,7 +108,7 @@ export default async function ChemicalsPage() {
       </Card>
 
       {/* Stats */}
-      <div className="grid gap-4 md:grid-cols-5">
+      <div className="grid gap-4 grid-cols-2 sm:grid-cols-3 lg:grid-cols-5">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Totalt</CardTitle>
@@ -157,7 +166,7 @@ export default async function ChemicalsPage() {
       </div>
 
       {/* Chemicals List */}
-      <Card>
+      <Card className="w-full overflow-hidden">
         <CardHeader>
           <CardTitle>Alle kjemikalier</CardTitle>
           <CardDescription>Oversikt over registrerte produkter i stoffkartoteket</CardDescription>

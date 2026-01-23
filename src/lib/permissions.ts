@@ -83,6 +83,12 @@ export interface RolePermissions {
   canUpdateGoals: boolean;
   canMeasureGoals: boolean;
   
+  // Kundetilbakemelding
+  canReadOwnFeedback: boolean;
+  canReadAllFeedback: boolean;
+  canCreateFeedback: boolean;
+  canManageFeedback: boolean;
+  
   // Ledelsens gjennomgang (Management Review)
   canReadManagementReviews: boolean;
   canCreateManagementReviews: boolean;
@@ -163,6 +169,10 @@ export const rolePermissions: Record<Role, RolePermissions> = {
     canCreateGoals: true,
     canUpdateGoals: true,
     canMeasureGoals: true,
+    canReadOwnFeedback: true,
+    canReadAllFeedback: true,
+    canCreateFeedback: true,
+    canManageFeedback: true,
     canReadEnvironment: true,
     canCreateEnvironment: true,
     canUpdateEnvironment: true,
@@ -235,6 +245,10 @@ export const rolePermissions: Record<Role, RolePermissions> = {
     canCreateGoals: true,
     canUpdateGoals: true,
     canMeasureGoals: true,
+    canReadOwnFeedback: true,
+    canReadAllFeedback: true,
+    canCreateFeedback: true,
+    canManageFeedback: true,
     canReadEnvironment: true,
     canCreateEnvironment: true,
     canUpdateEnvironment: true,
@@ -307,6 +321,10 @@ export const rolePermissions: Record<Role, RolePermissions> = {
     canCreateGoals: true,
     canUpdateGoals: true,
     canMeasureGoals: true,
+    canReadOwnFeedback: true,
+    canReadAllFeedback: true,
+    canCreateFeedback: true,
+    canManageFeedback: true,
     canReadEnvironment: true,
     canCreateEnvironment: true,
     canUpdateEnvironment: true,
@@ -379,6 +397,10 @@ export const rolePermissions: Record<Role, RolePermissions> = {
     canCreateGoals: false,
     canUpdateGoals: false,
     canMeasureGoals: false,
+    canReadOwnFeedback: true,
+    canReadAllFeedback: false,
+    canCreateFeedback: true,
+    canManageFeedback: false,
     canReadEnvironment: true,
     canCreateEnvironment: true,
     canUpdateEnvironment: false,
@@ -415,7 +437,7 @@ export const rolePermissions: Record<Role, RolePermissions> = {
     canApproveDocuments: false,
     canDeleteDocuments: false,
     canReadIncidents: false, // Kun egne
-    canCreateIncidents: true,
+    canCreateIncidents: true, // Kan rapportere avvik og kundeklager
     canInvestigateIncidents: false,
     canCloseIncidents: false,
     canReadRisks: false,
@@ -451,6 +473,10 @@ export const rolePermissions: Record<Role, RolePermissions> = {
     canCreateGoals: false,
     canUpdateGoals: false,
     canMeasureGoals: false,
+    canReadOwnFeedback: true, // Kan se egen tilbakemelding
+    canReadAllFeedback: false,
+    canCreateFeedback: true, // Kan legge inn kundetilbakemelding/ros
+    canManageFeedback: false,
     canReadEnvironment: false,
     canCreateEnvironment: false,
     canUpdateEnvironment: false,
@@ -523,6 +549,10 @@ export const rolePermissions: Record<Role, RolePermissions> = {
     canCreateGoals: false,
     canUpdateGoals: false,
     canMeasureGoals: false,
+    canReadOwnFeedback: true,
+    canReadAllFeedback: true,
+    canCreateFeedback: true,
+    canManageFeedback: false,
     canReadEnvironment: true,
     canCreateEnvironment: false,
     canUpdateEnvironment: false,
@@ -595,6 +625,10 @@ export const rolePermissions: Record<Role, RolePermissions> = {
     canCreateGoals: false,
     canUpdateGoals: false,
     canMeasureGoals: false,
+    canReadOwnFeedback: true,
+    canReadAllFeedback: true,
+    canCreateFeedback: false,
+    canManageFeedback: false,
     canReadEnvironment: true,
     canCreateEnvironment: false,
     canUpdateEnvironment: false,
@@ -652,19 +686,20 @@ export function getVisibleNavItems(role: Role) {
     forms: perms.canReadForms,
     risks: perms.canReadRisks,
     riskRegister: perms.canReadRisks,
-    incidents: perms.canReadIncidents,
+    incidents: perms.canReadIncidents || perms.canCreateIncidents,
     inspections: perms.canReadInspections,
     chemicals: perms.canReadChemicals,
     training: perms.canReadOwnTraining || perms.canReadAllTraining,
     audits: perms.canReadAudits,
     managementReviews: perms.canReadManagementReviews,
     meetings: perms.canReadMeetings,
-    whistleblowing: perms.canViewWhistleblowing,
+    whistleblowing: perms.canViewWhistleblowing || perms.canSubmitWhistleblowing,
     actions: perms.canReadActions,
     goals: perms.canReadGoals,
     environment: perms.canReadEnvironment,
     security: perms.canReadSecurity,
-  feedback: perms.canReadDocuments || perms.canReadGoals || perms.canReadAudits,
+    feedback: perms.canReadOwnFeedback || perms.canReadAllFeedback || perms.canCreateFeedback,
+    complaints: perms.canCreateIncidents,
     settings: perms.canReadSettings,
   };
 }

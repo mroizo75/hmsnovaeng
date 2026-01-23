@@ -1,8 +1,9 @@
 /**
- * Adobe PDF Services - Profesjonell PDF-generering
+ * Adobe PDF Services - Profesjonell PDF-generering og konvertering
  * 
- * Bruker Adobe PDF Services API for å generere høykvalitets
- * PDF-rapporter for psykososialt arbeidsmiljø.
+ * Bruker Adobe PDF Services API for:
+ * - Generere PDF-rapporter fra templates
+ * - Konvertere Word-dokumenter til PDF
  */
 
 import { 
@@ -12,12 +13,19 @@ import {
   DocumentMergeParams,
   DocumentMergeJob,
   DocumentMergeResult,
+  CreatePDFJob,
+  CreatePDFResult,
+  ExtractPDFParams,
+  ExtractElementType,
+  ExtractPDFJob,
+  ExtractPDFResult,
   SDKError,
   ServiceUsageError,
   ServiceApiError
 } from "@adobe/pdfservices-node-sdk";
 import fs from "fs";
 import path from "path";
+import { Readable } from "stream";
 
 const ADOBE_CLIENT_ID = process.env.ADOBE_CLIENT_ID;
 const ADOBE_CLIENT_SECRET = process.env.ADOBE_CLIENT_SECRET;
@@ -280,4 +288,143 @@ async function streamToBuffer(readStream: any): Promise<Buffer> {
     readStream.on("end", () => resolve(Buffer.concat(chunks)));
     readStream.on("error", reject);
   });
+}
+
+/**
+ * Konverter Word-dokument til PDF
+ * 
+ * Støtter: .docx, .doc
+ */
+export async function convertDocumentToPDF(
+  inputBuffer: Buffer,
+  mimeType: string
+): Promise<Buffer> {
+  try {
+    if (!ADOBE_CLIENT_ID || !ADOBE_CLIENT_SECRET) {
+      throw new Error("Adobe PDF Services er ikke konfigurert");
+    }
+
+    const credentials = new ServicePrincipalCredentials({
+      clientId: ADOBE_CLIENT_ID,
+      clientSecret: ADOBE_CLIENT_SECRET,
+    });
+
+    const pdfServices = new PDFServices({ credentials });
+
+    const inputStream = Readable.from(inputBuffer);
+    
+    let assetMimeType: MimeType;
+    if (mimeType === "application/vnd.openxmlformats-officedocument.wordprocessingml.document") {
+      assetMimeType = MimeType.DOCX;
+    } else if (mimeType === "application/msword") {
+      assetMimeType = MimeType.DOC;
+    } else {
+      throw new Error(`Ikke støttet filtype: ${mimeType}`);
+    }
+
+    const inputAsset = await pdfServices.upload({
+      readStream: inputStream,
+      mimeType: assetMimeType,
+    });
+
+    const job = new CreatePDFJob({ inputAsset });
+
+    const pollingURL = await pdfServices.submit({ job });
+    const pdfServicesResponse = await pdfServices.getJobResult({
+      pollingURL,
+      resultType: CreatePDFResult,
+    });
+
+    const resultAsset = pdfServicesResponse.result.asset;
+    const streamAsset = await pdfServices.getContent({ asset: resultAsset });
+
+    return await streamToBuffer(streamAsset.readStream as any);
+
+  } catch (error) {
+    console.error("Feil ved PDF-konvertering:", error);
+    
+    if (error instanceof SDKError || error instanceof ServiceUsageError || error instanceof ServiceApiError) {
+      console.error("Adobe API Error:", error.message);
+    }
+    
+    throw new Error("Kunne ikke konvertere dokument til PDF");
+  }
+}
+
+/**
+ * Ekstraher tekst fra PDF med Adobe Extract API
+ * Brukes for AI-analyse av sikkerhetsdatablad
+ */
+export async function extractTextFromPDF(pdfBuffer: Buffer): Promise<string> {
+  try {
+    if (!ADOBE_CLIENT_ID || !ADOBE_CLIENT_SECRET) {
+      throw new Error("Adobe PDF Services er ikke konfigurert");
+    }
+
+    const credentials = new ServicePrincipalCredentials({
+      clientId: ADOBE_CLIENT_ID,
+      clientSecret: ADOBE_CLIENT_SECRET,
+    });
+
+    const pdfServices = new PDFServices({ credentials });
+
+    const inputStream = Readable.from(pdfBuffer);
+    const inputAsset = await pdfServices.upload({
+      readStream: inputStream,
+      mimeType: MimeType.PDF,
+    });
+
+    const params = new ExtractPDFParams({
+      elementsToExtract: [ExtractElementType.TEXT],
+    });
+
+    const job = new ExtractPDFJob({ inputAsset, params });
+
+    const pollingURL = await pdfServices.submit({ job });
+    const pdfServicesResponse = await pdfServices.getJobResult({
+      pollingURL,
+      resultType: ExtractPDFResult,
+    });
+
+    const resultAsset = pdfServicesResponse.result.resource;
+    const streamAsset = await pdfServices.getContent({ asset: resultAsset });
+
+    // Les ZIP-arkivet som inneholder ekstrahert data
+    const zipBuffer = await streamToBuffer(streamAsset.readStream as any);
+
+    // Pakk ut JSON fra ZIP
+    const AdmZip = require('adm-zip');
+    const zip = new AdmZip(zipBuffer);
+    const jsonEntry = zip.getEntry('structuredData.json');
+    
+    if (!jsonEntry) {
+      throw new Error("Kunne ikke finne ekstrahert data i ZIP");
+    }
+
+    const jsonContent = zip.readAsText(jsonEntry);
+    const extractedData = JSON.parse(jsonContent);
+
+    // Kombiner all tekst fra elements
+    let fullText = "";
+    if (extractedData.elements) {
+      for (const element of extractedData.elements) {
+        if (element.Text) {
+          fullText += element.Text + "\n";
+        }
+      }
+    }
+
+    console.log(`Adobe extracted ${fullText.length} characters from PDF`);
+
+    return fullText;
+
+  } catch (error) {
+    console.error("Adobe PDF Extract error:", error);
+    
+    if (error instanceof SDKError || error instanceof ServiceUsageError || error instanceof ServiceApiError) {
+      console.error("Adobe API Error:", error.message);
+    }
+    
+    throw error;
+  }
 }

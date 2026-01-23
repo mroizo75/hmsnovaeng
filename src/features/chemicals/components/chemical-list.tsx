@@ -27,6 +27,7 @@ import { deleteChemical, downloadSDS, verifyChemical } from "@/server/actions/ch
 import { useToast } from "@/hooks/use-toast";
 import type { Chemical } from "@prisma/client";
 import { normalizePpeFile } from "@/lib/pictograms";
+import { IsocyanateBadge } from "@/components/isocyanate-warning";
 
 interface ChemicalListProps {
   chemicals: Chemical[];
@@ -151,9 +152,9 @@ export function ChemicalList({ chemicals }: ChemicalListProps) {
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 w-full max-w-full">
       {/* Filters */}
-      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between w-full">
         <div className="relative flex-1 max-w-sm">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input
@@ -185,18 +186,19 @@ export function ChemicalList({ chemicals }: ChemicalListProps) {
         Viser {filteredChemicals.length} av {chemicals.length} kjemikalier
       </div>
 
-      {/* Table */}
-      <div className="rounded-md border">
+      {/* Table - Responsiv uten horisontal scroll */}
+      <div className="w-full">
         <Table>
           <TableHeader>
             <TableRow>
               <TableHead>Produkt</TableHead>
-              <TableHead>Leverandør</TableHead>
-              <TableHead>CAS-nummer</TableHead>
-              <TableHead>Faresymboler</TableHead>
-              <TableHead>PPE-krav</TableHead>
-              <TableHead>Datablad</TableHead>
-              <TableHead>Neste revisjon</TableHead>
+              <TableHead className="hidden lg:table-cell">Leverandør</TableHead>
+              <TableHead className="hidden xl:table-cell">CAS</TableHead>
+              <TableHead className="hidden xl:table-cell">H-setninger</TableHead>
+              <TableHead>Fare</TableHead>
+              <TableHead className="hidden lg:table-cell">PPE</TableHead>
+              <TableHead className="hidden md:table-cell">SDS</TableHead>
+              <TableHead className="hidden md:table-cell">Revisjon</TableHead>
               <TableHead>Status</TableHead>
               <TableHead className="text-right">Handlinger</TableHead>
             </TableRow>
@@ -204,7 +206,7 @@ export function ChemicalList({ chemicals }: ChemicalListProps) {
           <TableBody>
             {filteredChemicals.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={9} className="text-center text-muted-foreground">
+                <TableCell colSpan={10} className="text-center text-muted-foreground">
                   Ingen kjemikalier funnet
                 </TableCell>
               </TableRow>
@@ -219,32 +221,55 @@ export function ChemicalList({ chemicals }: ChemicalListProps) {
 
                 return (
                 <TableRow key={chemical.id}>
-                  <TableCell className="font-medium">{chemical.productName}</TableCell>
-                  <TableCell>{chemical.supplier || "-"}</TableCell>
-                  <TableCell>{chemical.casNumber || "-"}</TableCell>
-                  <TableCell>
-                    {pictograms.length > 0 ? (
-                      <div className="flex gap-1">
-                        {pictograms.slice(0, 3).map((file: string, idx: number) => (
-                          <div key={idx} className="relative w-8 h-8 border border-orange-200 rounded p-0.5">
-                            <Image
-                              src={`/faremerker/${file}`}
-                              alt="Faresymbol"
-                              width={32}
-                              height={32}
-                              className="object-contain"
-                            />
-                          </div>
-                        ))}
-                        {pictograms.length > 3 && (
-                          <span className="text-xs text-muted-foreground self-center">+{pictograms.length - 3}</span>
-                        )}
-                      </div>
+                  <TableCell className="font-medium">
+                    <div className="flex flex-col gap-1">
+                      <span className="truncate max-w-[160px]">{chemical.productName}</span>
+                      {chemical.containsIsocyanates && <IsocyanateBadge />}
+                    </div>
+                  </TableCell>
+                  <TableCell className="hidden lg:table-cell">{chemical.supplier || "-"}</TableCell>
+                  <TableCell className="hidden xl:table-cell">{chemical.casNumber || "-"}</TableCell>
+                  <TableCell className="hidden xl:table-cell">
+                    {chemical.hazardStatements ? (
+                      <span className="text-sm text-orange-700 line-clamp-2" title={chemical.hazardStatements}>
+                        {chemical.hazardStatements}
+                      </span>
                     ) : (
                       <span className="text-muted-foreground text-sm">-</span>
                     )}
                   </TableCell>
                   <TableCell>
+                    {pictograms.length > 0 ? (
+                      <>
+                        {/* Mobil: Vis bare antall */}
+                        <div className="lg:hidden">
+                          <Badge variant="outline" className="bg-orange-50 text-orange-800 border-orange-300">
+                            {pictograms.length} fare
+                          </Badge>
+                        </div>
+                        {/* Desktop: Vis ikoner */}
+                        <div className="hidden lg:flex gap-1">
+                          {pictograms.slice(0, 3).map((file: string, idx: number) => (
+                            <div key={idx} className="relative w-8 h-8 border border-orange-200 rounded p-0.5">
+                              <Image
+                                src={`/faremerker/${file}`}
+                                alt="Faresymbol"
+                                width={32}
+                                height={32}
+                                className="object-contain"
+                              />
+                            </div>
+                          ))}
+                          {pictograms.length > 3 && (
+                            <span className="text-xs text-muted-foreground self-center">+{pictograms.length - 3}</span>
+                          )}
+                        </div>
+                      </>
+                    ) : (
+                      <span className="text-muted-foreground text-sm">-</span>
+                    )}
+                  </TableCell>
+                  <TableCell className="hidden lg:table-cell">
                     {ppeList.length > 0 ? (
                       <div className="flex gap-1">
                         {ppeList.slice(0, 3).map((file: string, idx: number) => {
@@ -271,7 +296,7 @@ export function ChemicalList({ chemicals }: ChemicalListProps) {
                       <span className="text-muted-foreground text-sm">-</span>
                     )}
                   </TableCell>
-                  <TableCell>
+                  <TableCell className="hidden md:table-cell">
                     {chemical.sdsKey ? (
                       <Button
                         variant="ghost"
@@ -279,14 +304,13 @@ export function ChemicalList({ chemicals }: ChemicalListProps) {
                         onClick={() => handleDownloadSDS(chemical.id, chemical.productName)}
                         disabled={loading === chemical.id}
                       >
-                        <Download className="h-4 w-4 mr-2" />
-                        Last ned
+                        <Download className="h-4 w-4" />
                       </Button>
                     ) : (
-                      <span className="text-sm text-muted-foreground">Mangler</span>
+                      <span className="text-sm text-muted-foreground">-</span>
                     )}
                   </TableCell>
-                  <TableCell>
+                  <TableCell className="hidden md:table-cell">
                     {chemical.nextReviewDate ? (
                       <div>
                         <div className={isOverdue(chemical.nextReviewDate) ? "text-red-600 font-medium" : ""}>
@@ -300,22 +324,34 @@ export function ChemicalList({ chemicals }: ChemicalListProps) {
                       "-"
                     )}
                   </TableCell>
-                  <TableCell>{getStatusBadge(chemical.status)}</TableCell>
+                  <TableCell>
+                    <div className="flex items-center gap-2">
+                      {getStatusBadge(chemical.status)}
+                      {chemical.lastVerifiedAt && (
+                        <div className="flex items-center gap-1 text-green-600" title={`Verifisert ${new Date(chemical.lastVerifiedAt).toLocaleDateString("nb-NO")}`}>
+                          <CheckCircle className="h-4 w-4 fill-green-600" />
+                          <span className="text-xs">Verifisert</span>
+                        </div>
+                      )}
+                    </div>
+                  </TableCell>
                   <TableCell className="text-right space-x-2">
                     <Link href={`/dashboard/chemicals/${chemical.id}`}>
                       <Button variant="ghost" size="sm">
                         <Eye className="h-4 w-4" />
                       </Button>
                     </Link>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => handleVerify(chemical.id, chemical.productName)}
-                      disabled={loading === chemical.id}
-                      title="Verifiser i revisjon"
-                    >
-                      <CheckCircle className="h-4 w-4" />
-                    </Button>
+                    {!chemical.lastVerifiedAt && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleVerify(chemical.id, chemical.productName)}
+                        disabled={loading === chemical.id}
+                        title="Verifiser i revisjon"
+                      >
+                        <CheckCircle className="h-4 w-4" />
+                      </Button>
+                    )}
                     <Button
                       variant="destructive"
                       size="sm"

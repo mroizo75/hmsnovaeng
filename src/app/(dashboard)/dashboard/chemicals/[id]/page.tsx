@@ -9,6 +9,8 @@ import { ArrowLeft, Edit, Download, CheckCircle, AlertTriangle, Calendar, MapPin
 import Link from "next/link";
 import Image from "next/image";
 import { normalizePpeFile } from "@/lib/pictograms";
+import { IsocyanateWarning } from "@/components/isocyanate-warning";
+import { ChemicalRiskSuggestions } from "@/components/chemical-risk-suggestions";
 
 export default async function ChemicalDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -105,6 +107,28 @@ export default async function ChemicalDetailPage({ params }: { params: Promise<{
         </Card>
       )}
 
+      {/* Varsel om diisocyanater */}
+      {chemical.containsIsocyanates && (
+        <IsocyanateWarning details={chemical.aiExtractedData ? (() => {
+          try {
+            const data = JSON.parse(chemical.aiExtractedData);
+            return data.isocyanateDetails;
+          } catch {
+            return undefined;
+          }
+        })() : undefined} />
+      )}
+
+      {/* Foreslåtte risikovurderinger */}
+      <ChemicalRiskSuggestions
+        chemicalId={chemical.id}
+        chemicalName={chemical.productName}
+        isCMR={chemical.isCMR}
+        isSVHC={chemical.isSVHC}
+        containsIsocyanates={chemical.containsIsocyanates}
+        hazardLevel={chemical.hazardLevel}
+      />
+
       <div className="grid gap-6 md:grid-cols-2">
         {/* Produktinformasjon */}
         <Card>
@@ -117,13 +141,6 @@ export default async function ChemicalDetailPage({ params }: { params: Promise<{
               <div>
                 <p className="text-sm text-muted-foreground">CAS-nummer</p>
                 <p className="font-medium">{chemical.casNumber}</p>
-              </div>
-            )}
-
-            {chemical.hazardClass && (
-              <div>
-                <p className="text-sm text-muted-foreground">Fareklasse (GHS)</p>
-                <p className="font-medium">{chemical.hazardClass}</p>
               </div>
             )}
 

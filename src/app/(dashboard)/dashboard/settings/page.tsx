@@ -45,7 +45,8 @@ export default async function SettingsPage() {
 
   const tenantId = user.tenants[0].tenantId;
   const tenant = user.tenants[0].tenant;
-  const isAdmin = user.tenants[0].role === "ADMIN";
+  const userTenant = user.tenants[0]; // Inneholder tenant-spesifikke innstillinger
+  const isAdmin = userTenant.role === "ADMIN";
 
   // Hent alle brukere i tenant
   const tenantUsers = await prisma.userTenant.findMany({
@@ -118,7 +119,7 @@ export default async function SettingsPage() {
         </TabsContent>
 
         <TabsContent value="notifications">
-          <NotificationSettings user={user as any} />
+          <NotificationSettings user={user as any} userTenant={userTenant} />
         </TabsContent>
 
         <TabsContent value="users">

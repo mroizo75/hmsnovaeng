@@ -12,9 +12,9 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { FileText, Download, CheckCircle, Trash2, Upload, Calendar, Edit } from "lucide-react";
+import { FileText, Download, CheckCircle, Trash2, Upload, Calendar, Edit, FileDown } from "lucide-react";
 import Link from "next/link";
-import { deleteDocument, getDocumentDownloadUrl, approveDocument } from "@/server/actions/document.actions";
+import { deleteDocument, getDocumentDownloadUrl, approveDocument, convertDocumentToPDFAction } from "@/server/actions/document.actions";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
@@ -96,6 +96,32 @@ export function DocumentList({ documents, tenantId, currentUserId }: DocumentLis
         description: result.error || "Kunne ikke laste ned dokument",
       });
     }
+  };
+
+  const handleConvertToPDF = async (id: string, title: string) => {
+    setLoading(id);
+    toast({
+      title: "Konverterer til PDF",
+      description: "Vennligst vent...",
+    });
+
+    const result = await convertDocumentToPDFAction(id);
+    
+    if (result.success && result.data) {
+      window.open(result.data.url, "_blank");
+      toast({
+        title: "✅ PDF generert",
+        description: `"${title}" ble konvertert til PDF`,
+        className: "bg-green-50 border-green-200",
+      });
+    } else {
+      toast({
+        variant: "destructive",
+        title: "Konvertering feilet",
+        description: result.error || "Kunne ikke konvertere til PDF",
+      });
+    }
+    setLoading(null);
   };
 
   const handleApprove = async (id: string, title: string) => {
@@ -275,6 +301,19 @@ export function DocumentList({ documents, tenantId, currentUserId }: DocumentLis
                     <Download className="h-4 w-4" />
                   </Button>
 
+                  {(doc.mime === "application/vnd.openxmlformats-officedocument.wordprocessingml.document" ||
+                    doc.mime === "application/msword") && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleConvertToPDF(doc.id, doc.title)}
+                      disabled={loading === doc.id}
+                      title="Konverter til PDF"
+                    >
+                      <FileDown className="h-4 w-4 text-blue-600" />
+                    </Button>
+                  )}
+
                   <Button
                     variant="ghost"
                     size="sm"
@@ -417,54 +456,72 @@ export function DocumentList({ documents, tenantId, currentUserId }: DocumentLis
                   </p>
                 </div>
 
-                <div className="flex gap-2 pt-2 border-t">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => handleDownload(doc.id)}
-                    className="flex-1"
-                  >
-                    <Download className="h-4 w-4 mr-2" />
-                    Last ned
-                  </Button>
-
-                  <Button variant="outline" size="sm" asChild>
-                    <Link href={`/dashboard/documents/${doc.id}/edit`}>
-                      <Edit className="h-4 w-4 mr-2" />
-                      Rediger
-                    </Link>
-                  </Button>
-                  
-                  {doc.status === "DRAFT" && (
+                <div className="flex flex-col gap-2 pt-2 border-t">
+                  <div className="flex gap-2">
                     <Button
-                      variant="default"
+                      variant="outline"
                       size="sm"
-                      onClick={() => handleApprove(doc.id, doc.title)}
-                      disabled={loading === doc.id}
-                      className="bg-green-600 hover:bg-green-700"
+                      onClick={() => handleDownload(doc.id)}
+                      className="flex-1"
                     >
-                      <CheckCircle className="h-4 w-4 mr-2" />
-                      Godkjenn
+                      <Download className="h-4 w-4 mr-2" />
+                      Last ned
                     </Button>
-                  )}
 
-                  {doc.status === "APPROVED" && (
-                    <Button variant="outline" size="sm" asChild>
-                      <Link href={`/dashboard/documents/${doc.id}/new-version`}>
-                        <Upload className="h-4 w-4 mr-2" />
-                        Ny versjon
+                    {(doc.mime === "application/vnd.openxmlformats-officedocument.wordprocessingml.document" ||
+                      doc.mime === "application/msword") && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleConvertToPDF(doc.id, doc.title)}
+                        disabled={loading === doc.id}
+                        className="flex-1"
+                      >
+                        <FileDown className="h-4 w-4 mr-2" />
+                        PDF
+                      </Button>
+                    )}
+                  </div>
+
+                  <div className="flex gap-2">
+                    <Button variant="outline" size="sm" asChild className="flex-1">
+                      <Link href={`/dashboard/documents/${doc.id}/edit`}>
+                        <Edit className="h-4 w-4 mr-2" />
+                        Rediger
                       </Link>
                     </Button>
-                  )}
+                    
+                    {doc.status === "DRAFT" && (
+                      <Button
+                        variant="default"
+                        size="sm"
+                        onClick={() => handleApprove(doc.id, doc.title)}
+                        disabled={loading === doc.id}
+                        className="bg-green-600 hover:bg-green-700 flex-1"
+                      >
+                        <CheckCircle className="h-4 w-4 mr-2" />
+                        Godkjenn
+                      </Button>
+                    )}
 
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => handleDelete(doc.id, doc.title)}
-                    disabled={doc.kind === "LAW" || loading === doc.id}
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
+                    {doc.status === "APPROVED" && (
+                      <Button variant="outline" size="sm" asChild className="flex-1">
+                        <Link href={`/dashboard/documents/${doc.id}/new-version`}>
+                          <Upload className="h-4 w-4 mr-2" />
+                          Ny versjon
+                        </Link>
+                      </Button>
+                    )}
+
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleDelete(doc.id, doc.title)}
+                      disabled={doc.kind === "LAW" || loading === doc.id}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
                 </div>
               </div>
             </CardContent>

@@ -22,52 +22,47 @@ interface ReminderConfig {
 export async function createReminders(config: ReminderConfig) {
   const { entityType, entityId, tenantId, userIds, scheduledDate, title } = config;
 
-  // Hent brukere med deres varslingsinnstillinger
-  const users = await prisma.user.findMany({
+  // Hent brukere med deres varslingsinnstillinger (fra UserTenant - tenant-spesifikk)
+  const userTenants = await prisma.userTenant.findMany({
     where: {
-      id: { in: userIds },
-      tenants: {
-        some: {
-          tenantId,
+      userId: { in: userIds },
+      tenantId,
+    },
+    include: {
+      user: {
+        select: {
+          id: true,
+          email: true,
+          phone: true, // Fallback hvis ikke satt på UserTenant
         },
       },
-    },
-    select: {
-      id: true,
-      email: true,
-      phone: true,
-      notifyByEmail: true,
-      notifyBySms: true,
-      reminderDaysBefore: true,
-      notifyMeetings: true,
-      notifyInspections: true,
-      notifyAudits: true,
-      notifyMeasures: true,
     },
   });
 
   const remindersToCreate = [];
 
-  for (const user of users) {
+  for (const userTenant of userTenants) {
+    const user = userTenant.user;
+    
     // Sjekk om bruker vil ha varsler for denne typen hendelse
     let shouldNotify = false;
     let reminderType: any;
 
     switch (entityType) {
       case "Meeting":
-        shouldNotify = user.notifyMeetings ?? true;
+        shouldNotify = userTenant.notifyMeetings;
         reminderType = "MEETING_UPCOMING";
         break;
       case "Inspection":
-        shouldNotify = user.notifyInspections ?? true;
+        shouldNotify = userTenant.notifyInspections;
         reminderType = "INSPECTION_UPCOMING";
         break;
       case "Audit":
-        shouldNotify = user.notifyAudits ?? true;
+        shouldNotify = userTenant.notifyAudits;
         reminderType = "AUDIT_UPCOMING";
         break;
       case "Measure":
-        shouldNotify = user.notifyMeasures ?? true;
+        shouldNotify = userTenant.notifyMeasures;
         reminderType = "MEASURE_DUE_SOON";
         break;
     }
@@ -75,10 +70,10 @@ export async function createReminders(config: ReminderConfig) {
     if (!shouldNotify) continue;
 
     // Hvis bruker ikke vil ha noen form for varsler, hopp over
-    if (!user.notifyByEmail && !user.notifyBySms) continue;
+    if (!userTenant.notifyByEmail && !userTenant.notifyBySms) continue;
 
     // Beregn når påminnelsen skal sendes
-    const reminderDays = user.reminderDaysBefore ?? 1;
+    const reminderDays = userTenant.reminderDaysBefore;
     const scheduledFor = addDays(startOfDay(scheduledDate), -reminderDays);
 
     // Ikke opprett påminnelser for datoer i fortiden

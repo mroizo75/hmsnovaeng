@@ -128,7 +128,7 @@ export function UserProfileForm({ user }: UserProfileFormProps) {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="email">E-post</Label>
+              <Label htmlFor="email">E-post (pålogging)</Label>
               <Input
                 id="email"
                 name="email"
@@ -138,6 +138,9 @@ export function UserProfileForm({ user }: UserProfileFormProps) {
                 disabled={loadingProfile}
                 defaultValue={user.email}
               />
+              <p className="text-sm text-amber-600">
+                ⚠️ OBS: E-post brukes til pålogging og deles på tvers av alle bedrifter du er med i. Endring av e-post vil påvirke ALLE dine bedrifter.
+              </p>
             </div>
 
             <div className="flex justify-end">

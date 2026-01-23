@@ -14,13 +14,16 @@ async function getSessionContext() {
 
   const user = await prisma.user.findUnique({
     where: { email: session.user.email },
+    include: {
+      tenants: true,
+    },
   });
 
-  if (!user) {
-    return { error: "Bruker ikke funnet" };
+  if (!user || user.tenants.length === 0) {
+    return { error: "Bruker ikke funnet eller ikke tilknyttet tenant" };
   }
 
-  return { user };
+  return { user, tenantId: user.tenants[0].tenantId };
 }
 
 export async function updateNotificationSettings(data: {
@@ -38,7 +41,7 @@ export async function updateNotificationSettings(data: {
       return { success: false, error: context.error };
     }
 
-    const { user } = context;
+    const { user, tenantId } = context;
 
     // Valider at reminderDaysBefore er et gyldig tall
     if (data.reminderDaysBefore < 0 || data.reminderDaysBefore > 30) {
@@ -48,16 +51,32 @@ export async function updateNotificationSettings(data: {
       };
     }
 
-    // Hvis SMS er aktivert, sjekk at bruker har telefonnummer
-    if (data.notifyBySms && !user.phone) {
+    // Hent UserTenant for å sjekke telefonnummer
+    const userTenant = await prisma.userTenant.findUnique({
+      where: {
+        userId_tenantId: {
+          userId: user.id,
+          tenantId,
+        },
+      },
+    });
+
+    // Hvis SMS er aktivert, sjekk at bruker har telefonnummer (sjekk både UserTenant og User)
+    if (data.notifyBySms && !userTenant?.phone && !user.phone) {
       return {
         success: false,
         error: "Du må legge til telefonnummer før du kan aktivere SMS-varsler",
       };
     }
 
-    await prisma.user.update({
-      where: { id: user.id },
+    // Oppdater innstillinger på UserTenant (tenant-spesifikk)
+    await prisma.userTenant.update({
+      where: {
+        userId_tenantId: {
+          userId: user.id,
+          tenantId,
+        },
+      },
       data: {
         notifyByEmail: data.notifyByEmail,
         notifyBySms: data.notifyBySms,

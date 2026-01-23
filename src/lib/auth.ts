@@ -6,6 +6,8 @@ import { prisma } from "@/lib/db";
 import bcrypt from "bcryptjs";
 
 export const authOptions: NextAuthOptions = {
+  // VIKTIG: Vi bruker PrismaAdapter, men må disable den for OAuth
+  // fordi vi må kontrollere tenant-tilknytning manuelt i signIn-callback
   adapter: PrismaAdapter(prisma),
   providers: [
     // Microsoft/Office 365 SSO
@@ -16,6 +18,7 @@ export const authOptions: NextAuthOptions = {
       authorization: {
         params: {
           scope: "openid profile email User.Read",
+          prompt: "select_account", // Tvinger bruker til å velge konto
         },
       },
     }),
@@ -172,18 +175,93 @@ export const authOptions: NextAuthOptions = {
       if (account?.provider !== "credentials") {
         const email = user.email!;
         
+        // VIKTIG: Microsoft kan returnere ulike e-postadresser
+        // - email: Primær e-post (kan være gmail.com, outlook.com, etc.)
+        // - userPrincipalName: Innloggingsnavn i Azure AD (bedrift.no)
+        // Vi må sjekke UPN for å finne riktig tenant!
+        const azureProfile = profile as any;
+        const userPrincipalName = azureProfile?.preferred_username || azureProfile?.upn || email;
+        
+        console.log(`🔐 SSO Login attempt:`, {
+          email,
+          userPrincipalName,
+          provider: account?.provider,
+        });
+        
         // Valider om brukeren kan logge inn via Azure AD
+        // Bruk UPN for tenant-matching, men email for brukeroppretting
         const { validateAzureAdLogin } = await import("@/server/actions/azure-ad.actions");
-        const validation = await validateAzureAdLogin(email);
+        const validation = await validateAzureAdLogin(userPrincipalName, email);
 
         if (!validation.allowed) {
-          console.error(`SSO login denied for ${email}: ${validation.error}`);
+          console.error(`SSO login denied for ${userPrincipalName}: ${validation.error}`);
           return false;
         }
 
-        // Sjekk om bruker eksisterer
+        // Bruk e-posten som validation returnerte (kan være annerledes enn user.email)
+        const finalEmail = validation.email || email;
+
+        console.log(`✅ SSO validation passed. Using email: ${finalEmail} for tenant: ${validation.tenantId}`);
+
+        // KRITISK: Sjekk om bruker eksisterer OG har tenant
         let existingUser = await prisma.user.findUnique({
-          where: { email: email.toLowerCase() },
+          where: { email: finalEmail.toLowerCase() },
+          include: {
+            tenants: true, // Hent ALLE tenants for brukeren
+          },
+        });
+
+        // Hvis bruker ikke eksisterer, opprett automatisk (JIT provisioning)
+        if (!existingUser) {
+          try {
+            existingUser = await prisma.user.create({
+              data: {
+                email: finalEmail.toLowerCase(),
+                name: user.name,
+                emailVerified: new Date(),
+                tenants: {
+                  create: {
+                    tenantId: validation.tenantId!,
+                    role: validation.role!,
+                  },
+                },
+              },
+              include: {
+                tenants: true,
+              },
+            });
+            console.log(`✅ JIT provisioning: Created user ${finalEmail} with tenant ${validation.tenantId} and role ${validation.role}`);
+          } catch (error) {
+            console.error(`❌ Failed to create user ${finalEmail}:`, error);
+            return false;
+          }
+        } else {
+          // Bruker eksisterer - sjekk om de har denne tenanten
+          const hasTenant = existingUser.tenants.some(t => t.tenantId === validation.tenantId);
+          
+          if (!hasTenant) {
+            // Legg til tenant-tilknytning
+            try {
+              await prisma.userTenant.create({
+                data: {
+                  userId: existingUser.id,
+                  tenantId: validation.tenantId!,
+                  role: validation.role!,
+                },
+              });
+              console.log(`✅ JIT provisioning: Added ${finalEmail} to tenant ${validation.tenantId} with role ${validation.role}`);
+            } catch (error) {
+              console.error(`❌ Failed to add tenant for user ${finalEmail}:`, error);
+              return false;
+            }
+          } else {
+            console.log(`✅ User ${finalEmail} already has tenant ${validation.tenantId}`);
+          }
+        }
+
+        // EKSTRA SIKKERHET: Verifiser at bruker faktisk har tenant før vi tillater innlogging
+        const verifyUser = await prisma.user.findUnique({
+          where: { email: finalEmail.toLowerCase() },
           include: {
             tenants: {
               where: {
@@ -193,37 +271,12 @@ export const authOptions: NextAuthOptions = {
           },
         });
 
-        // Hvis bruker ikke eksisterer, opprett automatisk (JIT provisioning)
-        if (!existingUser) {
-          existingUser = await prisma.user.create({
-            data: {
-              email: email.toLowerCase(),
-              name: user.name,
-              emailVerified: new Date(),
-              tenants: {
-                create: {
-                  tenantId: validation.tenantId!,
-                  role: validation.role!,
-                },
-              },
-            },
-            include: {
-              tenants: true,
-            },
-          });
-          console.log(`JIT provisioning: Created user ${email} with role ${validation.role}`);
-        } else if (existingUser.tenants.length === 0) {
-          // Bruker eksisterer men ikke i denne tenanten - legg til
-          await prisma.userTenant.create({
-            data: {
-              userId: existingUser.id,
-              tenantId: validation.tenantId!,
-              role: validation.role!,
-            },
-          });
-          console.log(`JIT provisioning: Added ${email} to tenant with role ${validation.role}`);
+        if (!verifyUser || verifyUser.tenants.length === 0) {
+          console.error(`❌ CRITICAL: User ${finalEmail} exists but has NO tenant after JIT provisioning!`);
+          return false; // Avvis innlogging hvis tenant mangler
         }
 
+        console.log(`✅ SSO login successful for ${finalEmail} (UPN: ${userPrincipalName}) - Tenant verified`);
         return true;
       }
 

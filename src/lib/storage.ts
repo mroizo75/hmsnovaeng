@@ -6,6 +6,7 @@ import path from "path";
 export interface StorageAdapter {
   upload(key: string, file: Blob | Buffer, metadata?: Record<string, string>): Promise<string>;
   getUrl(key: string, expiresIn?: number): Promise<string>;
+  get(key: string): Promise<Buffer | null>;
   delete(key: string): Promise<void>;
 }
 
@@ -52,6 +53,31 @@ export class R2Storage implements StorageAdapter {
     return await getSignedUrl(this.client, command, { expiresIn });
   }
 
+  async get(key: string): Promise<Buffer | null> {
+    try {
+      const command = new GetObjectCommand({
+        Bucket: this.bucket,
+        Key: key,
+      });
+
+      const response = await this.client.send(command);
+      
+      if (!response.Body) {
+        return null;
+      }
+
+      const chunks: Uint8Array[] = [];
+      for await (const chunk of response.Body as any) {
+        chunks.push(chunk);
+      }
+      
+      return Buffer.concat(chunks);
+    } catch (error) {
+      console.error("Error getting file from R2:", error);
+      return null;
+    }
+  }
+
   async delete(key: string): Promise<void> {
     await this.client.send(
       new DeleteObjectCommand({
@@ -84,6 +110,16 @@ export class LocalStorage implements StorageAdapter {
   async getUrl(key: string): Promise<string> {
     // For lokal lagring returnerer vi en API-rute som server filen
     return `/api/files/${encodeURIComponent(key)}`;
+  }
+
+  async get(key: string): Promise<Buffer | null> {
+    try {
+      const filePath = path.join(this.basePath, key);
+      return await fs.readFile(filePath);
+    } catch (error) {
+      console.error("Error reading local file:", error);
+      return null;
+    }
   }
 
   async delete(key: string): Promise<void> {

@@ -9,6 +9,7 @@ import { ArrowLeft, Download, AlertTriangle, Calendar, MapPin, Package } from "l
 import Link from "next/link";
 import Image from "next/image";
 import { normalizePpeFile } from "@/lib/pictograms";
+import { IsocyanateWarning } from "@/components/isocyanate-warning";
 
 export default async function AnsattChemicalDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -72,6 +73,18 @@ export default async function AnsattChemicalDetailPage({ params }: { params: Pro
             </div>
           </CardContent>
         </Card>
+      )}
+
+      {/* Varsel om diisocyanater - VIKTIG for ansatte! */}
+      {chemical.containsIsocyanates && (
+        <IsocyanateWarning details={chemical.aiExtractedData ? (() => {
+          try {
+            const data = JSON.parse(chemical.aiExtractedData);
+            return data.isocyanateDetails;
+          } catch {
+            return undefined;
+          }
+        })() : undefined} />
       )}
 
       {/* Sikkerhetsdatablad - Prioritert øverst for ansatte */}
@@ -151,12 +164,6 @@ export default async function AnsattChemicalDetailPage({ params }: { params: Pro
               </div>
             )}
 
-            {chemical.hazardClass && (
-              <div>
-                <p className="text-sm text-muted-foreground">Fareklasse (GHS)</p>
-                <p className="font-medium">{chemical.hazardClass}</p>
-              </div>
-            )}
 
             {chemical.location && (
               <div>
@@ -191,12 +198,10 @@ export default async function AnsattChemicalDetailPage({ params }: { params: Pro
           <CardContent className="space-y-4">
             {chemical.hazardStatements && (
               <div>
-                <p className="text-sm text-muted-foreground mb-2">H-setninger (Faresetninger)</p>
-                <div className="bg-orange-50 border border-orange-200 rounded-lg p-3">
-                  <p className="font-medium text-sm whitespace-pre-wrap text-orange-900">
-                    {chemical.hazardStatements}
-                  </p>
-                </div>
+                <p className="text-sm text-muted-foreground">H-setninger (Faresetninger)</p>
+                <p className="font-medium text-sm whitespace-pre-wrap">
+                  {chemical.hazardStatements}
+                </p>
               </div>
             )}
 

@@ -14,9 +14,11 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Checkbox } from "@/components/ui/checkbox";
 import { createChemical, updateChemical } from "@/server/actions/chemical.actions";
 import { useToast } from "@/hooks/use-toast";
-import { Upload, FileText } from "lucide-react";
+import { Upload, FileText, Sparkles, Loader2, AlertTriangle } from "lucide-react";
 import type { Chemical } from "@prisma/client";
 import { HazardPictogramSelector } from "./hazard-pictogram-selector";
 import { PPESelector } from "./ppe-selector";
@@ -31,6 +33,66 @@ export function ChemicalForm({ chemical, mode = "create" }: ChemicalFormProps) {
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
   const [sdsFile, setSdsFile] = useState<File | null>(null);
+  const [parsing, setParsing] = useState(false);
+  const [aiData, setAiData] = useState<any>(null);
+
+  // Håndter SDS-opplasting med AI-parsing
+  const handleSDSUpload = async (file: File) => {
+    setSdsFile(file);
+    setParsing(true);
+
+    try {
+      // Last opp fil til storage
+      const uploadFormData = new FormData();
+      uploadFormData.append("file", file);
+
+      const uploadRes = await fetch("/api/chemicals/upload", {
+        method: "POST",
+        body: uploadFormData,
+      });
+
+      if (!uploadRes.ok) {
+        throw new Error("Filopplasting feilet");
+      }
+
+      const { key } = await uploadRes.json();
+
+      // Parse SDS med AI
+      toast({
+        title: "🤖 AI analyserer sikkerhetsdatablad",
+        description: "Adobe ekstraher tekst + OpenAI analyserer innhold...",
+      });
+
+      const parseRes = await fetch("/api/chemicals/parse-sds", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ sdsKey: key }),
+      });
+
+      if (!parseRes.ok) {
+        const errorData = await parseRes.json();
+        throw new Error(errorData.error || "AI-parsing feilet");
+      }
+
+      const { data } = await parseRes.json();
+      setAiData(data);
+
+      toast({
+        title: "✅ AI-analyse fullført",
+        description: `Feltene er fylt ut automatisk - sjekk og juster`,
+        className: "bg-green-50 border-green-200",
+      });
+    } catch (error: any) {
+      toast({
+        variant: "destructive",
+        title: "Feil ved AI-parsing",
+        description: error.message || "Kunne ikke analysere sikkerhetsdatabladet. Fyll ut manuelt.",
+      });
+      // Behold filen selv om parsing feiler
+    } finally {
+      setParsing(false);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -67,6 +129,7 @@ export function ChemicalForm({ chemical, mode = "create" }: ChemicalFormProps) {
         hazardStatements: formData.get("hazardStatements") as string || undefined,
         warningPictograms: formData.get("warningPictograms") as string || undefined,
         requiredPPE: formData.get("requiredPPE") as string || undefined,
+        containsIsocyanates: formData.get("containsIsocyanates") === "on",
         sdsKey: sdsKey || undefined,
         sdsVersion: formData.get("sdsVersion") as string || undefined,
         sdsDate: formData.get("sdsDate") as string || undefined,
@@ -121,38 +184,59 @@ export function ChemicalForm({ chemical, mode = "create" }: ChemicalFormProps) {
           <CardDescription>Grunnleggende informasjon om kjemikaliet</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
+          {aiData && (
+            <div className="p-3 bg-green-50 border border-green-200 rounded-lg flex items-start gap-2">
+              <Sparkles className="h-5 w-5 text-green-600 mt-0.5" />
+              <div className="flex-1">
+                <p className="text-sm font-medium text-green-900">AI har fylt ut feltene automatisk</p>
+                <p className="text-xs text-green-700">
+                  Sjekk og juster informasjonen om nødvendig
+                </p>
+              </div>
+            </div>
+          )}
+
           <div className="space-y-2">
-            <Label htmlFor="productName">Produktnavn *</Label>
+            <Label htmlFor="productName">
+              Produktnavn * {aiData?.productName && <Badge variant="secondary" className="ml-2 text-xs">AI-fylt</Badge>}
+            </Label>
             <Input
               id="productName"
               name="productName"
               placeholder="F.eks. Rengjøringsmiddel XYZ"
               required
               disabled={loading}
-              defaultValue={chemical?.productName}
+              key={aiData?.productName || "default"}
+              defaultValue={aiData?.productName || chemical?.productName || ""}
             />
           </div>
 
           <div className="grid gap-4 md:grid-cols-2">
             <div className="space-y-2">
-              <Label htmlFor="supplier">Leverandør</Label>
+              <Label htmlFor="supplier">
+                Leverandør {aiData?.supplier && <Badge variant="secondary" className="ml-2 text-xs">AI-fylt</Badge>}
+              </Label>
               <Input
                 id="supplier"
                 name="supplier"
                 placeholder="Leverandørnavn"
                 disabled={loading}
-                defaultValue={chemical?.supplier || ""}
+                key={aiData?.supplier || "default"}
+                defaultValue={aiData?.supplier || chemical?.supplier || ""}
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="casNumber">CAS-nummer</Label>
+              <Label htmlFor="casNumber">
+                CAS-nummer {aiData?.casNumber && <Badge variant="secondary" className="ml-2 text-xs">AI-fylt</Badge>}
+              </Label>
               <Input
                 id="casNumber"
                 name="casNumber"
                 placeholder="000-00-0"
                 disabled={loading}
-                defaultValue={chemical?.casNumber || ""}
+                key={aiData?.casNumber || "default"}
+                defaultValue={aiData?.casNumber || chemical?.casNumber || ""}
               />
               <p className="text-xs text-muted-foreground">
                 Unikt identifikasjonsnummer for kjemisk stoff
@@ -223,39 +307,61 @@ export function ChemicalForm({ chemical, mode = "create" }: ChemicalFormProps) {
       <Card>
         <CardHeader>
           <CardTitle>Faremarkering (GHS/CLP)</CardTitle>
-          <CardDescription>Fareklassifisering og varslingspiktogrammer</CardDescription>
+          <CardDescription>H-setninger og varslingspiktogrammer</CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
           <div className="space-y-2">
-            <Label htmlFor="hazardClass">Fareklasse</Label>
-            <Input
-              id="hazardClass"
-              name="hazardClass"
-              placeholder="F.eks. GHS02, GHS07"
-              disabled={loading}
-              defaultValue={chemical?.hazardClass || ""}
-            />
-            <p className="text-xs text-muted-foreground">
-              Global Harmonized System fareklassifisering
-            </p>
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="hazardStatements">H-setninger</Label>
+            <Label htmlFor="hazardStatements">
+              H-setninger {aiData?.hazardStatements && <Badge variant="secondary" className="ml-2 text-xs">AI-fylt</Badge>}
+            </Label>
             <Textarea
               id="hazardStatements"
               name="hazardStatements"
               rows={3}
               placeholder="F.eks. H226 (Brannfarlig væske og damp), H315 (Irriterer huden)"
               disabled={loading}
-              defaultValue={chemical?.hazardStatements || ""}
+              key={aiData?.hazardStatements || "default"}
+              defaultValue={aiData?.hazardStatements || chemical?.hazardStatements || ""}
             />
             <p className="text-xs text-muted-foreground">
               Faresetninger (Hazard statements)
             </p>
           </div>
 
-          <HazardPictogramSelector defaultValue={chemical?.warningPictograms || ""} />
+          <div>
+            {aiData?.warningPictograms && <Badge variant="secondary" className="mb-2 text-xs">AI-fylt</Badge>}
+            <HazardPictogramSelector 
+              key={aiData?.warningPictograms || "default"}
+              defaultValue={aiData?.warningPictograms || chemical?.warningPictograms || ""} 
+            />
+          </div>
+
+          {/* Diisocyanater advarsel */}
+          <div className="flex items-start gap-3 p-4 bg-orange-50 border border-orange-200 rounded-lg">
+            <div className="flex items-center h-5">
+              <Checkbox 
+                id="containsIsocyanates" 
+                name="containsIsocyanates"
+                disabled={loading}
+                key={aiData?.containsIsocyanates?.toString() || "default"}
+                defaultChecked={aiData?.containsIsocyanates || chemical?.containsIsocyanates || false}
+              />
+            </div>
+            <div className="flex-1">
+              <Label 
+                htmlFor="containsIsocyanates" 
+                className="text-sm font-medium text-orange-900 flex items-center gap-2 cursor-pointer"
+              >
+                <AlertTriangle className="h-4 w-4" />
+                Inneholder diisocyanater
+                {aiData?.containsIsocyanates && <Badge variant="secondary" className="ml-2 text-xs">AI-oppdaget</Badge>}
+              </Label>
+              <p className="text-xs text-orange-800 mt-1">
+                Produkter med diisocyanater krever obligatorisk opplæring (EU-forordning 2020/1149). 
+                AI detekterer dette automatisk ved SDS-analyse.
+              </p>
+            </div>
+          </div>
         </CardContent>
       </Card>
 
@@ -266,7 +372,11 @@ export function ChemicalForm({ chemical, mode = "create" }: ChemicalFormProps) {
           <CardDescription>Påkrevd verneutstyr ved håndtering (ISO 7010)</CardDescription>
         </CardHeader>
         <CardContent>
-          <PPESelector defaultValue={chemical?.requiredPPE || ""} />
+          {aiData?.requiredPPE && <Badge variant="secondary" className="mb-2 text-xs">AI-foreslått</Badge>}
+          <PPESelector 
+            key={aiData?.requiredPPE || "default"}
+            defaultValue={aiData?.requiredPPE || chemical?.requiredPPE || ""} 
+          />
         </CardContent>
       </Card>
 
@@ -278,14 +388,22 @@ export function ChemicalForm({ chemical, mode = "create" }: ChemicalFormProps) {
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="sdsFile">Datablad (PDF) {mode === "create" && "*"}</Label>
+            <Label htmlFor="sdsFile" className="flex items-center gap-2">
+              Datablad (PDF) {mode === "create" && "*"}
+              {parsing && <Loader2 className="h-4 w-4 animate-spin text-blue-600" />}
+            </Label>
             <div className="flex items-center gap-2">
               <Input
                 id="sdsFile"
                 type="file"
                 accept=".pdf"
-                onChange={(e) => setSdsFile(e.target.files?.[0] || null)}
-                disabled={loading}
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (file) {
+                    handleSDSUpload(file);
+                  }
+                }}
+                disabled={loading || parsing}
               />
               {chemical?.sdsKey && !sdsFile && (
                 <Button variant="outline" size="sm" disabled>
@@ -294,9 +412,18 @@ export function ChemicalForm({ chemical, mode = "create" }: ChemicalFormProps) {
                 </Button>
               )}
             </div>
-            {!chemical?.sdsKey && mode === "create" && (
-              <p className="text-xs text-red-600">
-                Sikkerhetsdatablad er påkrevd for nye kjemikalier
+            {parsing && (
+              <div className="flex items-center gap-2 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                <Loader2 className="h-4 w-4 animate-spin text-blue-600" />
+                <p className="text-sm text-blue-900">
+                  AI analyserer sikkerhetsdatablad... Dette tar ca. 30-60 sekunder
+                </p>
+              </div>
+            )}
+            {!chemical?.sdsKey && mode === "create" && !parsing && (
+              <p className="text-xs text-blue-600">
+                <Sparkles className="inline h-3 w-3 mr-1" />
+                AI vil automatisk fylle ut feltene når du laster opp sikkerhetsdatabladet
               </p>
             )}
           </div>
