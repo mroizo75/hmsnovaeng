@@ -477,7 +477,7 @@ model Document {
   version    String       // Gjeldende versjon (v1.0, v1.1, v2.0)
   status     DocStatus    @default(DRAFT)
   fileKey    String       // Gjeldende fil
-  mime       String       // MIME-type (f.eks. application/pdf, application/vnd.openxmlformats-officedocument.wordprocessingml.document)
+  mime       String       @default("application/pdf") // MIME-type (f.eks. application/pdf, application/vnd.openxmlformats-officedocument.wordprocessingml.document)
   approvedBy String?
   approvedAt DateTime?
   updatedBy  String?
@@ -517,7 +517,7 @@ model DocumentVersion {
   documentId      String
   version         String    // v1.0, v1.1, v2.0
   fileKey         String    // Fil for denne versjonen
-  mime            String    // MIME-type for denne versjonen
+  mime            String    @default("application/pdf") // MIME-type for denne versjonen
   changeComment   String?   @db.Text // Hva ble endret?
   uploadedBy      String
   approvedBy      String?
