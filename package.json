@@ -87,12 +87,12 @@
     "ioredis": "^5.8.2",
     "isomorphic-dompurify": "^2.31.0",
     "isomorphic-fetch": "^3.0.0",
-    "jspdf": "^3.0.3",
+    "jspdf": "^4.0.0",
     "jspdf-autotable": "^5.0.2",
     "jszip": "^3.10.1",
     "lucide-react": "^0.552.0",
     "marked": "^16.4.1",
-    "next": "^15.5.9",
+    "next": "^16.1.6",
     "next-auth": "^4.24.13",
     "next-intl": "^4.4.0",
     "node-cache": "^5.1.2",
@@ -109,6 +109,9 @@
     "tailwindcss-animate": "^1.0.7",
     "uploadthing": "^7.7.4",
     "zod": "^4.1.12"
+  },
+  "overrides": {
+    "fast-xml-parser": "5.3.4"
   },
   "devDependencies": {
     "@types/adm-zip": "^0.5.7",
