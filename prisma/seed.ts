@@ -325,6 +325,40 @@ async function main() {
     "BCM"
   );
 
+  // Standard HMS-kurs (globale kursmaler tilgjengelige for alle bedrifter)
+  const standardCourses = [
+    { courseKey: "hms-intro", title: "HMS Introduksjon", description: "Grunnleggende HMS-opplæring for alle ansatte", provider: null as string | null, isRequired: true, validityYears: null as number | null },
+    { courseKey: "working-at-height", title: "Arbeid i høyden", description: "Sikker bruk av stige, stillas og fallutstyr", provider: null, isRequired: false, validityYears: 3 },
+    { courseKey: "first-aid", title: "Førstehjelp", description: "Grunnleggende førstehjelp og hjerte-lungeredning", provider: "Røde Kors", isRequired: false, validityYears: 2 },
+    { courseKey: "fire-safety", title: "Brannsikkerhet", description: "Brannvernopplæring og bruk av slokkeutstyr", provider: null, isRequired: true, validityYears: 1 },
+    { courseKey: "chemical-handling", title: "Kjemikaliehåndtering", description: "Sikker håndtering og lagring av kjemikalier", provider: null, isRequired: false, validityYears: 3 },
+    { courseKey: "forklift", title: "Truckførerbevis", description: "Godkjent opplæring for truckkjøring", provider: null, isRequired: false, validityYears: 5 },
+    { courseKey: "hot-work", title: "Varmt arbeid", description: "Sertifikat for varmt arbeid (sveising, skjæring)", provider: null, isRequired: false, validityYears: 3 },
+    { courseKey: "confined-space", title: "Arbeid i trange rom", description: "Sikkerhet ved arbeid i trange/lukkede rom", provider: null, isRequired: false, validityYears: 3 },
+  ];
+
+  for (const c of standardCourses) {
+    const existing = await prisma.courseTemplate.findFirst({
+      where: { tenantId: null, courseKey: c.courseKey },
+    });
+    if (!existing) {
+      await prisma.courseTemplate.create({
+        data: {
+          tenantId: null,
+          courseKey: c.courseKey,
+          title: c.title,
+          description: c.description,
+          provider: c.provider,
+          isRequired: c.isRequired,
+          validityYears: c.validityYears,
+          isGlobal: true,
+          isActive: true,
+        },
+      });
+      console.log("✅ Standard HMS-kurs opprettet:", c.title);
+    }
+  }
+
   // Opprett eksempel mål (ISO 9001 - 6.2)
   const goal1 = await prisma.goal.create({
     data: {

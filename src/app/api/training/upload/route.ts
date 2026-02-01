@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
 import crypto from "crypto";
+import { validateImageFile, validatePdfFile, validateFileSize } from "@/lib/file-validation";
 
 const s3Client = new S3Client({
   region: "auto",
@@ -36,35 +37,38 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Konverter til Buffer
+    // Validate file size first
+    const sizeValidation = validateFileSize(file.size, 10);
+    if (!sizeValidation.isValid) {
+      return NextResponse.json(
+        { error: sizeValidation.error },
+        { status: 400 }
+      );
+    }
+
+    // Convert to Buffer
     const fileBuffer = Buffer.from(await file.arrayBuffer());
-    const fileName = file.name || "unknown";
+
+    // SIKKERHET: Valider faktisk filinnhold (magic bytes)
+    // Tillater både PDF og bilder for sertifikater
+    let fileValidation;
     const fileType = file.type || "application/octet-stream";
+    
+    if (fileType.startsWith("image/")) {
+      fileValidation = await validateImageFile(fileBuffer);
+    } else {
+      fileValidation = await validatePdfFile(fileBuffer);
+    }
+
+    if (!fileValidation.isValid) {
+      return NextResponse.json(
+        { error: fileValidation.error },
+        { status: 400 }
+      );
+    }
+
+    const fileName = file.name || "unknown";
     const fileSize = fileBuffer.length;
-
-    // Valider filtype (kun PDF og bilder)
-    const allowedTypes = [
-      "application/pdf",
-      "image/jpeg",
-      "image/jpg",
-      "image/png",
-      "image/webp",
-    ];
-
-    if (!allowedTypes.includes(fileType)) {
-      return NextResponse.json(
-        { error: "Kun PDF og bildefiler er tillatt" },
-        { status: 400 }
-      );
-    }
-
-    // Valider størrelse (maks 10MB)
-    if (fileSize > 10 * 1024 * 1024) {
-      return NextResponse.json(
-        { error: "Filen er for stor (maks 10MB)" },
-        { status: 400 }
-      );
-    }
 
     // Generer unik filnøkkel
     const timestamp = Date.now();
@@ -78,7 +82,7 @@ export async function POST(request: NextRequest) {
         Bucket: BUCKET_NAME,
         Key: key,
         Body: fileBuffer,
-        ContentType: fileType,
+        ContentType: fileValidation.detectedType || fileType,
       })
     );
 

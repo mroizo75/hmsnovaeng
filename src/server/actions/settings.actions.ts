@@ -71,10 +71,38 @@ export async function updateTenantSettings(data: {
     });
 
     revalidatePath("/dashboard/settings");
+    revalidatePath("/dashboard");
     return { success: true, data: tenant };
   } catch (error: any) {
     console.error("Update tenant settings error:", error);
     return { success: false, error: error.message || "Kunne ikke oppdatere innstillinger" };
+  }
+}
+
+export async function updateTenantSimpleMenuItems(hrefs: string[]) {
+  try {
+    const { user, tenantId } = await getSessionContext();
+
+    const userTenant = user.tenants.find((t) => t.tenantId === tenantId);
+    if (!userTenant || userTenant.role !== "ADMIN") {
+      return { success: false, error: "Kun administratorer kan endre enkel meny" };
+    }
+
+    await prisma.tenant.update({
+      where: { id: tenantId },
+      data: { simpleMenuItems: hrefs },
+    });
+
+    await AuditLog.log(tenantId, user.id, "TENANT_SIMPLE_MENU_UPDATED", "Tenant", tenantId, {
+      count: hrefs.length,
+    });
+
+    revalidatePath("/dashboard/settings");
+    revalidatePath("/dashboard");
+    return { success: true };
+  } catch (error: any) {
+    console.error("Update simple menu error:", error);
+    return { success: false, error: error.message || "Kunne ikke oppdatere enkel meny" };
   }
 }
 

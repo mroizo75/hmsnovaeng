@@ -38,12 +38,12 @@ interface DocumentListProps {
 }
 
 const kindLabels: Record<string, string> = {
-  LAW: "Lov",
-  PROCEDURE: "Prosedyre",
+  LAW: "Lover og regler",
+  PROCEDURE: "Prosedyre (ISO 9001)",
   CHECKLIST: "Sjekkliste",
   FORM: "Skjema",
-  SDS: "Sikkerhetsdatablad",
-  PLAN: "Plan",
+  SDS: "Sikkerhetsdatablad (SDS)",
+  PLAN: "HMS-håndbok / Plan",
   OTHER: "Annet",
 };
 
@@ -355,7 +355,7 @@ export function DocumentList({ documents, tenantId, currentUserId }: DocumentLis
                     size="sm"
                     onClick={() => handleDelete(doc.id, doc.title)}
                     disabled={doc.kind === "LAW" || loading === doc.id}
-                    title={doc.kind === "LAW" ? "Lovdokumenter kan ikke slettes" : "Slett"}
+                    title={doc.kind === "LAW" ? "Lover og regler kan ikke slettes" : "Slett"}
                   >
                     <Trash2 className="h-4 w-4" />
                   </Button>

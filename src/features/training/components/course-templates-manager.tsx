@@ -106,7 +106,8 @@ export function CourseTemplatesManager({ tenantId, globalCourses, tenantCourses 
 
   return (
     <div className="space-y-6">
-      {/* Globale HMS-kurs */}
+      {/* Standard HMS-kurs – globale kursmaler (f.eks. førstehjelp, brannvern) som alle bedrifter får. Vis kun hvis det finnes noen. */}
+      {globalCourses.length > 0 && (
       <Card>
         <CardHeader>
           <div className="flex items-center justify-between">
@@ -116,7 +117,7 @@ export function CourseTemplatesManager({ tenantId, globalCourses, tenantCourses 
                 Standard HMS-kurs
               </CardTitle>
               <CardDescription>
-                Globale kursmaler som er tilgjengelige for alle bedrifter
+                Felles kursmaler for alle bedrifter (f.eks. førstehjelp, brannvern). Kan ikke redigeres her.
               </CardDescription>
             </div>
           </div>
@@ -160,6 +161,7 @@ export function CourseTemplatesManager({ tenantId, globalCourses, tenantCourses 
           </div>
         </CardContent>
       </Card>
+      )}
 
       {/* Bedriftens egne kurs */}
       <Card>

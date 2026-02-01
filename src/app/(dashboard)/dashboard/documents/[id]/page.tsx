@@ -42,6 +42,16 @@ function getStatusLabel(status: string) {
   return labels[status] || status;
 }
 
+const kindLabels: Record<string, string> = {
+  LAW: "Lover og regler",
+  PROCEDURE: "Prosedyre (ISO 9001)",
+  CHECKLIST: "Sjekkliste",
+  FORM: "Skjema",
+  SDS: "Sikkerhetsdatablad (SDS)",
+  PLAN: "HMS-håndbok / Plan",
+  OTHER: "Annet",
+};
+
 export default async function DocumentDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const session = await getServerSession(authOptions);
@@ -134,7 +144,7 @@ export default async function DocumentDetailPage({ params }: { params: Promise<{
           <CardContent>
             <div className="flex items-center gap-2">
               <Tag className="h-4 w-4 text-muted-foreground" />
-              <span>{document.template?.name || document.kind || "Dokument"}</span>
+              <span>{document.template?.name || kindLabels[document.kind] || document.kind || "Dokument"}</span>
             </div>
           </CardContent>
         </Card>

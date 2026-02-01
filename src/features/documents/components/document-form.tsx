@@ -39,12 +39,12 @@ interface DocumentFormProps {
 }
 
 const documentKinds = [
-  { value: "LAW", label: "Lov" },
-  { value: "PROCEDURE", label: "Prosedyre" },
+  { value: "LAW", label: "Lover og regler" },
+  { value: "PLAN", label: "HMS-håndbok / Plan" },
+  { value: "PROCEDURE", label: "Prosedyre (ISO 9001)" },
   { value: "CHECKLIST", label: "Sjekkliste" },
   { value: "FORM", label: "Skjema" },
-  { value: "SDS", label: "Sikkerhetsdatablad" },
-  { value: "PLAN", label: "Plan" },
+  { value: "SDS", label: "Sikkerhetsdatablad (SDS)" },
   { value: "OTHER", label: "Annet" },
 ];
 
@@ -208,7 +208,7 @@ export function DocumentForm({ tenantId, owners, templates }: DocumentFormProps)
               <Label htmlFor="kind">Type dokument *</Label>
               <Select name="kind" required disabled={loading}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Velg type" />
+                  <SelectValue placeholder="F.eks. HMS-håndbok, Lover og regler, Prosedyre" />
                 </SelectTrigger>
                 <SelectContent>
                   {documentKinds.map((kind) => (

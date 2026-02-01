@@ -68,18 +68,22 @@ export default async function AnsattDocumentDetailPage({ params }: { params: Pro
     }
   }
 
-  // Generer nedlastingslenke
   const storage = getStorage();
-  const downloadUrl = await storage.getUrl(document.fileKey, 3600); // 1 time
+  const downloadUrl = await storage.getUrl(document.fileKey, 3600);
+
+  const isWord =
+    document.mime === "application/vnd.openxmlformats-officedocument.wordprocessingml.document" ||
+    document.mime === "application/msword";
+  const viewUrl = `/api/documents/${document.id}/view`;
 
   const getKindLabel = (kind: string) => {
     const labels: Record<string, string> = {
-      LAW: "⚖️ Lov/Forskrift",
-      PROCEDURE: "📋 Prosedyre",
+      LAW: "⚖️ Lover og regler",
+      PROCEDURE: "📋 Prosedyre (ISO 9001)",
       CHECKLIST: "✅ Sjekkliste",
       FORM: "📝 Skjema",
-      SDS: "⚠️ Sikkerhetsdatablad",
-      PLAN: "📊 Plan",
+      SDS: "⚠️ Sikkerhetsdatablad (SDS)",
+      PLAN: "📖 HMS-håndbok / Plan",
       OTHER: "📄 Annet",
     };
     return labels[kind] || kind;
@@ -113,20 +117,30 @@ export default async function AnsattDocumentDetailPage({ params }: { params: Pro
         </div>
       </div>
 
-      {/* Last ned dokument - Prioritert øverst */}
+      {/* Se / Last ned dokument */}
       <Card className="border-2 border-blue-200 bg-blue-50">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Download className="h-5 w-5 text-blue-600" />
-            Last ned dokument
+            <FileText className="h-5 w-5 text-blue-600" />
+            Dokument
           </CardTitle>
-          <CardDescription>Dokumentet er godkjent og klart til bruk</CardDescription>
+          <CardDescription>
+            {isWord
+              ? "Åpne dokumentet som PDF i nettleser, eller last ned original Word-fil."
+              : "Åpne i nettleser eller last ned."}
+          </CardDescription>
         </CardHeader>
-        <CardContent>
-          <Link href={downloadUrl} target="_blank">
+        <CardContent className="flex flex-wrap gap-3">
+          <Link href={viewUrl} target="_blank" rel="noopener noreferrer">
             <Button size="lg" className="w-full md:w-auto">
+              <Eye className="mr-2 h-5 w-5" />
+              Se dokument {isWord ? "(PDF)" : ""}
+            </Button>
+          </Link>
+          <Link href={downloadUrl} target="_blank" rel="noopener noreferrer">
+            <Button size="lg" variant="outline" className="w-full md:w-auto">
               <Download className="mr-2 h-5 w-5" />
-              Last ned {document.kind === "SDS" ? "sikkerhetsdatablad" : "dokument"} (PDF)
+              Last ned {isWord ? "original (.docx)" : "dokument"}
             </Button>
           </Link>
         </CardContent>

@@ -33,10 +33,11 @@ export async function middleware(request: NextRequest) {
   response.headers.set("X-DNS-Prefetch-Control", "on");
 
   // Content-Security-Policy (CSP)
-  // Note: Dette er en basic CSP, tilpass etter behov
+  // SIKKERHET: Streng CSP uten unsafe-eval
+  // Note: unsafe-inline er nødvendig for Next.js, men vi kompenserer med andre tiltak
   const cspHeader = [
     "default-src 'self'",
-    "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://unpkg.com", // Tillat TipTap scripts
+    "script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://unpkg.com", // Fjernet unsafe-eval
     "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
     "img-src 'self' data: blob: https: http:", // Tillat bilder fra R2/CDN
     "font-src 'self' data: https://fonts.gstatic.com",
@@ -44,6 +45,10 @@ export async function middleware(request: NextRequest) {
     "frame-ancestors 'self'",
     "base-uri 'self'",
     "form-action 'self'",
+    "object-src 'none'", // Blokker plugins (Flash, Java, etc.)
+    "media-src 'self'",
+    "worker-src 'self' blob:",
+    "manifest-src 'self'",
   ].join("; ");
   
   response.headers.set("Content-Security-Policy", cspHeader);

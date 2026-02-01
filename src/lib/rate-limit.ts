@@ -102,14 +102,23 @@ export function getClientIp(request: Request): string {
  */
 export async function checkRateLimit(
   identifier: string,
-  limiter: typeof authRateLimiter | typeof apiRateLimiter | typeof strictRateLimiter = apiRateLimiter
+  limiter: typeof authRateLimiter | typeof apiRateLimiter | typeof strictRateLimiter = apiRateLimiter,
+  options?: { failClosed?: boolean }
 ): Promise<{ success: boolean; reset: number; remaining?: number }> {
   try {
     const result = await limiter.limit(identifier);
     return result;
   } catch (error) {
     console.error("Rate limit check failed:", error);
-    // Hvis rate limiting feiler, la requesten gå gjennom (fail open)
+    
+    // SIKKERHET: Fail closed for kritiske endepunkter hvis failClosed er true
+    if (options?.failClosed) {
+      console.warn("Rate limiting failed - denying request for safety (fail closed)");
+      return { success: false, reset: Date.now() + 60000 };
+    }
+    
+    // Fail open for mindre kritiske endepunkter (standard oppførsel)
+    console.warn("Rate limiting failed - allowing request (fail open)");
     return { success: true, reset: Date.now() + 60000 };
   }
 }

@@ -4,6 +4,7 @@ import { authOptions } from "@/lib/auth";
 import { S3Client, PutObjectCommand, DeleteObjectCommand } from "@aws-sdk/client-s3";
 import { createErrorResponse, createSuccessResponse, ErrorCodes } from "@/lib/validations/api";
 import { buildInspectionImageKey } from "@/lib/inspection-image-upload";
+import { validateImageFile, validateFileSize } from "@/lib/file-validation";
 
 const s3Client = new S3Client({
   region: "auto",
@@ -42,27 +43,28 @@ export async function POST(request: NextRequest) {
 
     const inspectionId = inspectionIdValue.trim();
 
-    // Validate file type
-    const allowedTypes = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
-    if (!allowedTypes.includes(file.type)) {
+    // Validate file size first (quick check)
+    const sizeValidation = validateFileSize(file.size, 10);
+    if (!sizeValidation.isValid) {
       return createErrorResponse(
         ErrorCodes.VALIDATION_ERROR,
-        "Ugyldig filtype. Kun JPG, PNG og WebP er tillatt",
+        sizeValidation.error!,
         400
       );
     }
 
-    // Validate file size (max 10MB)
-    const maxSize = 10 * 1024 * 1024;
-    if (file.size > maxSize) {
-      return createErrorResponse(
-        ErrorCodes.VALIDATION_ERROR,
-        "Filen er for stor. Maks 10MB",
-        400
-      );
-    }
-
+    // Read file buffer
     const buffer = Buffer.from(await file.arrayBuffer());
+
+    // SIKKERHET: Valider faktisk filinnhold (magic bytes)
+    const fileValidation = await validateImageFile(buffer);
+    if (!fileValidation.isValid) {
+      return createErrorResponse(
+        ErrorCodes.VALIDATION_ERROR,
+        fileValidation.error!,
+        400
+      );
+    }
     const timestamp = Date.now();
     const tenantId = session.user.tenantId;
     const key = buildInspectionImageKey({
@@ -77,7 +79,7 @@ export async function POST(request: NextRequest) {
         Bucket: BUCKET_NAME,
         Key: key,
         Body: buffer,
-        ContentType: file.type,
+        ContentType: fileValidation.detectedType || file.type,
       })
     );
 

@@ -4,6 +4,7 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
 import { generateFileKey } from "@/lib/storage";
+import { validatePdfFile, validateFileSize } from "@/lib/file-validation";
 
 const s3Client = new S3Client({
   region: "auto",
@@ -52,28 +53,29 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Hent fil-properties fra Blob
+    // Validate file size first
+    const sizeValidation = validateFileSize(file.size, 10);
+    if (!sizeValidation.isValid) {
+      return NextResponse.json(
+        { error: sizeValidation.error },
+        { status: 400 }
+      );
+    }
+
+    // Get file properties
     const fileBuffer = Buffer.from(await file.arrayBuffer());
     const fileName = file.name || "unknown.pdf";
-    const fileType = file.type || "application/pdf";
+
+    // SIKKERHET: Valider faktisk filinnhold (magic bytes)
+    const fileValidation = await validatePdfFile(fileBuffer);
+    if (!fileValidation.isValid) {
+      return NextResponse.json(
+        { error: fileValidation.error },
+        { status: 400 }
+      );
+    }
+
     const fileSize = fileBuffer.length;
-
-    // Valider filtype (kun PDF)
-    if (fileType !== "application/pdf") {
-      return NextResponse.json(
-        { error: "Ugyldig filtype. Kun PDF er tillatt for sikkerhetsdatablad." },
-        { status: 400 }
-      );
-    }
-
-    // Valider filstørrelse (maks 10MB)
-    const maxSize = 10 * 1024 * 1024;
-    if (fileSize > maxSize) {
-      return NextResponse.json(
-        { error: "Filen er for stor. Maksimal størrelse er 10MB." },
-        { status: 400 }
-      );
-    }
 
     // Generer tenant-spesifikk key
     const key = generateFileKey(tenantId, "chemicals/sds", fileName);
@@ -84,7 +86,7 @@ export async function POST(request: NextRequest) {
         Bucket: BUCKET_NAME,
         Key: key,
         Body: fileBuffer,
-        ContentType: fileType,
+        ContentType: fileValidation.detectedType || "application/pdf",
       })
     );
 

@@ -38,7 +38,8 @@ import { usePermissions } from "@/hooks/use-permissions";
 import { getRoleDisplayName } from "@/lib/permissions";
 import Image from "next/image";
 import { NotificationBell } from "@/components/notifications/notification-bell";
-import { useSimpleMode, SIMPLE_MODE_PERMISSIONS } from "@/hooks/use-simple-mode";
+import { useSimpleMode } from "@/hooks/use-simple-mode";
+import { useSimpleMenuConfig } from "@/hooks/use-simple-menu-config";
 import { TenantSwitcher } from "@/components/auth/tenant-switcher";
 
 const navItems = [
@@ -77,14 +78,17 @@ export function DashboardNav() {
   const { data: session } = useSession();
   const { visibleNavItems, role } = usePermissions();
   const { isSimpleMode, toggleMode } = useSimpleMode();
+  const { simpleMenuItems } = useSimpleMenuConfig();
 
   // Filtrer navigasjon basert på tilganger OG enkel/avansert modus
   const allowedNavItems = navItems.filter((item) => {
-    // Sjekk tilgang først
     if (!visibleNavItems[item.permission]) return false;
-    // I enkel modus, vis kun "simple" items
-    if (isSimpleMode && !item.simple) return false;
-    return true;
+    if (!isSimpleMode) return true;
+    // I enkel modus: bruk tenant-valg hvis satt, ellers standard (item.simple)
+    if (simpleMenuItems !== null && Array.isArray(simpleMenuItems)) {
+      return simpleMenuItems.includes(item.href);
+    }
+    return item.simple;
   });
 
   const tenantName = session?.user?.tenantName;

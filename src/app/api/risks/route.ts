@@ -3,6 +3,8 @@ import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { AuditLog } from "@/lib/audit-log";
+import { CreateRiskSchema } from "@/lib/validations/schemas";
+import { ZodError } from "zod";
 
 export async function POST(request: NextRequest) {
   try {
@@ -25,7 +27,27 @@ export async function POST(request: NextRequest) {
     }
 
     const tenantId = user.tenants[0].tenantId;
-    const body = await request.json();
+    const bodyData = await request.json();
+
+    // SIKKERHET: Valider og sanitér all input med Zod
+    let validatedData;
+    try {
+      validatedData = CreateRiskSchema.parse(bodyData);
+    } catch (error) {
+      if (error instanceof ZodError) {
+        return NextResponse.json(
+          { 
+            error: "Ugyldig input", 
+            details: error.issues.map(e => ({
+              field: e.path.join('.'),
+              message: e.message,
+            }))
+          },
+          { status: 400 }
+        );
+      }
+      throw error;
+    }
 
     const {
       title,
@@ -38,7 +60,7 @@ export async function POST(request: NextRequest) {
       exposure,
       suggestedControls,
       trainingRequired,
-    } = body;
+    } = validatedData;
 
     // Opprett risiko
     const risk = await prisma.risk.create({

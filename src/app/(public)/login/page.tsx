@@ -45,11 +45,8 @@ export default function LoginPage() {
       if (result?.error) {
         setError("Ugyldig e-post eller passord");
       } else {
-        // Hent session for å sjekke rolle
         const response = await fetch("/api/auth/session");
         const session = await response.json();
-        
-        // Redirect basert på rolle
         if (session?.user?.isSuperAdmin || session?.user?.isSupport) {
           router.push("/admin");
         } else if (session?.user?.role === "ANSATT") {

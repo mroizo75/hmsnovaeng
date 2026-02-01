@@ -113,12 +113,12 @@ export default async function AnsattDokumenter() {
                       
                       <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground mb-2">
                         <Badge variant="outline" className="text-xs">
-                          {doc.kind === "LAW" && "⚖️ Lov/Forskrift"}
-                          {doc.kind === "PROCEDURE" && "📋 Prosedyre"}
+                          {doc.kind === "LAW" && "⚖️ Lover og regler"}
+                          {doc.kind === "PROCEDURE" && "📋 Prosedyre (ISO 9001)"}
                           {doc.kind === "CHECKLIST" && "✅ Sjekkliste"}
                           {doc.kind === "FORM" && "📝 Skjema"}
-                          {doc.kind === "SDS" && "⚠️ Sikkerhetsdatablad"}
-                          {doc.kind === "PLAN" && "📊 Plan"}
+                          {doc.kind === "SDS" && "⚠️ Sikkerhetsdatablad (SDS)"}
+                          {doc.kind === "PLAN" && "📖 HMS-håndbok / Plan"}
                           {doc.kind === "OTHER" && "📄 Annet"}
                         </Badge>
                         

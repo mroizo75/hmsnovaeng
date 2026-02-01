@@ -1,12 +1,20 @@
 "use client";
 
 import { SimpleModeProvider } from "@/hooks/use-simple-mode";
+import { SimpleMenuConfigProvider, type SimpleMenuItemsConfig } from "@/hooks/use-simple-menu-config";
 
-export function DashboardProviders({ children }: { children: React.ReactNode }) {
+interface DashboardProvidersProps {
+  children: React.ReactNode;
+  simpleMenuItems?: SimpleMenuItemsConfig;
+}
+
+export function DashboardProviders({ children, simpleMenuItems = null }: DashboardProvidersProps) {
   return (
-    <SimpleModeProvider>
-      {children}
-    </SimpleModeProvider>
+    <SimpleMenuConfigProvider simpleMenuItems={simpleMenuItems ?? undefined}>
+      <SimpleModeProvider>
+        {children}
+      </SimpleModeProvider>
+    </SimpleMenuConfigProvider>
   );
 }
 

@@ -174,7 +174,110 @@ export function ChemicalForm({ chemical, mode = "create" }: ChemicalFormProps) {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
-      {/* Produktinformasjon */}
+      {/* Steg 1: Sikkerhetsdatablad – last opp først så AI fyller ut */}
+      <Card className="border-primary/30 bg-primary/5">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Upload className="h-5 w-5" />
+            Steg 1: Last opp sikkerhetsdatablad
+          </CardTitle>
+          <CardDescription>
+            Last opp PDF – AI analyserer og fyller ut feltene under automatisk
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="sdsFile" className="flex items-center gap-2">
+              Datablad (PDF) {mode === "create" && "*"}
+              {parsing && <Loader2 className="h-4 w-4 animate-spin text-blue-600" />}
+            </Label>
+            <div className="flex items-center gap-2">
+              <Input
+                id="sdsFile"
+                type="file"
+                accept=".pdf"
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (file) {
+                    handleSDSUpload(file);
+                  }
+                }}
+                disabled={loading || parsing}
+              />
+              {chemical?.sdsKey && !sdsFile && (
+                <Button variant="outline" size="sm" disabled>
+                  <FileText className="h-4 w-4 mr-2" />
+                  Eksisterende
+                </Button>
+              )}
+            </div>
+            {parsing && (
+              <div className="flex items-center gap-2 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                <Loader2 className="h-4 w-4 animate-spin text-blue-600" />
+                <p className="text-sm text-blue-900">
+                  AI analyserer sikkerhetsdatablad... Dette tar ca. 30-60 sekunder
+                </p>
+              </div>
+            )}
+            {!chemical?.sdsKey && mode === "create" && !parsing && (
+              <p className="text-xs text-blue-600">
+                <Sparkles className="inline h-3 w-3 mr-1" />
+                AI vil automatisk fylle ut feltene når du laster opp sikkerhetsdatabladet
+              </p>
+            )}
+          </div>
+
+          <div className="grid gap-4 md:grid-cols-3">
+            <div className="space-y-2">
+              <Label htmlFor="sdsVersion">Versjon</Label>
+              <Input
+                id="sdsVersion"
+                name="sdsVersion"
+                placeholder="F.eks. 3.2"
+                disabled={loading}
+                defaultValue={chemical?.sdsVersion || ""}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="sdsDate">Dato for datablad</Label>
+              <Input
+                id="sdsDate"
+                name="sdsDate"
+                type="date"
+                disabled={loading}
+                defaultValue={
+                  chemical?.sdsDate
+                    ? new Date(chemical.sdsDate).toISOString().split("T")[0]
+                    : ""
+                }
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="nextReviewDate">Neste revisjon</Label>
+              <Input
+                id="nextReviewDate"
+                name="nextReviewDate"
+                type="date"
+                disabled={loading}
+                defaultValue={
+                  chemical?.nextReviewDate
+                    ? new Date(chemical.nextReviewDate).toISOString().split("T")[0]
+                    : new Date(Date.now() + 365 * 24 * 60 * 60 * 1000)
+                        .toISOString()
+                        .split("T")[0]
+                }
+              />
+              <p className="text-xs text-muted-foreground">
+                Anbefalt: Årlig gjennomgang
+              </p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Steg 2: Produktinformasjon */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
@@ -303,10 +406,10 @@ export function ChemicalForm({ chemical, mode = "create" }: ChemicalFormProps) {
         </CardContent>
       </Card>
 
-      {/* Farepiktogrammer og klassifisering */}
+      {/* Steg 3: Farepiktogrammer og klassifisering */}
       <Card>
         <CardHeader>
-          <CardTitle>Faremarkering (GHS/CLP)</CardTitle>
+          <CardTitle>Steg 3: Faremarkering (GHS/CLP)</CardTitle>
           <CardDescription>H-setninger og varslingspiktogrammer</CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
@@ -365,10 +468,10 @@ export function ChemicalForm({ chemical, mode = "create" }: ChemicalFormProps) {
         </CardContent>
       </Card>
 
-      {/* Personlig verneutstyr */}
+      {/* Steg 4: Personlig verneutstyr */}
       <Card>
         <CardHeader>
-          <CardTitle>Personlig verneutstyr (PPE)</CardTitle>
+          <CardTitle>Steg 4: Personlig verneutstyr (PPE)</CardTitle>
           <CardDescription>Påkrevd verneutstyr ved håndtering (ISO 7010)</CardDescription>
         </CardHeader>
         <CardContent>
@@ -377,104 +480,6 @@ export function ChemicalForm({ chemical, mode = "create" }: ChemicalFormProps) {
             key={aiData?.requiredPPE || "default"}
             defaultValue={aiData?.requiredPPE || chemical?.requiredPPE || ""} 
           />
-        </CardContent>
-      </Card>
-
-      {/* Sikkerhetsdatablad */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Sikkerhetsdatablad (SDS)</CardTitle>
-          <CardDescription>Last opp sikkerhetsdatablad i PDF-format</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="sdsFile" className="flex items-center gap-2">
-              Datablad (PDF) {mode === "create" && "*"}
-              {parsing && <Loader2 className="h-4 w-4 animate-spin text-blue-600" />}
-            </Label>
-            <div className="flex items-center gap-2">
-              <Input
-                id="sdsFile"
-                type="file"
-                accept=".pdf"
-                onChange={(e) => {
-                  const file = e.target.files?.[0];
-                  if (file) {
-                    handleSDSUpload(file);
-                  }
-                }}
-                disabled={loading || parsing}
-              />
-              {chemical?.sdsKey && !sdsFile && (
-                <Button variant="outline" size="sm" disabled>
-                  <FileText className="h-4 w-4 mr-2" />
-                  Eksisterende
-                </Button>
-              )}
-            </div>
-            {parsing && (
-              <div className="flex items-center gap-2 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-                <Loader2 className="h-4 w-4 animate-spin text-blue-600" />
-                <p className="text-sm text-blue-900">
-                  AI analyserer sikkerhetsdatablad... Dette tar ca. 30-60 sekunder
-                </p>
-              </div>
-            )}
-            {!chemical?.sdsKey && mode === "create" && !parsing && (
-              <p className="text-xs text-blue-600">
-                <Sparkles className="inline h-3 w-3 mr-1" />
-                AI vil automatisk fylle ut feltene når du laster opp sikkerhetsdatabladet
-              </p>
-            )}
-          </div>
-
-          <div className="grid gap-4 md:grid-cols-3">
-            <div className="space-y-2">
-              <Label htmlFor="sdsVersion">Versjon</Label>
-              <Input
-                id="sdsVersion"
-                name="sdsVersion"
-                placeholder="F.eks. 3.2"
-                disabled={loading}
-                defaultValue={chemical?.sdsVersion || ""}
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="sdsDate">Dato for datablad</Label>
-              <Input
-                id="sdsDate"
-                name="sdsDate"
-                type="date"
-                disabled={loading}
-                defaultValue={
-                  chemical?.sdsDate
-                    ? new Date(chemical.sdsDate).toISOString().split("T")[0]
-                    : ""
-                }
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="nextReviewDate">Neste revisjon</Label>
-              <Input
-                id="nextReviewDate"
-                name="nextReviewDate"
-                type="date"
-                disabled={loading}
-                defaultValue={
-                  chemical?.nextReviewDate
-                    ? new Date(chemical.nextReviewDate).toISOString().split("T")[0]
-                    : new Date(Date.now() + 365 * 24 * 60 * 60 * 1000)
-                        .toISOString()
-                        .split("T")[0]
-                }
-              />
-              <p className="text-xs text-muted-foreground">
-                Anbefalt: Årlig gjennomgang
-              </p>
-            </div>
-          </div>
         </CardContent>
       </Card>
 

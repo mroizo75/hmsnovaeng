@@ -391,6 +391,14 @@ export async function uploadNewVersion(formData: FormData) {
       }
     );
 
+    // Invalider PDF-visningscache (docx→pdf) slik at ny versjon vises
+    const viewCacheKey = `${document.tenantId}/documents/pdf/${document.id}.pdf`;
+    try {
+      await storage.delete(viewCacheKey);
+    } catch {
+      // Ignorer hvis cache ikke finnes
+    }
+
     revalidatePath(`/dashboard/documents`);
     revalidatePath(`/dashboard/documents/${documentId}`);
     return { success: true, data: updatedDocument };
@@ -596,7 +604,7 @@ export async function deleteDocument(id: string) {
 
     // Sjekk om det er et lovdokument (kan ikke slettes)
     if (document.kind === "LAW") {
-      return { success: false, error: "Lovdokumenter kan ikke slettes" };
+      return { success: false, error: "Lover og regler kan ikke slettes" };
     }
 
     const storage = getStorage();
@@ -615,6 +623,14 @@ export async function deleteDocument(id: string) {
       await storage.delete(document.fileKey);
     } catch (error) {
       console.error(`Failed to delete file ${document.fileKey}:`, error);
+    }
+
+    // Slett PDF-visningscache (docx→pdf) hvis den finnes
+    const viewCacheKey = `${document.tenantId}/documents/pdf/${document.id}.pdf`;
+    try {
+      await storage.delete(viewCacheKey);
+    } catch {
+      // Ignorer
     }
 
     await logAudit(

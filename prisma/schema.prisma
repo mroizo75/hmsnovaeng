@@ -225,6 +225,7 @@ model Tenant {
   scheduledReminders ScheduledReminder[] // Planlagte påminnelser
   bhtClient        BhtClient?       // BHT-kunde (hvis aktivert)
   navigationItems  NavigationItem[] // Meny-konfigurasjoner
+  simpleMenuItems  Json?            // Hrefs som vises i enkel meny (null = standard)
   createdAt        DateTime         @default(now())
   updatedAt        DateTime         @updatedAt
 

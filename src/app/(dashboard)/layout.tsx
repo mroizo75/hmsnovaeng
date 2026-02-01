@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
+import { prisma } from "@/lib/db";
 import { DashboardNav } from "@/components/dashboard-nav";
 import { MobileNav } from "@/components/mobile-nav";
 import { Toaster } from "@/components/ui/toaster";
@@ -29,8 +30,22 @@ export default async function DashboardLayout({
     redirect("/ansatt");
   }
 
+  const tenantId = user.tenantId ?? null;
+  let simpleMenuItems: string[] | null = null;
+  if (tenantId) {
+    try {
+      const tenant = await prisma.tenant.findUnique({
+        where: { id: tenantId },
+        select: { simpleMenuItems: true },
+      });
+      simpleMenuItems = (tenant?.simpleMenuItems as string[] | null) ?? null;
+    } catch {
+      // Kolonnen simpleMenuItems finnes kanskje ikke ennå (migrering ikke kjørt) – bruk standard meny
+    }
+  }
+
   return (
-    <DashboardProviders>
+    <DashboardProviders simpleMenuItems={simpleMenuItems}>
       <div className="flex flex-col lg:flex-row min-h-screen overflow-hidden">
         <MobileNav />
         <DashboardNav />

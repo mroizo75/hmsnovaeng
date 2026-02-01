@@ -36,6 +36,7 @@ import { getRoleDisplayName } from "@/lib/permissions";
 import Image from "next/image";
 import { NotificationBell } from "@/components/notifications/notification-bell";
 import { useSimpleMode } from "@/hooks/use-simple-mode";
+import { useSimpleMenuConfig } from "@/hooks/use-simple-menu-config";
 
 const navItems = [
   // GRUNNLEGGENDE
@@ -63,13 +64,17 @@ export function MobileNav() {
   const { data: session } = useSession();
   const { visibleNavItems, role } = usePermissions();
   const { isSimpleMode, toggleMode } = useSimpleMode();
+  const { simpleMenuItems } = useSimpleMenuConfig();
   const [open, setOpen] = useState(false);
 
   // Filtrer navigasjon basert på tilganger OG enkel/avansert modus
   const allowedNavItems = navItems.filter((item) => {
     if (!visibleNavItems[item.permission]) return false;
-    if (isSimpleMode && !item.simple) return false;
-    return true;
+    if (!isSimpleMode) return true;
+    if (simpleMenuItems !== null && Array.isArray(simpleMenuItems)) {
+      return simpleMenuItems.includes(item.href);
+    }
+    return item.simple;
   });
 
   return (

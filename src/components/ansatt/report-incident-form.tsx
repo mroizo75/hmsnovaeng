@@ -20,9 +20,11 @@ import Image from "next/image";
 export function ReportIncidentForm({
   tenantId,
   reportedBy,
+  successRedirectPath = "/ansatt/avvik/takk",
 }: {
   tenantId: string;
   reportedBy: string;
+  successRedirectPath?: string;
 }) {
   const router = useRouter();
   const { toast } = useToast();
@@ -80,7 +82,7 @@ export function ReportIncidentForm({
         description: "Takk for rapporten! HMS-ansvarlig er varslet.",
       });
 
-      router.push("/ansatt/avvik/takk");
+      router.push(successRedirectPath);
     } catch (error) {
       toast({
         title: "❌ Feil",

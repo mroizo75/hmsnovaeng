@@ -15,8 +15,8 @@ export async function POST(request: NextRequest) {
     const ip = getClientIp(request);
     const identifier = `resend-verification:${ip}`;
 
-    // Rate limit: 3 forsøk per 60 sekunder
-    const { success } = await checkRateLimit(identifier, strictRateLimiter);
+    // Rate limit: 3 forsøk per 60 sekunder (FAIL CLOSED for sikkerhet)
+    const { success } = await checkRateLimit(identifier, strictRateLimiter, { failClosed: true });
     if (!success) {
       return NextResponse.json(
         { error: "For mange forespørsler. Prøv igjen om 1 minutt." },

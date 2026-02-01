@@ -15,8 +15,8 @@ export async function POST(request: NextRequest) {
     const ip = getClientIp(request);
     const identifier = `reset-password:${ip}`;
 
-    // Rate limit
-    const { success } = await checkRateLimit(identifier, apiRateLimiter);
+    // Rate limit (FAIL CLOSED for sikkerhet)
+    const { success } = await checkRateLimit(identifier, apiRateLimiter, { failClosed: true });
     if (!success) {
       return createErrorResponse(
         ErrorCodes.RATE_LIMIT_EXCEEDED,

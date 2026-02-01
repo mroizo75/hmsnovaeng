@@ -9,7 +9,8 @@ import { UserManagement } from "@/features/settings/components/user-management";
 import { SubscriptionInfo } from "@/features/settings/components/subscription-info";
 import { AzureAdIntegration } from "@/features/settings/components/azure-ad-integration";
 import { NotificationSettings } from "@/features/settings/components/notification-settings";
-import { Building2, User, Users, CreditCard, Cloud, Bell } from "lucide-react";
+import { SimpleMenuSettings } from "@/features/settings/components/simple-menu-settings";
+import { Building2, User, Users, CreditCard, Cloud, Bell, PanelLeft } from "lucide-react";
 import { PageHelpDialog } from "@/components/dashboard/page-help-dialog";
 import { helpContent } from "@/lib/help-content";
 
@@ -83,10 +84,14 @@ export default async function SettingsPage() {
 
       {/* Tabs */}
       <Tabs defaultValue="company" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-6">
+        <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 lg:grid-cols-7">
           <TabsTrigger value="company" className="flex items-center gap-2">
             <Building2 className="h-4 w-4" />
             <span className="hidden sm:inline">Bedrift</span>
+          </TabsTrigger>
+          <TabsTrigger value="menu" className="flex items-center gap-2">
+            <PanelLeft className="h-4 w-4" />
+            <span className="hidden sm:inline">Enkel meny</span>
           </TabsTrigger>
           <TabsTrigger value="profile" className="flex items-center gap-2">
             <User className="h-4 w-4" />
@@ -112,6 +117,15 @@ export default async function SettingsPage() {
 
         <TabsContent value="company">
           <TenantSettingsForm tenant={tenant} isAdmin={isAdmin} />
+        </TabsContent>
+
+        <TabsContent value="menu">
+          <SimpleMenuSettings
+            initialSimpleMenuItems={
+              (tenant.simpleMenuItems as string[] | null) ?? null
+            }
+            isAdmin={isAdmin}
+          />
         </TabsContent>
 
         <TabsContent value="profile">
