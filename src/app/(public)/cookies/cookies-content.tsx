@@ -401,8 +401,8 @@ export function CookiesContent() {
                 Hvis du har spørsmål om hvordan vi bruker cookies, ta kontakt:
               </p>
               <p className="text-sm">
-                <a href="mailto:post@kksas.no" className="text-primary font-semibold hover:underline">
-                  post@kksas.no
+                <a href="mailto:post@hmsnova.no" className="text-primary font-semibold hover:underline">
+                  post@hmsnova.no
                 </a>
               </p>
             </CardContent>

@@ -4,9 +4,9 @@ import { Badge } from "@/components/ui/badge";
 import { Shield, Mail, Phone, MapPin } from "lucide-react";
 
 export const metadata: Metadata = {
-  title: "Personvernerklæring | GDPR | KKS AS & HMS Nova",
+  title: "Personvernerklæring | GDPR | HMS Nova AS",
   description:
-    "Les hvordan KKS AS behandler personopplysninger i HMS Nova. GDPR-compliant personvernerklæring som forklarer dine rettigheter, hvordan vi samler inn og bruker data, og hvordan du kan kontakte oss.",
+    "Les hvordan HMS Nova AS behandler personopplysninger i HMS Nova. GDPR-compliant personvernerklæring som forklarer dine rettigheter, hvordan vi samler inn og bruker data, og hvordan du kan kontakte oss.",
   robots: {
     index: true,
     follow: true,
@@ -31,7 +31,7 @@ export default function PersonvernPage() {
             Personvernerklæring
           </h1>
           <p className="text-xl text-muted-foreground">
-            Vi tar ditt personvern på alvor. Her forklarer vi hvordan KKS AS samler inn, 
+            Vi tar ditt personvern på alvor. Her forklarer vi hvordan HMS Nova AS samler inn, 
             bruker og beskytter dine personopplysninger i henhold til GDPR.
           </p>
           <p className="text-sm text-muted-foreground mt-4">
@@ -46,20 +46,20 @@ export default function PersonvernPage() {
             </CardHeader>
             <CardContent className="space-y-4">
               <p className="text-muted-foreground">
-                <strong>KKS AS</strong> (Kurs og Kompetansesystemer AS) er dataansvarlig for 
-                behandlingen av personopplysninger i HMS Nova og på www.kksas.no.
+                <strong>HMS Nova AS</strong> er dataansvarlig for 
+                behandlingen av personopplysninger i HMS Nova og på hmsnova.no.
               </p>
               <div className="bg-muted/50 p-4 rounded-lg space-y-2 text-sm">
-                <p><strong>KKS AS</strong></p>
+                <p><strong>HMS Nova AS</strong></p>
                 <p className="flex items-center gap-2">
                   <Mail className="h-4 w-4" />
-                  <a href="mailto:post@kksas.no" className="hover:text-primary">post@kksas.no</a>
+                  <a href="mailto:post@hmsnova.no" className="hover:text-primary">post@hmsnova.no</a>
                 </p>
                 <p className="flex items-center gap-2">
                   <Phone className="h-4 w-4" />
                   <a href="tel:+4799112916" className="hover:text-primary">+47 99 11 29 16</a>
                 </p>
-                <p>Org.nr: 925897019</p>
+                <p>Org.nr. legges inn</p>
               </div>
             </CardContent>
           </Card>
@@ -299,7 +299,7 @@ export default function PersonvernPage() {
               <div className="mt-6 p-4 bg-primary/5 rounded-lg border border-primary/20">
                 <h4 className="font-semibold mb-2">Slik utøver du dine rettigheter:</h4>
                 <p className="text-sm text-muted-foreground mb-3">
-                  Send en e-post til <a href="mailto:post@kksas.no" className="text-primary font-semibold hover:underline">post@kksas.no</a> med 
+                  Send en e-post til <a href="mailto:post@hmsnova.no" className="text-primary font-semibold hover:underline">post@hmsnova.no</a> med 
                   emnet "GDPR-forespørsel". Vi svarer innen 30 dager.
                 </p>
                 <p className="text-sm text-muted-foreground">
@@ -370,7 +370,7 @@ export default function PersonvernPage() {
               <div className="space-y-2 text-sm">
                 <p className="flex items-center gap-2">
                   <Mail className="h-4 w-4 text-primary" />
-                  <a href="mailto:post@kksas.no" className="text-primary font-semibold hover:underline">post@kksas.no</a>
+                  <a href="mailto:post@hmsnova.no" className="text-primary font-semibold hover:underline">post@hmsnova.no</a>
                 </p>
                 <p className="flex items-center gap-2">
                   <Phone className="h-4 w-4 text-primary" />
@@ -378,7 +378,7 @@ export default function PersonvernPage() {
                 </p>
                 <p className="flex items-start gap-2">
                   <MapPin className="h-4 w-4 text-primary mt-0.5" />
-                  <span>KKS AS<br/>Peckels Gate 12b, 3616 Kongsberg</span>
+                  <span>HMS Nova AS<br/>Peckels Gate 12b, 3616 Kongsberg</span>
                 </p>
               </div>
             </CardContent>

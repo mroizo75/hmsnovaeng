@@ -154,8 +154,8 @@ export default function HvaErHMSNovaPage() {
             <Card>
               <CardHeader>
                 <div className="flex items-center gap-3 mb-2">
-                  <div className="p-2 rounded-lg bg-accent/10">
-                    <Target className="h-6 w-6 text-accent" />
+                  <div className="p-2 rounded-lg bg-green-100">
+                    <Target className="h-6 w-6 text-green-700" />
                   </div>
                   <CardTitle>Vår løsning</CardTitle>
                 </div>

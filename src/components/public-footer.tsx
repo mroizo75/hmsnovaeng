@@ -13,7 +13,7 @@ export function PublicFooter() {
                 <Image src="/logo-nova.png" alt="HMS Nova" width={155} height={150} />
             </div>
             <p className="text-sm text-muted-foreground">
-            HMS Nova er utviklet av <a href="https://www.kksas.no/" target="_blank" rel="noopener noreferrer" className="font-semibold hover:text-primary transition-colors">KKS AS</a> – en godkjent kursleverandør med over 15 års erfaring innen HMS og kompetanseutvikling.
+            HMS Nova er utviklet av <strong>HMS Nova AS</strong> – moderne HMS-system og kurs for norske bedrifter.
             </p>
             <div className="flex space-x-3">
               <a 
@@ -65,7 +65,7 @@ export function PublicFooter() {
               </li>
               <li>
                 <Link href="/hms-kurs" className="text-muted-foreground hover:text-foreground transition-colors">
-                  HMS-kurs (KKS AS)
+                  HMS-kurs
                 </Link>
               </li>
               <li>
@@ -84,8 +84,8 @@ export function PublicFooter() {
                 </Link>
               </li>
               <li>
-                <Link href="/forfatter/kenneth-kristiansen" className="text-muted-foreground hover:text-foreground transition-colors">
-                  Om grunnleggeren
+                <Link href="/team" className="text-muted-foreground hover:text-foreground transition-colors">
+                  Vårt team
                 </Link>
               </li>
               <li>
@@ -139,8 +139,8 @@ export function PublicFooter() {
             <ul className="space-y-3 text-sm">
               <li className="flex items-start gap-2">
                 <Mail className="h-4 w-4 mt-0.5 text-muted-foreground flex-shrink-0" aria-hidden="true" />
-                <a href="mailto:post@kksas.no" className="text-muted-foreground hover:text-foreground transition-colors">
-                  post@kksas.no
+                <a href="mailto:post@hmsnova.no" className="text-muted-foreground hover:text-foreground transition-colors">
+                  post@hmsnova.no
                 </a>
               </li>
               <li className="flex items-start gap-2">
@@ -151,8 +151,7 @@ export function PublicFooter() {
                 </div>
               </li>
               <li className="text-muted-foreground">
-                <strong>KKS AS</strong><br />
-                (Eier av HMS Nova)
+                <strong>HMS Nova AS</strong>
               </li>
             </ul>
           </div>
@@ -160,7 +159,7 @@ export function PublicFooter() {
 
         {/* Bottom */}
         <div className="border-t mt-12 pt-8 flex flex-col md:flex-row justify-between items-center text-sm text-muted-foreground">
-          <p>© {new Date().getFullYear()} <a href="https://www.kksas.no/" target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors">KKS AS</a>. Alle rettigheter reservert.</p>
+          <p>© {new Date().getFullYear()} <a href="https://hmsnova.no" target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors">HMS Nova AS</a>. Alle rettigheter reservert.</p>
           <div className="flex gap-6 mt-4 md:mt-0">
             <Link href="/personvern" className="hover:text-foreground transition-colors">
               Personvern

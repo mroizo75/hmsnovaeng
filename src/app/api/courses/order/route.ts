@@ -77,8 +77,8 @@ export async function POST(request: NextRequest) {
     const discountAmount = isMember ? Math.round(basePrice * (memberDiscount / 100)) : 0;
     const finalPrice = basePrice - discountAmount;
 
-    // Send e-post til KKS AS (Kurs-ansvarlig)
-    const kursEmail = "kurs@kksas.no"; // Eller +4791540824@sms.example.com hvis SMS
+    // Send e-post til HMS Nova AS (Kurs-ansvarlig)
+    const kursEmail = "kurs@hmsnova.no";
     
     await resend.emails.send({
       from: "HMS Nova Kurs <kurs@hmsnova.com>",
@@ -236,15 +236,14 @@ export async function POST(request: NextRequest) {
                 <div class="info-box">
                   <h2>📞 Kontakt oss</h2>
                   <p><strong>Kurs:</strong> +47 91 54 08 24<br>
-                  <strong>E-post:</strong> kurs@kksas.no</p>
+                  <strong>E-post:</strong> kurs@hmsnova.no</p>
                 </div>
 
                 <div class="footer">
-                  <p><strong>HMS Nova</strong> - utviklet av KKS AS<br>
+                  <p><strong>HMS Nova</strong> – HMS Nova AS<br>
                   Godkjent kursleverandør | ISO 9001 sertifisert</p>
                   <p style="font-size: 0.85em; color: #999; margin-top: 15px;">
-                    <a href="https://hmsnova.com" style="color: #16a34a; text-decoration: none;">hmsnova.com</a> | 
-                    <a href="https://www.kksas.no" style="color: #16a34a; text-decoration: none;">kksas.no</a>
+                    <a href="https://hmsnova.no" style="color: #16a34a; text-decoration: none;">hmsnova.no</a>
                   </p>
                 </div>
               </div>

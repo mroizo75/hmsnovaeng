@@ -355,7 +355,7 @@ export default function PriserPage() {
                     <ul className="text-sm text-muted-foreground space-y-1">
                       <li>✅ Lovpålagte HMS-kurs (verneombud, ledelse, etc.)</li>
                       <li>✅ Førstehjelp for barn og voksne</li>
-                      <li>✅ Spesialkurs fra KKS AS (inkl. diisocyanater)</li>
+                      <li>✅ Spesialkurs fra HMS Nova AS (inkl. diisocyanater)</li>
                       <li>✅ Fysisk, digitalt eller hybrid format</li>
                     </ul>
                     <Link href="/hms-kurs">

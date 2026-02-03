@@ -109,7 +109,7 @@ export const BlogNewsletterEmail = ({
                 Meld deg av nyhetsbrevet
               </Link>
               <Text style={footerText}>
-                © {new Date().getFullYear()} HMS Nova by KKS AS. Alle rettigheter reservert.
+                © {new Date().getFullYear()} HMS Nova AS. Alle rettigheter reservert.
               </Text>
             </Section>
           </Section>

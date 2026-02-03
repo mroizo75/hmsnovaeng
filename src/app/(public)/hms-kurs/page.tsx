@@ -500,8 +500,8 @@ export default function HMSKursPage() {
                             </div>
                             {course.title.toLowerCase().includes("diisocyanater") ? (
                               <Button size="sm" variant="outline" asChild>
-                                <a href="https://www.kksas.no/kurs/diisocynaterkurs" target="_blank" rel="noopener noreferrer">
-                                  Bestill hos KKS AS
+                                <a href="#bestill-kurs">
+                                  Bestill hos HMS Nova AS
                                 </a>
                               </Button>
                             ) : (
@@ -620,12 +620,12 @@ export default function HMSKursPage() {
         </div>
       </section>
 
-      {/* Om KKS AS */}
+      {/* Om HMS Nova AS */}
       <section className="container mx-auto px-4 py-20">
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold mb-4">
-              KKS AS – Din godkjente kursleverandør
+              HMS Nova AS – Din godkjente kursleverandør
             </h2>
             <p className="text-muted-foreground">
               Over 500 gjennomførte kurs, 2000+ fornøyde deltakere, og 15+ års erfaring
@@ -642,7 +642,7 @@ export default function HMSKursPage() {
                   <div>
                     <h3 className="font-semibold mb-2">Godkjent av Arbeidstilsynet</h3>
                     <p className="text-sm text-muted-foreground">
-                      KKS AS er en godkjent kursleverandør som følger ISO 9001-standarden. 
+                      HMS Nova AS er en godkjent kursleverandør som følger ISO 9001-standarden. 
                       Alle kurs oppfyller Arbeidstilsynets strenge krav og retningslinjer.
                     </p>
                   </div>
@@ -660,7 +660,7 @@ export default function HMSKursPage() {
                     <h3 className="font-semibold mb-2">15+ års erfaring</h3>
                     <p className="text-sm text-muted-foreground">
                       Med over 500 gjennomførte kurs og 2000+ fornøyde deltakere, 
-                      har KKS AS solid erfaring innen HMS-opplæring og kompetanseutvikling.
+                      har HMS Nova AS solid erfaring innen HMS-opplæring og kompetanseutvikling.
                     </p>
                   </div>
                 </div>
@@ -693,7 +693,7 @@ export default function HMSKursPage() {
                   <div>
                     <h3 className="font-semibold mb-2">HMS Nova-integrasjon</h3>
                     <p className="text-sm text-muted-foreground">
-                      KKS AS eier og utvikler HMS Nova. Alle kurs integreres automatisk 
+                      HMS Nova AS eier og utvikler HMS Nova. Alle kurs integreres automatisk 
                       i systemet for komplett kompetansestyring.
                     </p>
                   </div>
@@ -704,15 +704,15 @@ export default function HMSKursPage() {
 
           <div className="text-center">
             <Button size="lg" asChild>
-              <a href="https://www.kksas.no/" target="_blank" rel="noopener noreferrer">
-                Besøk KKS AS for mer informasjon
+              <Link href="/">
+                Besøk HMS Nova for mer informasjon
                 <ArrowRight className="ml-2 h-5 w-5" />
-              </a>
+              </Link>
             </Button>
             <p className="text-sm text-muted-foreground mt-4">
               <strong>Kontakt:</strong> Kurs: <a href="tel:+4791540824" className="underline">+47 91 54 08 24</a> | 
               Software: <a href="tel:+4799112916" className="underline">+47 99 11 29 16</a> | 
-              <a href="mailto:post@kksas.no" className="underline">post@kksas.no</a>
+              <a href="mailto:post@hmsnova.no" className="underline">post@hmsnova.no</a>
             </p>
           </div>
         </div>
@@ -723,7 +723,7 @@ export default function HMSKursPage() {
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold mb-4">
-              Hvorfor velge KKS AS + HMS Nova for kurs?
+              Hvorfor velge HMS Nova AS for kurs?
             </h2>
           </div>
 
@@ -831,7 +831,7 @@ export default function HMSKursPage() {
                   <div className="flex items-start gap-3">
                     <CheckCircle2 className="h-5 w-5 text-green-600 mt-0.5 flex-shrink-0" />
                     <div>
-                      <p className="font-semibold">KKS AS sine andre kurs</p>
+                      <p className="font-semibold">HMS Nova AS sine andre kurs</p>
                       <p className="text-sm text-muted-foreground">Inkl. spesialkurs og diisocyanater</p>
                     </div>
                   </div>

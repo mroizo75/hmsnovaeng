@@ -124,7 +124,7 @@ export const SEO_CONTENT = {
   metaDescriptions: {
     home: "HMS Nova bygger trygghet. Få kontroll på HMS med digital signatur, automatiske påminnelser og mobilapp. 500+ norske bedrifter stoler på oss. Prøv gratis.",
     priser: "Transparente HMS-priser fra 225 kr/mnd. Ingen oppstartskostnader, valgfri binding. 20% rabatt på kurs, 10% på BHT. Se alle priser.",
-    kurs: "20% rabatt på HMS-kurs for medlemmer. Verneombud, førstehjelp, diisocyanater. Godkjent av KKS AS. Fysisk, digitalt eller hybrid.",
+    kurs: "20% rabatt på HMS-kurs for medlemmer. Verneombud, førstehjelp, diisocyanater. HMS Nova AS. Fysisk, digitalt eller hybrid.",
     bht: "10% rabatt på godkjent bedriftshelsetjeneste fra Dr. Dropin. Digital integrasjon med HMS Nova. 3000+ bedrifter stoler på dem.",
   },
 } as const;

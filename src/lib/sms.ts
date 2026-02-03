@@ -1,10 +1,13 @@
 /**
  * SMS Service
- * Støtter norske SMS-providers (Link Mobility, IntelliSMS, ProSMS)
+ * Støtter norske SMS-providers (Link Mobility, IntelliSMS, ProSMS) og proSMS.se for Ring meg
  */
 
+/** Godkjent avsendernavn for proSMS.se – bruk kun "HMS Nova" */
+export const RING_MEG_SENDER_NAME = "HMS Nova";
+
 interface SmsOptions {
-  to: string;      // Telefonnummer (format: +47XXXXXXXX)
+  to: string;      // Telefonnummer (E.164 eller norsk +47XXXXXXXX)
   message: string; // SMS-melding (maks 160 tegn for best praksis)
 }
 
@@ -44,7 +47,7 @@ export async function sendSms(options: SmsOptions): Promise<{
       default:
         return mockSendSms(options);
     }
-  } catch (error) {
+  } catch (error: unknown) {
     console.error("SMS send error:", error);
     return {
       success: false,
@@ -142,42 +145,158 @@ async function sendViaIntelliSMS(options: SmsOptions) {
 }
 
 /**
- * Send via ProSMS
- * Norsk SMS-leverandør
- * https://www.prosms.no/
+ * Normaliser telefonnummer for proSMS.se API (receiver som tall med landskode).
+ * Eksempel: +4799112916 → 4799112916, 99112916 → 4799112916
+ */
+function normalizePhoneForProSMS(phone: string): string {
+  let normalized = phone.replace(/[\s\-]/g, "");
+  if (normalized.startsWith("+")) {
+    normalized = normalized.substring(1);
+  }
+  if (normalized.startsWith("47") && normalized.length > 8) {
+    normalized = normalized.substring(2);
+  }
+  if (normalized.length === 8 && !normalized.startsWith("47")) {
+    normalized = "47" + normalized;
+  }
+  return normalized;
+}
+
+/**
+ * Send via ProSMS.se API (v1)
+ * Dokumentasjon: https://docs.prosms.se/
+ * Krever: PROSMS_API_KEY eller PRO_SMS_API_KEY (Bearer), PROSMS_FROM for avsendernavn (f.eks. "HMS Nova")
  */
 async function sendViaProSMS(options: SmsOptions) {
-  const apiKey = process.env.PROSMS_API_KEY;
-  const fromName = process.env.PROSMS_FROM || "HMS Nova";
+  const apiKey = process.env.PROSMS_API_KEY ?? process.env.PRO_SMS_API_KEY;
+  const fromName = process.env.PROSMS_FROM || RING_MEG_SENDER_NAME;
+  const baseUrl = process.env.PROSMS_API_URL || "https://api.prosms.se/v1/sms/send";
 
   if (!apiKey) {
-    throw new Error("ProSMS API key ikke satt");
+    throw new Error("ProSMS API key ikke satt (PROSMS_API_KEY eller PRO_SMS_API_KEY)");
   }
 
-  const url = "https://app.prosms.no/api/sendsms.php";
+  const normalizedPhone = normalizePhoneForProSMS(options.to);
+  if (!normalizedPhone || normalizedPhone.length < 8) {
+    throw new Error("Ugyldig telefonnummer for ProSMS");
+  }
 
-  const params = new URLSearchParams({
-    apikey: apiKey,
-    sender: fromName,
-    destination: options.to.replace("+47", ""), // Kun 8-sifret nummer
+  const receiverNumber = parseInt(normalizedPhone, 10);
+
+  const requestBody = {
+    receiver: receiverNumber,
+    senderName: fromName,
     message: options.message,
-  });
+    format: "gsm",
+    encoding: "utf8",
+  };
 
-  const response = await fetch(`${url}?${params.toString()}`, {
-    method: "GET",
+  const response = await fetch(baseUrl, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${apiKey}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(requestBody),
   });
 
   const responseText = await response.text();
 
-  // ProSMS returnerer "OK" ved suksess
-  if (responseText.includes("OK")) {
-    return {
-      success: true,
-      messageId: `prosms-${Date.now()}`,
-    };
-  } else {
-    throw new Error(`ProSMS error: ${responseText}`);
+  if (!response.ok) {
+    let errMessage = `ProSMS error: ${response.status}`;
+    try {
+      const errJson = JSON.parse(responseText);
+      errMessage = (errJson as { message?: string }).message ?? errMessage;
+    } catch {
+      if (responseText) errMessage = responseText;
+    }
+    throw new Error(errMessage);
   }
+
+  let data: { status?: string; message?: string; result?: { report?: { accepted?: Array<{ receiver?: number }> } } };
+  try {
+    data = JSON.parse(responseText);
+  } catch {
+    throw new Error(`ProSMS ugyldig svar: ${responseText}`);
+  }
+
+  if (data.status === "success") {
+    const messageId =
+      data.result?.report?.accepted?.[0]?.receiver?.toString() ?? `prosms-${Date.now()}`;
+    if (process.env.NODE_ENV !== "production") {
+      console.info("[prosms] SMS akseptert, receiver (siste 4): ***" + String(receiverNumber).slice(-4));
+    }
+    return { success: true, messageId };
+  }
+
+  throw new Error(data.message ?? "ProSMS ukjent feil");
+}
+
+/**
+ * Send SMS uten norsk-nummer-validering (f.eks. til salgsnummer i Sverige).
+ * Bruker samme provider som sendSms.
+ */
+export async function sendSmsToNumber(options: SmsOptions): Promise<{
+  success: boolean;
+  messageId?: string;
+  error?: string;
+}> {
+  const provider = process.env.SMS_PROVIDER || "link_mobility";
+  if (options.message.length > 160) {
+    console.warn(`SMS message too long (${options.message.length} chars). May be split.`);
+  }
+  try {
+    switch (provider) {
+      case "link_mobility":
+        return await sendViaLinkMobility(options);
+      case "intellisms":
+        return await sendViaIntelliSMS(options);
+      case "prosms":
+        return await sendViaProSMS(options);
+      case "mock":
+        return mockSendSms(options);
+      default:
+        return mockSendSms(options);
+    }
+  } catch (error: unknown) {
+    console.error("SMS send error:", error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "Ukjent feil",
+    };
+  }
+}
+
+/**
+ * Ring meg: sender SMS til salgsavdeling med kundens navn og telefon.
+ * Bruker ProSMS når PROSMS_API_KEY er satt (anbefalt for Ring meg); ellers fallback til SMS_PROVIDER.
+ * Krever: RING_MEG_SALES_PHONE, og enten PROSMS_API_KEY eller konfigurert SMS_PROVIDER.
+ */
+export async function sendRingMegSms(customerName: string, customerPhone: string): Promise<{
+  success: boolean;
+  error?: string;
+}> {
+  const salesPhone = process.env.RING_MEG_SALES_PHONE;
+  if (!salesPhone || !salesPhone.trim()) {
+    return { success: false, error: "RING_MEG_SALES_PHONE er ikke satt" };
+  }
+  const to = salesPhone.trim().startsWith("+") ? salesPhone.trim() : `+47${salesPhone.trim()}`;
+  const message = `Ring meg: ${customerName} ${customerPhone}. Ønsker mer info/kjøp HMS Nova.`;
+
+  const apiKey = process.env.PROSMS_API_KEY ?? process.env.PRO_SMS_API_KEY;
+  if (apiKey) {
+    try {
+      return await sendViaProSMS({ to, message });
+    } catch (error: unknown) {
+      console.error("SMS send error (Ring meg via ProSMS):", error);
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : "Kunne ikke sende via ProSMS",
+      };
+    }
+  }
+
+  return sendSmsToNumber({ to, message });
 }
 
 /**

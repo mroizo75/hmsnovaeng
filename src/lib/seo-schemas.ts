@@ -98,7 +98,7 @@ export const COURSE_SCHEMA = {
       description: "Lovpålagt 40-timers verneombudkurs",
       provider: {
         "@type": "Organization",
-        name: "KKS AS",
+        name: "HMS Nova AS",
       },
       hasCourseInstance: {
         "@type": "CourseInstance",
@@ -113,7 +113,7 @@ export const COURSE_SCHEMA = {
       description: "Grunnleggende førstehjelp med sertifikat",
       provider: {
         "@type": "Organization",
-        name: "KKS AS",
+        name: "HMS Nova AS",
       },
       hasCourseInstance: {
         "@type": "CourseInstance",
@@ -128,7 +128,7 @@ export const COURSE_SCHEMA = {
       description: "Førstehjelp spesielt tilpasset barn",
       provider: {
         "@type": "Organization",
-        name: "KKS AS",
+        name: "HMS Nova AS",
       },
       hasCourseInstance: {
         "@type": "CourseInstance",

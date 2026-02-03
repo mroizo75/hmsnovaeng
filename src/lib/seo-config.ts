@@ -249,7 +249,7 @@ export const PAGE_METADATA = {
   },
   kurs: {
     title: "HMS-kurs - Lovpålagte Kurs & Førstehjelp | HMS Nova",
-    description: "🎓 20% rabatt på HMS-kurs for medlemmer · Verneombud · Førstehjelp · Diisocyanater · Godkjent av KKS AS · Fysisk, digitalt eller hybrid · Bestill i dag!",
+    description: "🎓 20% rabatt på HMS-kurs for medlemmer · Verneombud · Førstehjelp · Diisocyanater · HMS Nova AS · Fysisk, digitalt eller hybrid · Bestill i dag!",
     keywords: "hms kurs, verneombud kurs, førstehjelp kurs, hms opplæring, lovpålagt hms kurs",
   },
   bht: {

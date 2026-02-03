@@ -163,7 +163,7 @@ export async function submitRegistrationRequest(formData: FormData) {
       try {
         await resend.emails.send({
           from: "HMS Nova <noreply@hmsnova.no>",
-          to: "kenneth@kksas.no",
+          to: "kenneth@hmsnova.no",
           subject: `🎯 Ny registrering: ${validated.companyName}`,
           html: getAdminNotificationEmail({
             companyName: validated.companyName,

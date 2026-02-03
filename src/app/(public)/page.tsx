@@ -5,6 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { ScrollReveal } from "@/components/scroll-reveal";
 import { RegisterDialog } from "@/components/register-dialog";
+import { RingMegDialog } from "@/components/ring-meg-dialog";
 import { MultipleStructuredData } from "@/components/seo/structured-data";
 import { FAQSection } from "@/components/faq-section";
 import { getFAQsForPage } from "@/lib/faq-data";
@@ -78,7 +79,7 @@ export default function HomePage() {
           Få et komplett HMS-system med digital signatur, mobilapp og ISO 9001 compliance – 
           som faktisk fungerer i praksis.
         </p>
-        <div className="flex flex-col sm:flex-row gap-4 justify-center">
+        <div className="flex flex-col sm:flex-row gap-4 justify-center flex-wrap">
           <RegisterDialog>
             <Button size="lg" className="text-lg px-8 bg-green-700 hover:bg-green-800 text-white">
               Kom i gang nå
@@ -90,9 +91,10 @@ export default function HomePage() {
               Få gratis HMS-pakke
             </Button>
           </Link>
+          <RingMegDialog />
         </div>
         <p className="text-sm text-muted-foreground mt-4">
-          ✓ Ingen kredittkort nødvendig  ✓ Full tilgang  ✓ Norsk support
+          ✓ Ingen kredittkort nødvendig  ✓ Full tilgang  ✓ Norsk support  ✓ Ring meg for mer info
         </p>
       </section>
 

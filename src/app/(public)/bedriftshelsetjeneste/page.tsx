@@ -65,7 +65,7 @@ export default function BHTPage() {
               ✓ Lovpålagt for bedrifter med <strong>5+ ansatte</strong> (2024-regelverk)<br/>
               ✓ Mål sykefravær digitalt i HMS Nova<br/>
               ✓ <strong>10% rabatt</strong> på BHT hos Dr. Dropin<br/>
-              ✓ <strong>20% rabatt</strong> på alle HMS-kurs (KKS AS)<br/>
+              ✓ <strong>20% rabatt</strong> på alle HMS-kurs (HMS Nova AS)<br/>
               ✓ AMO-kurs (Arbeidsmiljøopplæring) inkludert
             </p>
           </div>
@@ -540,7 +540,7 @@ export default function BHTPage() {
                     <ul className="text-sm text-muted-foreground space-y-1">
                       <li>✅ Lovpålagte HMS-kurs (verneombud, ledelse, etc.)</li>
                       <li>✅ Førstehjelp for barn og voksne</li>
-                      <li>✅ Spesialkurs fra KKS AS (inkl. diisocyanater)</li>
+                      <li>✅ Spesialkurs fra HMS Nova AS (inkl. diisocyanater)</li>
                       <li>✅ Fysisk, digitalt eller hybrid format</li>
                     </ul>
                     <p className="text-xs text-green-700 font-semibold pt-2">

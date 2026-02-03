@@ -6,56 +6,15 @@ import { Button } from "@/components/ui/button";
 import { Award, BookOpen, Users, Linkedin, Mail, Phone } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
+import { getTeamMember } from "@/lib/team";
 
-// Author data - flytt til database senere
-const AUTHORS = {
-  "kenneth-kristiansen": {
-    name: "Kenneth Kristiansen",
-    title: "HMS-ekspert og gründer",
-    image: "/team/kenneth-kristiansen.png",
-    bio: "Kenneth er gründer av HMS Nova og brenner for å gjøre HMS-arbeid enkelt og tilgjengelig. Med erfaring fra både privat og offentlig sektor, kombinerer han praktisk kunnskap med moderne teknologi for å bygge trygghet i norske bedrifter.",
-    longBio: `
-Kenneth startet HMS Nova med en visjon: HMS-arbeid skal være enkelt, ikke byråkratisk.
-
-Gjennom erfaring med komplekse HMS-systemer og frustrerte bedriftseiere, så han behovet for en moderne, brukervennlig løsning. HMS Nova bygger trygghet - ikke byråkrati.
-
-I dag jobber Kenneth med å utvikle HMS Nova videre og hjelper bedrifter med digitalisering av HMS-arbeid.
-    `,
-    credentials: [
-      "Gründer av HMS Nova",
-      "Godkjent kursleverandør via KKS AS",
-      "Erfaring med HMS og kvalitetsstyring",
-      "Spesialist på digitalisering av HMS",
-      "Utvikler av moderne HMS-løsninger"
-    ],
-    expertise: [
-      "HMS-systemer",
-      "ISO 9001 sertifisering",
-      "Risikovurdering",
-      "Arbeidsmiljø",
-      "Internkontroll",
-      "Digitalisering",
-      "Ledelsessystemer"
-    ],
-    contact: {
-      email: "kenneth@hmsnova.no",
-      phone: "+47 99 11 29 16",
-      linkedin: "" // Legg til LinkedIn URL hvis ønsket
-    },
-    articlesWritten: 5,
-    companiesHelped: 50,
-  }
-} as const;
-
-type AuthorSlug = keyof typeof AUTHORS;
-
-export async function generateMetadata({ 
-  params 
-}: { 
-  params: Promise<{ slug: string }> 
+export async function generateMetadata({
+  params
+}: {
+  params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
   const { slug } = await params;
-  const author = AUTHORS[slug as AuthorSlug];
+  const author = getTeamMember(slug);
 
   if (!author) {
     return {
@@ -82,19 +41,18 @@ export async function generateMetadata({
   };
 }
 
-export default async function AuthorPage({ 
-  params 
-}: { 
-  params: Promise<{ slug: string }> 
+export default async function AuthorPage({
+  params
+}: {
+  params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const author = AUTHORS[slug as AuthorSlug];
+  const author = getTeamMember(slug);
 
   if (!author) {
     notFound();
   }
 
-  // Person Schema for E-E-A-T
   const personSchema = {
     "@context": "https://schema.org",
     "@type": "Person",
@@ -114,7 +72,6 @@ export default async function AuthorPage({
 
   return (
     <>
-      {/* Schema.org Person markup */}
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(personSchema) }}
@@ -123,7 +80,6 @@ export default async function AuthorPage({
       <div className="min-h-screen bg-gradient-to-b from-background to-muted/20">
         <section className="container mx-auto px-4 py-20">
           <div className="max-w-4xl mx-auto">
-            {/* Header */}
             <div className="flex flex-col md:flex-row gap-8 mb-12">
               <div className="flex-shrink-0">
                 <div className="w-48 h-48 rounded-full bg-muted overflow-hidden relative">
@@ -132,6 +88,7 @@ export default async function AuthorPage({
                     alt={author.name}
                     fill
                     className="object-cover"
+                    style={{ objectPosition: author.imagePosition ?? "top" }}
                     priority
                   />
                 </div>
@@ -142,12 +99,11 @@ export default async function AuthorPage({
                 <p className="text-xl text-muted-foreground mb-6">{author.title}</p>
                 <p className="text-lg mb-6">{author.bio}</p>
 
-                {/* Stats */}
                 <div className="flex flex-wrap gap-6 mb-6">
                   <div className="flex items-center gap-2">
                     <Users className="h-5 w-5 text-primary" />
                     <span className="font-semibold">HMS Nova</span>
-                    <span className="text-muted-foreground">gründer og utvikler</span>
+                    <span className="text-muted-foreground">{author.teamLabel}</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <BookOpen className="h-5 w-5 text-primary" />
@@ -156,7 +112,6 @@ export default async function AuthorPage({
                   </div>
                 </div>
 
-                {/* Contact */}
                 <div className="flex flex-wrap gap-3">
                   <Button asChild className="bg-primary text-primary-foreground hover:bg-primary/90">
                     <a href={`mailto:${author.contact.email}`}>
@@ -172,9 +127,9 @@ export default async function AuthorPage({
                   </Button>
                   {author.contact.linkedin && (
                     <Button asChild variant="outline">
-                      <a 
-                        href={author.contact.linkedin} 
-                        target="_blank" 
+                      <a
+                        href={author.contact.linkedin}
+                        target="_blank"
                         rel="noopener noreferrer"
                       >
                         <Linkedin className="mr-2 h-4 w-4" />
@@ -186,19 +141,17 @@ export default async function AuthorPage({
               </div>
             </div>
 
-            {/* Long Bio */}
             <Card className="mb-8">
               <CardHeader>
-                <CardTitle>Om {author.name.split(' ')[0]}</CardTitle>
+                <CardTitle>Om {author.name.split(" ")[0]}</CardTitle>
               </CardHeader>
               <CardContent className="prose prose-lg max-w-none">
-                {author.longBio.trim().split('\n\n').map((para, i) => (
+                {author.longBio.trim().split("\n\n").map((para, i) => (
                   <p key={i}>{para.trim()}</p>
                 ))}
               </CardContent>
             </Card>
 
-            {/* Credentials */}
             <Card className="mb-8">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
@@ -220,7 +173,6 @@ export default async function AuthorPage({
               </CardContent>
             </Card>
 
-            {/* Expertise */}
             <Card>
               <CardHeader>
                 <CardTitle>Ekspertiseområder</CardTitle>
@@ -236,7 +188,12 @@ export default async function AuthorPage({
               </CardContent>
             </Card>
 
-            {/* CTA */}
+            <div className="mt-12 flex flex-wrap gap-4 justify-center">
+              <Button asChild size="sm" variant="outline">
+                <Link href="/team">Tilbake til teamet</Link>
+              </Button>
+            </div>
+
             <div className="mt-12 text-center">
               <Card className="bg-primary text-primary-foreground border-0">
                 <CardContent className="p-8">
@@ -244,18 +201,19 @@ export default async function AuthorPage({
                     Trenger din bedrift HMS-hjelp?
                   </h2>
                   <p className="mb-6 text-primary-foreground/90">
-                    Kontakt {author.name.split(' ')[0]} for en uforpliktende samtale om hvordan HMS Nova kan hjelpe din bedrift.
+                    Kontakt {author.name.split(" ")[0]} for en uforpliktende samtale om
+                    hvordan HMS Nova kan hjelpe din bedrift.
                   </p>
                   <div className="flex flex-col sm:flex-row gap-4 justify-center">
                     <Button asChild size="lg" className="bg-white text-primary hover:bg-white/90">
-                      <Link href="/registrer-bedrift">
-                        Kom i gang gratis
-                      </Link>
+                      <Link href="/registrer-bedrift">Kom i gang gratis</Link>
                     </Button>
-                    <Button asChild size="lg" className="bg-transparent border-2 border-white text-white hover:bg-white/10">
-                      <a href={`mailto:${author.contact.email}`}>
-                        Send e-post
-                      </a>
+                    <Button
+                      asChild
+                      size="lg"
+                      className="bg-transparent border-2 border-white text-white hover:bg-white/10"
+                    >
+                      <a href={`mailto:${author.contact.email}`}>Send e-post</a>
                     </Button>
                   </div>
                 </CardContent>

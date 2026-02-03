@@ -4,9 +4,9 @@ import { Badge } from "@/components/ui/badge";
 import { FileText, Mail, Phone } from "lucide-react";
 
 export const metadata: Metadata = {
-  title: "Bruksvilkår | Terms of Service | KKS AS & HMS Nova",
+  title: "Bruksvilkår | Terms of Service | HMS Nova AS",
   description:
-    "Les bruksvilkårene for HMS Nova. Informasjon om priser, betaling, oppsigelse, brukerens plikter, ansvarsbegrensning og dine rettigheter som kunde hos KKS AS.",
+    "Les bruksvilkårene for HMS Nova. Informasjon om priser, betaling, oppsigelse, brukerens plikter, ansvarsbegrensning og dine rettigheter som kunde hos HMS Nova AS.",
   robots: {
     index: true,
     follow: true,
@@ -31,7 +31,7 @@ export default function VilkarPage() {
             Bruksvilkår
           </h1>
           <p className="text-xl text-muted-foreground">
-            Vilkår for bruk av HMS Nova og tjenester fra KKS AS
+            Vilkår for bruk av HMS Nova og tjenester fra HMS Nova AS
           </p>
           <p className="text-sm text-muted-foreground mt-4">
             Sist oppdatert: {lastUpdated}
@@ -45,7 +45,7 @@ export default function VilkarPage() {
             </CardHeader>
             <CardContent className="space-y-4">
               <p className="text-muted-foreground">
-                Disse bruksvilkårene ("Vilkårene") gjelder mellom <strong>KKS AS</strong> (org.nr. 925897019), 
+                Disse bruksvilkårene ("Vilkårene") gjelder mellom <strong>HMS Nova AS</strong> (org.nr. kommer), 
                 ("Vi", "Oss", "Vår") og deg som bruker av HMS Nova ("Du", "Deg", "Din", "Kunden").
               </p>
               <p className="text-muted-foreground">
@@ -162,14 +162,14 @@ export default function VilkarPage() {
                 <h4 className="font-semibold mb-2">4.2 Oppsigelse fra kunde</h4>
                 <p className="text-sm text-muted-foreground">
                   Du kan si opp abonnementet når som helst ved å sende e-post til{" "}
-                  <a href="mailto:post@kksas.no" className="text-primary hover:underline">post@kksas.no</a>. 
+                  <a href="mailto:post@hmsnova.no" className="text-primary hover:underline">post@hmsnova.no</a>. 
                   Oppsigelsen trer i kraft ved utløpet av gjeldende faktureringsperiode. 
                   Ingen refusjon for allerede betalt periode.
                 </p>
               </div>
 
               <div>
-                <h4 className="font-semibold mb-2">4.3 Oppsigelse fra KKS AS</h4>
+                <h4 className="font-semibold mb-2">4.3 Oppsigelse fra HMS Nova AS</h4>
                 <p className="text-sm text-muted-foreground">
                   Vi kan si opp avtalen med 30 dagers varsel hvis du bryter Vilkårene, ikke betaler fakturaer, 
                   eller hvis vi velger å avslutte tjenesten. Ved oppsigelse fra vår side vil du få refundert 
@@ -352,7 +352,7 @@ export default function VilkarPage() {
                 <h4 className="font-semibold mb-2">8.1 Våre rettigheter</h4>
                 <p className="text-sm text-muted-foreground">
                   HMS Nova, inkludert programvare, design, tekst, grafikk, logo og annet innhold, 
-                  er beskyttet av opphavsrett og andre immaterielle rettigheter som eies av KKS AS. 
+                  er beskyttet av opphavsrett og andre immaterielle rettigheter som eies av HMS Nova AS. 
                   Du får kun en begrenset, ikke-eksklusiv, ikke-overførbar lisens til å bruke tjenesten.
                 </p>
               </div>
@@ -431,15 +431,15 @@ export default function VilkarPage() {
               <div className="space-y-2 text-sm">
                 <p className="flex items-center gap-2">
                   <Mail className="h-4 w-4 text-primary" />
-                  <a href="mailto:post@kksas.no" className="text-primary font-semibold hover:underline">post@kksas.no</a>
+                  <a href="mailto:post@hmsnova.no" className="text-primary font-semibold hover:underline">post@hmsnova.no</a>
                 </p>
                 <p className="flex items-center gap-2">
                   <Phone className="h-4 w-4 text-primary" />
                   <a href="tel:+4799112916" className="text-primary font-semibold hover:underline">+47 99 11 29 16</a>
                 </p>
                 <p className="text-muted-foreground mt-4">
-                  <strong>KKS AS</strong><br/>
-                  Org.nr: 925897019<br/>
+                  <strong>HMS Nova AS</strong><br/>
+                  Org.nr. legges inn<br/>
                   Peckels Gate 12b, 3616 Kongsberg
                 </p>
               </div>

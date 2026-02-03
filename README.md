@@ -123,4 +123,4 @@ src/
 
 ## Lisens
 
-Proprietær - KKS AS
+Proprietær - HMS Nova AS
