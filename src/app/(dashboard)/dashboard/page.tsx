@@ -417,6 +417,12 @@ export default async function DashboardPage() {
   }
 
   const tenantName = session.user.tenantName;
+  const summaryParts: string[] = [];
+  if (criticalRisks.length > 0) summaryParts.push(`${criticalRisks.length} kritiske risikoer`);
+  if (myOverdueTasks.length > 0) summaryParts.push(`${myOverdueTasks.length} forfalte oppgaver`);
+  if (myTasksThisWeek.length > 0) summaryParts.push(`${myTasksThisWeek.length} oppgaver denne uken`);
+  if (openIncidents.length > 0) summaryParts.push(`${openIncidents.length} åpne hendelser`);
+  const summaryLine = summaryParts.length > 0 ? summaryParts.join(" · ") : null;
 
   return (
     <div className="space-y-6">
@@ -426,7 +432,7 @@ export default async function DashboardPage() {
           Velkommen, {user.name || user.email}
         </h1>
         <p className="text-muted-foreground">
-          Din HMS-oversikt for i dag
+          {summaryLine ?? "Din HMS-oversikt for i dag"}
         </p>
         {tenantName && (
           <div className="mt-2 lg:hidden">
@@ -443,26 +449,17 @@ export default async function DashboardPage() {
       {/* Critical Alerts */}
       {sortedAlerts.length > 0 && <CriticalAlerts alerts={sortedAlerts} />}
 
-      {/* Quick Actions */}
+      {/* Quick Actions - kompakt rad */}
       <QuickActions permissions={permissions} userRole={userRole} />
 
-      {/* Task Center - Samlet oppgaveoversikt */}
-      <TaskCenter tenantId={tenantId} userId={user.id} />
-
-      {/* Main Grid - 2 kolonne layout på desktop */}
-      <div className="grid gap-6 lg:grid-cols-2">
-        {/* Venstre kolonne */}
-        <div className="space-y-6">
-          {/* Mine oppgaver */}
+      {/* Oppgavesenter + hovedinnhold: oppgaver og aktivitet side om side med graf */}
+      <div className="grid gap-6 lg:grid-cols-5">
+        <div className="lg:col-span-3 space-y-6">
+          <TaskCenter tenantId={tenantId} userId={user.id} />
           {sortedTasks.length > 0 && <MyTasks tasks={sortedTasks} />}
-          
-          {/* Activity Feed */}
           {activities.length > 0 && <ActivityFeed activities={activities} />}
         </div>
-
-        {/* Høyre kolonne */}
-        <div className="space-y-6">
-          {/* HMS-score graf */}
+        <div className="lg:col-span-2 space-y-6">
           <HMSScoreChart data={hmsScoreData} />
         </div>
       </div>

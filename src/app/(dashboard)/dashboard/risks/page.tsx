@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { RiskList } from "@/features/risks/components/risk-list";
 import { RiskMatrix } from "@/features/risks/components/risk-matrix";
-import { Plus, AlertTriangle, CheckCircle, Clock, Shield } from "lucide-react";
+import { Plus, AlertTriangle, CheckCircle, Clock, Shield, FileText } from "lucide-react";
 import Link from "next/link";
 import { PageHelpDialog } from "@/components/dashboard/page-help-dialog";
 import { helpContent } from "@/lib/help-content";
@@ -28,6 +28,12 @@ export default async function RisksPage() {
   }
 
   const tenantId = user.tenants[0].tenantId;
+
+  const riskAssessments = await prisma.riskAssessment.findMany({
+    where: { tenantId },
+    include: { _count: { select: { risks: true } } },
+    orderBy: [{ assessmentYear: "desc" }, { createdAt: "desc" }],
+  });
 
   const risks = await prisma.risk.findMany({
     where: { tenantId },
@@ -128,6 +134,37 @@ export default async function RisksPage() {
           </CardContent>
         </Card>
       </div>
+
+      {riskAssessments.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <FileText className="h-5 w-5" />
+              Risikovurderinger (år)
+            </CardTitle>
+            <p className="text-sm text-muted-foreground">
+              Årlige risikovurderinger med risikopunkter – ISO 45001
+            </p>
+          </CardHeader>
+          <CardContent>
+            <ul className="space-y-2">
+              {riskAssessments.map((a) => (
+                <li key={a.id}>
+                  <Link
+                    href={`/dashboard/risks/assessment/${a.id}`}
+                    className="flex items-center justify-between rounded-md border p-3 hover:bg-muted/50"
+                  >
+                    <span className="font-medium">{a.title}</span>
+                    <span className="text-muted-foreground text-sm">
+                      {a._count.risks} risikopunkt{a._count.risks !== 1 ? "er" : ""}
+                    </span>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </CardContent>
+        </Card>
+      )}
 
       <RiskMatrix risks={risks} />
 

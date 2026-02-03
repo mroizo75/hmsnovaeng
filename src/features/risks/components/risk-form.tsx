@@ -15,7 +15,6 @@ import {
 } from "@/components/ui/select";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { createRisk, updateRisk } from "@/server/actions/risk.actions";
-import { RiskMatrix } from "./risk-matrix";
 import { calculateRiskScore } from "@/features/risks/schemas/risk.schema";
 import { useToast } from "@/hooks/use-toast";
 import type {
@@ -35,6 +34,8 @@ interface RiskFormProps {
   owners: Array<{ id: string; name?: string | null; email?: string | null }>;
   goalOptions?: Array<{ id: string; title: string }>;
   templateOptions?: Array<{ id: string; name: string }>;
+  /** Kort som vises mellom Risikonivå og Rest-risiko (f.eks. Tiltak for å redusere risiko). Kun i edit-mode. */
+  slotBetweenRisikonivaAndResidual?: React.ReactNode;
 }
 
 const statusOptions = [
@@ -52,6 +53,10 @@ const categoryOptions: Array<{ value: RiskCategory; label: string }> = [
   { value: "INFORMATION_SECURITY", label: "Informasjonssikkerhet" },
   { value: "LEGAL", label: "Juridisk/Compliance" },
   { value: "STRATEGIC", label: "Strategisk" },
+  { value: "PSYCHOSOCIAL", label: "Psykososialt" },
+  { value: "ERGONOMIC", label: "Ergonomisk" },
+  { value: "ORGANISATIONAL", label: "Organisatorisk" },
+  { value: "PHYSICAL", label: "Fysisk" },
 ];
 
 const frequencyOptions: Array<{ value: ControlFrequency; label: string }> = [
@@ -111,6 +116,7 @@ export function RiskForm({
   owners,
   goalOptions = [],
   templateOptions = [],
+  slotBetweenRisikonivaAndResidual,
 }: RiskFormProps) {
   const router = useRouter();
   const { toast } = useToast();
@@ -330,8 +336,10 @@ export function RiskForm({
 
       <Card>
         <CardHeader>
-          <CardTitle>Scenario og nåværende kontroller</CardTitle>
-          <CardDescription>Beskriv hva som kan skje og hvordan det kontrolleres i dag</CardDescription>
+          <CardTitle>Beskrivelse og konsekvens</CardTitle>
+          <CardDescription>
+            Beskriv situasjonen og hva som kan skje (konsekvens). Eksisterende kontroller og notater under.
+          </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">
@@ -347,11 +355,11 @@ export function RiskForm({
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="riskStatement">Hva kan skje?</Label>
+            <Label htmlFor="riskStatement">Konsekvens</Label>
             <Textarea
               id="riskStatement"
               name="riskStatement"
-              placeholder="Beskriv konsekvensen dersom risikoscenarioet inntreffer"
+              placeholder="Hva kan skje dersom risikoscenarioet inntreffer? Beskriv konsekvensen."
               defaultValue={risk?.riskStatement ?? ""}
               disabled={loading}
               rows={3}
@@ -365,7 +373,7 @@ export function RiskForm({
               placeholder="Hvilke barrierer eller kontroller finnes i dag?"
               defaultValue={risk?.existingControls ?? ""}
               disabled={loading}
-              rows={3}
+              rows={2}
             />
           </div>
           <div className="space-y-2">
@@ -376,54 +384,99 @@ export function RiskForm({
               placeholder="Andre relevante detaljer, referanser eller observasjoner"
               defaultValue={risk?.description ?? ""}
               disabled={loading}
-              rows={3}
+              rows={2}
             />
           </div>
         </CardContent>
       </Card>
 
-      <RiskMatrix
-        selectedLikelihood={likelihood}
-        selectedConsequence={consequence}
-        onCellClick={(l, c) => {
-          setLikelihood(l);
-          setConsequence(c);
-        }}
-      />
-
       <Card>
         <CardHeader>
-          <CardTitle>Beregnet risikonivå</CardTitle>
+          <CardTitle>Risikonivå</CardTitle>
+          <CardDescription>
+            {risk?.riskAssessmentId
+              ? "Satt da risikopunktet ble lagt inn. Endres på oversiktssiden ved behov."
+              : "Sannsynlighet og konsekvens (1–5). Risikomatrisen vises på oversiktssiden /dashboard/risks"}
+          </CardDescription>
         </CardHeader>
-        <CardContent>
-          <div className={`p-6 rounded-lg border-2 ${bgColor}`}>
-            <div className="flex items-center justify-between">
-              <div>
-                <div className={`text-3xl font-bold ${color}`}>{level}</div>
-                <div className="text-sm text-muted-foreground mt-1">
-                  Sannsynlighet: {likelihood} × Konsekvens: {consequence}
+        <CardContent className="space-y-4">
+          {risk?.riskAssessmentId ? (
+            <div className={`rounded-lg border-2 p-4 ${bgColor}`}>
+              <div className="flex items-center justify-between">
+                <div>
+                  <div className={`text-xl font-bold ${color}`}>{level}</div>
+                  <div className="text-sm text-muted-foreground mt-1">
+                    Sannsynlighet: {likelihood} × Konsekvens: {consequence} = {score}
+                  </div>
+                </div>
+                <div className={`text-4xl font-bold ${color}`}>{score}</div>
+              </div>
+            </div>
+          ) : (
+            <>
+              <div className="grid gap-4 md:grid-cols-2">
+                <div className="space-y-2">
+                  <Label>Sannsynlighet (1–5)</Label>
+                  <Select
+                    value={String(likelihood)}
+                    onValueChange={(v) => setLikelihood(Number(v))}
+                    disabled={loading}
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {[1, 2, 3, 4, 5].map((n) => (
+                        <SelectItem key={n} value={String(n)}>
+                          {n}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label>Konsekvens (1–5)</Label>
+                  <Select
+                    value={String(consequence)}
+                    onValueChange={(v) => setConsequence(Number(v))}
+                    disabled={loading}
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {[1, 2, 3, 4, 5].map((n) => (
+                        <SelectItem key={n} value={String(n)}>
+                          {n}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
               </div>
-              <div className={`text-6xl font-bold ${color}`}>{score}</div>
-            </div>
-          </div>
-
-          <div className="mt-4 text-sm text-muted-foreground">
-            <p>
-              {score >= 20 && "⚠️ Kritisk risiko - Må håndteres umiddelbart!"}
-              {score >= 12 && score < 20 && "⚠️ Høy risiko - Krever tiltak snarest"}
-              {score >= 6 && score < 12 && "⚠️ Moderat risiko - Planlegg tiltak"}
-              {score < 6 && "✅ Lav risiko - Kan aksepteres med normal kontroll"}
-            </p>
-          </div>
+              <div className={`rounded-lg border-2 p-4 ${bgColor}`}>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <div className={`text-xl font-bold ${color}`}>{level}</div>
+                    <div className="text-sm text-muted-foreground mt-1">
+                      Sannsynlighet: {likelihood} × Konsekvens: {consequence} = {score}
+                    </div>
+                  </div>
+                  <div className={`text-4xl font-bold ${color}`}>{score}</div>
+                </div>
+              </div>
+            </>
+          )}
         </CardContent>
       </Card>
+
+      {mode === "edit" && slotBetweenRisikonivaAndResidual}
 
       <Card>
         <CardHeader>
           <CardTitle>Rest-risiko etter tiltak</CardTitle>
           <CardDescription>
-            Estimer risiko etter at planlagte tiltak er gjennomført (ISO 45001 krav til evaluering)
+            Vurder restrisiko når tiltak er gjennomført – skal bli lavere etter innførte tiltak (ISO 45001).
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">

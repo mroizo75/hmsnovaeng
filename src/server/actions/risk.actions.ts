@@ -2,8 +2,13 @@
 
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/db";
-import { createRiskSchema, updateRiskSchema } from "@/features/risks/schemas/risk.schema";
-import { ControlFrequency } from "@prisma/client";
+import {
+  createRiskSchema,
+  updateRiskSchema,
+  createRiskAssessmentSchema,
+  riskLevelToMatrix,
+} from "@/features/risks/schemas/risk.schema";
+import { ControlFrequency, RiskCategory } from "@prisma/client";
 import { calculateNextReviewDate } from "@/lib/document-utils";
 import { getActionContext } from "./action-context";
 
@@ -125,9 +130,10 @@ export async function createRisk(input: any) {
       residualConsequence: parseOptionalNumber(input.residualConsequence),
       nextReviewDate: parseOptionalDate(input.nextReviewDate),
       reviewedAt: parseOptionalDate(input.reviewedAt),
+      assessmentDate: parseOptionalDate(input.assessmentDate),
     };
     const validated = createRiskSchema.parse(normalizedInput);
-    
+
     const score = validated.likelihood * validated.consequence;
     const residualScore =
       validated.residualLikelihood && validated.residualConsequence
@@ -141,6 +147,7 @@ export async function createRisk(input: any) {
     const risk = await prisma.risk.create({
       data: {
         tenantId: validated.tenantId,
+        riskAssessmentId: validated.riskAssessmentId ?? null,
         title: validated.title,
         context: validated.context,
         description: sanitizeString(validated.description),
@@ -167,6 +174,7 @@ export async function createRisk(input: any) {
         responseStrategy: validated.responseStrategy,
         trend: validated.trend,
         reviewedAt: validated.reviewedAt ?? null,
+        assessmentDate: validated.assessmentDate ?? null,
       },
     });
     
@@ -275,7 +283,9 @@ export async function updateRisk(input: any) {
     if (validated.controlFrequency) {
       updateData.controlFrequency = validated.controlFrequency;
     }
-    
+    if (validated.riskAssessmentId !== undefined) updateData.riskAssessmentId = validated.riskAssessmentId;
+    if (validated.assessmentDate !== undefined) updateData.assessmentDate = validated.assessmentDate;
+
     const risk = await prisma.risk.update({
       where: { id: validated.id, tenantId },
       data: updateData,
@@ -360,6 +370,173 @@ export async function getRiskStats(tenantId: string) {
   } catch (error: any) {
     console.error("Get risk stats error:", error);
     return { success: false, error: error.message || "Kunne ikke hente statistikk" };
+  }
+}
+
+// —— Risikovurdering (årlig dokument med risikopunkter) ——
+
+export async function createRiskAssessment(input: {
+  tenantId: string;
+  title: string;
+  assessmentYear: number;
+}) {
+  try {
+    const { user, tenantId } = await getActionContext();
+    const validated = createRiskAssessmentSchema.parse({ ...input, tenantId });
+
+    const assessment = await prisma.riskAssessment.create({
+      data: {
+        tenantId: validated.tenantId,
+        title: validated.title,
+        assessmentYear: validated.assessmentYear,
+      },
+    });
+
+    await prisma.auditLog.create({
+      data: {
+        tenantId,
+        userId: user.id,
+        action: "RISK_ASSESSMENT_CREATED",
+        resource: `RiskAssessment:${assessment.id}`,
+        metadata: JSON.stringify({ title: assessment.title, year: assessment.assessmentYear }),
+      },
+    });
+
+    revalidatePath("/dashboard/risks");
+    revalidatePath(`/dashboard/risks/assessment/${assessment.id}`);
+    return { success: true, data: assessment };
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : "Kunne ikke opprette risikovurdering";
+    return { success: false, error: message };
+  }
+}
+
+export async function getRiskAssessments(tenantId: string) {
+  try {
+    await getActionContext();
+    const assessments = await prisma.riskAssessment.findMany({
+      where: { tenantId },
+      include: {
+        _count: { select: { risks: true } },
+      },
+      orderBy: [{ assessmentYear: "desc" }, { createdAt: "desc" }],
+    });
+    return { success: true, data: assessments };
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : "Kunne ikke hente risikovurderinger";
+    return { success: false, error: message };
+  }
+}
+
+export async function getRiskAssessment(assessmentId: string) {
+  try {
+    const { tenantId } = await getActionContext();
+    const assessment = await prisma.riskAssessment.findFirst({
+      where: { id: assessmentId, tenantId },
+      include: {
+        risks: {
+          orderBy: [{ score: "desc" }, { assessmentDate: "desc" }, { createdAt: "asc" }],
+          include: {
+            owner: { select: { id: true, name: true, email: true } },
+          },
+        },
+      },
+    });
+    if (!assessment) return { success: false, error: "Risikovurdering ikke funnet" };
+    return { success: true, data: assessment };
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : "Kunne ikke hente risikovurdering";
+    return { success: false, error: message };
+  }
+}
+
+export async function deleteRiskAssessment(assessmentId: string) {
+  try {
+    const { user, tenantId } = await getActionContext();
+    const assessment = await prisma.riskAssessment.findFirst({
+      where: { id: assessmentId, tenantId },
+      include: { _count: { select: { risks: true } } },
+    });
+    if (!assessment) return { success: false, error: "Risikovurdering ikke funnet" };
+
+    await prisma.riskAssessment.delete({ where: { id: assessmentId } });
+
+    await prisma.auditLog.create({
+      data: {
+        tenantId,
+        userId: user.id,
+        action: "RISK_ASSESSMENT_DELETED",
+        resource: `RiskAssessment:${assessmentId}`,
+        metadata: JSON.stringify({ title: assessment.title, risksCount: assessment._count.risks }),
+      },
+    });
+
+    revalidatePath("/dashboard/risks");
+    return { success: true };
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : "Kunne ikke slette risikovurdering";
+    return { success: false, error: message };
+  }
+}
+
+/** Legg til risikopunkt i en risikovurdering (tittel, beskrivelse, konsekvens, nivå, kategori, dato) */
+export async function addRiskAssessmentItem(input: {
+  riskAssessmentId: string;
+  tenantId: string;
+  ownerId: string;
+  title: string;
+  level: keyof typeof riskLevelToMatrix;
+  category: string;
+  assessmentDate?: string | null;
+  nextReviewDate?: string | null;
+  beskrivelse?: string | null;
+  konsekvens?: string | null;
+}) {
+  try {
+    const { tenantId: ctxTenantId } = await getActionContext();
+    if (input.tenantId !== ctxTenantId) return { success: false, error: "Ugyldig tenant" };
+
+    const assessment = await prisma.riskAssessment.findFirst({
+      where: { id: input.riskAssessmentId, tenantId: input.tenantId },
+    });
+    if (!assessment) return { success: false, error: "Risikovurdering ikke funnet" };
+
+    const { likelihood, consequence } = riskLevelToMatrix[input.level];
+    const score = likelihood * consequence;
+    const beskrivelseTrimmed = (input.beskrivelse ?? "").trim();
+    const context =
+      beskrivelseTrimmed.length >= 10
+        ? beskrivelseTrimmed
+        : input.title.length >= 10
+          ? input.title
+          : `${input.title} (risikopunkt)`;
+    const riskStatement = (input.konsekvens ?? "").trim() || null;
+
+    const risk = await prisma.risk.create({
+      data: {
+        tenantId: input.tenantId,
+        riskAssessmentId: input.riskAssessmentId,
+        title: input.title,
+        context,
+        riskStatement,
+        likelihood,
+        consequence,
+        score,
+        ownerId: input.ownerId,
+        status: "OPEN",
+        category: input.category as RiskCategory,
+        assessmentDate: input.assessmentDate ? new Date(input.assessmentDate) : null,
+        nextReviewDate: input.nextReviewDate ? new Date(input.nextReviewDate) : null,
+        controlFrequency: input.nextReviewDate ? "ANNUAL" : undefined,
+      },
+    });
+
+    revalidatePath("/dashboard/risks");
+    revalidatePath(`/dashboard/risks/assessment/${input.riskAssessmentId}`);
+    return { success: true, data: risk };
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : "Kunne ikke legge til risikopunkt";
+    return { success: false, error: message };
   }
 }
 

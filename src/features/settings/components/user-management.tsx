@@ -35,8 +35,10 @@ import {
   inviteUser,
   updateUserRole,
   removeUserFromTenant,
+  importUsersFromFile,
 } from "@/server/actions/settings.actions";
 import { useToast } from "@/hooks/use-toast";
+import { Upload, FileSpreadsheet } from "lucide-react";
 
 interface UserManagementProps {
   users: Array<{
@@ -61,6 +63,8 @@ export function UserManagement({ users, currentUserId, isAdmin, pricingTier, max
   const [loading, setLoading] = useState<string | null>(null);
   const [inviteOpen, setInviteOpen] = useState(false);
   const [inviteLoading, setInviteLoading] = useState(false);
+  const [importLoading, setImportLoading] = useState(false);
+  const [importFile, setImportFile] = useState<File | null>(null);
 
   const currentUserCount = users.length;
   const remainingSlots = maxUsers - currentUserCount;
@@ -156,6 +160,51 @@ export function UserManagement({ users, currentUserId, isAdmin, pricingTier, max
     setLoading(null);
   };
 
+  const handleImport = async () => {
+    if (!importFile) {
+      toast({
+        variant: "destructive",
+        title: "Velg fil",
+        description: "Velg en CSV- eller Excel-fil først.",
+      });
+      return;
+    }
+    if (hasReachedLimit) {
+      toast({
+        variant: "destructive",
+        title: "Brukergrense nådd",
+        description: `Du har nådd maks antall brukere (${maxUsers}). Oppgrader for å importere flere.`,
+      });
+      return;
+    }
+    setImportLoading(true);
+    const formData = new FormData();
+    formData.set("file", importFile);
+    const result = await importUsersFromFile(formData);
+    setImportLoading(false);
+    setImportFile(null);
+
+    if (!result.success) {
+      const errMsg = "error" in result ? result.error : "Kunne ikke importere brukere";
+      toast({
+        variant: "destructive",
+        title: "Import feilet",
+        description: errMsg,
+      });
+      return;
+    }
+    const msg =
+      result.failed === 0
+        ? `${result.imported} brukere importert. Alle får passord tilsendt på e-post.`
+        : `${result.imported} importert, ${result.failed} feilet.${result.errors.length ? " " + result.errors.slice(0, 3).join("; ") : ""}`;
+    toast({
+      title: result.failed === 0 ? "Import fullført" : "Import delvis fullført",
+      description: msg,
+      className: result.failed === 0 ? "bg-green-50 border-green-200" : undefined,
+    });
+    if (result.imported > 0) router.refresh();
+  };
+
   const getRoleBadge = (role: string) => {
     switch (role) {
       case "ADMIN":
@@ -202,13 +251,13 @@ export function UserManagement({ users, currentUserId, isAdmin, pricingTier, max
               Brukere ({currentUserCount} / {maxUsers === 999 ? "∞" : maxUsers})
             </CardTitle>
             <CardDescription>
-              Administrer brukere og deres tilgang • {getPlanName(pricingTier)}
+              Administrer brukere og deres tilgang • {getPlanName(pricingTier)}. Importer fra CSV eller Excel med kolonner: e-post, navn, rolle.
             </CardDescription>
           </div>
         </div>
 
           {isAdmin && (
-            <div className="flex flex-col items-end gap-2">
+            <div className="flex flex-col items-end gap-3">
               {remainingSlots <= 3 && remainingSlots > 0 && maxUsers !== 999 && (
                 <div className="flex items-center gap-1 text-xs text-amber-600">
                   <AlertCircle className="h-3 w-3" />
@@ -220,7 +269,28 @@ export function UserManagement({ users, currentUserId, isAdmin, pricingTier, max
                   <span>Ubegrenset brukere ✓</span>
                 </div>
               )}
-              <Dialog open={inviteOpen} onOpenChange={setInviteOpen}>
+              <div className="flex flex-wrap items-center gap-2">
+                <div className="flex items-center gap-2 rounded-md border bg-muted/30 px-3 py-2">
+                  <FileSpreadsheet className="h-4 w-4 text-muted-foreground" />
+                  <input
+                    type="file"
+                    accept=".csv,.xlsx"
+                    className="max-w-[180px] text-sm file:mr-2 file:rounded file:border-0 file:bg-primary file:px-3 file:py-1.5 file:text-sm file:font-medium file:text-primary-foreground file:hover:bg-primary/90"
+                    onChange={(e) => setImportFile(e.target.files?.[0] ?? null)}
+                    disabled={importLoading || (hasReachedLimit && maxUsers !== 999)}
+                  />
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    size="sm"
+                    onClick={handleImport}
+                    disabled={importLoading || !importFile || (hasReachedLimit && maxUsers !== 999)}
+                  >
+                    <Upload className="mr-1.5 h-4 w-4" />
+                    {importLoading ? "Importerer..." : "Importer"}
+                  </Button>
+                </div>
+                <Dialog open={inviteOpen} onOpenChange={setInviteOpen}>
                 <DialogTrigger asChild>
                   <Button disabled={hasReachedLimit && maxUsers !== 999}>
                     <UserPlus className="mr-2 h-4 w-4" />
@@ -293,6 +363,7 @@ export function UserManagement({ users, currentUserId, isAdmin, pricingTier, max
                 </form>
                 </DialogContent>
               </Dialog>
+              </div>
             </div>
           )}
       </CardHeader>

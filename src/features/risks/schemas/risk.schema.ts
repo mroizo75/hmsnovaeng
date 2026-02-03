@@ -37,6 +37,8 @@ export const createRiskSchema = z.object({
   responseStrategy: z.nativeEnum(RiskResponseStrategy).default("REDUCE"),
   trend: z.nativeEnum(RiskTrend).default("STABLE"),
   reviewedAt: z.date().optional().nullable(),
+  riskAssessmentId: z.string().cuid().optional().nullable(),
+  assessmentDate: z.date().optional().nullable(),
 });
 
 export const updateRiskSchema = z.object({
@@ -65,10 +67,28 @@ export const updateRiskSchema = z.object({
   responseStrategy: z.nativeEnum(RiskResponseStrategy).optional(),
   trend: z.nativeEnum(RiskTrend).optional(),
   reviewedAt: z.date().optional().nullable(),
+  riskAssessmentId: z.string().cuid().optional().nullable(),
+  assessmentDate: z.date().optional().nullable(),
 });
+
+/** Schema for å opprette en risikovurdering (f.eks. for et år) */
+export const createRiskAssessmentSchema = z.object({
+  tenantId: z.string().cuid(),
+  title: z.string().min(3, "Tittel må være minst 3 tegn"),
+  assessmentYear: z.number().int().min(2000).max(2100),
+});
+
+/** Enkel nivå for risikopunkt i årlig risikovurdering (ISO 45001) */
+export const riskLevelToMatrix = {
+  LOW: { likelihood: 1, consequence: 2 },      // score 2 – Lav
+  MEDIUM: { likelihood: 2, consequence: 4 },  // score 8 – Moderat
+  HIGH: { likelihood: 4, consequence: 4 },     // score 16 – Høy
+  CRITICAL: { likelihood: 5, consequence: 5 }, // score 25 – Kritisk
+} as const;
 
 export type CreateRiskInput = z.infer<typeof createRiskSchema>;
 export type UpdateRiskInput = z.infer<typeof updateRiskSchema>;
+export type CreateRiskAssessmentInput = z.infer<typeof createRiskAssessmentSchema>;
 
 /**
  * Helper function to calculate risk score and level

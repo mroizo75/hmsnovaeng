@@ -140,24 +140,25 @@ export default async function EditRiskPage({ params }: { params: Promise<{ id: s
         owners={tenantUsers}
         goalOptions={goals}
         templateOptions={inspectionTemplates}
+        slotBetweenRisikonivaAndResidual={
+          <Card>
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle>Tiltak for å redusere risiko</CardTitle>
+                  <CardDescription>
+                    ISO 9001: Planlagte tiltak med ansvarlig person og tidsplan
+                  </CardDescription>
+                </div>
+                <MeasureForm tenantId={tenantId} riskId={risk.id} users={tenantUsers} />
+              </div>
+            </CardHeader>
+            <CardContent>
+              <MeasureList measures={risk.measures} />
+            </CardContent>
+          </Card>
+        }
       />
-
-      <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <div>
-              <CardTitle>Tiltak for å redusere risiko</CardTitle>
-              <CardDescription>
-                ISO 9001: Planlagte tiltak med ansvarlig person og tidsplan
-              </CardDescription>
-            </div>
-            <MeasureForm tenantId={tenantId} riskId={risk.id} users={tenantUsers} />
-          </div>
-        </CardHeader>
-        <CardContent>
-          <MeasureList measures={risk.measures} />
-        </CardContent>
-      </Card>
 
       <Card>
         <CardHeader>

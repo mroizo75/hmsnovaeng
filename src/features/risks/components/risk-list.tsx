@@ -49,6 +49,10 @@ const categoryLabels: Record<string, string> = {
   INFORMATION_SECURITY: "Info-sikkerhet",
   LEGAL: "Juridisk",
   STRATEGIC: "Strategisk",
+  PSYCHOSOCIAL: "Psykososialt",
+  ERGONOMIC: "Ergonomisk",
+  ORGANISATIONAL: "Organisatorisk",
+  PHYSICAL: "Fysisk",
 };
 
 const frequencyLabels: Record<string, string> = {

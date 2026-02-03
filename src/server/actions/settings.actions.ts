@@ -5,7 +5,9 @@ import { prisma } from "@/lib/db";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import bcrypt from "bcryptjs";
+import ExcelJS from "exceljs";
 import { AuditLog } from "@/lib/audit-log";
+import { Role } from "@prisma/client";
 
 async function getSessionContext() {
   const session = await getServerSession(authOptions);
@@ -23,6 +25,87 @@ async function getSessionContext() {
   }
 
   return { user, tenantId: user.tenants[0].tenantId };
+}
+
+const VALID_ROLES: Role[] = ["ADMIN", "HMS", "LEDER", "VERNEOMBUD", "ANSATT", "BHT", "REVISOR"];
+const ROLE_ALIASES: Record<string, Role> = {
+  administrator: "ADMIN",
+  admin: "ADMIN",
+  leder: "LEDER",
+  hms: "HMS",
+  "hms-ansvarlig": "HMS",
+  verneombud: "VERNEOMBUD",
+  ansatt: "ANSATT",
+  bht: "BHT",
+  "bedriftshelsetjeneste": "BHT",
+  revisor: "REVISOR",
+};
+
+function normalizeRole(value: string): Role | null {
+  const key = value.trim().toLowerCase().replace(/\s+/g, "-");
+  if (VALID_ROLES.includes(value.trim().toUpperCase() as Role)) {
+    return value.trim().toUpperCase() as Role;
+  }
+  return ROLE_ALIASES[key] ?? null;
+}
+
+const MAX_IMPORT_ROWS = 500;
+const MAX_IMPORT_FILE_SIZE = 2 * 1024 * 1024; // 2MB
+
+interface ImportRow {
+  email: string;
+  name: string;
+  role: Role;
+}
+
+function parseCsvToRows(buffer: Buffer): ImportRow[] {
+  const text = buffer.toString("utf-8").replace(/^\uFEFF/, "");
+  const lines = text.split(/\r?\n/).map((line) => line.trim()).filter(Boolean);
+  const rows: ImportRow[] = [];
+  const sep = lines[0]?.includes(";") ? ";" : ",";
+
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+    const cells = line.split(sep).map((c) => c.replace(/^"|"$/g, "").trim());
+    if (cells.length < 3) continue;
+    const [emailRaw, nameRaw, roleRaw] = cells;
+    const email = emailRaw?.toLowerCase().trim() ?? "";
+    const name = nameRaw?.trim() ?? "";
+    const role = normalizeRole(roleRaw ?? "");
+    if (!email || !name || !role) continue;
+    const isHeader =
+      i === 0 &&
+      (email === "email" || email === "e-post" || name.toLowerCase() === "navn" || role.toLowerCase() === "rolle");
+    if (isHeader) continue;
+    const emailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+    if (!emailValid) continue;
+    if (!VALID_ROLES.includes(role)) continue;
+    rows.push({ email, name, role });
+  }
+  return rows;
+}
+
+async function parseExcelToRows(buffer: Buffer): Promise<ImportRow[]> {
+  const workbook = new ExcelJS.Workbook();
+  await workbook.xlsx.load(buffer as unknown as Parameters<ExcelJS.Workbook["xlsx"]["load"]>[0]);
+  const sheet = workbook.worksheets[0];
+  if (!sheet) return [];
+  const rows: ImportRow[] = [];
+  sheet.eachRow((row, rowNumber) => {
+    const cells = row.values as (string | number | undefined)[];
+    const email = String(cells[1] ?? "").toLowerCase().trim();
+    const name = String(cells[2] ?? "").trim();
+    const role = normalizeRole(String(cells[3] ?? ""));
+    if (!email || !name || !role) return;
+    const isHeader =
+      rowNumber === 1 &&
+      (email === "email" || email === "e-post" || name.toLowerCase() === "navn" || role.toLowerCase() === "rolle");
+    if (isHeader) return;
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return;
+    if (!VALID_ROLES.includes(role)) return;
+    rows.push({ email, name, role });
+  });
+  return rows;
 }
 
 // ============================================================================
@@ -204,36 +287,106 @@ export async function getTenantUsers() {
   }
 }
 
+type InviteContext = {
+  user: Awaited<ReturnType<typeof getSessionContext>>["user"];
+  tenantId: string;
+  tenantName: string;
+};
+
+async function inviteSingleUser(ctx: InviteContext, data: { email: string; name: string; role: string }): Promise<{ success: true } | { success: false; error: string }> {
+  const normalizedEmail = data.email.toLowerCase().trim();
+
+  let existingUser = await prisma.user.findUnique({
+    where: { email: normalizedEmail },
+  });
+
+  if (existingUser) {
+    const inTenant = await prisma.userTenant.findUnique({
+      where: {
+        userId_tenantId: { userId: existingUser.id, tenantId: ctx.tenantId },
+      },
+    });
+    if (inTenant) {
+      return { success: false, error: `${normalizedEmail} er allerede medlem` };
+    }
+  }
+
+  const generateSecurePassword = () => {
+    const charset = "abcdefghijklmnopqrstuvwxyz0123456789";
+    let password = "";
+    for (let i = 0; i < 16; i++) {
+      password += charset.charAt(Math.floor(Math.random() * charset.length));
+    }
+    return password;
+  };
+  const tempPassword = generateSecurePassword();
+  const hashedPassword = await bcrypt.hash(tempPassword, 10);
+
+  if (!existingUser) {
+    existingUser = await prisma.user.create({
+      data: {
+        email: normalizedEmail,
+        name: data.name,
+        password: hashedPassword,
+      },
+    });
+  } else {
+    await prisma.user.update({
+      where: { id: existingUser.id },
+      data: { password: hashedPassword },
+    });
+  }
+
+  await prisma.userTenant.create({
+    data: {
+      userId: existingUser.id,
+      tenantId: ctx.tenantId,
+      role: data.role as Role,
+    },
+  });
+
+  try {
+    const { sendUserInvitationEmail } = await import("@/lib/email-service");
+    await sendUserInvitationEmail({
+      to: normalizedEmail,
+      userName: data.name,
+      userEmail: normalizedEmail,
+      tempPassword,
+      companyName: ctx.tenantName,
+      invitedByName: ctx.user.name || ctx.user.email,
+    });
+  } catch {
+    // Bruker er opprettet; epost feilet
+  }
+
+  await AuditLog.log(ctx.tenantId, ctx.user.id, "USER_INVITED", "User", existingUser.id, {
+    email: normalizedEmail,
+    role: data.role,
+  });
+
+  return { success: true };
+}
+
 export async function inviteUser(data: { email: string; name: string; role: string }) {
   try {
     const { user, tenantId } = await getSessionContext();
 
-    // Sjekk om bruker er admin
     const userTenant = user.tenants.find((t) => t.tenantId === tenantId);
     if (!userTenant || userTenant.role !== "ADMIN") {
       return { success: false, error: "Kun administratorer kan invitere brukere" };
     }
 
-    // Hent tenant med subscription info
     const tenant = await prisma.tenant.findUnique({
       where: { id: tenantId },
-      select: { pricingTier: true },
+      select: { pricingTier: true, name: true },
     });
-
     if (!tenant) {
       return { success: false, error: "Tenant ikke funnet" };
     }
 
-    // Tell antall eksisterende brukere
-    const currentUserCount = await prisma.userTenant.count({
-      where: { tenantId },
-    });
-
-    // Hent brukergrense basert på pricing tier
+    const currentUserCount = await prisma.userTenant.count({ where: { tenantId } });
     const { getSubscriptionLimits } = await import("@/lib/subscription");
     const limits = getSubscriptionLimits(tenant.pricingTier as any);
-
-    // Sjekk om de har nådd maks antall brukere
     if (currentUserCount >= limits.maxUsers) {
       return {
         success: false,
@@ -241,114 +394,117 @@ export async function inviteUser(data: { email: string; name: string; role: stri
       };
     }
 
-    // SIKKERHET: Normaliser e-postadresse til lowercase for konsistent lagring
-    const normalizedEmail = data.email.toLowerCase().trim();
-
-    // Sjekk om bruker allerede eksisterer
-    let existingUser = await prisma.user.findUnique({
-      where: { email: normalizedEmail },
-    });
-
-    // Hvis bruker eksisterer, sjekk om de allerede er med i tenant
-    if (existingUser) {
-      const existingUserTenant = await prisma.userTenant.findUnique({
-        where: {
-          userId_tenantId: {
-            userId: existingUser.id,
-            tenantId,
-          },
-        },
-      });
-
-      if (existingUserTenant) {
-        return { success: false, error: "Brukeren er allerede medlem av denne bedriften" };
-      }
-    }
-
-    // Hent tenant og inviter-info for epost
-    const tenantInfo = await prisma.tenant.findUnique({
-      where: { id: tenantId },
-      select: { name: true },
-    });
-
-    // Generer ALLTID midlertidig passord når bruker inviteres til tenant
-    // Dette sikrer at de får tilgang, uansett om de eksisterer fra før eller ikke
-    // Bruker en sikker metode som genererer kun alfanumeriske tegn (a-z, 0-9)
-    const generateSecurePassword = () => {
-      const charset = 'abcdefghijklmnopqrstuvwxyz0123456789';
-      let password = '';
-      for (let i = 0; i < 16; i++) {
-        password += charset.charAt(Math.floor(Math.random() * charset.length));
-      }
-      return password;
+    const ctx: InviteContext = {
+      user,
+      tenantId,
+      tenantName: tenant.name || "Bedrift",
     };
-    const tempPassword = generateSecurePassword();
-    const hashedPassword = await bcrypt.hash(tempPassword, 10);
-    
-    if (!existingUser) {
-      // Opprett helt ny bruker
-      existingUser = await prisma.user.create({
-        data: {
-          email: normalizedEmail,
-          name: data.name,
-          password: hashedPassword,
-        },
-      });
-      
-      console.log(`✅ Ny bruker opprettet: ${normalizedEmail}`);
-      console.log(`🔑 Midlertidig passord generert: ${tempPassword}`);
-    } else {
-      // Bruker eksisterer - oppdater med nytt midlertidig passord
-      await prisma.user.update({
-        where: { id: existingUser.id },
-        data: { 
-          password: hashedPassword,
-        },
-      });
-      
-      console.log(`ℹ️ Eksisterende bruker legges til i tenant: ${normalizedEmail}`);
-      console.log(`🔑 Nytt midlertidig passord generert: ${tempPassword}`);
+    const result = await inviteSingleUser(ctx, data);
+
+    if (!result.success) {
+      const err = "error" in result ? result.error : "Kunne ikke invitere bruker";
+      return { success: false, error: err };
     }
-
-    // Legg til bruker i tenant
-    const userTenantRelation = await prisma.userTenant.create({
-      data: {
-        userId: existingUser.id,
-        tenantId,
-        role: data.role as any,
-      },
-    });
-
-    // Send invitasjonsepost til ALLE inviterte brukere
-    try {
-      console.log(`📧 Sender invitasjonsepost til ${normalizedEmail}...`);
-      
-      const { sendUserInvitationEmail } = await import("@/lib/email-service");
-      await sendUserInvitationEmail({
-        to: normalizedEmail,
-        userName: data.name,
-        userEmail: normalizedEmail,
-        tempPassword: tempPassword,
-        companyName: tenantInfo?.name || "Bedrift",
-        invitedByName: user.name || user.email,
-      });
-      
-      console.log(`✅ Invitasjonsepost sendt til ${normalizedEmail}`);
-    } catch (emailError) {
-      console.error(`❌ Failed to send invitation email to ${normalizedEmail}:`, emailError);
-      // Vi fortsetter selv om epost feiler - brukeren er opprettet
-    }
-
-    await AuditLog.log(tenantId, user.id, "USER_INVITED", "User", existingUser.id, {
-      email: normalizedEmail,
-      role: data.role,
-    });
 
     revalidatePath("/dashboard/settings");
-    return { success: true, data: userTenantRelation };
+    return { success: true, data: {} };
   } catch (error: any) {
     console.error("Invite user error:", error);
     return { success: false, error: error.message || "Kunne ikke invitere bruker" };
+  }
+}
+
+export type ImportUsersResult =
+  | { success: true; imported: number; failed: number; errors: string[] }
+  | { success: false; error: string };
+
+export async function importUsersFromFile(formData: FormData): Promise<ImportUsersResult> {
+  try {
+    const { user, tenantId } = await getSessionContext();
+
+    const userTenant = user.tenants.find((t) => t.tenantId === tenantId);
+    if (!userTenant || userTenant.role !== "ADMIN") {
+      return { success: false, error: "Kun administratorer kan importere brukere" };
+    }
+
+    const file = formData.get("file") as File | null;
+    if (!file || !(file instanceof File)) {
+      return { success: false, error: "Ingen fil valgt" };
+    }
+
+    if (file.size > MAX_IMPORT_FILE_SIZE) {
+      return { success: false, error: "Filen er for stor. Maks 2 MB." };
+    }
+
+    const ext = file.name.toLowerCase().slice(file.name.lastIndexOf("."));
+    if (ext !== ".csv" && ext !== ".xlsx") {
+      return { success: false, error: "Kun CSV eller Excel (.xlsx) er tillatt" };
+    }
+
+    const tenant = await prisma.tenant.findUnique({
+      where: { id: tenantId },
+      select: { pricingTier: true, name: true },
+    });
+    if (!tenant) {
+      return { success: false, error: "Tenant ikke funnet" };
+    }
+
+    const currentUserCount = await prisma.userTenant.count({ where: { tenantId } });
+    const { getSubscriptionLimits } = await import("@/lib/subscription");
+    const limits = getSubscriptionLimits(tenant.pricingTier as any);
+
+    let rows: ImportRow[];
+    const buffer = Buffer.from(await file.arrayBuffer());
+
+    if (ext === ".csv") {
+      rows = parseCsvToRows(buffer);
+    } else {
+      rows = await parseExcelToRows(buffer);
+    }
+
+    if (rows.length === 0) {
+      return { success: false, error: "Ingen gyldige rader i filen. Bruk kolonner: e-post, navn, rolle." };
+    }
+
+    if (rows.length > MAX_IMPORT_ROWS) {
+      return { success: false, error: `Maks ${MAX_IMPORT_ROWS} brukere per import. Filen inneholder ${rows.length} rader.` };
+    }
+
+    if (currentUserCount + rows.length > limits.maxUsers && limits.maxUsers !== 999) {
+      return {
+        success: false,
+        error: `Importen vil overskride brukergrensen (${limits.maxUsers}). Du har ${currentUserCount} brukere og prøver å importere ${rows.length}.`,
+      };
+    }
+
+    const ctx: InviteContext = {
+      user,
+      tenantId,
+      tenantName: tenant.name || "Bedrift",
+    };
+
+    let imported = 0;
+    const errors: string[] = [];
+
+    for (const row of rows) {
+      const result = await inviteSingleUser(ctx, {
+        email: row.email,
+        name: row.name,
+        role: row.role,
+      });
+      if (result.success) {
+        imported++;
+      } else {
+        const errMsg = "error" in result ? result.error : "Ukjent feil";
+        errors.push(`${row.email}: ${errMsg}`);
+      }
+    }
+
+    revalidatePath("/dashboard/settings");
+    return { success: true, imported, failed: rows.length - imported, errors };
+  } catch (error: any) {
+    console.error("Import users error:", error);
+    return { success: false, error: error.message || "Kunne ikke importere brukere" };
   }
 }
 

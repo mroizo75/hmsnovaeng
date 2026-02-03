@@ -188,6 +188,7 @@ model Tenant {
   documentVersions DocumentVersion[]
   documentTemplates DocumentTemplate[]
   risks            Risk[]
+  riskAssessments  RiskAssessment[]
   riskControls     RiskControl[]
   riskDocumentLinks RiskDocumentLink[]
   riskAuditLinks   RiskAuditLink[]
@@ -573,9 +574,26 @@ model DocumentTemplate {
 // Risk Management
 // ============================================
 
+/// Årlig eller periodisk risikovurdering (f.eks. "Risikovurdering 2026"). ISO 45001: systematisk vurdering med identifiserte risikopunkter.
+model RiskAssessment {
+  id             String   @id @default(cuid())
+  tenantId       String
+  title          String   // f.eks. "Risikovurdering 2026"
+  assessmentYear Int      // år (2026)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  risks  Risk[]
+
+  @@index([tenantId])
+  @@index([assessmentYear])
+}
+
 model Risk {
   id          String     @id @default(cuid())
   tenantId    String
+  riskAssessmentId String? // tilhører en risikovurdering (årlig dokument)
   title       String
   context     String     @db.Text
   likelihood  Int
@@ -602,10 +620,12 @@ model Risk {
   responseStrategy RiskResponseStrategy @default(REDUCE)
   trend        RiskTrend @default(STABLE)
   reviewedAt  DateTime?
+  assessmentDate DateTime? // vurderingsdato for dette punktet (i listen)
   createdAt   DateTime   @default(now())
   updatedAt   DateTime   @updatedAt
 
   tenant              Tenant             @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  riskAssessment      RiskAssessment?    @relation(fields: [riskAssessmentId], references: [id], onDelete: SetNull)
   measures            Measure[]
   owner               User               @relation("RiskOwner", fields: [ownerId], references: [id])
   kpi                 Goal?              @relation("RiskGoal", fields: [kpiId], references: [id])
@@ -620,6 +640,7 @@ model Risk {
   trainingRequirements RiskTrainingRequirement[]
 
   @@index([tenantId])
+  @@index([riskAssessmentId])
   @@index([status])
   @@index([score])
   @@index([category])
@@ -643,6 +664,11 @@ enum RiskCategory {
   ENVIRONMENTAL
   LEGAL
   INFORMATION_SECURITY
+  // Arbeidsmiljø (ISO 45001) – typiske kategorier i årlig risikovurdering
+  PSYCHOSOCIAL   // Psykososialt
+  ERGONOMIC      // Ergonomisk
+  ORGANISATIONAL // Organisatorisk
+  PHYSICAL       // Fysisk
 }
 
 enum RiskResponseStrategy {
