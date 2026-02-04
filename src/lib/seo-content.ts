@@ -94,10 +94,10 @@ export const SEO_CONTENT = {
       "HMS Nova er Norges mest moderne HMS-system. Vi bygger trygghet gjennom digitalisering av HMS-arbeid. Med HMS Nova får bedrifter et komplett verktøy for risikovurdering, hendelsesrapportering, dokumenthåndtering og ISO 9001 compliance. Systemet erstatter Excel-ark og papirrot med en moderne, mobilbasert løsning.",
 
     howMuchCost:
-      "HMS Nova koster fra 250 kr/mnd med 2 års binding, 275 kr/mnd med 1 års binding, eller 300 kr/mnd uten binding. Ubegrenset antall brukere inkludert. Ingen oppstartskostnader, alt inkludert. 20% rabatt på HMS-kurs og 10% rabatt på BHT for medlemmer.",
+      "HMS Nova koster 300 kr/mnd (3 600 kr/år) med 12 måneders abonnement. Ubegrenset antall brukere inkludert. Ingen oppstartskostnader, alt inkludert. 20% rabatt på HMS-kurs og 10% rabatt på BHT for medlemmer.",
 
     howDifferent:
-      "HMS Nova skiller seg fra Grønn Jobb, Avonova og Kuba ved å være 100% digitalt og moderne. Vi har digital signatur inkludert (ikke ekstrakostnad), valgfri bindingstid (0-2 år), mobilapp med offline-støtte, og betydelig lavere priser fra kun 225 kr/mnd. Vår visjon er enkel: HMS Nova bygger trygghet - ikke byråkrati.",
+      "HMS Nova skiller seg fra Grønn Jobb, Avonova og Kuba ved å være 100% digitalt og moderne. Vi har digital signatur inkludert (ikke ekstrakostnad), 12 måneders abonnement (300 kr/mnd), mobilapp med offline-støtte, og betydelig lavere priser. Vår visjon er enkel: HMS Nova bygger trygghet - ikke byråkrati.",
 
     isItApproved:
       "HMS Nova følger alle krav i Arbeidsmiljøloven, Internkontrollforskriften og ISO 9001:2015. Systemet er bygget for å sikre full compliance med norsk lov og internasjonale standarder. Vi samarbeider også med Dr. Dropin for godkjent bedriftshelsetjeneste.",
@@ -123,7 +123,7 @@ export const SEO_CONTENT = {
   // Meta descriptions for different pages
   metaDescriptions: {
     home: "HMS Nova bygger trygghet. Få kontroll på HMS med digital signatur, automatiske påminnelser og mobilapp. 500+ norske bedrifter stoler på oss. Prøv gratis.",
-    priser: "Transparente HMS-priser fra 225 kr/mnd. Ingen oppstartskostnader, valgfri binding. 20% rabatt på kurs, 10% på BHT. Se alle priser.",
+    priser: "Transparente HMS-priser: 300 kr/mnd (12 mnd abonnement). Ingen oppstartskostnader. 20% rabatt på kurs, 10% på BHT. Se alle priser.",
     kurs: "20% rabatt på HMS-kurs for medlemmer. Verneombud, førstehjelp, diisocyanater. HMS Nova AS. Fysisk, digitalt eller hybrid.",
     bht: "10% rabatt på godkjent bedriftshelsetjeneste fra Dr. Dropin. Digital integrasjon med HMS Nova. 3000+ bedrifter stoler på dem.",
   },

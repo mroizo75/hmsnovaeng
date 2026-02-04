@@ -3,9 +3,7 @@
  * Håndterer logikk for abonnements-pakker og brukerbegrensninger
  * 
  * Ny prismodell (kun software):
- * - Ingen binding: 300 kr/mnd (3600 kr/år)
- * - 1 år binding: 275 kr/mnd (3300 kr/år) - default
- * - 2 år binding: 250 kr/mnd (3000 kr/år)
+ * - 12 mnd binding: 300 kr/mnd (3600 kr/år)
  * 
  * Alle planer inkluderer ubegrenset antall brukere.
  */
@@ -36,19 +34,19 @@ export const BINDING_PRICES: Record<BindingPeriod, BindingPricing> = {
     period: "none",
     monthlyPrice: 300,
     yearlyPrice: 3600,
-    name: "Ingen binding",
+    name: "12 mnd binding",
   },
   "1year": {
     period: "1year",
-    monthlyPrice: 275,
-    yearlyPrice: 3300,
-    name: "1 år binding",
+    monthlyPrice: 300,
+    yearlyPrice: 3600,
+    name: "12 mnd binding",
   },
   "2year": {
     period: "2year",
-    monthlyPrice: 250,
-    yearlyPrice: 3000,
-    name: "2 år binding",
+    monthlyPrice: 300,
+    yearlyPrice: 3600,
+    name: "12 mnd binding",
   },
 };
 
@@ -61,9 +59,9 @@ export function getSubscriptionLimits(tier: PricingTier | null): SubscriptionLim
   // Ny prismodell: Alle får samme pris (1 år binding som standard)
   // og ubegrenset brukere
   const defaultLimits: SubscriptionLimits = {
-    maxUsers: 999, // Ubegrenset brukere
-    price: 3300,   // 1 år binding: 275 kr/mnd * 12
-    monthlyPrice: 275,
+    maxUsers: 999,
+    price: 3600,
+    monthlyPrice: 300,
     name: "HMS Nova Software",
     description: "Ubegrenset brukere inkludert",
   };

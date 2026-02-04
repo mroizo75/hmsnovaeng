@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { RegisterDialog } from "@/components/register-dialog";
+import { RingMegDialog } from "@/components/ring-meg-dialog";
 import { PRICING_SCHEMA } from "@/lib/seo-schemas";
 import { getBreadcrumbSchema } from "@/lib/seo-config";
 import { 
@@ -20,7 +21,8 @@ import {
   HeartHandshake,
   Phone,
   GraduationCap,
-  Award
+  Award,
+  Settings
 } from "lucide-react";
 
 export default function PriserPage() {
@@ -31,39 +33,14 @@ export default function PriserPage() {
 
   const bindingPlans = [
     {
-      name: "Ingen binding",
-      description: "Maksimal fleksibilitet",
+      name: "12 mnd binding",
+      description: "Full tilgang til HMS Nova",
       priceMonthly: 300,
       priceYearly: 3600,
       features: [
-        "Si opp når som helst",
-        "1 måneds oppsigelsestid",
-        "Full fleksibilitet",
-      ],
-    },
-    {
-      name: "1 år binding",
-      description: "Mest populært valg",
-      priceMonthly: 275,
-      priceYearly: 3300,
-      popular: true,
-      savings: "Spar 300 kr/år",
-      features: [
-        "Best verdi for de fleste",
+        "12 måneders abonnement",
         "Forutsigbar kostnad",
-        "Spar 25 kr/mnd",
-      ],
-    },
-    {
-      name: "2 år binding",
-      description: "Beste pris",
-      priceMonthly: 225,
-      priceYearly: 2700,
-      savings: "Spar 900 kr/år",
-      features: [
-        "Laveste månedspris",
-        "Langsiktig besparelse",
-        "Spar 75 kr/mnd",
+        "Alt inkludert",
       ],
     },
   ];
@@ -239,24 +216,15 @@ export default function PriserPage() {
         <div className="max-w-6xl mx-auto">
           {/* Header */}
           <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold mb-4">Velg din bindingsperiode</h2>
+            <h2 className="text-3xl font-bold mb-4">Én pakke – alt inkludert</h2>
             <p className="text-muted-foreground max-w-2xl mx-auto">
-              Alle planer inkluderer full tilgang til HMS Nova. 
-              Lengre binding gir lavere månedspris.
+              Full tilgang til HMS Nova. 300 kr/mnd, 12 måneders abonnement.
             </p>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-8">
+          <div className="max-w-md mx-auto">
             {bindingPlans.map((plan, index) => (
-              <Card
-                key={index}
-                className={`relative ${plan.popular ? "border-primary shadow-xl scale-105" : ""}`}
-              >
-                {plan.popular && (
-                  <div className="absolute -top-4 left-1/2 -translate-x-1/2">
-                    <Badge className="px-4 py-1">Mest populær</Badge>
-                  </div>
-                )}
+              <Card key={index} className="relative border-primary shadow-lg">
                 <CardHeader>
                   <CardTitle className="text-2xl">{plan.name}</CardTitle>
                   <CardDescription>{plan.description}</CardDescription>
@@ -267,35 +235,23 @@ export default function PriserPage() {
                     </div>
                   </div>
                   <div className="space-y-1">
-                    <p className="text-xs text-muted-foreground">
-                      Totalt {plan.priceYearly.toLocaleString('nb-NO')} kr/år
+                    <p className="text-sm text-muted-foreground">
+                      Totalt {plan.priceYearly.toLocaleString("nb-NO")} kr/år
                     </p>
-                    {plan.savings && (
-                      <p className="text-xs font-semibold text-primary">
-                        {plan.savings}
-                      </p>
-                    )}
                   </div>
                 </CardHeader>
                 <CardContent className="space-y-6">
-                  <div className="space-y-3">
-                    <h4 className="font-semibold text-sm">Bindingsfordeler:</h4>
-                    <ul className="space-y-2 text-sm">
-                      {plan.features.map((feature, idx) => (
-                        <li key={idx} className="flex items-start gap-2">
-                          <CheckCircle2 className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
-                          <span>{feature}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
+                  <ul className="space-y-2 text-sm">
+                    {plan.features.map((feature, idx) => (
+                      <li key={idx} className="flex items-start gap-2">
+                        <CheckCircle2 className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
+                        <span>{feature}</span>
+                      </li>
+                    ))}
+                  </ul>
 
                   <RegisterDialog>
-                    <Button
-                      variant={plan.popular ? "default" : "outline"}
-                      className="w-full"
-                      size="lg"
-                    >
+                    <Button className="w-full" size="lg">
                       Kom i gang
                     </Button>
                   </RegisterDialog>
@@ -304,12 +260,43 @@ export default function PriserPage() {
             ))}
           </div>
 
+          {/* Lovpålagt HMS-håndbok til deres bedrift – gunstig fastpris */}
+          <div className="mt-12 max-w-2xl mx-auto">
+            <Card className="border-primary/30 bg-primary/5">
+              <CardContent className="p-6 flex flex-col sm:flex-row items-center gap-6">
+                <div className="flex-shrink-0">
+                  <div className="h-14 w-14 rounded-full bg-primary/10 flex items-center justify-center">
+                    <Settings className="h-7 w-7 text-primary" />
+                  </div>
+                </div>
+                <div className="flex-1 text-center sm:text-left">
+                  <h3 className="font-semibold text-base text-foreground">
+                    Vi tar hele jobben med den lovpålagte HMS-håndboka til deres bedrift
+                  </h3>
+                  <p className="text-sm text-muted-foreground mt-2 leading-relaxed">
+                    Vi leverer den komplette, lovpålagte HMS-håndboka og oppsettet i HMS Nova til deres bedrift til en svært gunstig fastpris. Du får et komplett, lovpålagt digitalt HMS-system – enkelt og rimelig – uten at dere må sette dere inn i maler og krav selv. Bare ta kontakt.
+                  </p>
+                </div>
+                <div className="flex-shrink-0">
+                  <RingMegDialog
+                    trigger={
+                      <Button variant="outline" className="border-primary">
+                        <Phone className="mr-2 h-4 w-4" />
+                        Ring meg
+                      </Button>
+                    }
+                  />
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
           {/* All Features Section */}
           <div className="mt-16">
             <Card className="bg-gradient-to-br from-muted/50 to-muted/30">
               <CardContent className="p-8">
                 <h3 className="text-xl font-bold text-center mb-6">
-                  Alt dette er inkludert i alle planer:
+                  Alt dette er inkludert:
                 </h3>
                 <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
                   {allFeatures.map((feature, idx) => (
@@ -324,9 +311,12 @@ export default function PriserPage() {
           </div>
 
           {/* Price Note */}
-          <div className="mt-12 text-center">
+          <div className="mt-12 text-center space-y-2">
             <p className="text-sm text-muted-foreground">
               Alle priser er eks. mva. Faktureres månedlig eller årlig etter ønske.
+            </p>
+            <p className="text-sm text-muted-foreground">
+              Vi tar hele jobben med den lovpålagte HMS-håndboka til deres bedrift til svært gunstig fastpris – <Link href="/" className="text-primary font-medium hover:underline">kontakt oss</Link> for tilbud.
             </p>
           </div>
         </div>
@@ -506,13 +496,13 @@ export default function PriserPage() {
 
             <Card>
               <CardHeader>
-                <CardTitle className="text-lg">Hva er forskjellen på bindingsalternativene?</CardTitle>
+                <CardTitle className="text-lg">Hva innebærer 12 mnd binding?</CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-muted-foreground">
-                  Med lengre binding får du lavere månedspris. Ingen binding koster 300 kr/mnd, 
-                  1 års binding koster 275 kr/mnd (spar 300 kr/år), og 2 års binding koster 225 kr/mnd (spar 900 kr/år). 
-                  Alle planer inkluderer full tilgang til alle funksjoner.
+                  Abonnementet løper i 12 måneder til 300 kr/mnd (3 600 kr/år). 
+                  Full tilgang til alle funksjoner er inkludert. Etter 12 måneder fornyes abonnementet 
+                  med 1 måneds oppsigelsestid.
                 </p>
               </CardContent>
             </Card>
@@ -537,7 +527,7 @@ export default function PriserPage() {
                   <th className="text-left p-4"></th>
                   <th className="text-center p-4">
                     <div className="font-bold text-primary">HMS Nova</div>
-                    <div className="text-sm text-muted-foreground">Fra 225 kr/mnd</div>
+                    <div className="text-sm text-muted-foreground">300 kr/mnd</div>
                   </th>
                   <th className="text-center p-4">
                     <div className="font-bold">Andre systemer</div>
@@ -587,8 +577,8 @@ export default function PriserPage() {
                   <td className="p-4 text-center text-muted-foreground">Varierer</td>
                 </tr>
                 <tr className="border-b">
-                  <td className="p-4 text-sm">Valgfri bindingstid</td>
-                  <td className="p-4 text-center"><CheckCircle2 className="h-5 w-5 text-primary mx-auto" /></td>
+                  <td className="p-4 text-sm">Bindingstid</td>
+                  <td className="p-4 text-center text-muted-foreground">12 mnd</td>
                   <td className="p-4 text-center text-muted-foreground">12 mnd krav</td>
                   <td className="p-4 text-center text-muted-foreground">12-36 mnd krav</td>
                 </tr>
@@ -621,7 +611,7 @@ export default function PriserPage() {
               </Link>
             </div>
             <p className="text-sm mt-6 text-primary-foreground/70">
-              Har du spørsmål? Ring oss på <a href="tel:+4799112916" className="underline font-semibold">+47 99 11 29 16</a>
+              Har du spørsmål? Ta kontakt.
             </p>
           </CardContent>
         </Card>

@@ -134,11 +134,11 @@ export const SOFTWARE_PRODUCT_SCHEMA = {
   offers: {
     "@type": "AggregateOffer",
     priceCurrency: "NOK",
-    lowPrice: "225",
+    lowPrice: "300",
     highPrice: "300",
     priceSpecification: {
       "@type": "UnitPriceSpecification",
-      price: "275",
+      price: "300",
       priceCurrency: "NOK",
       unitText: "MONTH",
     },
@@ -185,7 +185,7 @@ export const FAQ_SCHEMA = {
       name: "Hva koster HMS Nova?",
       acceptedAnswer: {
         "@type": "Answer",
-        text: "HMS Nova koster fra 225 kr/mnd med 2 års binding, 275 kr/mnd med 1 års binding, eller 300 kr/mnd uten binding. Ubegrenset antall brukere inkludert. Ingen oppstartskostnader, alt inkludert.",
+        text: "HMS Nova koster 300 kr/mnd (3 600 kr/år) med 12 måneders abonnement. Ubegrenset antall brukere inkludert. Ingen oppstartskostnader, alt inkludert.",
       },
     },
     {
@@ -217,7 +217,7 @@ export const FAQ_SCHEMA = {
       name: "Hvordan skiller HMS Nova seg fra Grønn Jobb, Avonova og Kuba?",
       acceptedAnswer: {
         "@type": "Answer",
-        text: "HMS Nova er 100% digitalt og moderne. Vi har digital signatur inkludert (ikke ekstrakostnad), valgfri bindingstid (fra ingen binding til 2 år), mobilapp med offline-støtte, og betydelig lavere priser fra 225 kr/mnd. Vår visjon er enkel: HMS Nova bygger trygghet - ikke byråkrati.",
+        text: "HMS Nova er 100% digitalt og moderne. Vi har digital signatur inkludert (ikke ekstrakostnad), 12 måneders abonnement (300 kr/mnd), mobilapp med offline-støtte, og betydelig lavere priser. Vår visjon er enkel: HMS Nova bygger trygghet - ikke byråkrati.",
       },
     },
   ],
@@ -239,12 +239,12 @@ export const getBreadcrumbSchema = (items: Array<{ name: string; url: string }>)
 export const PAGE_METADATA = {
   home: {
     title: "HMS Nova - Norges Mest Moderne HMS-system | HMS Nova Bygger Trygghet",
-    description: "⚡ HMS Nova bygger trygghet · Fra 225 kr/mnd · Ubegrenset brukere · Digital signatur inkludert · ISO 9001 støtte · 14 dagers gratis prøve · Prøv i dag!",
+    description: "⚡ HMS Nova bygger trygghet · 300 kr/mnd · Ubegrenset brukere · Digital signatur inkludert · ISO 9001 støtte · 14 dagers gratis prøve · Prøv i dag!",
     keywords: [...PRIMARY_KEYWORDS, ...SECONDARY_KEYWORDS.slice(0, 10)].join(", "),
   },
   priser: {
-    title: "Priser - HMS Nova | Fra 225 kr/mnd | Ingen Skjulte Kostnader",
-    description: "💰 Transparente priser: 225 kr/mnd (2 år), 275 kr/mnd (1 år), 300 kr/mnd (ingen binding) · Ubegrenset brukere · Digital signatur inkludert · 0 kr oppstart · Se alle priser →",
+    title: "Priser - HMS Nova | 300 kr/mnd | Ingen Skjulte Kostnader",
+    description: "💰 Transparente priser: 300 kr/mnd (3 600 kr/år), 12 mnd abonnement · Ubegrenset brukere · Digital signatur inkludert · 0 kr oppstart · Se alle priser →",
     keywords: "hms system pris, hms programvare kostnad, billig hms system, hms system alle bedrifter, beste hms system pris",
   },
   kurs: {

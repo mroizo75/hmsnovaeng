@@ -41,10 +41,8 @@ export interface PricingPlan {
  * 
  * Transparent prising. Ingen skjulte kostnader.
  * 
- * Prismodell basert på bindingstid:
- * - Ingen binding: 300 kr/mnd - fleksibilitet, si opp når du vil
- * - 1 år binding: 275 kr/mnd - spar 300 kr/år
- * - 2 år binding: 250 kr/mnd - spar 600 kr/år (beste verdi)
+ * Prismodell: én pakke 12 mnd binding
+ * - 12 mnd binding: 300 kr/mnd (3 600 kr/år)
  * 
  * HMS Nova fordeler:
  * - Ingen oppstartskostnader: 0 kr (konkurrenter: 20.000-50.000 kr)
@@ -55,28 +53,12 @@ export interface PricingPlan {
  */
 export const BINDING_PLANS: BindingPlan[] = [
   {
-    period: "none",
-    name: "Ingen binding",
-    description: "Maksimal fleksibilitet - si opp når du vil",
+    period: "1year",
+    name: "12 mnd binding",
+    description: "Full tilgang til HMS Nova",
     monthlyPrice: 300,
     yearlyPrice: 3600,
-  },
-  {
-    period: "1year",
-    name: "1 år binding",
-    description: "Spar 300 kr/år med 1 års avtale",
-    monthlyPrice: 275,
-    yearlyPrice: 3300,
-    savings: "Spar 300 kr/år",
     popular: true,
-  },
-  {
-    period: "2year",
-    name: "2 år binding",
-    description: "Beste verdi - spar 600 kr/år",
-    monthlyPrice: 250,
-    yearlyPrice: 3000,
-    savings: "Spar 600 kr/år",
   },
 ];
 
@@ -109,8 +91,8 @@ export const PRICING_PLANS: PricingPlan[] = [
     employeeRange: "Alle bedriftsstørrelser",
     minEmployees: 1,
     maxEmployees: null,
-    yearlyPrice: 3300, // 1 år binding som standard
-    monthlyPrice: 275,
+    yearlyPrice: 3600,
+    monthlyPrice: 300,
     features: INCLUDED_FEATURES,
     popularFeatures: [
       "Digital signatur",
@@ -124,8 +106,8 @@ export const PRICING_PLANS: PricingPlan[] = [
     employeeRange: "Alle bedriftsstørrelser",
     minEmployees: 1,
     maxEmployees: null,
-    yearlyPrice: 3300,
-    monthlyPrice: 275,
+    yearlyPrice: 3600,
+    monthlyPrice: 300,
     features: INCLUDED_FEATURES,
     popularFeatures: [
       "Automatiske varsler",
@@ -139,8 +121,8 @@ export const PRICING_PLANS: PricingPlan[] = [
     employeeRange: "Alle bedriftsstørrelser",
     minEmployees: 1,
     maxEmployees: null,
-    yearlyPrice: 3300,
-    monthlyPrice: 275,
+    yearlyPrice: 3600,
+    monthlyPrice: 300,
     features: INCLUDED_FEATURES,
     popularFeatures: [
       "Ubegrenset brukere",

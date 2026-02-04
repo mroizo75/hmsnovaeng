@@ -5,18 +5,18 @@
 
 import { SITE_CONFIG } from "./seo-config";
 
-// Pricing Schema for HMS Nova plans
+// Pricing Schema for HMS Nova – én pakke 12 mnd binding
 export const PRICING_SCHEMA = {
   "@context": "https://schema.org",
   "@type": "ItemList",
   name: "HMS Nova Priser",
-  description: "Transparente priser for HMS Nova HMS-system - kun software",
+  description: "Transparente priser for HMS Nova HMS-system - 300 kr/mnd, 12 måneders abonnement",
   itemListElement: [
     {
       "@type": "Offer",
       position: 1,
-      name: "Ingen binding",
-      description: "HMS Nova uten binding - maksimal fleksibilitet",
+      name: "12 mnd binding",
+      description: "HMS Nova – full tilgang, 12 måneders abonnement",
       price: "300",
       priceCurrency: "NOK",
       priceSpecification: {
@@ -31,54 +31,8 @@ export const PRICING_SCHEMA = {
       },
       itemOffered: {
         "@type": "Service",
-        name: "HMS Nova - Ingen binding",
-        description: "Komplett HMS-system med ubegrenset brukere, si opp når du vil",
-      },
-    },
-    {
-      "@type": "Offer",
-      position: 2,
-      name: "1 år binding",
-      description: "HMS Nova med 1 års binding - mest populært",
-      price: "275",
-      priceCurrency: "NOK",
-      priceSpecification: {
-        "@type": "UnitPriceSpecification",
-        price: "275",
-        priceCurrency: "NOK",
-        unitText: "MONTH",
-      },
-      seller: {
-        "@type": "Organization",
-        name: SITE_CONFIG.name,
-      },
-      itemOffered: {
-        "@type": "Service",
-        name: "HMS Nova - 1 år binding",
-        description: "Komplett HMS-system med ubegrenset brukere, spar 300 kr/år",
-      },
-    },
-    {
-      "@type": "Offer",
-      position: 3,
-      name: "2 år binding",
-      description: "HMS Nova med 2 års binding - beste pris",
-      price: "225",
-      priceCurrency: "NOK",
-      priceSpecification: {
-        "@type": "UnitPriceSpecification",
-        price: "225",
-        priceCurrency: "NOK",
-        unitText: "MONTH",
-      },
-      seller: {
-        "@type": "Organization",
-        name: SITE_CONFIG.name,
-      },
-      itemOffered: {
-        "@type": "Service",
-        name: "HMS Nova - 2 år binding",
-        description: "Komplett HMS-system med ubegrenset brukere, spar 900 kr/år",
+        name: "HMS Nova - 12 mnd binding",
+        description: "Komplett HMS-system med ubegrenset brukere. 3 600 kr/år.",
       },
     },
   ],
