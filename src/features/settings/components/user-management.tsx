@@ -36,14 +36,16 @@ import {
   updateUserRole,
   removeUserFromTenant,
   importUsersFromFile,
+  activateUserInTenant,
 } from "@/server/actions/settings.actions";
 import { useToast } from "@/hooks/use-toast";
-import { Upload, FileSpreadsheet } from "lucide-react";
+import { Upload, FileSpreadsheet, Send } from "lucide-react";
 
 interface UserManagementProps {
   users: Array<{
     userId: string;
     role: string;
+    invitationSentAt: Date | null;
     user: {
       id: string;
       name: string | null;
@@ -65,6 +67,7 @@ export function UserManagement({ users, currentUserId, isAdmin, pricingTier, max
   const [inviteLoading, setInviteLoading] = useState(false);
   const [importLoading, setImportLoading] = useState(false);
   const [importFile, setImportFile] = useState<File | null>(null);
+  const [activatingUserId, setActivatingUserId] = useState<string | null>(null);
 
   const currentUserCount = users.length;
   const remainingSlots = maxUsers - currentUserCount;
@@ -185,7 +188,7 @@ export function UserManagement({ users, currentUserId, isAdmin, pricingTier, max
     setImportFile(null);
 
     if (!result.success) {
-      const errMsg = "error" in result ? result.error : "Kunne ikke importere brukere";
+      const errMsg = "error" in result ? result.error : "Kunne ikke importere";
       toast({
         variant: "destructive",
         title: "Import feilet",
@@ -193,16 +196,37 @@ export function UserManagement({ users, currentUserId, isAdmin, pricingTier, max
       });
       return;
     }
+
     const msg =
-      result.failed === 0
-        ? `${result.imported} brukere importert. Alle får passord tilsendt på e-post.`
-        : `${result.imported} importert, ${result.failed} feilet.${result.errors.length ? " " + result.errors.slice(0, 3).join("; ") : ""}`;
+      result.skipped > 0
+        ? `${result.imported} importert, ${result.skipped} allerede medlem. Aktiver brukere under Handlinger når du vil sende invitasjon.`
+        : `${result.imported} brukere importert. Aktiver under Handlinger for å sende invitasjon.`;
     toast({
-      title: result.failed === 0 ? "Import fullført" : "Import delvis fullført",
+      title: "Import fullført",
       description: msg,
-      className: result.failed === 0 ? "bg-green-50 border-green-200" : undefined,
+      className: "bg-green-50 border-green-200",
     });
-    if (result.imported > 0) router.refresh();
+    router.refresh();
+  };
+
+  const handleActivate = async (userId: string) => {
+    setActivatingUserId(userId);
+    const result = await activateUserInTenant(userId);
+    setActivatingUserId(null);
+    if (result.success) {
+      toast({
+        title: "Bruker aktivert",
+        description: "Invitasjon med passord er sendt på e-post.",
+        className: "bg-green-50 border-green-200",
+      });
+      router.refresh();
+    } else {
+      toast({
+        variant: "destructive",
+        title: "Kunne ikke aktivere",
+        description: result.error,
+      });
+    }
   };
 
   const getRoleBadge = (role: string) => {
@@ -251,7 +275,7 @@ export function UserManagement({ users, currentUserId, isAdmin, pricingTier, max
               Brukere ({currentUserCount} / {maxUsers === 999 ? "∞" : maxUsers})
             </CardTitle>
             <CardDescription>
-              Administrer brukere og deres tilgang • {getPlanName(pricingTier)}. Importer fra CSV eller Excel med kolonner: e-post, navn, rolle.
+              Administrer brukere og deres tilgang • {getPlanName(pricingTier)}. Importer uten å sende invitasjon; aktiver under Handlinger for å sende e-post.
             </CardDescription>
           </div>
         </div>
@@ -289,6 +313,12 @@ export function UserManagement({ users, currentUserId, isAdmin, pricingTier, max
                     <Upload className="mr-1.5 h-4 w-4" />
                     {importLoading ? "Importerer..." : "Importer"}
                   </Button>
+                  <a
+                    href="/api/users/import-example"
+                    className="text-xs text-muted-foreground hover:underline"
+                  >
+                    Last ned eksempelfil
+                  </a>
                 </div>
                 <Dialog open={inviteOpen} onOpenChange={setInviteOpen}>
                 <DialogTrigger asChild>
@@ -431,19 +461,32 @@ export function UserManagement({ users, currentUserId, isAdmin, pricingTier, max
                       {isAdmin && (
                         <TableCell className="text-right">
                           {!isCurrentUser && (
-                            <Button
-                              variant="destructive"
-                              size="sm"
-                              onClick={() =>
-                                handleRemove(
-                                  userTenant.userId,
-                                  userTenant.user.name || userTenant.user.email
-                                )
-                              }
-                              disabled={loading === userTenant.userId}
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
+                            <div className="flex items-center justify-end gap-2">
+                              {!userTenant.invitationSentAt && (
+                                <Button
+                                  variant="default"
+                                  size="sm"
+                                  onClick={() => handleActivate(userTenant.userId)}
+                                  disabled={activatingUserId === userTenant.userId || loading === userTenant.userId}
+                                >
+                                  <Send className="h-4 w-4 mr-1" />
+                                  {activatingUserId === userTenant.userId ? "Aktiverer..." : "Aktiver"}
+                                </Button>
+                              )}
+                              <Button
+                                variant="destructive"
+                                size="sm"
+                                onClick={() =>
+                                  handleRemove(
+                                    userTenant.userId,
+                                    userTenant.user.name || userTenant.user.email
+                                  )
+                                }
+                                disabled={loading === userTenant.userId}
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            </div>
                           )}
                         </TableCell>
                       )}

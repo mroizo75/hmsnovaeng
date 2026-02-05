@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   Table,
@@ -23,7 +23,7 @@ import {
 import { Trash2, Eye, Download, CheckCircle, Search, Filter, FileText } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
-import { deleteChemical, downloadSDS, verifyChemical } from "@/server/actions/chemical.actions";
+import { deleteChemical, verifyChemical } from "@/server/actions/chemical.actions";
 import { useToast } from "@/hooks/use-toast";
 import type { Chemical } from "@prisma/client";
 import { normalizePpeFile } from "@/lib/pictograms";
@@ -39,6 +39,50 @@ export function ChemicalList({ chemicals }: ChemicalListProps) {
   const [loading, setLoading] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [revisionFilter, setRevisionFilter] = useState<string>("all");
+  const [sortOption, setSortOption] = useState<string>("revisionAsc");
+  const [page, setPage] = useState(1);
+  const pageSize = 20;
+
+  // Last lagret filter/paginering fra localStorage
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    try {
+      const raw = window.localStorage.getItem("chemicalsTableState");
+      if (!raw) return;
+      const parsed = JSON.parse(raw) as {
+        searchTerm?: string;
+        statusFilter?: string;
+        revisionFilter?: string;
+        sortOption?: string;
+        page?: number;
+      };
+      if (typeof parsed.searchTerm === "string") {
+        setSearchTerm(parsed.searchTerm);
+      }
+      if (typeof parsed.statusFilter === "string") {
+        setStatusFilter(parsed.statusFilter);
+      }
+      if (typeof parsed.revisionFilter === "string") {
+        setRevisionFilter(parsed.revisionFilter);
+      }
+      if (typeof parsed.sortOption === "string") {
+        setSortOption(parsed.sortOption);
+      }
+      if (typeof parsed.page === "number" && parsed.page > 0) {
+        setPage(parsed.page);
+      }
+    } catch {
+      // Ignorer korrupte verdier
+    }
+  }, []);
+
+  // Lagre filter/paginering slik at det huskes ved navigering
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const state = { searchTerm, statusFilter, revisionFilter, sortOption, page };
+    window.localStorage.setItem("chemicalsTableState", JSON.stringify(state));
+  }, [searchTerm, statusFilter, revisionFilter, sortOption, page]);
 
   const handleDelete = async (id: string, productName: string) => {
     if (!confirm(`Er du sikker på at du vil slette "${productName}"?\n\nDette kan ikke angres.`)) {
@@ -63,23 +107,14 @@ export function ChemicalList({ chemicals }: ChemicalListProps) {
     setLoading(null);
   };
 
-  const handleDownloadSDS = async (id: string, productName: string) => {
+  const handleDownloadSDS = (id: string, productName: string) => {
     setLoading(id);
-    const result = await downloadSDS(id);
-    if (result.success && result.data) {
-      window.open(result.data.url, "_blank");
-      toast({
-        title: "📄 Datablad lastet ned",
-        description: `Sikkerhetsdatablad for "${productName}"`,
-        className: "bg-green-50 border-green-200",
-      });
-    } else {
-      toast({
-        variant: "destructive",
-        title: "Nedlasting feilet",
-        description: result.error || "Kunne ikke laste ned datablad",
-      });
-    }
+    window.open(`/api/chemicals/${id}/download-sds`, "_blank");
+    toast({
+      title: "📄 Datablad lastet ned",
+      description: `Sikkerhetsdatablad for "${productName}"`,
+      className: "bg-green-50 border-green-200",
+    });
     setLoading(null);
   };
 
@@ -130,8 +165,82 @@ export function ChemicalList({ chemicals }: ChemicalListProps) {
 
     if (!matchesSearch) return false;
     if (statusFilter !== "all" && chemical.status !== statusFilter) return false;
+
+    if (revisionFilter !== "all") {
+      const now = new Date();
+      const thirtyDaysFromNow = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
+      const revDate = chemical.nextReviewDate
+        ? new Date(chemical.nextReviewDate)
+        : null;
+
+      switch (revisionFilter) {
+        case "hasDate":
+          if (!revDate) return false;
+          break;
+        case "noDate":
+          if (revDate) return false;
+          break;
+        case "overdue":
+          if (!revDate || revDate >= now) return false;
+          break;
+        case "next30days":
+          if (!revDate || revDate <= now || revDate > thirtyDaysFromNow) {
+            return false;
+          }
+          break;
+        default:
+          break;
+      }
+    }
+
     return true;
   });
+
+  // Sortering
+  const sortedChemicals = [...filteredChemicals].sort((a, b) => {
+    switch (sortOption) {
+      case "productAsc":
+        return a.productName.localeCompare(b.productName, "nb");
+      case "productDesc":
+        return b.productName.localeCompare(a.productName, "nb");
+      case "supplierAsc": {
+        const aSup = a.supplier || "";
+        const bSup = b.supplier || "";
+        return aSup.localeCompare(bSup, "nb");
+      }
+      case "supplierDesc": {
+        const aSup = a.supplier || "";
+        const bSup = b.supplier || "";
+        return bSup.localeCompare(aSup, "nb");
+      }
+      case "revisionDesc":
+      case "revisionAsc": {
+        const aDate = a.nextReviewDate ? new Date(a.nextReviewDate).getTime() : null;
+        const bDate = b.nextReviewDate ? new Date(b.nextReviewDate).getTime() : null;
+
+        // Manglende dato legges sist
+        if (aDate === null && bDate === null) return 0;
+        if (aDate === null) return 1;
+        if (bDate === null) return -1;
+
+        if (sortOption === "revisionAsc") {
+          return aDate - bDate;
+        }
+        return bDate - aDate;
+      }
+      default:
+        return 0;
+    }
+  });
+
+  const totalFiltered = sortedChemicals.length;
+  const totalPages = Math.max(1, Math.ceil(totalFiltered / pageSize));
+  const currentPage = Math.min(page, totalPages);
+  const startIndex = (currentPage - 1) * pageSize;
+  const paginatedChemicals = sortedChemicals.slice(
+    startIndex,
+    startIndex + pageSize
+  );
 
   if (chemicals.length === 0) {
     return (
@@ -160,14 +269,23 @@ export function ChemicalList({ chemicals }: ChemicalListProps) {
           <Input
             placeholder="Søk etter produkt, leverandør eller CAS..."
             value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
+            onChange={(e) => {
+              setSearchTerm(e.target.value);
+              setPage(1);
+            }}
             className="pl-10"
           />
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap justify-end">
           <Filter className="h-4 w-4 text-muted-foreground" />
-          <Select value={statusFilter} onValueChange={setStatusFilter}>
+          <Select
+            value={statusFilter}
+            onValueChange={(value) => {
+              setStatusFilter(value);
+              setPage(1);
+            }}
+          >
             <SelectTrigger className="w-[140px]">
               <SelectValue placeholder="Status" />
             </SelectTrigger>
@@ -178,40 +296,79 @@ export function ChemicalList({ chemicals }: ChemicalListProps) {
               <SelectItem value="ARCHIVED">Arkivert</SelectItem>
             </SelectContent>
           </Select>
+          <Select
+            value={revisionFilter}
+            onValueChange={(value) => {
+              setRevisionFilter(value);
+              setPage(1);
+            }}
+          >
+            <SelectTrigger className="w-[170px]">
+              <SelectValue placeholder="Revisjon" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Alle revisjoner</SelectItem>
+              <SelectItem value="overdue">Forfalt</SelectItem>
+              <SelectItem value="next30days">Neste 30 dager</SelectItem>
+              <SelectItem value="hasDate">Har dato</SelectItem>
+              <SelectItem value="noDate">Ingen dato</SelectItem>
+            </SelectContent>
+          </Select>
+          <Select
+            value={sortOption}
+            onValueChange={(value) => {
+              setSortOption(value);
+              setPage(1);
+            }}
+          >
+            <SelectTrigger className="w-[190px]">
+              <SelectValue placeholder="Sorter etter" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="revisionAsc">Revisjon (eldst først)</SelectItem>
+              <SelectItem value="revisionDesc">Revisjon (nyest først)</SelectItem>
+              <SelectItem value="productAsc">Produkt (A–Å)</SelectItem>
+              <SelectItem value="productDesc">Produkt (Å–A)</SelectItem>
+              <SelectItem value="supplierAsc">Leverandør (A–Å)</SelectItem>
+              <SelectItem value="supplierDesc">Leverandør (Å–A)</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
       </div>
 
       {/* Results count */}
       <div className="text-sm text-muted-foreground">
-        Viser {filteredChemicals.length} av {chemicals.length} kjemikalier
+        Viser {paginatedChemicals.length} av {totalFiltered} filtrerte kjemikalier
+        {totalFiltered !== chemicals.length ? ` (totalt ${chemicals.length})` : ""} –{" "}
+        {pageSize} per side
       </div>
 
-      {/* Table - Responsiv uten horisontal scroll */}
-      <div className="w-full">
-        <Table>
+      {/* Table – får plass uten horisontal scroll (table-fixed + truncate) */}
+      <div className="w-full min-w-0 overflow-hidden">
+        <Table className="table-fixed">
           <TableHeader>
             <TableRow>
-              <TableHead>Produkt</TableHead>
-              <TableHead className="hidden lg:table-cell">Leverandør</TableHead>
-              <TableHead className="hidden xl:table-cell">CAS</TableHead>
-              <TableHead className="hidden xl:table-cell">H-setninger</TableHead>
-              <TableHead>Fare</TableHead>
-              <TableHead className="hidden lg:table-cell">PPE</TableHead>
-              <TableHead className="hidden md:table-cell">SDS</TableHead>
-              <TableHead className="hidden md:table-cell">Revisjon</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead className="text-right">Handlinger</TableHead>
+              <TableHead className="w-[16%] min-w-0 px-2">Produkt</TableHead>
+              <TableHead className="hidden w-[11%] min-w-0 px-2 lg:table-cell">Leverandør</TableHead>
+              <TableHead className="hidden w-[7%] min-w-0 px-2 xl:table-cell">CAS</TableHead>
+              <TableHead className="hidden w-[12%] min-w-0 px-2 xl:table-cell">H-setninger</TableHead>
+              <TableHead className="w-[9%] min-w-0 px-2">Fare</TableHead>
+              <TableHead className="hidden w-[9%] min-w-0 px-2 lg:table-cell">PPE</TableHead>
+              <TableHead className="hidden w-[5%] min-w-0 px-2 md:table-cell">SDS</TableHead>
+              <TableHead className="hidden w-[8%] min-w-0 px-2 md:table-cell">Revisjon</TableHead>
+              <TableHead className="w-[13%] min-w-0 px-2">Status</TableHead>
+              <TableHead className="w-[10%] min-w-0 px-2 text-right">Handlinger</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {filteredChemicals.length === 0 ? (
+            {sortedChemicals.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={10} className="text-center text-muted-foreground">
                   Ingen kjemikalier funnet
                 </TableCell>
               </TableRow>
             ) : (
-              filteredChemicals.map((chemical) => {
+              paginatedChemicals.map((chemical) => {
                 const pictograms = chemical.warningPictograms
                   ? (() => { try { return JSON.parse(chemical.warningPictograms); } catch { return []; } })()
                   : [];
@@ -221,41 +378,43 @@ export function ChemicalList({ chemicals }: ChemicalListProps) {
 
                 return (
                 <TableRow key={chemical.id}>
-                  <TableCell className="font-medium">
-                    <div className="flex flex-col gap-1">
-                      <span className="truncate max-w-[160px]">{chemical.productName}</span>
+                  <TableCell className="font-medium min-w-0 px-2">
+                    <div className="flex flex-col gap-1 min-w-0">
+                      <span className="truncate" title={chemical.productName}>{chemical.productName}</span>
                       {chemical.containsIsocyanates && <IsocyanateBadge />}
                     </div>
                   </TableCell>
-                  <TableCell className="hidden lg:table-cell">{chemical.supplier || "-"}</TableCell>
-                  <TableCell className="hidden xl:table-cell">{chemical.casNumber || "-"}</TableCell>
-                  <TableCell className="hidden xl:table-cell">
+                  <TableCell className="hidden lg:table-cell min-w-0 px-2">
+                    <span className="truncate block" title={chemical.supplier || undefined}>{chemical.supplier || "-"}</span>
+                  </TableCell>
+                  <TableCell className="hidden xl:table-cell min-w-0 px-2 text-xs">
+                    <span className="truncate block" title={chemical.casNumber || undefined}>{chemical.casNumber || "-"}</span>
+                  </TableCell>
+                  <TableCell className="hidden xl:table-cell min-w-0 px-2">
                     {chemical.hazardStatements ? (
-                      <span className="text-sm text-orange-700 line-clamp-2" title={chemical.hazardStatements}>
+                      <span className="text-sm text-orange-700 line-clamp-2 block truncate" title={chemical.hazardStatements}>
                         {chemical.hazardStatements}
                       </span>
                     ) : (
                       <span className="text-muted-foreground text-sm">-</span>
                     )}
                   </TableCell>
-                  <TableCell>
+                  <TableCell className="min-w-0 px-2">
                     {pictograms.length > 0 ? (
                       <>
-                        {/* Mobil: Vis bare antall */}
                         <div className="lg:hidden">
-                          <Badge variant="outline" className="bg-orange-50 text-orange-800 border-orange-300">
+                          <Badge variant="outline" className="bg-orange-50 text-orange-800 border-orange-300 text-xs">
                             {pictograms.length} fare
                           </Badge>
                         </div>
-                        {/* Desktop: Vis ikoner */}
-                        <div className="hidden lg:flex gap-1">
+                        <div className="hidden lg:flex gap-0.5 flex-wrap max-w-full">
                           {pictograms.slice(0, 3).map((file: string, idx: number) => (
-                            <div key={idx} className="relative w-8 h-8 border border-orange-200 rounded p-0.5">
+                            <div key={idx} className="relative w-6 h-6 flex-shrink-0 border border-orange-200 rounded p-0.5">
                               <Image
                                 src={`/faremerker/${file}`}
                                 alt="Faresymbol"
-                                width={32}
-                                height={32}
+                                width={24}
+                                height={24}
                                 className="object-contain"
                               />
                             </div>
@@ -269,19 +428,19 @@ export function ChemicalList({ chemicals }: ChemicalListProps) {
                       <span className="text-muted-foreground text-sm">-</span>
                     )}
                   </TableCell>
-                  <TableCell className="hidden lg:table-cell">
+                  <TableCell className="hidden lg:table-cell min-w-0 px-2">
                     {ppeList.length > 0 ? (
-                      <div className="flex gap-1">
+                      <div className="flex gap-0.5 flex-wrap max-w-full">
                         {ppeList.slice(0, 3).map((file: string, idx: number) => {
                           const normalizedFile = normalizePpeFile(file);
                           if (!normalizedFile) return null;
                           return (
-                            <div key={idx} className="relative w-8 h-8 border border-blue-200 rounded p-0.5 bg-blue-50">
+                            <div key={idx} className="relative w-6 h-6 flex-shrink-0 border border-blue-200 rounded p-0.5 bg-blue-50">
                               <Image
                                 src={`/ppe/${normalizedFile}`}
                                 alt="PPE"
-                                width={32}
-                                height={32}
+                                width={24}
+                                height={24}
                                 className="object-contain"
                                 unoptimized
                               />
@@ -296,11 +455,12 @@ export function ChemicalList({ chemicals }: ChemicalListProps) {
                       <span className="text-muted-foreground text-sm">-</span>
                     )}
                   </TableCell>
-                  <TableCell className="hidden md:table-cell">
+                  <TableCell className="hidden md:table-cell min-w-0 px-2">
                     {chemical.sdsKey ? (
                       <Button
                         variant="ghost"
                         size="sm"
+                        className="h-8 w-8 p-0"
                         onClick={() => handleDownloadSDS(chemical.id, chemical.productName)}
                         disabled={loading === chemical.id}
                       >
@@ -310,11 +470,11 @@ export function ChemicalList({ chemicals }: ChemicalListProps) {
                       <span className="text-sm text-muted-foreground">-</span>
                     )}
                   </TableCell>
-                  <TableCell className="hidden md:table-cell">
+                  <TableCell className="hidden md:table-cell min-w-0 px-2 text-xs whitespace-nowrap">
                     {chemical.nextReviewDate ? (
                       <div>
                         <div className={isOverdue(chemical.nextReviewDate) ? "text-red-600 font-medium" : ""}>
-                          {new Date(chemical.nextReviewDate).toLocaleDateString("nb-NO")}
+                          {new Date(chemical.nextReviewDate).toLocaleDateString("nb-NO", { day: "2-digit", month: "2-digit", year: "2-digit" })}
                         </div>
                         {isOverdue(chemical.nextReviewDate) && (
                           <div className="text-xs text-red-600">Forfalt!</div>
@@ -324,42 +484,33 @@ export function ChemicalList({ chemicals }: ChemicalListProps) {
                       "-"
                     )}
                   </TableCell>
-                  <TableCell>
-                    <div className="flex items-center gap-2">
+                  <TableCell className="min-w-0 px-2">
+                    <div className="flex flex-wrap items-center gap-1 min-w-0">
                       {getStatusBadge(chemical.status)}
                       {chemical.lastVerifiedAt && (
-                        <div className="flex items-center gap-1 text-green-600" title={`Verifisert ${new Date(chemical.lastVerifiedAt).toLocaleDateString("nb-NO")}`}>
-                          <CheckCircle className="h-4 w-4 fill-green-600" />
-                          <span className="text-xs">Verifisert</span>
-                        </div>
+                        <span className="text-green-600" title={`Verifisert ${new Date(chemical.lastVerifiedAt).toLocaleDateString("nb-NO")}`}>
+                          <CheckCircle className="h-4 w-4 fill-green-600 shrink-0" />
+                        </span>
                       )}
                     </div>
                   </TableCell>
-                  <TableCell className="text-right space-x-2">
-                    <Link href={`/dashboard/chemicals/${chemical.id}`}>
-                      <Button variant="ghost" size="sm">
-                        <Eye className="h-4 w-4" />
-                      </Button>
-                    </Link>
-                    {!chemical.lastVerifiedAt && (
+                  <TableCell className="text-right min-w-0 px-2">
+                    <div className="flex items-center justify-end gap-0.5 flex-wrap">
+                      <Link href={`/dashboard/chemicals/${chemical.id}`}>
+                        <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                          <Eye className="h-4 w-4" />
+                        </Button>
+                      </Link>
                       <Button
-                        variant="ghost"
+                        variant="destructive"
                         size="sm"
-                        onClick={() => handleVerify(chemical.id, chemical.productName)}
+                        className="h-8 w-8 p-0"
+                        onClick={() => handleDelete(chemical.id, chemical.productName)}
                         disabled={loading === chemical.id}
-                        title="Verifiser i revisjon"
                       >
-                        <CheckCircle className="h-4 w-4" />
+                        <Trash2 className="h-4 w-4" />
                       </Button>
-                    )}
-                    <Button
-                      variant="destructive"
-                      size="sm"
-                      onClick={() => handleDelete(chemical.id, chemical.productName)}
-                      disabled={loading === chemical.id}
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
+                    </div>
                   </TableCell>
                 </TableRow>
               );
@@ -368,6 +519,34 @@ export function ChemicalList({ chemicals }: ChemicalListProps) {
           </TableBody>
         </Table>
       </div>
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <div className="flex items-center justify-between pt-2 text-xs text-muted-foreground">
+          <div>
+            Side {currentPage} av {totalPages}
+          </div>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              className="h-7 px-2"
+              disabled={currentPage <= 1}
+              onClick={() => setPage((prev) => Math.max(1, prev - 1))}
+            >
+              Forrige
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              className="h-7 px-2"
+              disabled={currentPage >= totalPages}
+              onClick={() => setPage((prev) => Math.min(totalPages, prev + 1))}
+            >
+              Neste
+            </Button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

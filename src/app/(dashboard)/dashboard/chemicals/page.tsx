@@ -166,12 +166,12 @@ export default async function ChemicalsPage() {
       </div>
 
       {/* Chemicals List */}
-      <Card className="w-full overflow-hidden">
+      <Card className="w-full min-w-0 overflow-hidden">
         <CardHeader>
           <CardTitle>Alle kjemikalier</CardTitle>
           <CardDescription>Oversikt over registrerte produkter i stoffkartoteket</CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="min-w-0">
           <ChemicalList chemicals={chemicals} />
         </CardContent>
       </Card>

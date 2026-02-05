@@ -136,6 +136,14 @@ export function StoffkartotekClient({ chemicals }: StoffkartotekClientProps) {
                         }
                       })()}
 
+                      {/* Notater (synlig for ansatte i listen) */}
+                      {chemical.notes && (
+                        <div className="mb-2 p-2 bg-muted/50 rounded text-xs">
+                          <span className="font-medium text-muted-foreground">Notater: </span>
+                          <span className="line-clamp-2">{chemical.notes}</span>
+                        </div>
+                      )}
+
                       {/* PPE */}
                       {chemical.requiredPPE && (() => {
                         try {

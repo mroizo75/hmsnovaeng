@@ -43,9 +43,10 @@ export function getDocumentDeliveryEmail({
   documentId,
   downloadLinks,
 }: DocumentDeliveryEmailProps): { subject: string; html: string } {
-  const dashboardUrl = process.env.NEXT_PUBLIC_APP_URL || "https://hmsnova.com";
+  const dashboardUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://hmsnova.no";
+  const supportEmail = process.env.SUPPORT_EMAIL ?? "support@hmsnova.no";
   const logoBase64 = getLogoBase64();
-  
+
   const html = `
 <!DOCTYPE html>
 <html lang="no">
@@ -204,7 +205,7 @@ export function getDocumentDeliveryEmail({
               
               <p style="color: #666; font-size: 14px; text-align: center; margin: 30px 0 0;">
                 Har du spørsmål? Ta kontakt med oss på<br/>
-                📧 <a href="mailto:support@hmsnova.com" style="color: #2d9c92; text-decoration: none;">support@hmsnova.com</a> eller
+                📧 <a href="mailto:${supportEmail}" style="color: #2d9c92; text-decoration: none;">${supportEmail}</a> eller
                 📞 <a href="tel:+4799112916" style="color: #2d9c92; text-decoration: none;">+47 99 11 29 16</a>
               </p>
             </td>
@@ -256,8 +257,9 @@ export function getCustomerWelcomeEmail({
   yearlyPrice,
 }: CustomerWelcomeEmailProps): string {
   const logoBase64 = getLogoBase64();
-  const dashboardUrl = process.env.NEXT_PUBLIC_APP_URL || "https://hmsnova.com";
-  
+  const dashboardUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://hmsnova.no";
+  const supportEmail = process.env.SUPPORT_EMAIL ?? "support@hmsnova.no";
+
   return `
 <!DOCTYPE html>
 <html lang="no">
@@ -394,7 +396,7 @@ export function getCustomerWelcomeEmail({
                       Har du spørsmål i mellomtiden?
                     </p>
                     <p style="color: #666; font-size: 14px; margin: 0; line-height: 1.6;">
-                      📧 <a href="mailto:support@hmsnova.com" style="color: #2d9c92; text-decoration: none;">support@hmsnova.com</a><br/>
+                      📧 <a href="mailto:${supportEmail}" style="color: #2d9c92; text-decoration: none;">${supportEmail}</a><br/>
                       📞 <a href="tel:+4799112916" style="color: #2d9c92; text-decoration: none;">+47 99 11 29 16</a>
                     </p>
                   </td>
@@ -469,7 +471,7 @@ export function getAdminNotificationEmail({
   tenantId,
 }: AdminNotificationEmailProps): string {
   const logoBase64 = getLogoBase64();
-  const adminUrl = `${process.env.NEXT_PUBLIC_APP_URL || "https://hmsnova.com"}/admin/tenants`;
+  const adminUrl = `${process.env.NEXT_PUBLIC_APP_URL ?? "https://hmsnova.no"}/admin/tenants`;
   
   return `
 <!DOCTYPE html>

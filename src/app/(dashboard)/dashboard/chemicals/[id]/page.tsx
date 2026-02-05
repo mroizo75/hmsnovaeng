@@ -316,11 +316,12 @@ export default async function ChemicalDetailPage({ params }: { params: Promise<{
         </CardContent>
       </Card>
 
-      {/* Notater */}
+      {/* Tilleggsinfo – Notater */}
       {chemical.notes && (
         <Card>
           <CardHeader>
-            <CardTitle>Notater</CardTitle>
+            <CardTitle>Tilleggsinfo</CardTitle>
+            <CardDescription>Notater</CardDescription>
           </CardHeader>
           <CardContent>
             <p className="whitespace-pre-wrap">{chemical.notes}</p>

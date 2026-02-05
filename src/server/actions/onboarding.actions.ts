@@ -277,7 +277,7 @@ export async function activateTenant(input: z.infer<typeof activateTenantSchema>
     if (process.env.RESEND_API_KEY) {
       try {
         await resend.emails.send({
-          from: "HMS Nova <noreply@hmsnova.com>",
+          from: process.env.RESEND_FROM_EMAIL ?? "HMS Nova <noreply@hmsnova.no>",
           to: validated.adminEmail,
           subject: "Velkommen til HMS Nova - Din konto er klar! 🎉",
           html: getActivationEmail({
@@ -368,7 +368,7 @@ export async function rejectRegistration(tenantId: string, reason: string) {
     if (process.env.RESEND_API_KEY && tenant.contactEmail) {
       try {
         await resend.emails.send({
-          from: "HMS Nova <noreply@hmsnova.com>",
+          from: process.env.RESEND_FROM_EMAIL ?? "HMS Nova <noreply@hmsnova.no>",
           to: tenant.contactEmail,
           subject: "Angående din registrering hos HMS Nova",
           html: `
@@ -468,7 +468,7 @@ export async function resendWelcomeEmail(input: {
     // Send e-post
     if (process.env.RESEND_API_KEY) {
       await resend.emails.send({
-        from: "HMS Nova <noreply@hmsnova.com>",
+        from: process.env.RESEND_FROM_EMAIL ?? "HMS Nova <noreply@hmsnova.no>",
         to: input.userEmail,
         subject: "HMS Nova - Nytt passord 🔑",
         html: getActivationEmail({

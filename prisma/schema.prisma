@@ -444,7 +444,10 @@ model UserTenant {
   notifyRisks         Boolean  @default(true)  // Varsle om risikoer
   dailyDigest         Boolean  @default(false) // Motta daglig e-post sammendrag
   weeklyDigest        Boolean  @default(true)  // Motta ukentlig e-post sammendrag
-  
+
+  // Import: null = ikke sendt invitasjon (vis «Aktiver»); satt = invitasjon sendt
+  invitationSentAt    DateTime?
+
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
 

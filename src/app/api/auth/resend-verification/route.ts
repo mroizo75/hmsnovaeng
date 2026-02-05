@@ -81,7 +81,7 @@ export async function POST(request: NextRequest) {
 
     try {
       await resend.emails.send({
-        from: "HMS Nova <noreply@hmsnova.no>",
+        from: process.env.RESEND_FROM_EMAIL ?? "HMS Nova <noreply@hmsnova.no>",
         to: user.email,
         subject: "Verifiser e-postadressen din - HMS Nova",
         html: `

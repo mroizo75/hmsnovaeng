@@ -49,7 +49,7 @@ export default async function SettingsPage() {
   const userTenant = user.tenants[0]; // Inneholder tenant-spesifikke innstillinger
   const isAdmin = userTenant.role === "ADMIN";
 
-  // Hent alle brukere i tenant
+  // Hent alle brukere i tenant (inkl. invitationSentAt for «Aktiver»-knapp)
   const tenantUsers = await prisma.userTenant.findMany({
     where: { tenantId },
     include: {

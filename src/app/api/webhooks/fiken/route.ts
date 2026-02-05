@@ -125,7 +125,7 @@ export async function POST(request: NextRequest) {
           if (process.env.RESEND_API_KEY && invoice.tenant.contactEmail) {
             try {
               await resend.emails.send({
-                from: "HMS Nova <noreply@hmsnova.com>",
+                from: process.env.RESEND_FROM_EMAIL ?? "HMS Nova <noreply@hmsnova.no>",
                 to: invoice.tenant.contactEmail,
                 subject: "✅ Betaling mottatt - HMS Nova er aktiv igjen!",
                 html: getPaymentConfirmationEmail({

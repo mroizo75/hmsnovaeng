@@ -126,7 +126,7 @@ export async function createOnboardingInvoice(tenantId: string) {
     if (process.env.RESEND_API_KEY) {
       try {
         await resend.emails.send({
-          from: "HMS Nova <noreply@hmsnova.com>",
+          from: process.env.RESEND_FROM_EMAIL ?? "HMS Nova <noreply@hmsnova.no>",
           to: tenant.invoiceEmail || tenant.contactEmail || "",
           subject: `🎉 Velkommen til HMS Nova - 14 dager gratis!`,
           html: getTrialWelcomeEmail({
@@ -195,7 +195,7 @@ export async function checkOverdueInvoices() {
         if (process.env.RESEND_API_KEY && invoice.tenant.contactEmail) {
           try {
             await resend.emails.send({
-              from: "HMS Nova <noreply@hmsnova.com>",
+              from: process.env.RESEND_FROM_EMAIL ?? "HMS Nova <noreply@hmsnova.no>",
               to: invoice.tenant.contactEmail,
               subject: "⚠️ Din HMS Nova-konto er suspendert - Ubetalt faktura",
               html: getSuspensionEmail({
@@ -264,7 +264,7 @@ export async function sendTrialExpiringReminders() {
 
       try {
         await resend.emails.send({
-          from: "HMS Nova <noreply@hmsnova.com>",
+          from: process.env.RESEND_FROM_EMAIL ?? "HMS Nova <noreply@hmsnova.no>",
           to: tenant.contactEmail,
           subject: "⏰ Din gratis prøveperiode utløper om 3 dager",
           html: getTrialExpiringEmail({
@@ -360,7 +360,7 @@ export async function syncInvoicesWithFiken() {
               if (process.env.RESEND_API_KEY && invoice.tenant.contactEmail) {
                 try {
                   await resend.emails.send({
-                    from: "HMS Nova <noreply@hmsnova.com>",
+                    from: process.env.RESEND_FROM_EMAIL ?? "HMS Nova <noreply@hmsnova.no>",
                     to: invoice.tenant.contactEmail,
                     subject: "✅ Betaling mottatt - HMS Nova er aktiv igjen!",
                     html: getPaymentConfirmationEmail({
@@ -431,7 +431,7 @@ export async function markInvoiceAsPaid(invoiceId: string) {
     if (process.env.RESEND_API_KEY && invoice.tenant.contactEmail) {
       try {
         await resend.emails.send({
-          from: "HMS Nova <noreply@hmsnova.com>",
+          from: process.env.RESEND_FROM_EMAIL ?? "HMS Nova <noreply@hmsnova.no>",
           to: invoice.tenant.contactEmail,
           subject: "✅ Betaling mottatt - HMS Nova",
           html: getPaymentConfirmationEmail({

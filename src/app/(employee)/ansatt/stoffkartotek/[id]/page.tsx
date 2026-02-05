@@ -273,11 +273,12 @@ export default async function AnsattChemicalDetailPage({ params }: { params: Pro
         }
       })()}
 
-      {/* Notater */}
+      {/* Tilleggsinfo – Notater (synlig for ansatte) */}
       {chemical.notes && (
         <Card>
           <CardHeader>
-            <CardTitle>Viktig informasjon</CardTitle>
+            <CardTitle>Tilleggsinfo</CardTitle>
+            <CardDescription>Notater</CardDescription>
           </CardHeader>
           <CardContent>
             <p className="whitespace-pre-wrap">{chemical.notes}</p>

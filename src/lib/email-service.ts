@@ -8,7 +8,7 @@ import { getPrivilegedRoleLabel, PrivilegedRole } from "./privileged-users";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
-const FROM_EMAIL = process.env.RESEND_FROM_EMAIL || "HMS Nova <noreply@hmsnova.com>";
+const FROM_EMAIL = process.env.RESEND_FROM_EMAIL ?? "HMS Nova <noreply@hmsnova.no>";
 const BASE_URL = process.env.NEXTAUTH_URL || "http://localhost:3000";
 
 interface SendUserInvitationEmailParams {

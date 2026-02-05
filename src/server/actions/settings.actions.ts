@@ -342,6 +342,7 @@ async function inviteSingleUser(ctx: InviteContext, data: { email: string; name:
       userId: existingUser.id,
       tenantId: ctx.tenantId,
       role: data.role as Role,
+      invitationSentAt: new Date(),
     },
   });
 
@@ -415,7 +416,7 @@ export async function inviteUser(data: { email: string; name: string; role: stri
 }
 
 export type ImportUsersResult =
-  | { success: true; imported: number; failed: number; errors: string[] }
+  | { success: true; imported: number; skipped: number; errors: string[] }
   | { success: false; error: string };
 
 export async function importUsersFromFile(formData: FormData): Promise<ImportUsersResult> {
@@ -443,7 +444,7 @@ export async function importUsersFromFile(formData: FormData): Promise<ImportUse
 
     const tenant = await prisma.tenant.findUnique({
       where: { id: tenantId },
-      select: { pricingTier: true, name: true },
+      select: { pricingTier: true },
     });
     if (!tenant) {
       return { success: false, error: "Tenant ikke funnet" };
@@ -467,44 +468,156 @@ export async function importUsersFromFile(formData: FormData): Promise<ImportUse
     }
 
     if (rows.length > MAX_IMPORT_ROWS) {
-      return { success: false, error: `Maks ${MAX_IMPORT_ROWS} brukere per import. Filen inneholder ${rows.length} rader.` };
+      return {
+        success: false,
+        error: `Maks ${MAX_IMPORT_ROWS} brukere per import. Filen inneholder ${rows.length} rader.`,
+      };
     }
 
     if (currentUserCount + rows.length > limits.maxUsers && limits.maxUsers !== 999) {
       return {
         success: false,
-        error: `Importen vil overskride brukergrensen (${limits.maxUsers}). Du har ${currentUserCount} brukere og prøver å importere ${rows.length}.`,
+        error: `Importen vil overskride brukergrensen (${limits.maxUsers}). Du har ${currentUserCount} brukere.`,
       };
     }
 
-    const ctx: InviteContext = {
-      user,
-      tenantId,
-      tenantName: tenant.name || "Bedrift",
-    };
-
     let imported = 0;
+    let skipped = 0;
     const errors: string[] = [];
 
     for (const row of rows) {
-      const result = await inviteSingleUser(ctx, {
-        email: row.email,
-        name: row.name,
-        role: row.role,
+      const normalizedEmail = row.email.toLowerCase().trim();
+
+      let existingUser = await prisma.user.findUnique({
+        where: { email: normalizedEmail },
       });
-      if (result.success) {
-        imported++;
-      } else {
-        const errMsg = "error" in result ? result.error : "Ukjent feil";
-        errors.push(`${row.email}: ${errMsg}`);
+
+      const existingInTenant = existingUser
+        ? await prisma.userTenant.findUnique({
+            where: {
+              userId_tenantId: { userId: existingUser.id, tenantId },
+            },
+          })
+        : null;
+
+      if (existingInTenant) {
+        skipped++;
+        continue;
       }
+
+      if (!existingUser) {
+        existingUser = await prisma.user.create({
+          data: {
+            email: normalizedEmail,
+            name: row.name,
+            password: null,
+          },
+        });
+      }
+
+      await prisma.userTenant.create({
+        data: {
+          userId: existingUser.id,
+          tenantId,
+          role: row.role,
+          invitationSentAt: null,
+        },
+      });
+      imported++;
     }
 
+    await AuditLog.log(tenantId, user.id, "USERS_IMPORTED", "User", "", {
+      imported,
+      skipped,
+      total: rows.length,
+    });
+
     revalidatePath("/dashboard/settings");
-    return { success: true, imported, failed: rows.length - imported, errors };
+    return { success: true, imported, skipped, errors };
   } catch (error: any) {
     console.error("Import users error:", error);
     return { success: false, error: error.message || "Kunne ikke importere brukere" };
+  }
+}
+
+export async function activateUserInTenant(userId: string): Promise<{ success: true } | { success: false; error: string }> {
+  try {
+    const { user, tenantId } = await getSessionContext();
+
+    const adminTenant = user.tenants.find((t) => t.tenantId === tenantId);
+    if (!adminTenant || adminTenant.role !== "ADMIN") {
+      return { success: false, error: "Kun administratorer kan aktivere brukere" };
+    }
+    if (userId === user.id) {
+      return { success: false, error: "Du kan ikke aktivere deg selv" };
+    }
+
+    const userTenant = await prisma.userTenant.findUnique({
+      where: {
+        userId_tenantId: { userId, tenantId },
+      },
+      include: {
+        user: { select: { email: true, name: true } },
+      },
+    });
+
+    if (!userTenant) {
+      return { success: false, error: "Bruker ikke funnet i denne bedriften" };
+    }
+    if (userTenant.invitationSentAt) {
+      return { success: false, error: "Brukeren er allerede aktivert" };
+    }
+
+    const tenant = await prisma.tenant.findUnique({
+      where: { id: tenantId },
+      select: { name: true },
+    });
+    const tenantName = tenant?.name ?? "Bedrift";
+
+    const generateSecurePassword = () => {
+      const charset = "abcdefghijklmnopqrstuvwxyz0123456789";
+      let password = "";
+      for (let i = 0; i < 16; i++) {
+        password += charset.charAt(Math.floor(Math.random() * charset.length));
+      }
+      return password;
+    };
+    const tempPassword = generateSecurePassword();
+    const hashedPassword = await bcrypt.hash(tempPassword, 10);
+
+    await prisma.user.update({
+      where: { id: userId },
+      data: { password: hashedPassword },
+    });
+
+    await prisma.userTenant.update({
+      where: { id: userTenant.id },
+      data: { invitationSentAt: new Date() },
+    });
+
+    try {
+      const { sendUserInvitationEmail } = await import("@/lib/email-service");
+      await sendUserInvitationEmail({
+        to: userTenant.user.email,
+        userName: userTenant.user.name ?? userTenant.user.email,
+        userEmail: userTenant.user.email,
+        tempPassword,
+        companyName: tenantName,
+        invitedByName: user.name || user.email,
+      });
+    } catch (emailErr) {
+      // Bruker er aktivert; logg men ikke feil
+    }
+
+    await AuditLog.log(tenantId, user.id, "USER_ACTIVATED", "User", userId, {
+      email: userTenant.user.email,
+    });
+
+    revalidatePath("/dashboard/settings");
+    return { success: true };
+  } catch (error: any) {
+    console.error("Activate user error:", error);
+    return { success: false, error: error.message ?? "Kunne ikke aktivere bruker" };
   }
 }
 

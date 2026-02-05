@@ -5,15 +5,18 @@ import { cn } from "@/lib/utils"
 const Table = React.forwardRef<
   HTMLTableElement,
   React.HTMLAttributes<HTMLTableElement>
->(({ className, ...props }, ref) => (
-  <div className="relative w-full overflow-auto">
-    <table
-      ref={ref}
-      className={cn("w-full caption-bottom text-sm", className)}
-      {...props}
-    />
-  </div>
-))
+>(({ className, ...props }, ref) => {
+  const isFixed = className?.includes("table-fixed");
+  return (
+    <div className={cn("relative w-full", isFixed ? "overflow-x-hidden" : "overflow-auto")}>
+      <table
+        ref={ref}
+        className={cn("w-full caption-bottom text-sm", className)}
+        {...props}
+      />
+    </div>
+  );
+})
 Table.displayName = "Table"
 
 const TableHeader = React.forwardRef<

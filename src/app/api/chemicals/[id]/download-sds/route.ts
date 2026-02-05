@@ -2,20 +2,12 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/db";
-import { S3Client, GetObjectCommand } from "@aws-sdk/client-s3";
-import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
+import { getStorage } from "@/lib/storage";
 
-const s3Client = new S3Client({
-  region: "auto",
-  endpoint: process.env.R2_ENDPOINT,
-  credentials: {
-    accessKeyId: process.env.R2_ACCESS_KEY_ID!,
-    secretAccessKey: process.env.R2_SECRET_ACCESS_KEY!,
-  },
-});
-
-const BUCKET_NAME = process.env.R2_BUCKET_NAME || process.env.R2_BUCKET || "hmsnova";
-
+/**
+ * Proxier SDS-fil fra R2 til klienten for å unngå CORS (browser får ikke
+ * tilgang til signert R2-URL direkte fra www.hmsnova.no).
+ */
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -31,7 +23,6 @@ export async function GET(
       );
     }
 
-    // Hent kjemikalie og sjekk at den tilhører brukerens tenant
     const chemical = await prisma.chemical.findUnique({
       where: {
         id,
@@ -53,18 +44,28 @@ export async function GET(
       );
     }
 
-    // Generer signert URL for nedlasting fra R2
-    const command = new GetObjectCommand({
-      Bucket: BUCKET_NAME,
-      Key: chemical.sdsKey,
-    });
+    const storage = getStorage();
+    const buffer = await storage.get(chemical.sdsKey);
 
-    const signedUrl = await getSignedUrl(s3Client, command, {
-      expiresIn: 3600, // 1 time
-    });
+    if (!buffer || buffer.length === 0) {
+      return NextResponse.json(
+        { error: "Sikkerhetsdatablad ikke funnet i lagring" },
+        { status: 404 }
+      );
+    }
 
-    // Redirect til den signerte URLen
-    return NextResponse.redirect(signedUrl);
+    const filename =
+      chemical.productName.replace(/[^a-zA-Z0-9-_ .]/g, "_").slice(0, 80) +
+      "-sds.pdf";
+
+    return new NextResponse(buffer, {
+      status: 200,
+      headers: {
+        "Content-Type": "application/pdf",
+        "Content-Disposition": `attachment; filename="${filename}"`,
+        "Content-Length": String(buffer.length),
+      },
+    });
   } catch (error) {
     console.error("Feil ved nedlasting av SDS:", error);
     return NextResponse.json(

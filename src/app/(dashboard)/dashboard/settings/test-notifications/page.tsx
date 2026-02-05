@@ -107,7 +107,7 @@ export default async function TestNotificationsPage() {
             <div>
               <p className="text-sm font-medium text-muted-foreground">Fra-adresse</p>
               <p className="text-sm font-mono">
-                {process.env.RESEND_FROM_EMAIL || "noreply@hmsnova.com"}
+                {process.env.RESEND_FROM_EMAIL ?? "noreply@hmsnova.no"}
               </p>
             </div>
             <div>
