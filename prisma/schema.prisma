@@ -169,6 +169,8 @@ model Tenant {
   onboardingStatus OnboardingStatus @default(NOT_STARTED)
   onboardingCompletedAt DateTime?
   salesRep         String?          // Selger/support ansvarlig
+  // Gratis 14-dagers løype vs vanlig registrering (superadmin aktiverer)
+  registrationType RegistrationType @default(STANDARD)
   
   // HMS-kontaktinformasjon (dynamisk visning for ansatte)
   hmsContactName   String?          // Navn på HMS-ansvarlig
@@ -234,6 +236,7 @@ model Tenant {
   @@index([fikenCompanyId])
   @@index([pricingTier])
   @@index([onboardingStatus])
+  @@index([registrationType])
 }
 
 enum TenantStatus {
@@ -257,6 +260,11 @@ enum OnboardingStatus {
   DOCUMENTS_UPLOADED
   TRAINING_SCHEDULED
   COMPLETED
+}
+
+enum RegistrationType {
+  STANDARD   // Vanlig: registrer-bedrift → superadmin aktiverer → 14 dager → betaling
+  FREE_14_DAY // Gratis HMS: selvbetjent, 14 dager, vannmerkede dokumenter, deretter 300 kr/mnd eller deaktivering
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -314,6 +322,10 @@ model GeneratedDocument {
   lastDownloadAt DateTime?
   convertedToTrial Boolean @default(false)
   convertedAt   DateTime?
+  // Gratis HMS-løype: vannmerkede PDF-er lagres (ikke DOCX), slik at systemet ikke gis bort utskriftsklart
+  isFreeTrialPackage Boolean @default(false)
+  // Når satt: pakken tilhører denne tenanten og skal importeres som Document etter generering
+  tenantId          String?   @db.String(191)
   
   // Marketing consent
   marketingConsent Boolean @default(false)
@@ -331,6 +343,8 @@ model GeneratedDocument {
   @@index([createdAt])
   @@index([convertedToTrial])
   @@index([newsletterSubscribed])
+  @@index([isFreeTrialPackage])
+  @@index([tenantId])
 }
 
 enum GenerationStatus {

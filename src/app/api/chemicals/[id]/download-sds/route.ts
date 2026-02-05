@@ -58,7 +58,7 @@ export async function GET(
       chemical.productName.replace(/[^a-zA-Z0-9-_ .]/g, "_").slice(0, 80) +
       "-sds.pdf";
 
-    return new NextResponse(buffer, {
+    return new NextResponse(Buffer.from(buffer), {
       status: 200,
       headers: {
         "Content-Type": "application/pdf",

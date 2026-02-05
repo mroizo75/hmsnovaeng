@@ -144,6 +144,21 @@ export async function POST(request: NextRequest) {
         }
       });
 
+      // Gratis 14-dagers kunde som nå betaler: fjern vannmerke og oppgrader til STANDARD (300 kr/mnd, 12 mnd binding)
+      if (invoice.tenant.registrationType === "FREE_14_DAY") {
+        try {
+          const { upgradeFreeTrialTenantDocumentsToPaid } = await import("@/server/actions/generator.actions");
+          const upgradeResult = await upgradeFreeTrialTenantDocumentsToPaid(invoice.tenantId);
+          if (upgradeResult.success) {
+            console.log(`[Fiken Webhook] Upgraded FREE_14_DAY tenant ${invoice.tenant.name} – vannmerke fjernet, dokumenter kan lastes ned`);
+          } else {
+            console.error(`[Fiken Webhook] Upgrade free-trial documents failed: ${upgradeResult.error}`);
+          }
+        } catch (upgradeError) {
+          console.error("[Fiken Webhook] Upgrade free-trial tenant error:", upgradeError);
+        }
+      }
+
       console.log(`[Fiken Webhook] Successfully processed payment for invoice ${invoice.id}`);
 
       return NextResponse.json({ 

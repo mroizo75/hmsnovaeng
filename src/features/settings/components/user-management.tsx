@@ -224,7 +224,7 @@ export function UserManagement({ users, currentUserId, isAdmin, pricingTier, max
       toast({
         variant: "destructive",
         title: "Kunne ikke aktivere",
-        description: result.error,
+        description: "error" in result ? result.error : "Kunne ikke aktivere bruker",
       });
     }
   };

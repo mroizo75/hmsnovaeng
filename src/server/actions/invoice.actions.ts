@@ -378,6 +378,15 @@ export async function syncInvoicesWithFiken() {
             }
           });
 
+          if (invoice.tenant.registrationType === "FREE_14_DAY") {
+            try {
+              const { upgradeFreeTrialTenantDocumentsToPaid } = await import("@/server/actions/generator.actions");
+              await upgradeFreeTrialTenantDocumentsToPaid(invoice.tenantId);
+            } catch (upgradeError) {
+              console.error("[Fiken Sync] Upgrade free-trial tenant:", upgradeError);
+            }
+          }
+
           updated++;
           console.log(`[Fiken Sync] Marked invoice ${invoice.id} as paid (Fiken: ${invoice.fikenInvoiceId})`);
         }
@@ -426,6 +435,16 @@ export async function markInvoiceAsPaid(invoiceId: string) {
         });
       }
     });
+
+    // Gratis 14-dagers kunde som nå betaler: fjern vannmerke, oppgrader til STANDARD (300 kr/mnd, 12 mnd binding)
+    if (invoice.tenant.registrationType === "FREE_14_DAY") {
+      try {
+        const { upgradeFreeTrialTenantDocumentsToPaid } = await import("@/server/actions/generator.actions");
+        await upgradeFreeTrialTenantDocumentsToPaid(invoice.tenantId);
+      } catch (upgradeError) {
+        console.error("Upgrade free-trial tenant after manual mark paid:", upgradeError);
+      }
+    }
 
     // Send bekreftelse på betaling
     if (process.env.RESEND_API_KEY && invoice.tenant.contactEmail) {

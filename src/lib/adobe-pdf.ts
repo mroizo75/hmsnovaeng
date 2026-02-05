@@ -19,6 +19,11 @@ import {
   ExtractElementType,
   ExtractPDFJob,
   ExtractPDFResult,
+  PDFWatermarkJob,
+  PDFWatermarkResult,
+  PDFWatermarkParams,
+  WatermarkAppearance,
+  PageRanges,
   SDKError,
   ServiceUsageError,
   ServiceApiError
@@ -288,6 +293,95 @@ async function streamToBuffer(readStream: any): Promise<Buffer> {
     readStream.on("end", () => resolve(Buffer.concat(chunks)));
     readStream.on("error", reject);
   });
+}
+
+/**
+ * Genererer en én-side PDF brukt som vannmerke for gratis-prøvepakker.
+ * Tekst: "Kun visning – HMS Nova gratis prøve" så innholdet ikke kan brukes som ferdig system uten å betale.
+ */
+export async function generateWatermarkPdfBuffer(): Promise<Buffer> {
+  const { default: jsPDF } = await import("jspdf");
+  const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
+  const w = doc.getPageWidth();
+  const h = doc.getPageHeight();
+  doc.setFontSize(28);
+  doc.setTextColor(180, 180, 180);
+  doc.setFont("helvetica", "bold");
+  // Sentrert diagonalt (vannmerke-stil)
+  doc.text("Kun visning", w / 2, h / 2 - 8, { align: "center" });
+  doc.text("HMS Nova gratis prøve", w / 2, h / 2 + 8, { align: "center" });
+  doc.setFontSize(12);
+  doc.setFont("helvetica", "normal");
+  doc.text("Oppgrader for utskriftsklare dokumenter", w / 2, h / 2 + 24, { align: "center" });
+  return Buffer.from(doc.output("arraybuffer") as ArrayBuffer);
+}
+
+export interface ApplyWatermarkOptions {
+  opacity?: number;
+  appearOnForeground?: boolean;
+}
+
+/**
+ * Legger vannmerke på PDF via Adobe PDF Services.
+ * Brukes for gratis-prøvepakker slik at brukere ikke får utskriftsklare dokumenter uten å betale.
+ */
+export async function applyWatermarkToPdf(
+  inputPdfBuffer: Buffer,
+  watermarkPdfBuffer: Buffer,
+  options: ApplyWatermarkOptions = {}
+): Promise<Buffer> {
+  const { opacity = 50, appearOnForeground = true } = options;
+
+  if (!ADOBE_CLIENT_ID || !ADOBE_CLIENT_SECRET) {
+    throw new Error("Adobe PDF Services er ikke konfigurert");
+  }
+
+  const credentials = new ServicePrincipalCredentials({
+    clientId: ADOBE_CLIENT_ID,
+    clientSecret: ADOBE_CLIENT_SECRET,
+  });
+
+  const pdfServices = new PDFServices({ credentials });
+
+  const inputStream = Readable.from(inputPdfBuffer);
+  const watermarkStream = Readable.from(watermarkPdfBuffer);
+
+  const [inputAsset, watermarkAsset] = await pdfServices.uploadAssets({
+    streamAssets: [
+      { readStream: inputStream, mimeType: MimeType.PDF },
+      { readStream: watermarkStream, mimeType: MimeType.PDF },
+    ],
+  });
+
+  const watermarkAppearance = new WatermarkAppearance({
+    appearOnForeground,
+    opacity,
+  });
+
+  const pageRanges = new PageRanges();
+  pageRanges.addAll();
+
+  const params = new PDFWatermarkParams({
+    watermarkAppearance,
+    pageRanges,
+  });
+
+  const job = new PDFWatermarkJob({
+    inputAsset,
+    watermarkAsset,
+    params,
+  });
+
+  const pollingURL = await pdfServices.submit({ job });
+  const pdfServicesResponse = await pdfServices.getJobResult({
+    pollingURL,
+    resultType: PDFWatermarkResult,
+  });
+
+  const resultAsset = pdfServicesResponse.result.asset;
+  const streamAsset = await pdfServices.getContent({ asset: resultAsset });
+
+  return await streamToBuffer(streamAsset.readStream as any);
 }
 
 /**
