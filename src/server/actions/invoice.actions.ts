@@ -378,7 +378,7 @@ export async function syncInvoicesWithFiken() {
             }
           });
 
-          if (invoice.tenant.registrationType === "FREE_14_DAY") {
+          if ((invoice.tenant as { registrationType?: string }).registrationType === "FREE_14_DAY") {
             try {
               const { upgradeFreeTrialTenantDocumentsToPaid } = await import("@/server/actions/generator.actions");
               await upgradeFreeTrialTenantDocumentsToPaid(invoice.tenantId);
@@ -437,7 +437,7 @@ export async function markInvoiceAsPaid(invoiceId: string) {
     });
 
     // Gratis 14-dagers kunde som nå betaler: fjern vannmerke, oppgrader til STANDARD (300 kr/mnd, 12 mnd binding)
-    if (invoice.tenant.registrationType === "FREE_14_DAY") {
+    if ((invoice.tenant as { registrationType?: string }).registrationType === "FREE_14_DAY") {
       try {
         const { upgradeFreeTrialTenantDocumentsToPaid } = await import("@/server/actions/generator.actions");
         await upgradeFreeTrialTenantDocumentsToPaid(invoice.tenantId);

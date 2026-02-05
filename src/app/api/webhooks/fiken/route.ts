@@ -145,7 +145,8 @@ export async function POST(request: NextRequest) {
       });
 
       // Gratis 14-dagers kunde som nå betaler: fjern vannmerke og oppgrader til STANDARD (300 kr/mnd, 12 mnd binding)
-      if (invoice.tenant.registrationType === "FREE_14_DAY") {
+      const tenant = invoice.tenant as { registrationType?: string };
+      if (tenant.registrationType === "FREE_14_DAY") {
         try {
           const { upgradeFreeTrialTenantDocumentsToPaid } = await import("@/server/actions/generator.actions");
           const upgradeResult = await upgradeFreeTrialTenantDocumentsToPaid(invoice.tenantId);

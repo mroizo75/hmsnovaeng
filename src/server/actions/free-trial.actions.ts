@@ -99,7 +99,7 @@ export async function createFreeTrialTenant(
       where: { email: normalizedEmail },
       include: { tenants: { include: { tenant: true } } },
     });
-    if (existingUser?.tenants.some((t) => t.tenant.registrationType === "FREE_14_DAY")) {
+    if (existingUser?.tenants.some((t) => (t.tenant as { registrationType?: string }).registrationType === "FREE_14_DAY")) {
       return {
         success: false,
         error: "Denne e-postadressen har allerede en gratis prøvekonto. Logg inn eller bruk en annen e-post.",
