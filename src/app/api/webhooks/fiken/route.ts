@@ -152,7 +152,7 @@ export async function POST(request: NextRequest) {
           const upgradeResult = await upgradeFreeTrialTenantDocumentsToPaid(invoice.tenantId);
           if (upgradeResult.success) {
             console.log(`[Fiken Webhook] Upgraded FREE_14_DAY tenant ${invoice.tenant.name} – vannmerke fjernet, dokumenter kan lastes ned`);
-          } else {
+          } else if ("error" in upgradeResult) {
             console.error(`[Fiken Webhook] Upgrade free-trial documents failed: ${upgradeResult.error}`);
           }
         } catch (upgradeError) {

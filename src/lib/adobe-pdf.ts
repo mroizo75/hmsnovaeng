@@ -299,15 +299,16 @@ async function streamToBuffer(readStream: any): Promise<Buffer> {
  * Genererer en én-side PDF brukt som vannmerke for gratis-prøvepakker.
  * Tekst: "Kun visning – HMS Nova gratis prøve" så innholdet ikke kan brukes som ferdig system uten å betale.
  */
+const A4_MM = { width: 210, height: 297 };
+
 export async function generateWatermarkPdfBuffer(): Promise<Buffer> {
   const { default: jsPDF } = await import("jspdf");
   const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
-  const w = doc.getPageWidth();
-  const h = doc.getPageHeight();
+  const w = A4_MM.width;
+  const h = A4_MM.height;
   doc.setFontSize(28);
   doc.setTextColor(180, 180, 180);
   doc.setFont("helvetica", "bold");
-  // Sentrert diagonalt (vannmerke-stil)
   doc.text("Kun visning", w / 2, h / 2 - 8, { align: "center" });
   doc.text("HMS Nova gratis prøve", w / 2, h / 2 + 8, { align: "center" });
   doc.setFontSize(12);

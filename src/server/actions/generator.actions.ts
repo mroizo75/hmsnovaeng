@@ -519,7 +519,7 @@ export async function upgradeFreeTrialTenantDocumentsToPaid(
       if (!fileKey) continue;
 
       const document = await prisma.document.findUnique({
-        where: { tenantId, slug: spec.slug },
+        where: { tenantId_slug: { tenantId, slug: spec.slug } },
         include: { versions: true },
       });
       if (!document) continue;

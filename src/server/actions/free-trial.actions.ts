@@ -209,7 +209,7 @@ export async function createFreeTrialTenant(
       docId,
       adminUser.id
     );
-    if (!importResult.success) {
+    if (!importResult.success && "error" in importResult) {
       return {
         success: false,
         error: importResult.error || "Kunne ikke importere dokumenter til bedriften",
