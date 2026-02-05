@@ -34,17 +34,13 @@ export function ActivateTenantForm({
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    console.log("🚀 Form submitted! tenantId:", tenantId);
-    console.log("📧 Form data:", formData);
     setLoading(true);
 
     try {
-      console.log("⏳ Calling activateTenant server action...");
       const result = await activateTenant({
         tenantId,
         ...formData,
       });
-      console.log("✅ Server action returned:", result);
 
       if (result.success) {
         toast({
@@ -54,23 +50,20 @@ export function ActivateTenantForm({
         router.push("/admin/registrations");
         router.refresh();
       } else {
-        console.log("❌ Server returned error:", result.error);
-        alert("Feil: " + (result.error || "Kunne ikke aktivere tenant"));
+        const errorMsg = "error" in result ? result.error : "Kunne ikke aktivere tenant";
         toast({
           variant: "destructive",
           title: "❌ Feil",
-          description: result.error || "Kunne ikke aktivere tenant",
+          description: errorMsg,
         });
       }
-    } catch (error) {
-      console.error("💥 Activate tenant CATCH error:", error);
+    } catch {
       toast({
         variant: "destructive",
         title: "❌ Systemfeil",
         description: "En uventet feil oppstod",
       });
     } finally {
-      console.log("🏁 Finally block - setting loading to false");
       setLoading(false);
     }
   }
@@ -155,11 +148,10 @@ export function ActivateTenantForm({
       </div>
 
       <div className="pt-4 border-t">
-        <Button 
-          type="submit" 
-          disabled={loading} 
+        <Button
+          type="submit"
+          disabled={loading}
           className="w-full"
-          onClick={() => console.log("🔘 Button clicked!")}
         >
           {loading ? (
             <>

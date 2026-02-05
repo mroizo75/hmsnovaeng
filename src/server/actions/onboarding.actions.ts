@@ -309,8 +309,10 @@ export async function activateTenant(input: z.infer<typeof activateTenantSchema>
       }
     );
 
-    // VIKTIG: Opprett faktura som MÅ betales innen 14 dager
-    await createOnboardingInvoice(tenant.id);
+    // Opprett faktura i bakgrunnen (unngår at Fiken/API forsinkelse holder brukeren)
+    createOnboardingInvoice(tenant.id).catch((err) => {
+      console.error("Onboarding invoice (bakgrunn):", err);
+    });
 
     return {
       success: true,
