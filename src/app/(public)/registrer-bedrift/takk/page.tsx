@@ -79,9 +79,9 @@ export default function TakkPage() {
                 Tilbake til forsiden
               </Button>
             </Link>
-            <Link href="/gratis-hms-system">
+            <Link href="/priser">
               <Button size="lg">
-                Last ned gratis HMS-pakke
+                Se priser
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
             </Link>

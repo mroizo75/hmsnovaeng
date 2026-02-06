@@ -111,7 +111,7 @@ export default function WhistleblowingInfoPage() {
             </p>
             <div className="flex gap-4">
               <Button asChild>
-                <Link href="/gratis-hms-system">Kom i gang gratis</Link>
+                <Link href="/registrer-bedrift">Kom i gang gratis</Link>
               </Button>
               <Button asChild variant="outline">
                 <Link href="/priser">Se priser</Link>

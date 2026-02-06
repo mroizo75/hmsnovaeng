@@ -594,49 +594,10 @@ export async function sendDocuments(documentId: string) {
       return { success: false, error: "Dokumenter er ikke generert ennå" };
     }
 
-    // Generate download URLs
-    const { getStorage } = await import("@/lib/storage");
-    const storage = getStorage();
-
-    // R2/S3 presigned URLs can only be valid for max 7 days (604800 seconds)
-    const SEVEN_DAYS = 604800;
-    
-    const downloadLinks = {
-      register: await storage.getUrl(doc.registerKey || "", SEVEN_DAYS),
-      handbook: await storage.getUrl(doc.handbookKey || "", SEVEN_DAYS),
-      risk: await storage.getUrl(doc.riskKey || "", SEVEN_DAYS),
-      training: await storage.getUrl(doc.trainingKey || "", SEVEN_DAYS),
-      vernerunde: await storage.getUrl(doc.vernerundeKey || "", SEVEN_DAYS),
-      amu: await storage.getUrl(doc.amuKey || "", SEVEN_DAYS),
-      zip: await storage.getUrl(doc.zipKey || "", SEVEN_DAYS),
-    };
-
-    // Send email via Resend
-    if (process.env.RESEND_API_KEY) {
-      const { Resend } = await import("resend");
-      const { getDocumentDeliveryEmail } = await import("@/lib/email-templates");
-
-      const resend = new Resend(process.env.RESEND_API_KEY);
-      const emailTemplate = getDocumentDeliveryEmail({
-        companyName: doc.companyName,
-        email: doc.email,
-        documentId: doc.id,
-        downloadLinks,
-      });
-
-      await resend.emails.send({
-        from: process.env.RESEND_FROM_EMAIL || "HMS Nova <onboarding@resend.dev>",
-        to: doc.email,
-        subject: emailTemplate.subject,
-        html: emailTemplate.html,
-      });
-    } else {
-      console.log(`Would send email to ${doc.email} with download links`);
-    }
-
+    // Utlevering av dokumenter på e-post er avviklet – bruk HMS Nova for tilgang
     return {
-      success: true,
-      data: { email: doc.email, downloadLinks },
+      success: false,
+      error: "Utsending av dokumenter på e-post er ikke tilgjengelig. Bruk HMS Nova for å få tilgang til HMS-systemet.",
     };
   } catch (error: any) {
     console.error("Send documents error:", error);
@@ -734,26 +695,10 @@ export async function getDownloadLinks(documentId: string) {
       return { success: false, error: "Dokumenter er ikke generert ennå" };
     }
 
-    // Generate download URLs
-    const { getStorage } = await import("@/lib/storage");
-    const storage = getStorage();
-
-    // R2/S3 presigned URLs can only be valid for max 7 days
-    const SEVEN_DAYS = 604800;
-    
-    const downloadLinks = {
-      register: doc.registerKey ? await storage.getUrl(doc.registerKey, SEVEN_DAYS) : null,
-      handbook: doc.handbookKey ? await storage.getUrl(doc.handbookKey, SEVEN_DAYS) : null,
-      risk: doc.riskKey ? await storage.getUrl(doc.riskKey, SEVEN_DAYS) : null,
-      training: doc.trainingKey ? await storage.getUrl(doc.trainingKey, SEVEN_DAYS) : null,
-      vernerunde: doc.vernerundeKey ? await storage.getUrl(doc.vernerundeKey, SEVEN_DAYS) : null,
-      amu: doc.amuKey ? await storage.getUrl(doc.amuKey, SEVEN_DAYS) : null,
-      zip: doc.zipKey ? await storage.getUrl(doc.zipKey, SEVEN_DAYS) : null,
-    };
-
+    // Nedlasting av ZIP/dokumenter er avviklet – bruk HMS Nova for tilgang
     return {
-      success: true,
-      data: downloadLinks,
+      success: false,
+      error: "Nedlasting av dokumentpakke er ikke tilgjengelig. Bruk HMS Nova for å få tilgang til HMS-systemet.",
     };
   } catch (error: any) {
     console.error("Get download links error:", error);

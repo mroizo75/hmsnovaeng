@@ -93,7 +93,7 @@ export const BlogNewsletterEmail = ({
                 Med digital signatur, mobilapp og ISO 9001 compliance.
               </Text>
               <Button
-                href={`${baseUrl}/gratis-hms-system`}
+                href={`${baseUrl}/registrer-bedrift`}
                 style={primaryButton}
               >
                 Prøv gratis i 14 dager

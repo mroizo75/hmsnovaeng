@@ -24,7 +24,6 @@ export default function robots(): MetadataRoute.Robots {
           "/priser",
           "/hms-kurs",
           "/bedriftshelsetjeneste",
-          "/gratis-hms-system",
           "/blogg/*",
         ],
         disallow: [
@@ -41,7 +40,6 @@ export default function robots(): MetadataRoute.Robots {
           "/priser",
           "/hms-kurs",
           "/bedriftshelsetjeneste",
-          "/gratis-hms-system",
           "/blogg/*",
         ],
         disallow: [

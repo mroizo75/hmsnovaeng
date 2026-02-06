@@ -86,9 +86,9 @@ export default function HomePage() {
               <ArrowRight className="ml-2 h-5 w-5" aria-hidden="true" />
             </Button>
           </RegisterDialog>
-          <Link href="/gratis-hms-system">
+          <Link href="/registrer-bedrift">
             <Button size="lg" variant="outline" className="text-lg px-8">
-              Få gratis HMS-pakke
+              Registrer bedrift
             </Button>
           </Link>
           <RingMegDialog />
@@ -537,9 +537,9 @@ export default function HomePage() {
                   <ArrowRight className="ml-2 h-5 w-5" aria-hidden="true" />
                 </Button>
               </RegisterDialog>
-              <Link href="/gratis-hms-system">
+              <Link href="/registrer-bedrift">
                 <Button size="lg" variant="outline" className="bg-transparent border-white text-white hover:bg-white/10">
-                  Få gratis HMS-pakke
+                  Registrer bedrift
                 </Button>
               </Link>
             </div>

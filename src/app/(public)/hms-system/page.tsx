@@ -297,7 +297,7 @@ export default function HMSSystemPage() {
                 size="lg" 
                 className="border-2 border-white text-white hover:bg-white/10"
               >
-                <Link href="/gratis-hms-system">
+                <Link href="/registrer-bedrift">
                   Last ned gratis HMS-pakke
                 </Link>
               </Button>

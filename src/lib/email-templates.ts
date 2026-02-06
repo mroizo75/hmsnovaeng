@@ -381,8 +381,8 @@ export function getCustomerWelcomeEmail({
               <table width="100%" cellpadding="0" cellspacing="0" style="margin: 30px 0;">
                 <tr>
                   <td align="center">
-                    <a href="${dashboardUrl}/gratis-hms-system" style="display: inline-block; background-color: #2d9c92; color: #ffffff; text-decoration: none; padding: 14px 32px; border-radius: 6px; font-weight: 600; font-size: 16px;">
-                      Last ned gratis HMS-pakke mens du venter
+                    <a href="${dashboardUrl}/registrer-bedrift" style="display: inline-block; background-color: #2d9c92; color: #ffffff; text-decoration: none; padding: 14px 32px; border-radius: 6px; font-weight: 600; font-size: 16px;">
+                      Registrer bedrift mens du venter
                     </a>
                   </td>
                 </tr>

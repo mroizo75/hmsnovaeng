@@ -69,8 +69,8 @@ export function PublicFooter() {
                 </Link>
               </li>
               <li>
-                <Link href="/gratis-hms-system" className="text-muted-foreground hover:text-foreground transition-colors">
-                  Gratis HMS-system
+                <Link href="/registrer-bedrift" className="text-muted-foreground hover:text-foreground transition-colors">
+                  Registrer bedrift
                 </Link>
               </li>
               <li>

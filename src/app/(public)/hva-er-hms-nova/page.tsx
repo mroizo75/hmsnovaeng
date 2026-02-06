@@ -43,7 +43,7 @@ export default function HvaErHMSNovaPage() {
             komplekse og tungvinte HMS-systemer. Vi bygger løsningen vi selv ønsket vi hadde.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link href="/gratis-hms-system">
+            <Link href="/registrer-bedrift">
               <Button size="lg">
                 <Download className="mr-2 h-5 w-5" />
                 Få gratis HMS-system
@@ -475,7 +475,7 @@ export default function HvaErHMSNovaPage() {
               Sammen kan vi skape sikrere og bedre arbeidsplasser for alle.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link href="/gratis-hms-system">
+              <Link href="/registrer-bedrift">
                 <Button size="lg" variant="secondary">
                   <Download className="mr-2 h-5 w-5" />
                   Få gratis HMS-system

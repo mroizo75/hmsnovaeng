@@ -58,11 +58,11 @@ export function PublicNav() {
               HMS-blogg
             </Link>
             <Link 
-              href="/gratis-hms-system" 
+              href="/registrer-bedrift" 
               className="text-sm font-medium text-primary hover:text-primary/80 transition-colors flex items-center gap-1"
             >
               <Download className="h-4 w-4" />
-              Gratis HMS-system
+              Prøv gratis
             </Link>
             <Link href="/login">
               <Button variant="ghost" size="sm">
@@ -137,12 +137,12 @@ export function PublicNav() {
               HMS-blogg
             </Link>
             <Link 
-              href="/gratis-hms-system" 
+              href="/registrer-bedrift" 
               className="block py-2 text-sm font-medium text-primary hover:text-primary/80 flex items-center gap-1"
               onClick={() => setMobileMenuOpen(false)}
             >
               <Download className="h-4 w-4" />
-              Gratis HMS-system
+              Prøv gratis
             </Link>
             <div className="pt-3 space-y-2">
               <Link href="/login" className="block" onClick={() => setMobileMenuOpen(false)}>

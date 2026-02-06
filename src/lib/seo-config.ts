@@ -257,11 +257,6 @@ export const PAGE_METADATA = {
     description: "🏥 Godkjent BHT fra Dr. Dropin · 10% rabatt for HMS Nova-medlemmer · Digital integrasjon · Ingen bindingstid · 3000+ bedrifter stoler på oss · Kom i gang →",
     keywords: "bedriftshelsetjeneste, BHT, godkjent bedriftshelsetjeneste, arbeidstilsynet bht, dr dropin bht",
   },
-  gratisPakke: {
-    title: "Gratis HMS-pakke - Last Ned Ferdig HMS-håndbok | HMS Nova",
-    description: "🎁 Gratis HMS-pakke: Ferdig HMS-håndbok + Risikovurderingsmaler + Vernerundemal · Perfekt for små bedrifter · Last ned nå · 0 kr · Ingen forpliktelser →",
-    keywords: "gratis hms håndbok, hms mal gratis, vernerunde mal, risikovurdering mal, gratis hms dokumenter",
-  },
   handbook: {
     title: "HMS-håndbok - Digital & Oppdatert | HMS Nova",
     description: "📚 Ferdig HMS-håndbok tilpasset din bedrift · Alltid oppdatert med lovkrav · Digital signatur · Versjonskontroll · Spar uker med arbeid · Prøv gratis →",

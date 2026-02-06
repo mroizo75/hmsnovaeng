@@ -133,14 +133,14 @@ export default function HMSLoverReglerPage() {
 
               <div className="text-center">
                 <Button size="lg" asChild className="w-full md:w-auto">
-                  <Link href="/gratis-hms-system">
+                  <Link href="/registrer-bedrift">
                     <Download className="mr-2 h-5 w-5" />
                     Få lovguide + verktøy for HMS-arbeid
                     <ArrowRight className="ml-2 h-5 w-5" />
                   </Link>
                 </Button>
                 <p className="text-xs text-muted-foreground mt-3">
-                  Gratis HMS-pakke med maler og veiledning
+                  Registrer bedrift og kom i gang med 14 dagers prøveperiode
                 </p>
               </div>
             </CardContent>

@@ -91,14 +91,14 @@ export default function PriserPage() {
           Transparent prising.<br />Ingen overraskelser.
         </h1>
         <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
-          Velg planen som passer din bedrift. Alle planer inkluderer 14 dagers gratis prøveperiod, 
-          full tilgang og norsk support. Ingen bindingstid. Ingen oppstartskostnader.
+          Velg planen som passer din bedrift. Alle planer inkluderer 14 dagers gratis prøveperiode, 
+          full tilgang og norsk support.
         </p>
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
-          <Link href="/gratis-hms-system">
+          <Link href="/registrer-bedrift">
             <Button size="lg" variant="outline">
               <Download className="mr-2 h-5 w-5" />
-              Få gratis HMS-pakke først
+              Registrer bedrift
             </Button>
           </Link>
           <Link href="#priser">
@@ -176,23 +176,7 @@ export default function PriserPage() {
           </p>
         </div>
 
-        <div className="grid md:grid-cols-4 gap-6 max-w-4xl mx-auto mb-12">
-          <Card>
-            <CardContent className="pt-6 text-center">
-              <CheckCircle2 className="h-8 w-8 text-primary mx-auto mb-2" />
-              <h3 className="font-semibold text-sm">Ingen oppsett</h3>
-              <p className="text-xs text-muted-foreground mt-1">0 kr i oppstartskostnad</p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardContent className="pt-6 text-center">
-              <CheckCircle2 className="h-8 w-8 text-primary mx-auto mb-2" />
-              <h3 className="font-semibold text-sm">Ingen binding</h3>
-              <p className="text-xs text-muted-foreground mt-1">Si opp når du vil</p>
-            </CardContent>
-          </Card>
-
+        <div className="grid md:grid-cols-2 gap-6 max-w-4xl mx-auto mb-12">
           <Card>
             <CardContent className="pt-6 text-center">
               <CheckCircle2 className="h-8 w-8 text-primary mx-auto mb-2" />
@@ -258,6 +242,19 @@ export default function PriserPage() {
                 </CardContent>
               </Card>
             ))}
+          </div>
+
+          <div className="mt-6 text-center">
+            <p className="text-sm text-muted-foreground mb-2">
+              Vil du at vi setter opp HMS-systemet for deg? Vi tilbyr oppsett til en hyggelig pris – ta kontakt med selger.
+            </p>
+            <RingMegDialog
+              trigger={
+                <Button variant="link" className="text-primary font-medium p-0 h-auto">
+                  Ta kontakt med selger
+                </Button>
+              }
+            />
           </div>
 
           {/* Lovpålagt HMS-håndbok til deres bedrift – gunstig fastpris */}
@@ -460,7 +457,7 @@ export default function PriserPage() {
               </CardHeader>
               <CardContent>
                 <p className="text-muted-foreground">
-                  Ja! HMS Nova kommer med ferdig HMS-håndbok og er klar til bruk på timer. 
+                  I 14 dagers gratis prøveperiode kan du laste opp egne dokumenter og sette opp HMS Nova. 
                   Vi tilbyr også gratis onboarding-samtaler for å komme i gang.
                 </p>
               </CardContent>
@@ -477,7 +474,6 @@ export default function PriserPage() {
                 <ul className="space-y-2 text-sm text-muted-foreground ml-4">
                   <li>• 14 dagers gratis prøveperiode med full tilgang</li>
                   <li>• Personlig demo via videomøte (30 min)</li>
-                  <li>• Gratis HMS-pakke for å teste dokumentene våre</li>
                 </ul>
               </CardContent>
             </Card>
@@ -603,10 +599,10 @@ export default function PriserPage() {
                   <ArrowRight className="ml-2 h-5 w-5" />
                 </Button>
               </RegisterDialog>
-              <Link href="/gratis-hms-system">
+              <Link href="/registrer-bedrift">
                 <Button size="lg" variant="outline" className="bg-transparent border-white text-white hover:bg-white/10">
                   <Download className="mr-2 h-5 w-5" />
-                  Få gratis HMS-pakke
+                  Registrer bedrift
                 </Button>
               </Link>
             </div>
