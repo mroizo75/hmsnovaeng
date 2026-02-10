@@ -109,7 +109,7 @@ export const ORGANIZATION_SCHEMA = {
         itemOffered: {
           "@type": "Service",
           name: "Bedriftshelsetjeneste",
-          description: "Godkjent bedriftshelsetjeneste i samarbeid med Dr. Dropin",
+          description: "HMS Nova etablerer seg som godkjent bedriftshelsetjeneste med minimum krav, tilleggstjenester og kurs.",
         },
       },
       {
@@ -198,10 +198,10 @@ export const FAQ_SCHEMA = {
     },
     {
       "@type": "Question",
-      name: "Kan HMS Nova erstatte tradisjonell bedriftshelsetjeneste?",
+      name: "Tilbyr HMS Nova bedriftshelsetjeneste?",
       acceptedAnswer: {
         "@type": "Answer",
-        text: "HMS Nova er et HMS-system, ikke en bedriftshelsetjeneste. Men vi samarbeider med Dr. Dropin BHT (godkjent av Arbeidstilsynet) og gir 10% rabatt til HMS Nova-medlemmer. Systemet og BHT utfyller hverandre perfekt.",
+        text: "HMS Nova etablerer seg som godkjent bedriftshelsetjeneste (BHT) og vil tilby minimum lovkrav, tilleggstjenester og et bredt kursutbud inkludert Diisocyanater. HMS-system og BHT vil være under ett tak.",
       },
     },
     {
@@ -253,9 +253,14 @@ export const PAGE_METADATA = {
     keywords: "hms kurs, verneombud kurs, førstehjelp kurs, hms opplæring, lovpålagt hms kurs",
   },
   bht: {
-    title: "Bedriftshelsetjeneste - 10% Rabatt for Medlemmer | HMS Nova",
-    description: "🏥 Godkjent BHT fra Dr. Dropin · 10% rabatt for HMS Nova-medlemmer · Digital integrasjon · Ingen bindingstid · 3000+ bedrifter stoler på oss · Kom i gang →",
-    keywords: "bedriftshelsetjeneste, BHT, godkjent bedriftshelsetjeneste, arbeidstilsynet bht, dr dropin bht",
+    title: "Bedriftshelsetjeneste (BHT) - HMS Nova blir BHT-organ | Minimum krav + kurs",
+    description: "HMS Nova etablerer seg som godkjent BHT · Minimum lovkrav + tilleggstjenester + Diisocyanater og HMS-kurs · Ett sted for HMS og BHT · Registrer interesse →",
+    keywords: "bedriftshelsetjeneste, BHT, godkjent bedriftshelsetjeneste, arbeidstilsynet bht, diisocyanater kurs, AMO-kurs",
+  },
+  komplettPakke: {
+    title: "Komplett HMS-pakke - BHT + HMS Nova fra 6 900 kr/år | HMS Nova",
+    description: "Lovpålagt BHT + HMS Nova. START 6 900 kr/år (1-5 ansatte), PRO 14 900 kr/år (6-20), PREMIUM fra 29 900 kr/år (20+). Tilleggstjenester til fast pris. Ring salg eller venteliste.",
+    keywords: "komplett hms pakke, bht pakke, hms oppsett, implementering hms, hms nova pakke, bht pris",
   },
   handbook: {
     title: "HMS-håndbok - Digital & Oppdatert | HMS Nova",

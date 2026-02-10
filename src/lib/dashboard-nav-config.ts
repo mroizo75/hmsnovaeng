@@ -18,6 +18,7 @@ export type NavPermission =
   | "environment"
   | "audits"
   | "managementReviews"
+  | "annualHmsPlan"
   | "meetings"
   | "whistleblowing"
   | "goals"
@@ -49,6 +50,7 @@ export const DASHBOARD_NAV_CONFIG: DashboardNavItemConfig[] = [
   { href: "/dashboard/bcm", label: "nav.bcm", permission: "audits", defaultSimple: false },
   { href: "/dashboard/audits", label: "nav.audits", permission: "audits", defaultSimple: false },
   { href: "/dashboard/management-reviews", label: "nav.managementReviews", permission: "managementReviews", defaultSimple: false },
+  { href: "/dashboard/annual-hms-plan", label: "nav.annualHmsPlan", permission: "annualHmsPlan", defaultSimple: true },
   { href: "/dashboard/meetings", label: "nav.meetings", permission: "meetings", defaultSimple: false },
   { href: "/dashboard/whistleblowing", label: "nav.whistleblowing", permission: "whistleblowing", defaultSimple: false },
   { href: "/dashboard/goals", label: "nav.goals", permission: "goals", defaultSimple: false },

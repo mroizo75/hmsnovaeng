@@ -33,6 +33,7 @@ import {
   ThumbsUp,
   Sparkles,
   Zap,
+  ListChecks,
 } from "lucide-react";
 import { usePermissions } from "@/hooks/use-permissions";
 import { getRoleDisplayName } from "@/lib/permissions";
@@ -64,6 +65,7 @@ const navItems = [
   { href: "/dashboard/bcm", label: "nav.bcm", icon: LifeBuoy, permission: "audits" as const, simple: false },
   { href: "/dashboard/audits", label: "nav.audits", icon: ClipboardCheck, permission: "audits" as const, simple: false },
   { href: "/dashboard/management-reviews", label: "nav.managementReviews", icon: FileBarChart, permission: "managementReviews" as const, simple: false },
+  { href: "/dashboard/annual-hms-plan", label: "nav.annualHmsPlan", icon: ListChecks, permission: "annualHmsPlan" as const, simple: true },
   { href: "/dashboard/meetings", label: "nav.meetings", icon: Calendar, permission: "meetings" as const, simple: false },
   { href: "/dashboard/whistleblowing", label: "nav.whistleblowing", icon: Shield, permission: "whistleblowing" as const, simple: false },
   { href: "/dashboard/goals", label: "nav.goals", icon: Target, permission: "goals" as const, simple: false },

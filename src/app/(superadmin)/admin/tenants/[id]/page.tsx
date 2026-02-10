@@ -9,6 +9,8 @@ import { EditTenantForm } from "@/features/admin/components/edit-tenant-form";
 import { UpdateAdminEmailForm } from "@/features/admin/components/update-admin-email-form";
 import { ResendActivationForm } from "@/features/admin/components/resend-activation-form";
 import { DeleteTenantDialog } from "@/features/admin/components/delete-tenant-dialog";
+import { TenantActivityTimeline } from "@/features/admin/components/tenant-activity-timeline";
+import { TenantOfferCard } from "@/features/admin/components/tenant-offer-card";
 import { 
   ArrowLeft,
   Building2, 
@@ -25,6 +27,8 @@ import {
   TrendingUp,
   CreditCard,
 } from "lucide-react";
+import { format } from "date-fns";
+import { nb } from "date-fns/locale";
 
 interface PageProps {
   params: Promise<{
@@ -46,6 +50,7 @@ async function TenantDetails({ id }: { id: string }) {
   const tenant = result.data;
   const adminUser = tenant.users.find((ut) => ut.role === "ADMIN")?.user;
   const hasSubscription = !!tenant.subscription;
+  const lastManagementReview = tenant.managementReviews?.[0];
 
   return (
     <div className="space-y-6">
@@ -145,6 +150,56 @@ async function TenantDetails({ id }: { id: string }) {
             </CardContent>
           </Card>
 
+          {/* Årlig HMS-plan / Ledelsens gjennomgang */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Årlig HMS-plan</CardTitle>
+              <CardDescription>
+                Konfigurasjon for årlig HMS-plan og ledelsens gjennomgang for denne bedriften
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid md:grid-cols-3 gap-4">
+                <div>
+                  <p className="text-xs font-medium text-muted-foreground uppercase">
+                    Årlig HMS-plan
+                  </p>
+                  <p className="mt-1 font-medium">
+                    {tenant.hmsAnnualPlanEnabled ? "Aktivert" : "Deaktivert"}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-xs font-medium text-muted-foreground uppercase">
+                    Frekvens ledelsens gjennomgang
+                  </p>
+                  <p className="mt-1 font-medium">
+                    Hver {tenant.managementReviewFrequencyMonths} måned
+                    {tenant.managementReviewFrequencyMonths !== 1 ? "er" : ""}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-xs font-medium text-muted-foreground uppercase">
+                    Siste gjennomgang
+                  </p>
+                  <p className="mt-1 font-medium">
+                    {lastManagementReview
+                      ? format(new Date(lastManagementReview.reviewDate), "d. MMM yyyy", { locale: nb })
+                      : "Ingen registrert"}
+                  </p>
+                </div>
+              </div>
+              {lastManagementReview && (
+                <p className="text-xs text-muted-foreground">
+                  Neste anbefalte ledelsens gjennomgang beregnes automatisk ut fra valgt frekvens
+                  og brukes i varslingsmotoren for denne tenanten.
+                </p>
+              )}
+            </CardContent>
+          </Card>
+
+          <TenantActivityTimeline tenantId={tenant.id} activities={tenant.activities || []} />
+          <TenantOfferCard tenant={tenant} />
+
           {/* Subscription Info */}
           {hasSubscription && (
             <Card>
@@ -177,11 +232,11 @@ async function TenantDetails({ id }: { id: string }) {
                     <label className="text-sm font-medium text-muted-foreground">
                       Status
                     </label>
-                    <p className="font-medium mt-1">
+                    <div className="font-medium mt-1">
                       <Badge variant={tenant.subscription.status === "ACTIVE" ? "default" : "secondary"}>
                         {tenant.subscription.status}
                       </Badge>
-                    </p>
+                    </div>
                   </div>
                 </div>
 

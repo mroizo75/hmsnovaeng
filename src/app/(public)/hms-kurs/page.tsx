@@ -809,7 +809,7 @@ export default function HMSKursPage() {
               </div>
               <h2 className="text-3xl font-bold mb-4">🎁 Medlemsfordel: 20% rabatt på alle kurs</h2>
               <p className="text-lg text-muted-foreground">
-                Er du medlem med <strong>BHT + HMS Nova</strong>? Da får du automatisk <strong className="text-green-600">20% rabatt</strong> på:
+                Er du <strong>HMS Nova-medlem</strong>? Da får du automatisk <strong className="text-green-600">20% rabatt</strong> på:
               </p>
             </div>
 
@@ -845,7 +845,7 @@ export default function HMSKursPage() {
               </p>
               <Button size="lg" variant="default" asChild>
                 <Link href="/bedriftshelsetjeneste">
-                  Les mer om BHT + HMS Nova medlemskap
+                  Les mer om BHT og kurs fra HMS Nova
                   <ArrowRight className="ml-2 h-5 w-5" />
                 </Link>
               </Button>

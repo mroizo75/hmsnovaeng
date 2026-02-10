@@ -98,14 +98,10 @@ export const BHT_SERVICE_SCHEMA = {
   "@context": "https://schema.org",
   "@type": "Service",
   name: "Bedriftshelsetjeneste (BHT)",
-  description: "Godkjent bedriftshelsetjeneste i samarbeid med Dr. Dropin. 10% rabatt for HMS Nova-medlemmer.",
+  description: "HMS Nova etablerer seg som godkjent bedriftshelsetjeneste. Minimum lovkrav, tilleggstjenester og bredt kursutbud inkludert Diisocyanater.",
   provider: {
     "@type": "Organization",
     name: SITE_CONFIG.name,
-    partner: {
-      "@type": "Organization",
-      name: "Dr. Dropin",
-    },
   },
   serviceType: "Bedriftshelsetjeneste",
   areaServed: {
@@ -114,16 +110,12 @@ export const BHT_SERVICE_SCHEMA = {
   },
   offers: {
     "@type": "Offer",
-    description: "10% rabatt for HMS Nova-medlemmer",
-    discount: {
-      "@type": "Discount",
-      discountRate: "0.10",
-    },
+    description: "Grunnpakke BHT og tilleggstjenester. Kontakt for tilbud.",
   },
   aggregateRating: {
     "@type": "AggregateRating",
     ratingValue: "4.8",
-    ratingCount: "3000",
+    ratingCount: "500",
     bestRating: "5",
   },
 } as const;

@@ -20,7 +20,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Trash2, Eye, Download, CheckCircle, Search, Filter, FileText } from "lucide-react";
+import { Trash2, Eye, Download, Search, Filter, FileText } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import { deleteChemical, verifyChemical } from "@/server/actions/chemical.actions";
@@ -487,11 +487,6 @@ export function ChemicalList({ chemicals }: ChemicalListProps) {
                   <TableCell className="min-w-0 px-2">
                     <div className="flex flex-wrap items-center gap-1 min-w-0">
                       {getStatusBadge(chemical.status)}
-                      {chemical.lastVerifiedAt && (
-                        <span className="text-green-600" title={`Verifisert ${new Date(chemical.lastVerifiedAt).toLocaleDateString("nb-NO")}`}>
-                          <CheckCircle className="h-4 w-4 fill-green-600 shrink-0" />
-                        </span>
-                      )}
                     </div>
                   </TableCell>
                   <TableCell className="text-right min-w-0 px-2">

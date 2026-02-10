@@ -24,6 +24,7 @@ export default function robots(): MetadataRoute.Robots {
           "/priser",
           "/hms-kurs",
           "/bedriftshelsetjeneste",
+          "/komplett-pakke",
           "/blogg/*",
         ],
         disallow: [
@@ -40,6 +41,7 @@ export default function robots(): MetadataRoute.Robots {
           "/priser",
           "/hms-kurs",
           "/bedriftshelsetjeneste",
+          "/komplett-pakke",
           "/blogg/*",
         ],
         disallow: [

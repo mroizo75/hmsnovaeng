@@ -34,6 +34,7 @@ export function usePermissions() {
         training: false,
         audits: false,
         managementReviews: false,
+        annualHmsPlan: false,
         meetings: false,
         feedback: false,
         whistleblowing: false,

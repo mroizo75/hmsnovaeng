@@ -359,12 +359,12 @@ export default function PriserPage() {
                 <CardContent className="pt-6">
                   <div className="flex flex-col items-center text-center space-y-3">
                     <HeartHandshake className="h-12 w-12 text-green-600" />
-                    <h3 className="font-bold text-lg">10% rabatt på BHT (Dr. Dropin)</h3>
+                    <h3 className="font-bold text-lg">BHT fra HMS Nova (kommende)</h3>
                     <ul className="text-sm text-muted-foreground space-y-1">
-                      <li>✅ Godkjent av Arbeidstilsynet</li>
-                      <li>✅ Digital integrasjon med HMS Nova</li>
-                      <li>✅ Ingen bindingstid eller oppstartskostnader</li>
-                      <li>✅ Over 3000 bedrifter bruker Dr. Dropin BHT</li>
+                      <li>✅ Vi blir godkjent BHT-organ i løpet av året</li>
+                      <li>✅ Minimum krav + tilleggstjenester + kurs</li>
+                      <li>✅ Diisocyanater og spesialkurs via sertifisert partner</li>
+                      <li>✅ Ett sted for HMS og BHT</li>
                     </ul>
                     <Link href="/bedriftshelsetjeneste">
                       <Button size="sm" variant="outline" className="mt-4">
@@ -386,21 +386,21 @@ export default function PriserPage() {
                   <p className="text-xs text-muted-foreground">Avhengig av antall kurs</p>
                 </div>
                 <div className="text-center p-3 bg-green-50 rounded-lg">
-                  <p className="font-semibold text-green-700">BHT Dr. Dropin (årlig)</p>
-                  <p className="text-2xl font-bold text-green-600">Fra 648 kr</p>
-                  <p className="text-xs text-muted-foreground">10% rabatt (eks: 5 ansatte spar 648 kr)</p>
+                  <p className="font-semibold text-green-700">BHT fra HMS Nova</p>
+                  <p className="text-2xl font-bold text-green-600">Kommende</p>
+                  <p className="text-xs text-muted-foreground">Ett leverandørforhold for HMS + BHT + kurs</p>
                 </div>
               </div>
               <p className="text-center text-sm text-muted-foreground mt-4">
-                <strong>Totalt:</strong> Spar fra 2.650 kr årlig i tillegg til HMS Nova-abonnementet!<br />
-                <span className="text-xs">(Basert på BHT for 5 ansatte + minimum 2 HMS-kurs per år)</span>
+                <strong>Totalt:</strong> Spar fra 2.000 kr årlig på kurs i tillegg til HMS Nova-abonnementet!<br />
+                <span className="text-xs">(Basert på minimum 2 HMS-kurs per år med 20% medlemsrabatt)</span>
               </p>
             </div>
 
             <div className="text-center mt-6">
               <p className="text-sm text-muted-foreground">
-                <strong>Hvordan aktivere?</strong> Rabattene aktiveres automatisk når du registrerer deg som HMS Nova-medlem. <br />
-                Oppgi ditt org.nr eller medlemsnummer ved bestilling av kurs eller BHT.
+                <strong>Hvordan aktivere?</strong> Kursrabatt aktiveres automatisk når du registrerer deg som HMS Nova-medlem. <br />
+                Oppgi ditt org.nr eller medlemsnummer ved bestilling av kurs. For BHT: registrer interesse på BHT-siden.
               </p>
             </div>
           </CardContent>

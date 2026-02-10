@@ -104,6 +104,7 @@ model User {
   feedbackFollowUp    CustomerFeedback[]   @relation("FeedbackFollowUpOwner")
   notifications       Notification[]
   scheduledReminders  ScheduledReminder[]  @relation("UserReminders")
+  hmsAnnualPlanCompletions HmsAnnualPlanCompletion[]
   createdAt           DateTime     @default(now())
   updatedAt           DateTime     @updatedAt
 
@@ -172,6 +173,11 @@ model Tenant {
   // Gratis 14-dagers løype vs vanlig registrering (superadmin aktiverer)
   registrationType RegistrationType @default(STANDARD)
   
+  // Årlig HMS-plan & ledelsens gjennomgang (konfig per tenant)
+  hmsAnnualPlanEnabled           Boolean   @default(true)  // Om årlig HMS-plan er aktivert for denne tenanten
+  hmsAnnualPlanConfig            Json?                 // Strukturert årshjul/plan (aktiviteter, ansvar, perioder)
+  managementReviewFrequencyMonths Int      @default(12) // Hvor ofte skal ledelsens gjennomgang minst gjennomføres (måneder)
+  
   // HMS-kontaktinformasjon (dynamisk visning for ansatte)
   hmsContactName   String?          // Navn på HMS-ansvarlig
   hmsContactPhone  String?          // Telefon til HMS-ansvarlig
@@ -186,6 +192,7 @@ model Tenant {
   azureAdAutoRole     Role?         // Standard rolle for nye brukere fra Azure AD
   
   users            UserTenant[]
+  activities       TenantActivity[]
   documents        Document[]
   documentVersions DocumentVersion[]
   documentTemplates DocumentTemplate[]
@@ -215,6 +222,7 @@ model Tenant {
   attachments      Attachment[]
   auditLogs        AuditLog[]
   subscription     Subscription?
+  offers           TenantOffer[]
   invoices         Invoice[]
   formTemplates    FormTemplate[]   // Digital forms
   notifications    Notification[]
@@ -229,6 +237,7 @@ model Tenant {
   bhtClient        BhtClient?       // BHT-kunde (hvis aktivert)
   navigationItems  NavigationItem[] // Meny-konfigurasjoner
   simpleMenuItems  Json?            // Hrefs som vises i enkel meny (null = standard)
+  hmsAnnualPlanCompletions HmsAnnualPlanCompletion[] // Avkryssing av årlig HMS-plan (sjekkliste)
   createdAt        DateTime         @default(now())
   updatedAt        DateTime         @updatedAt
 
@@ -237,6 +246,60 @@ model Tenant {
   @@index([pricingTier])
   @@index([onboardingStatus])
   @@index([registrationType])
+}
+
+/// Én rad per steg per år per tenant. Brukeren huker av steg i sjekklisten for årlig HMS-plan.
+model HmsAnnualPlanCompletion {
+  id               String    @id @default(cuid())
+  tenantId         String
+  year             Int       // År (f.eks. 2025)
+  stepKey          String    // Nøkkel fra sjekkliste (f.eks. "management_review")
+  completedAt      DateTime  @default(now())
+  completedByUserId String?  // Hvem som krysset av
+  note             String?   @db.Text // Valgfri notat ved avkryssing
+
+  tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  completedBy User? @relation(fields: [completedByUserId], references: [id], onDelete: SetNull)
+
+  @@unique([tenantId, year, stepKey])
+  @@index([tenantId])
+  @@index([tenantId, year])
+}
+
+model TenantActivity {
+  id       String                 @id @default(cuid())
+  tenantId String
+  type     TenantActivityType
+  channel  TenantActivityChannel
+  note     String                 @db.Text
+  createdAt DateTime              @default(now())
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId, createdAt])
+}
+
+model TenantOffer {
+  id          String           @id @default(cuid())
+  tenantId    String
+  status      TenantOfferStatus @default(DRAFT)
+  token       String           @unique
+  yearlyPrice Float
+  bindingMonths Int            @default(12)
+  noticeMonths  Int            @default(3)
+  setupPrice  Float?
+  notes       String?          @db.Text
+  sentAt      DateTime?
+  acceptedAt  DateTime?
+  rejectedAt  DateTime?
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId])
+  @@index([status])
+  @@index([createdAt])
 }
 
 enum TenantStatus {
@@ -260,6 +323,29 @@ enum OnboardingStatus {
   DOCUMENTS_UPLOADED
   TRAINING_SCHEDULED
   COMPLETED
+}
+
+enum TenantOfferStatus {
+  DRAFT
+  SENT
+  ACCEPTED
+  REJECTED
+  EXPIRED
+}
+
+enum TenantActivityType {
+  CONTACT      // Førstegangs kontakt
+  FOLLOW_UP    // Oppfølgingssamtale / -epost
+  OFFER_SENT   // Tilbud sendt
+  MEETING      // Møte / demo
+  OTHER        // Annet
+}
+
+enum TenantActivityChannel {
+  PHONE        // Telefon
+  EMAIL        // E-post
+  MEETING      // Fysisk eller digitalt møte
+  OTHER        // Annen kanal
 }
 
 enum RegistrationType {
@@ -2800,6 +2886,26 @@ enum BhtReportStatus {
   FINAL           // Ferdigstilt
   MANAGEMENT_REVIEWED // Ledelsen har gjennomgått
   COMPLETED       // Alt fullført
+}
+
+// ============================================
+// Komplett pakke – venteliste og tilbudsforespørsler
+// ============================================
+
+model PackageLead {
+  id        String   @id @default(cuid())
+  email     String
+  name      String?
+  phone     String?
+  tier      String   // SMALL = 1-5, MEDIUM = 5-20, LARGE = 20+
+  type      String   // WAITLIST | CONTACT (tilbud/ring meg)
+  source    String   @default("komplett-pakke")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([email])
+  @@index([type])
+  @@index([createdAt])
 }
 
 // ============================================

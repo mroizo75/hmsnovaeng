@@ -4,8 +4,10 @@ import { z, ZodError } from "zod";
 import { prisma } from "@/lib/db";
 import { revalidatePath } from "next/cache";
 import bcrypt from "bcryptjs";
+import { randomUUID } from "crypto";
 import { sendEmail } from "@/lib/email";
 import { deleteTenantFiles } from "@/lib/storage";
+import { getBindingPrice } from "@/lib/subscription";
 
 // Valideringsskjemaer
 const updateTenantSchema = z.object({
@@ -22,6 +24,13 @@ const updateTenantSchema = z.object({
   employeeCount: z.number().int().positive("Antall ansatte må være positivt").optional(),
   industry: z.string().optional(),
   notes: z.string().optional(),
+  hmsAnnualPlanEnabled: z.boolean().optional(),
+  managementReviewFrequencyMonths: z
+    .number()
+    .int()
+    .min(1, "Frekvens må være minst 1 måned")
+    .max(24, "Frekvens kan ikke være mer enn 24 måneder")
+    .optional(),
 });
 
 const updateAdminEmailSchema = z.object({
@@ -51,6 +60,20 @@ const createTenantSchema = z.object({
   pricingTier: z.enum(["MICRO", "SMALL", "MEDIUM", "LARGE"]),
   salesRep: z.string().optional(),
   createInFiken: z.boolean().optional(),
+  // Fremtidig: her kan vi senere åpne for å spesifisere HMS-oppsett ved opprettelse
+});
+
+const createTenantActivitySchema = z.object({
+  tenantId: z.string(),
+  type: z.enum(["CONTACT", "FOLLOW_UP", "OFFER_SENT", "MEETING", "OTHER"]),
+  channel: z.enum(["PHONE", "EMAIL", "MEETING", "OTHER"]),
+  note: z.string().min(2, "Notat må være minst 2 tegn"),
+});
+
+const createTenantOfferSchema = z.object({
+  tenantId: z.string(),
+  setupPrice: z.number().int().min(0).optional(),
+  notes: z.string().optional(),
 });
 
 /**
@@ -84,6 +107,18 @@ export async function getTenantDetails(tenantId: string) {
           },
           take: 10,
         },
+        offers: {
+          orderBy: {
+            createdAt: "desc",
+          },
+          take: 5,
+        },
+        activities: {
+          orderBy: {
+            createdAt: "desc",
+          },
+          take: 50,
+        },
         _count: {
           select: {
             users: true,
@@ -91,6 +126,12 @@ export async function getTenantDetails(tenantId: string) {
             incidents: true,
             risks: true,
           },
+        },
+        managementReviews: {
+          orderBy: {
+            reviewDate: "desc",
+          },
+          take: 1,
         },
       },
     });
@@ -103,6 +144,203 @@ export async function getTenantDetails(tenantId: string) {
   } catch (error) {
     console.error("Get tenant details error:", error);
     return { success: false, error: "Kunne ikke hente bedriftsinformasjon" };
+  }
+}
+
+export async function createTenantOffer(input: z.infer<typeof createTenantOfferSchema>) {
+  try {
+    const validated = createTenantOfferSchema.parse(input);
+
+    const tenant = await prisma.tenant.findUnique({
+      where: { id: validated.tenantId },
+    });
+
+    if (!tenant) {
+      return { success: false, error: "Bedrift ikke funnet" };
+    }
+
+    const binding = getBindingPrice("1year");
+    const yearlyPrice = binding.yearlyPrice;
+    const token = randomUUID();
+
+    const offer = await prisma.tenantOffer.create({
+      data: {
+        tenantId: tenant.id,
+        status: "SENT",
+        token,
+        yearlyPrice,
+        bindingMonths: 12,
+        noticeMonths: 3,
+        setupPrice: validated.setupPrice,
+        notes: validated.notes,
+        sentAt: new Date(),
+      },
+    });
+
+    const toEmail = tenant.invoiceEmail || tenant.contactEmail;
+
+    if (toEmail && process.env.RESEND_API_KEY) {
+      const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+      const offerUrl = `${appUrl}/tilbud/${offer.token}`;
+      const companyName = tenant.name;
+
+      await sendEmail({
+        to: toEmail,
+        subject: `Tilbud fra HMS Nova – ${companyName}`,
+        html: `
+          <h1>Tilbud på HMS Nova</h1>
+          <p>Hei${tenant.contactPerson ? ` ${tenant.contactPerson}` : ""},</p>
+          <p>Takk for interessen for HMS Nova. Vi har satt opp et tilbud basert på standard pris med 12 måneders bindingstid og 3 måneders oppsigelse.</p>
+          <ul>
+            <li>Årspris: <strong>${yearlyPrice.toLocaleString("nb-NO")} kr/år</strong></li>
+            <li>Bindingstid: <strong>12 måneder</strong></li>
+            <li>Oppsigelsestid: <strong>3 måneder etter endt binding</strong></li>
+            ${
+              validated.setupPrice != null
+                ? `<li>Etablering / oppsett av HMS-håndbok: <strong>${validated.setupPrice.toLocaleString(
+                    "nb-NO",
+                  )} kr</strong></li>`
+                : ""
+            }
+          </ul>
+          <p>Du kan lese hele kontrakten og godkjenne den her:</p>
+          <p><a href="${offerUrl}">${offerUrl}</a></p>
+          <p>Ta gjerne kontakt hvis du har spørsmål.</p>
+          <p>Hilsen<br/>HMS Nova</p>
+        `,
+      });
+    }
+
+    revalidatePath(`/admin/tenants/${tenant.id}`);
+
+    return { success: true, data: offer };
+  } catch (error) {
+    console.error("Create tenant offer error:", error);
+    if (error instanceof ZodError) {
+      return { success: false, error: error.issues[0].message };
+    }
+    return { success: false, error: "Kunne ikke opprette tilbud" };
+  }
+}
+
+export async function acceptTenantOffer(token: string) {
+  try {
+    const offer = await prisma.tenantOffer.findUnique({
+      where: { token },
+      include: {
+        tenant: {
+          include: {
+            subscription: true,
+          },
+        },
+      },
+    });
+
+    if (!offer || offer.status !== "SENT") {
+      return { success: false, error: "Tilbudet er ikke lenger gyldig" };
+    }
+
+    const now = new Date();
+    const periodEnd = new Date(now.getTime());
+    periodEnd.setFullYear(periodEnd.getFullYear() + 1);
+
+    await prisma.$transaction(async (tx) => {
+      await tx.tenantOffer.update({
+        where: { id: offer.id },
+        data: {
+          status: "ACCEPTED",
+          acceptedAt: now,
+        },
+      });
+
+      if (offer.tenant.subscription) {
+        await tx.subscription.update({
+          where: { tenantId: offer.tenantId },
+          data: {
+            plan:
+              offer.tenant.pricingTier === "MICRO"
+                ? "STARTER"
+                : offer.tenant.pricingTier === "SMALL"
+                ? "PROFESSIONAL"
+                : "ENTERPRISE",
+            price: offer.yearlyPrice,
+            billingInterval: "YEARLY",
+            status: "ACTIVE",
+            currentPeriodStart: now,
+            currentPeriodEnd: periodEnd,
+            cancelAtPeriodEnd: false,
+          },
+        });
+      } else {
+        await tx.subscription.create({
+          data: {
+            tenantId: offer.tenantId,
+            plan:
+              offer.tenant.pricingTier === "MICRO"
+                ? "STARTER"
+                : offer.tenant.pricingTier === "SMALL"
+                ? "PROFESSIONAL"
+                : "ENTERPRISE",
+            price: offer.yearlyPrice,
+            billingInterval: "YEARLY",
+            status: "ACTIVE",
+            currentPeriodStart: now,
+            currentPeriodEnd: periodEnd,
+          },
+        });
+      }
+
+      await tx.tenant.update({
+        where: { id: offer.tenantId },
+        data: {
+          status: "ACTIVE",
+          onboardingStatus: "COMPLETED",
+          onboardingCompletedAt: now,
+          trialEndsAt: null,
+        },
+      });
+
+      await tx.tenantActivity.create({
+        data: {
+          tenantId: offer.tenantId,
+          type: "OTHER",
+          channel: "OTHER",
+          note: "Kontrakt godkjent av kunden via tilbudslenke. Tenant aktivert.",
+        },
+      });
+    });
+
+    revalidatePath(`/admin/tenants/${offer.tenantId}`);
+
+    return { success: true, data: { tenantId: offer.tenantId } };
+  } catch (error) {
+    console.error("Accept tenant offer error:", error);
+    return { success: false, error: "Kunne ikke godkjenne tilbud" };
+  }
+}
+
+export async function createTenantActivity(input: z.infer<typeof createTenantActivitySchema>) {
+  try {
+    const validated = createTenantActivitySchema.parse(input);
+
+    const activity = await prisma.tenantActivity.create({
+      data: {
+        tenantId: validated.tenantId,
+        type: validated.type,
+        channel: validated.channel,
+        note: validated.note,
+      },
+    });
+
+    revalidatePath(`/admin/tenants/${validated.tenantId}`);
+
+    return { success: true, data: activity };
+  } catch (error) {
+    console.error("Create tenant activity error:", error);
+    if (error instanceof ZodError) {
+      return { success: false, error: error.issues[0].message };
+    }
+    return { success: false, error: "Kunne ikke opprette aktivitet" };
   }
 }
 
@@ -142,6 +380,14 @@ export async function updateTenant(input: z.infer<typeof updateTenantSchema>) {
         employeeCount: validated.employeeCount,
         industry: validated.industry,
         notes: validated.notes,
+        hmsAnnualPlanEnabled:
+          typeof validated.hmsAnnualPlanEnabled === "boolean"
+            ? validated.hmsAnnualPlanEnabled
+            : undefined,
+        managementReviewFrequencyMonths:
+          typeof validated.managementReviewFrequencyMonths === "number"
+            ? validated.managementReviewFrequencyMonths
+            : undefined,
       },
     });
 
@@ -429,6 +675,9 @@ export async function createTenant(input: z.infer<typeof createTenantSchema>) {
         status: "TRIAL",
         onboardingStatus: "NOT_STARTED",
         trialEndsAt: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000), // 14 dager
+        // Standard HMS-oppsett
+        hmsAnnualPlanEnabled: true,
+        managementReviewFrequencyMonths: 12,
         // Subscription opprettes når tenant aktiveres
       },
     });

@@ -1104,6 +1104,84 @@ export const helpContent: Record<string, HelpContent> = {
     ],
   },
 
+  "annual-hms-plan": {
+    title: "Årlig HMS-plan",
+    description: "Steg-for-steg sjekkliste som samler alle lov- og standardkrav – huk av når hvert steg er fullført",
+    sections: [
+      {
+        heading: "Hva er årlig HMS-plan?",
+        emoji: "📆",
+        content:
+          "Årlig HMS-plan er en sjekkliste med alle viktige HMS-krav for året. Du går steg for steg gjennom listen og huker av når hvert punkt er fullført. Når hele listen er avkrysset, har dere dokumentert at årets krav er oppfylt – uten å måtte sette dere inn i alle lover og standarder selv.",
+      },
+      {
+        heading: "Hvilke krav dekker planen?",
+        emoji: "⚖️",
+        items: [
+          {
+            title: "Norsk lovverk",
+            description:
+              "Arbeidsmiljøloven, Internkontrollforskriften, Forskrift om organisering, ledelse og medvirkning, Kjemikalieforskriften og Brann-/EL-krav krever systematisk, planlagt HMS-arbeid med dokumentasjon.",
+          },
+          {
+            title: "Ledelsens gjennomgåelse",
+            description:
+              "Minst årlig, med dokumentert vurdering av mål, resultater, avvik, risiko, ressurser og forbedringstiltak.",
+          },
+          {
+            title: "Årlig risikovurdering",
+            description:
+              "Systematisk gjennomgang av arbeidsmiljørisiko, inkludert fysiske, kjemiske, ergonomiske og psykososiale forhold.",
+          },
+          {
+            title: "Kontroll og revisjon",
+            description:
+              "Vernerunder, internrevisjoner, oppfølging av funn og tiltak, og jevnlig gjennomgang av dokumenter og stoffkartotek.",
+          },
+        ],
+      },
+      {
+        heading: "Hvordan bruke sjekklisten?",
+        emoji: "🔧",
+        items: [
+          {
+            title: "1. Gå gjennom stegene i rekkefølge",
+            description:
+              "Les beskrivelsen og kravet for hvert steg. Fullfør arbeidet (f.eks. gjennomfør ledelsens gjennomgang, oppdater risikovurderingen) i den tilknyttede modulen.",
+          },
+          {
+            title: "2. Huk av når steget er fullført",
+            description:
+              "Kryss av i sjekklisten når dere har gjennomført og dokumentert steget. Dato og bruker lagres automatisk.",
+          },
+          {
+            title: "3. Bruk «Gå til modul»-lenkene",
+            description:
+              "Hvert steg har en lenke til den relevante delen av HMS Nova (dokumenter, vernerunder, revisjoner osv.) slik at du kommer raskt til riktig sted.",
+          },
+          {
+            title: "4. Når alle steg er avkrysset",
+            description:
+              "Da har dere dokumentert at årets HMS-krav er oppfylt. God for både internkontroll og ev. sertifisering.",
+          },
+        ],
+      },
+    ],
+    isoStandards: [
+      "ISO 45001 (HMS): 6.1, 6.2, 9.1, 9.2, 9.3 og 10.2 – planlagt, systematisk HMS-arbeid gjennom året",
+      "ISO 9001 (Kvalitet): 6.2, 9.1, 9.2 og 9.3 – mål, overvåking, internrevisjon og ledelsens gjennomgåelse",
+      "ISO 14001 (Miljø): 6.1, 6.2, 9.1, 9.2 og 9.3 – miljøaspekter, mål, overvåking og ledelsens gjennomgåelse",
+      "ISO 27001 (Informasjonssikkerhet): 9.1, 9.2 og 9.3 – overvåking, internrevisjon og ledelsens gjennomgåelse",
+    ],
+    tips: [
+      "Bruk årshjulet som fast punkt i ledermøter og HMS-utvalg.",
+      "Sørg for at alle lovpålagte aktiviteter ligger inne med dato og ansvarlig.",
+      "Tilpass frekvensen på aktiviteter etter virksomhetens risiko – høyrisiko oftere.",
+      "Bruk rapportene fra året (hendelser, tiltak, målinger) som input til ledelsens gjennomgåelse.",
+      "Evaluer den årlige planen hver vinter og juster årshjulet for neste år.",
+    ],
+  },
+
   security: {
     title: "Informasjonssikkerhet",
     description: "Beskytt informasjon og IT-systemer mot trusler",

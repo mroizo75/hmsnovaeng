@@ -1,6 +1,6 @@
 import { prisma } from "@/lib/db";
 import { createNotification, notifyUsersByRole } from "@/server/actions/notification.actions";
-import { addDays, subDays, startOfDay, endOfDay, differenceInDays } from "date-fns";
+import { addDays, addMonths, subDays, startOfDay, endOfDay, differenceInDays } from "date-fns";
 import { NotificationType, Role } from "@prisma/client";
 
 /**
@@ -827,12 +827,41 @@ async function checkManagementReviewDue(tenantId: string): Promise<AlertResult> 
     },
   });
 
-  // Sjekk om det er på tide med ny gjennomgang (kvartalsvis eller årlig)
+  // Hent tenant-konfig for årlig HMS-plan / frekvens
+  const tenant = await prisma.tenant.findUnique({
+    where: { id: tenantId },
+    select: {
+      hmsAnnualPlanEnabled: true,
+      managementReviewFrequencyMonths: true,
+    },
+  });
+
+  if (!tenant || !tenant.hmsAnnualPlanEnabled) {
+    return {
+      type: "MGMT_REVIEW_DUE",
+      count: 0,
+      notifications: 0,
+    };
+  }
+
+  const frequencyMonths = tenant.managementReviewFrequencyMonths || 12;
+
+  // Sjekk om det er på tide med ny gjennomgang basert på tenant-spesifikk frekvens
   const lastReviewDate = lastReview?.reviewDate || new Date(0);
+  const nextPlannedReviewDate =
+    lastReview && frequencyMonths > 0
+      ? addMonths(lastReviewDate, frequencyMonths)
+      : lastReviewDate;
+
   const daysSinceLastReview = differenceInDays(now, lastReviewDate);
-  
-  // Hvis det er mer enn 90 dager siden siste gjennomgang og ingen er planlagt
-  if (daysSinceLastReview > 90 && upcomingReviews.length === 0) {
+  const isDueForNewReview =
+    (!lastReview && upcomingReviews.length === 0) ||
+    (lastReview &&
+      frequencyMonths > 0 &&
+      now > nextPlannedReviewDate &&
+      upcomingReviews.length === 0);
+
+  if (isDueForNewReview) {
     const recentNotification = await prisma.notification.findFirst({
       where: {
         tenantId,

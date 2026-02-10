@@ -8,6 +8,7 @@ const nextConfig: NextConfig = {
     return [
       { source: "/gratis-hms-system", destination: "/registrer-bedrift", permanent: true },
       { source: "/gratis-hms-system/:path*", destination: "/registrer-bedrift", permanent: true },
+      { source: "/komplett-pakke", destination: "/bedriftshelsetjeneste", permanent: true },
     ];
   },
   experimental: {
