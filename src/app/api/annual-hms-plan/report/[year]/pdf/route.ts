@@ -43,7 +43,8 @@ export async function GET(
     const checklistResult = await getAnnualPlanChecklist(session.user.tenantId, reportYear);
 
     if (!checklistResult.success) {
-      return NextResponse.json({ error: checklistResult.error }, { status: 400 });
+      const message = "error" in checklistResult ? checklistResult.error : "Kunne ikke hente sjekkliste";
+      return NextResponse.json({ error: message }, { status: 400 });
     }
 
     const pdfBuffer = await generateAnnualHmsPlanReport({
