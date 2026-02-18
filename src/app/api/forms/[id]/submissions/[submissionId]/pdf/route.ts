@@ -63,6 +63,10 @@ export async function GET(
     // Submission info
     doc.setFontSize(10);
     doc.setTextColor(80);
+    if (submission.submissionNumber) {
+      doc.text(`Referanse: ${submission.submissionNumber}`, margin, yPos);
+      yPos += 5;
+    }
     doc.text(`Innsendt: ${new Date(submission.createdAt).toLocaleString("nb-NO")}`, margin, yPos);
     yPos += 5;
     doc.text(`Status: ${getStatusLabel(submission.status)}`, margin, yPos);

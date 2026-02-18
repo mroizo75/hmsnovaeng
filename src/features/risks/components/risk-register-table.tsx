@@ -25,6 +25,13 @@ import { format } from "date-fns";
 import { nb } from "date-fns/locale";
 import Link from "next/link";
 
+const statusLabels: Record<string, string> = {
+  OPEN: "Identifisert",
+  MITIGATING: "Tiltak iverksatt",
+  ACCEPTED: "Akseptert",
+  CLOSED: "Lukket",
+};
+
 interface RiskRegisterRow {
   id: string;
   title: string;
@@ -116,7 +123,7 @@ export function RiskRegisterTable({ rows }: RiskRegisterTableProps) {
                       <p className="text-xs text-muted-foreground">
                         {row.category} • {row.owner?.name || row.owner?.email || "Ikke satt"}
                       </p>
-                      <Badge variant="outline">{row.status}</Badge>
+                      <Badge variant="outline">{statusLabels[row.status] ?? row.status}</Badge>
                     </div>
                   </TableCell>
                   <TableCell>
@@ -125,8 +132,13 @@ export function RiskRegisterTable({ rows }: RiskRegisterTableProps) {
                     </span>
                   </TableCell>
                   <TableCell>
-                    {row.residualScore ? (
-                      <Badge variant="secondary">Score {row.residualScore}</Badge>
+                    {row.residualScore != null ? (
+                      <div className="flex flex-col gap-1">
+                        <span className="text-sm font-medium">
+                          Før: {row.score} → Etter: {row.residualScore}
+                        </span>
+                        <Badge variant="secondary">Restrisiko: {row.residualScore}</Badge>
+                      </div>
                     ) : (
                       <span className="text-xs text-muted-foreground">Ikke vurdert</span>
                     )}

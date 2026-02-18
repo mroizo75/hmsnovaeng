@@ -25,6 +25,12 @@ import type {
   RiskTrend,
 } from "@prisma/client";
 import { Slider } from "@/components/ui/slider";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Lightbulb } from "lucide-react";
 
 interface RiskFormProps {
   tenantId: string;
@@ -38,9 +44,10 @@ interface RiskFormProps {
   slotBetweenRisikonivaAndResidual?: React.ReactNode;
 }
 
+// ISO 45001/31000 – status for risikovurdering
 const statusOptions = [
-  { value: "OPEN", label: "Åpen" },
-  { value: "MITIGATING", label: "Under håndtering" },
+  { value: "OPEN", label: "Identifisert" },
+  { value: "MITIGATING", label: "Tiltak iverksatt" },
   { value: "ACCEPTED", label: "Akseptert" },
   { value: "CLOSED", label: "Lukket" },
 ];
@@ -284,7 +291,7 @@ export function RiskForm({
             </div>
             <div className="space-y-2">
               <Label htmlFor="status">Status</Label>
-              <Select name="status" defaultValue={risk?.status || "OPEN"} disabled={loading || mode === "create"}>
+              <Select name="status" defaultValue={risk?.status || "OPEN"} disabled={loading}>
                 <SelectTrigger>
                   <SelectValue placeholder="Velg status" />
                 </SelectTrigger>
@@ -392,7 +399,37 @@ export function RiskForm({
 
       <Card>
         <CardHeader>
-          <CardTitle>Risikonivå</CardTitle>
+          <div className="flex items-center gap-2">
+            <CardTitle>Risikonivå</CardTitle>
+            {(level === "MEDIUM" || level === "HIGH" || level === "CRITICAL") && (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8 shrink-0 text-amber-600 hover:text-amber-700 hover:bg-amber-50"
+                    title="Tips"
+                  >
+                    <Lightbulb className="h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent
+                  align="start"
+                  className="max-w-sm p-4"
+                  sideOffset={8}
+                >
+                  <p className="text-sm font-medium text-amber-900 mb-1">
+                    Tips for {level === "CRITICAL" ? "kritisk" : level === "HIGH" ? "høy" : "medium"} risiko
+                  </p>
+                  <p className="text-sm text-muted-foreground">
+                    {mode === "edit"
+                      ? "ISO 45001 anbefaler tiltak for å redusere risikoen. Scroll ned til «Tiltak for å redusere risiko» og legg til konkrete tiltak med ansvarlig person og frist."
+                      : "Etter lagring kan du legge til tiltak for å redusere risikoen. ISO 45001 krever planlagte tiltak ved medium og høy risiko."}
+                  </p>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            )}
+          </div>
           <CardDescription>
             {risk?.riskAssessmentId
               ? "Satt da risikopunktet ble lagt inn. Endres på oversiktssiden ved behov."

@@ -104,6 +104,7 @@ export default async function IncidentDetailPage({ params }: { params: Promise<{
   const canClose = incident.rootCause && allMeasuresCompleted && incident.status !== "CLOSED";
 
   const pdfIncidentData = {
+    avviksnummer: incident.avviksnummer,
     title: incident.title,
     type: incident.type,
     severity: String(incident.severity),
@@ -156,6 +157,11 @@ export default async function IncidentDetailPage({ params }: { params: Promise<{
           <div className="flex-1">
             <h1 className="text-3xl font-bold">{incident.title}</h1>
             <div className="flex items-center gap-3 mt-2">
+              {incident.avviksnummer && (
+                <Badge variant="outline" className="font-mono">
+                  {incident.avviksnummer}
+                </Badge>
+              )}
               <Badge className={typeColor}>{typeLabel}</Badge>
               <Badge className={`${severityColor} ${severityTextColor}`}>
                 Alvorlighet: {incident.severity} - {severityLabel}

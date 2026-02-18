@@ -1,7 +1,7 @@
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import { redirect } from "next/navigation";
-import { Home, FileText, AlertCircle, Beaker, ClipboardList, GraduationCap } from "lucide-react";
+import { Home, FileText, AlertCircle, Beaker, ClipboardList, GraduationCap, Clock } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import { prisma } from "@/lib/db";
@@ -24,11 +24,19 @@ export default async function EmployeeLayout({
     redirect("/admin");
   }
 
-  // Hent brukerens profilbilde fra database
-  const user = await prisma.user.findUnique({
-    where: { id: session.user.id },
-    select: { image: true, name: true },
-  });
+  // Hent brukerens profilbilde og tenant sin timeregistrering-status
+  const [user, tenant] = await Promise.all([
+    prisma.user.findUnique({
+      where: { id: session.user.id },
+      select: { image: true, name: true },
+    }),
+    session.user.tenantId
+      ? prisma.tenant.findUnique({
+          where: { id: session.user.tenantId },
+          select: { timeRegistrationEnabled: true },
+        })
+      : null,
+  ]);
 
   return (
     <div className="min-h-screen bg-gray-50 pb-20">
@@ -135,6 +143,15 @@ export default async function EmployeeLayout({
             <GraduationCap className="h-5 w-5 text-gray-600" />
             <span className="text-xs mt-1 text-gray-600">Opplæring</span>
           </Link>
+          {tenant?.timeRegistrationEnabled && (
+            <Link
+              href="/ansatt/timeregistrering"
+              className="flex flex-col items-center justify-center flex-1 h-full hover:bg-gray-50 transition-colors"
+            >
+              <Clock className="h-5 w-5 text-gray-600" />
+              <span className="text-xs mt-1 text-gray-600">Timer</span>
+            </Link>
+          )}
         </div>
       </nav>
     </div>

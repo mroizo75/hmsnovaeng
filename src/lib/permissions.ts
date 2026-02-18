@@ -118,6 +118,9 @@ export interface RolePermissions {
   // Rapporter & Eksport
   canExportReports: boolean;
   canViewAllReports: boolean;
+
+  // Timeregistrering (prosjekter, timer, kjøring)
+  canAccessTimeRegistration: boolean;
 }
 
 /**
@@ -198,6 +201,7 @@ export const rolePermissions: Record<Role, RolePermissions> = {
     canUpdateSettings: true,
     canExportReports: true,
     canViewAllReports: true,
+    canAccessTimeRegistration: true,
   },
 
   // HMS - HMS-ansvarlig, nesten full tilgang
@@ -274,6 +278,7 @@ export const rolePermissions: Record<Role, RolePermissions> = {
     canUpdateSettings: false,
     canExportReports: true,
     canViewAllReports: true,
+    canAccessTimeRegistration: true,
   },
 
   // LEDER - Leder, kan administrere i sin avdeling
@@ -350,6 +355,7 @@ export const rolePermissions: Record<Role, RolePermissions> = {
     canUpdateSettings: false,
     canExportReports: true,
     canViewAllReports: true,
+    canAccessTimeRegistration: true,
   },
 
   // VERNEOMBUD - Verneombud, fokus på HMS
@@ -426,6 +432,7 @@ export const rolePermissions: Record<Role, RolePermissions> = {
     canUpdateSettings: false,
     canExportReports: false,
     canViewAllReports: false,
+    canAccessTimeRegistration: true,
   },
 
   // ANSATT - Ansatt, begrenset tilgang
@@ -502,6 +509,7 @@ export const rolePermissions: Record<Role, RolePermissions> = {
     canUpdateSettings: false,
     canExportReports: false,
     canViewAllReports: false,
+    canAccessTimeRegistration: true,
   },
 
   // BHT - Bedriftshelsetjeneste, lesetilgang + rapportering
@@ -578,6 +586,7 @@ export const rolePermissions: Record<Role, RolePermissions> = {
     canUpdateSettings: false,
     canExportReports: true,
     canViewAllReports: true,
+    canAccessTimeRegistration: true,
   },
 
   // REVISOR - Revisor, kun lesetilgang
@@ -654,6 +663,7 @@ export const rolePermissions: Record<Role, RolePermissions> = {
     canUpdateSettings: false,
     canExportReports: true,
     canViewAllReports: true,
+    canAccessTimeRegistration: true,
   },
 };
 
@@ -702,6 +712,7 @@ export function getVisibleNavItems(role: Role) {
     feedback: perms.canReadOwnFeedback || perms.canReadAllFeedback || perms.canCreateFeedback,
     complaints: perms.canCreateIncidents,
     settings: perms.canReadSettings,
+    timeRegistration: perms.canAccessTimeRegistration,
   };
 }
 

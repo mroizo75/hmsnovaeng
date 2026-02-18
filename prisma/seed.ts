@@ -562,6 +562,50 @@ async function main() {
       },
     });
 
+    const timesheetTemplate = await prisma.formTemplate.create({
+      data: {
+        tenantId: tenant.id,
+        title: "Timeliste",
+        description:
+          "Registrer timer for prosjekter og oppgaver. Eksporter til Excel for uke, måned eller år – klar for regnskap.",
+        category: "TIMESHEET",
+        requiresSignature: true,
+        requiresApproval: false,
+        accessType: "ALL",
+        createdBy: adminUser.id,
+        fields: {
+          create: [
+            { label: "Dato", fieldType: "DATE", order: 1, isRequired: true },
+            { label: "Timer", fieldType: "NUMBER", order: 2, isRequired: true, placeholder: "7.5" },
+            { label: "Prosjekt / oppgave", fieldType: "TEXT", order: 3, isRequired: true },
+            { label: "Kommentar", fieldType: "TEXTAREA", order: 4, isRequired: false },
+          ],
+        },
+      },
+      include: { fields: true },
+    });
+
+    await prisma.tenant.update({
+      where: { id: tenant.id },
+      data: { timeRegistrationEnabled: true },
+    });
+
+    const existingProject = await prisma.project.findFirst({
+      where: { tenantId: tenant.id, code: "INT-001" },
+    });
+    if (!existingProject) {
+      await prisma.project.create({
+        data: {
+          tenantId: tenant.id,
+          name: "Internt prosjekt",
+          code: "INT-001",
+          description: "Standard prosjekt for intern tid",
+          createdById: adminUser.id,
+          status: "ACTIVE",
+        },
+      });
+    }
+
     const wellbeingTemplate = await prisma.formTemplate.create({
       data: {
         tenantId: tenant.id,
@@ -570,6 +614,7 @@ async function main() {
         category: "WELLBEING",
         requiresSignature: false,
         requiresApproval: false,
+        allowAnonymousResponses: true,
         createdBy: adminUser.id,
         fields: {
           create: [

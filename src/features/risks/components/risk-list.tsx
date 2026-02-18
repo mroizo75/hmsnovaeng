@@ -13,7 +13,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { AlertTriangle, Edit, Trash2, CheckCircle } from "lucide-react";
+import { AlertTriangle, Edit, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { deleteRisk } from "@/server/actions/risk.actions";
 import { calculateRiskScore } from "@/features/risks/schemas/risk.schema";
@@ -27,9 +27,10 @@ interface RiskListProps {
   })[];
 }
 
+// ISO 45001/31000-aligned status for risikovurdering
 const statusLabels: Record<string, string> = {
-  OPEN: "Åpen",
-  MITIGATING: "Under håndtering",
+  OPEN: "Identifisert",
+  MITIGATING: "Tiltak iverksatt",
   ACCEPTED: "Akseptert",
   CLOSED: "Lukket",
 };
@@ -137,10 +138,8 @@ export function RiskList({ risks }: RiskListProps) {
             <TableHead>Risiko</TableHead>
             <TableHead>Kategori</TableHead>
             <TableHead>Eier</TableHead>
-            <TableHead className="text-center">S</TableHead>
-            <TableHead className="text-center">K</TableHead>
-            <TableHead className="text-center">Score</TableHead>
-            <TableHead>Nivå</TableHead>
+            <TableHead className="text-center">Før tiltak</TableHead>
+            <TableHead className="text-center">Restrisiko etter tiltak</TableHead>
             <TableHead>Status</TableHead>
             <TableHead>Neste revisjon</TableHead>
             <TableHead className="text-center">Tiltak</TableHead>
@@ -150,8 +149,13 @@ export function RiskList({ risks }: RiskListProps) {
         <TableBody>
           {risks.map((risk) => {
             const { level, bgColor, textColor } = calculateRiskScore(risk.likelihood, risk.consequence);
+            const residual =
+              risk.residualLikelihood != null && risk.residualConsequence != null
+                ? calculateRiskScore(risk.residualLikelihood, risk.residualConsequence)
+                : null;
             const completedMeasures = risk.measures.filter(m => m.status === "DONE").length;
             const totalMeasures = risk.measures.length;
+            const hasMeasures = totalMeasures > 0;
             const nextReview = formatDate(risk.nextReviewDate);
             const overdue = isPastDate(risk.nextReviewDate);
             const ownerLabel = risk.owner?.name || risk.owner?.email || "Ikke satt";
@@ -179,19 +183,34 @@ export function RiskList({ risks }: RiskListProps) {
                     <p className="text-xs text-muted-foreground">{frequency}</p>
                   </div>
                 </TableCell>
-                <TableCell className="text-center font-semibold">
-                  {risk.likelihood}
-                </TableCell>
-                <TableCell className="text-center font-semibold">
-                  {risk.consequence}
-                </TableCell>
                 <TableCell className="text-center">
-                  <div className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-muted font-bold">
-                    {risk.score}
+                  <div className="flex flex-col items-center gap-1">
+                    <span className="text-xs text-muted-foreground">S×K={risk.likelihood}×{risk.consequence}</span>
+                    <div className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-muted font-bold">
+                      {risk.score}
+                    </div>
+                    <Badge className={`${bgColor} ${textColor}`}>{level}</Badge>
                   </div>
                 </TableCell>
-                <TableCell>
-                  <Badge className={`${bgColor} ${textColor}`}>{level}</Badge>
+                <TableCell className="text-center">
+                  {residual ? (
+                    <div className="flex flex-col items-center gap-1">
+                      <span className="text-xs text-muted-foreground">
+                        Etter tiltak: S×K={risk.residualLikelihood}×{risk.residualConsequence}
+                      </span>
+                      <div className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-muted font-bold">
+                        {residual.score}
+                      </div>
+                      <Badge className={`${residual.bgColor} ${residual.textColor}`}>{residual.level}</Badge>
+                    </div>
+                  ) : (
+                    <div className="flex flex-col items-center gap-1">
+                      <span className="text-xs text-muted-foreground">Ikke vurdert</span>
+                      {hasMeasures && (
+                        <span className="text-xs text-amber-600">Tiltak registrert – vurder restrisiko</span>
+                      )}
+                    </div>
+                  )}
                 </TableCell>
                 <TableCell>
                   <Badge variant={statusVariants[risk.status]}>
@@ -210,14 +229,24 @@ export function RiskList({ risks }: RiskListProps) {
                 </TableCell>
                 <TableCell className="text-center">
                   {totalMeasures > 0 ? (
-                    <div className="flex items-center justify-center gap-1">
-                      <CheckCircle className="h-4 w-4 text-green-600" />
+                    <div className="flex flex-col items-center gap-1">
                       <span className="text-sm">
                         {completedMeasures}/{totalMeasures}
                       </span>
+                      <Link
+                        href={`/dashboard/risks/${risk.id}#tiltak`}
+                        className="text-xs text-primary hover:underline"
+                      >
+                        Legg til / rediger
+                      </Link>
                     </div>
                   ) : (
-                    <span className="text-muted-foreground text-sm">-</span>
+                    <Link
+                      href={`/dashboard/risks/${risk.id}#tiltak`}
+                      className="text-sm text-primary hover:underline"
+                    >
+                      Legg til tiltak
+                    </Link>
                   )}
                 </TableCell>
                 <TableCell className="text-right">
@@ -248,6 +277,10 @@ export function RiskList({ risks }: RiskListProps) {
       <div className="md:hidden space-y-3">
         {risks.map((risk) => {
           const { level, bgColor, textColor } = calculateRiskScore(risk.likelihood, risk.consequence);
+          const residual =
+            risk.residualLikelihood != null && risk.residualConsequence != null
+              ? calculateRiskScore(risk.residualLikelihood, risk.residualConsequence)
+              : null;
           const completedMeasures = risk.measures.filter(m => m.status === "DONE").length;
           const totalMeasures = risk.measures.length;
           const nextReview = formatDate(risk.nextReviewDate);
@@ -267,8 +300,13 @@ export function RiskList({ risks }: RiskListProps) {
                         {risk.context}
                       </p>
                     </div>
-                    <div className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-muted font-bold shrink-0">
-                      {risk.score}
+                    <div className="flex flex-col items-end gap-1 shrink-0">
+                      <div className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-muted font-bold">
+                        {risk.score}
+                      </div>
+                      {residual && (
+                        <span className="text-xs text-muted-foreground">→ {residual.score}</span>
+                      )}
                     </div>
                   </div>
 
@@ -276,7 +314,12 @@ export function RiskList({ risks }: RiskListProps) {
                     <Badge variant="secondary">
                       {categoryLabel}
                     </Badge>
-                    <Badge className={`${bgColor} ${textColor}`}>{level}</Badge>
+                    <Badge className={`${bgColor} ${textColor}`}>Før: {level}</Badge>
+                    {residual ? (
+                      <Badge className={`${residual.bgColor} ${residual.textColor}`}>Etter: {residual.level}</Badge>
+                    ) : totalMeasures > 0 ? (
+                      <span className="text-xs text-amber-600">Vurder restrisiko</span>
+                    ) : null}
                     <Badge variant={statusVariants[risk.status]}>
                       {statusLabels[risk.status]}
                     </Badge>
@@ -285,13 +328,19 @@ export function RiskList({ risks }: RiskListProps) {
                     </div>
                   </div>
 
-                  {totalMeasures > 0 && (
-                    <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                      <CheckCircle className="h-4 w-4 text-green-600" />
-                      <span>
+                  {totalMeasures > 0 ? (
+                    <div className="flex flex-col gap-1">
+                      <div className="text-sm text-muted-foreground">
                         Tiltak: {completedMeasures}/{totalMeasures} fullført
-                      </span>
+                      </div>
+                      <Link href={`/dashboard/risks/${risk.id}#tiltak`} className="text-sm text-primary hover:underline">
+                        Legg til / rediger tiltak
+                      </Link>
                     </div>
+                  ) : (
+                    <Link href={`/dashboard/risks/${risk.id}#tiltak`} className="text-sm text-primary hover:underline">
+                      Legg til tiltak
+                    </Link>
                   )}
 
                   <div className="text-sm">

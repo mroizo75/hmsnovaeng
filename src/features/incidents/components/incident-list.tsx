@@ -92,6 +92,7 @@ export function IncidentList({ incidents }: IncidentListProps) {
         <Table>
         <TableHeader>
           <TableRow>
+            <TableHead className="w-[100px]">Nr</TableHead>
             <TableHead>Avvik</TableHead>
             <TableHead>Type</TableHead>
             <TableHead className="text-center">Alvorlighet</TableHead>
@@ -117,6 +118,9 @@ export function IncidentList({ incidents }: IncidentListProps) {
 
             return (
               <TableRow key={incident.id}>
+                <TableCell className="font-mono text-sm text-muted-foreground">
+                  {incident.avviksnummer || "–"}
+                </TableCell>
                 <TableCell>
                   <div>
                     <div className="font-medium">{incident.title}</div>
@@ -243,6 +247,11 @@ export function IncidentList({ incidents }: IncidentListProps) {
                 <div className="space-y-3">
                   <div className="flex items-start justify-between gap-2">
                     <div className="flex-1 min-w-0">
+                      {incident.avviksnummer && (
+                        <p className="text-xs font-mono text-muted-foreground mb-1">
+                          {incident.avviksnummer}
+                        </p>
+                      )}
                       <h3 className="font-medium line-clamp-1">{incident.title}</h3>
                       <p className="text-sm text-muted-foreground line-clamp-2 mt-1">
                         {incident.description}

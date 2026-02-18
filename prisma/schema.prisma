@@ -105,6 +105,12 @@ model User {
   notifications       Notification[]
   scheduledReminders  ScheduledReminder[]  @relation("UserReminders")
   hmsAnnualPlanCompletions HmsAnnualPlanCompletion[]
+  formSubmissions        FormSubmission[]
+  createdProjects        Project[]
+  timeEntries            TimeEntry[]
+  editedTimeEntries      TimeEntry[]      @relation("TimeEntryEditedBy")
+  mileageEntries         MileageEntry[]
+  editedMileageEntries   MileageEntry[]   @relation("MileageEntryEditedBy")
   createdAt           DateTime     @default(now())
   updatedAt           DateTime     @updatedAt
 
@@ -238,6 +244,18 @@ model Tenant {
   navigationItems  NavigationItem[] // Meny-konfigurasjoner
   simpleMenuItems  Json?            // Hrefs som vises i enkel meny (null = standard)
   hmsAnnualPlanCompletions HmsAnnualPlanCompletion[] // Avkryssing av årlig HMS-plan (sjekkliste)
+  // Timeregistrering (prosjekter, timer, kjøring)
+  timeRegistrationEnabled Boolean   @default(false) // Aktiver modul per tenant
+  weeklyHoursNorm         Float     @default(37.5)  // Ordinær uke (timer)
+  overtime50Multiplier     Float     @default(1.5)  // Overtid 50 % = 1.5x
+  overtime100Multiplier    Float     @default(2)    // Overtid 100 % = 2x
+  defaultKmRate            Float     @default(4.5)  // Standard kr/km
+  lunchBreakMinutes        Int       @default(30)   // Lunsj som trekkes fra klokketimer (0 = ingen)
+  eveningOvertimeFromHour  Int?      // Fra denne kl (man–fre) = 100 % overtid. Null = alt 50 %
+  projects                 Project[]
+  timeEntries              TimeEntry[]
+  mileageEntries           MileageEntry[]
+  sequences                TenantSequence[]
   createdAt        DateTime         @default(now())
   updatedAt        DateTime         @updatedAt
 
@@ -246,6 +264,21 @@ model Tenant {
   @@index([pricingTier])
   @@index([onboardingStatus])
   @@index([registrationType])
+}
+
+/// Sekvens-teller for unike referansenummer per tenant (avvik, skjemaer m.m.)
+model TenantSequence {
+  id            String   @id @default(cuid())
+  tenantId      String
+  sequenceType  String   // "AVVIK", "FORM:SKJ", "FORM:RUH" etc.
+  year          Int
+  lastNumber    Int      @default(0)
+  updatedAt     DateTime @updatedAt
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@unique([tenantId, sequenceType, year])
+  @@index([tenantId])
 }
 
 /// Én rad per steg per år per tenant. Brukeren huker av steg i sjekklisten for årlig HMS-plan.
@@ -1370,6 +1403,7 @@ enum EnvironmentalMeasurementStatus {
 model Incident {
   id                  String       @id @default(cuid())
   tenantId            String
+  avviksnummer        String?      // Unikt referansenummer per tenant (AV-2025-001)
   type                IncidentType
   title               String
   description         String       @db.Text
@@ -1411,6 +1445,7 @@ model Incident {
   risk        Risk?        @relation("IncidentRiskReference", fields: [riskReferenceId], references: [id])
 
   @@index([tenantId])
+  @@index([avviksnummer])
   @@index([type])
   @@index([status])
   @@index([occurredAt])
@@ -1917,6 +1952,7 @@ model FormTemplate {
   tenantId          String?
   title             String            // "HMS Morgenmøte"
   description       String?           @db.Text
+  numberPrefix      String?           // Prefix for autogenerert referansenummer (f.eks. "RUH" → RUH-2025-001)
   category          FormCategory      @default(CUSTOM)
   isActive          Boolean           @default(true)
   requiresSignature Boolean           @default(true)
@@ -1924,6 +1960,7 @@ model FormTemplate {
   isRecurring       Boolean           @default(false)
   recurrenceRule    String?           @db.Text // RRULE format (daglig/ukentlig)
   isGlobal          Boolean           @default(false) // For globale/system-templates
+  allowAnonymousResponses Boolean    @default(false) // Psykososialt: anonyme svar (ISO 45003, AML § 4-3)
   
   // Tilgangsstyring
   accessType        AccessType        @default(ALL) // Hvem har tilgang
@@ -1959,6 +1996,7 @@ enum FormCategory {
   RISK          // Risikovurderinger
   TRAINING      // Opplæring
   CHECKLIST     // Sjekklister
+  TIMESHEET     // Timeliste (eksport til regnskap)
   WELLBEING     // Psykososiale skjemaer (ISO 45003)
   BCM           // Beredskaps- og kontinuitetsplaner (ISO 22301)
   COMPLAINT     // Kundeklager (ISO 10002)
@@ -2001,10 +2039,11 @@ enum FieldType {
 }
 
 model FormSubmission {
-  id              String            @id @default(cuid())
-  formTemplateId  String
+  id               String            @id @default(cuid())
+  formTemplateId   String
   tenantId        String
-  submittedById   String
+  submissionNumber String?          // Unikt referansenummer per tenant (SKJ-2025-001 eller RUH-2025-001)
+  submittedById   String?           // Null = anonymt svar (psykososial kartlegging)
   status          SubmissionStatus  @default(DRAFT)
   signedAt        DateTime?
   approvedById    String?
@@ -2014,10 +2053,12 @@ model FormSubmission {
   metadata        String?           @db.Text // JSON: IP, location, etc.
   formTemplate    FormTemplate      @relation(fields: [formTemplateId], references: [id], onDelete: Cascade)
   tenant          Tenant            @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  submittedBy     User?             @relation(fields: [submittedById], references: [id], onDelete: SetNull)
   createdAt       DateTime          @default(now())
   updatedAt       DateTime          @updatedAt
   
   @@index([tenantId])
+  @@index([submissionNumber])
   @@index([submittedById])
   @@index([formTemplateId])
   @@index([status])
@@ -2906,6 +2947,96 @@ model PackageLead {
   @@index([email])
   @@index([type])
   @@index([createdAt])
+}
+
+// ============================================
+// Timeregistrering (prosjekter, timer, kjøring)
+// ============================================
+
+model Project {
+  id          String       @id @default(cuid())
+  tenantId    String
+  name        String
+  code        String?      // Prosjektkode (f.eks. "PRJ-001")
+  description String?     @db.Text
+  status      ProjectStatus @default(ACTIVE)
+  createdById String
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  tenant      Tenant       @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  createdBy   User         @relation(fields: [createdById], references: [id], onDelete: Restrict)
+  timeEntries TimeEntry[]
+  mileageEntries MileageEntry[]
+
+  @@index([tenantId])
+  @@index([status])
+  @@index([createdById])
+}
+
+enum ProjectStatus {
+  ACTIVE
+  COMPLETED
+}
+
+model TimeEntry {
+  id          String      @id @default(cuid())
+  tenantId    String
+  projectId   String
+  userId      String      // Ansatt som registrerte
+  date        DateTime    @db.Date
+  hours       Float
+  timeType    TimeEntryType @default(NORMAL)
+  workedUntilHour Int?    // Arbeidet til kl (0–23). For kveldsovertid 100 %
+  comment     String?     @db.Text
+  editedById  String?     // Hvis admin har rettet
+  editedAt    DateTime?
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  tenant   Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  project  Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  editedBy User?    @relation("TimeEntryEditedBy", fields: [editedById], references: [id], onDelete: SetNull)
+
+  @@index([tenantId])
+  @@index([projectId])
+  @@index([userId])
+  @@index([date])
+}
+
+enum TimeEntryType {
+  NORMAL        // Ordinær tid
+  OVERTIME_50   // Overtid 50 %
+  OVERTIME_100  // Overtid 100 %
+  WEEKEND       // Helg/helligdag
+  TRAVEL        // Reise/kjøring (timer, ikke km)
+}
+
+model MileageEntry {
+  id          String   @id @default(cuid())
+  tenantId    String
+  projectId   String
+  userId      String
+  date        DateTime @db.Date
+  kilometers  Float
+  ratePerKm   Float?   // Null = bruk tenant default
+  amount      Float?   // Beregnet eller manuelt
+  comment     String?  @db.Text
+  editedById  String?
+  editedAt    DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  tenant   Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  project  Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  editedBy User?    @relation("MileageEntryEditedBy", fields: [editedById], references: [id], onDelete: SetNull)
+
+  @@index([tenantId])
+  @@index([projectId])
+  @@index([userId])
+  @@index([date])
 }
 
 // ============================================

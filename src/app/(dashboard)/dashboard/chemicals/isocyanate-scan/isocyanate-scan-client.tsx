@@ -9,11 +9,13 @@ import {
   AlertTriangle, 
   Search, 
   CheckCircle2, 
-  XCircle,
   Loader2,
   Info,
-  FileWarning
+  FileWarning,
+  ExternalLink,
+  Edit
 } from "lucide-react";
+import Link from "next/link";
 import { 
   scanStoffkartotekForIsocyanates, 
   getIsocyanateStats,
@@ -205,20 +207,32 @@ export function IsocyanateScanClient() {
             {/* Liste over funnet kjemikalier */}
             {scanResult.chemicals.length > 0 && (
               <div className="space-y-2">
-                <h3 className="text-sm font-medium">
-                  Kjemikalier med diisocyanater ({scanResult.chemicals.length})
-                </h3>
+                <div>
+                  <h3 className="text-sm font-medium">
+                    Kjemikalier med diisocyanater ({scanResult.chemicals.length})
+                  </h3>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Klikk på stoffnavn eller «Åpne» for å åpne i ny fane – rediger, ta risikovurdering eller skriv notater til ansatte.
+                  </p>
+                </div>
                 <div className="border rounded-lg divide-y">
                   {scanResult.chemicals.map((chemical) => (
                     <div 
                       key={chemical.id} 
-                      className="p-4 hover:bg-accent transition-colors"
+                      className="p-4 hover:bg-accent/50 transition-colors"
                     >
-                      <div className="flex items-start justify-between">
-                        <div className="space-y-1">
-                          <div className="flex items-center gap-2">
-                            <FileWarning className="h-4 w-4 text-orange-600" />
-                            <span className="font-medium">{chemical.productName}</span>
+                      <div className="flex items-start justify-between gap-4">
+                        <div className="space-y-1 flex-1 min-w-0">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <FileWarning className="h-4 w-4 text-orange-600 shrink-0" />
+                            <Link
+                              href={`/dashboard/chemicals/${chemical.id}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="font-medium hover:underline text-primary"
+                            >
+                              {chemical.productName}
+                            </Link>
                             {chemical.wasUpdated && (
                               <Badge variant="outline" className="text-green-600">
                                 <CheckCircle2 className="mr-1 h-3 w-3" />
@@ -243,6 +257,28 @@ export function IsocyanateScanClient() {
                               </AlertDescription>
                             </Alert>
                           )}
+                        </div>
+                        <div className="flex flex-col gap-1 shrink-0">
+                          <Link
+                            href={`/dashboard/chemicals/${chemical.id}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          >
+                            <Button variant="outline" size="sm">
+                              <ExternalLink className="mr-1.5 h-3.5 w-3.5" />
+                              Åpne
+                            </Button>
+                          </Link>
+                          <Link
+                            href={`/dashboard/chemicals/${chemical.id}/edit`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          >
+                            <Button variant="ghost" size="sm" className="text-muted-foreground">
+                              <Edit className="mr-1.5 h-3.5 w-3.5" />
+                              Rediger
+                            </Button>
+                          </Link>
                         </div>
                       </div>
                     </div>
@@ -270,7 +306,7 @@ export function IsocyanateScanClient() {
           <CardHeader>
             <CardTitle>Registrerte kjemikalier med diisocyanater</CardTitle>
             <CardDescription>
-              Kjemikalier som allerede er merket som inneholder diisocyanater
+              Kjemikalier som allerede er merket som inneholder diisocyanater. Åpne i ny fane for å redigere, ta risikovurdering eller skrive notater til ansatte.
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -278,20 +314,49 @@ export function IsocyanateScanClient() {
               {stats.chemicals.map((chemical: any) => (
                 <div 
                   key={chemical.id} 
-                  className="p-4 hover:bg-accent transition-colors"
+                  className="p-4 hover:bg-accent/50 transition-colors"
                 >
-                  <div className="flex items-start justify-between">
-                    <div className="space-y-1">
-                      <div className="flex items-center gap-2">
-                        <AlertTriangle className="h-4 w-4 text-orange-600" />
-                        <span className="font-medium">{chemical.productName}</span>
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="space-y-1 flex-1 min-w-0">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <AlertTriangle className="h-4 w-4 text-orange-600 shrink-0" />
+                        <Link
+                          href={`/dashboard/chemicals/${chemical.id}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="font-medium hover:underline text-primary"
+                        >
+                          {chemical.productName}
+                        </Link>
                       </div>
-                      <div className="flex gap-4 text-sm text-muted-foreground">
+                      <div className="flex gap-4 text-sm text-muted-foreground flex-wrap">
                         {chemical.supplier && <span>Leverandør: {chemical.supplier}</span>}
                         {chemical.casNumber && <span>CAS: {chemical.casNumber}</span>}
                         {chemical.quantity && <span>Mengde: {chemical.quantity}</span>}
                         {chemical.location && <span>Lokasjon: {chemical.location}</span>}
                       </div>
+                    </div>
+                    <div className="flex flex-col gap-1 shrink-0">
+                      <Link
+                        href={`/dashboard/chemicals/${chemical.id}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        <Button variant="outline" size="sm">
+                          <ExternalLink className="mr-1.5 h-3.5 w-3.5" />
+                          Åpne
+                        </Button>
+                      </Link>
+                      <Link
+                        href={`/dashboard/chemicals/${chemical.id}/edit`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        <Button variant="ghost" size="sm" className="text-muted-foreground">
+                          <Edit className="mr-1.5 h-3.5 w-3.5" />
+                          Rediger
+                        </Button>
+                      </Link>
                     </div>
                   </div>
                 </div>

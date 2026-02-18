@@ -20,6 +20,7 @@ export type NavPermission =
   | "managementReviews"
   | "annualHmsPlan"
   | "meetings"
+  | "timeRegistration"
   | "whistleblowing"
   | "goals"
   | "settings";
@@ -52,6 +53,7 @@ export const DASHBOARD_NAV_CONFIG: DashboardNavItemConfig[] = [
   { href: "/dashboard/management-reviews", label: "nav.managementReviews", permission: "managementReviews", defaultSimple: false },
   { href: "/dashboard/annual-hms-plan", label: "nav.annualHmsPlan", permission: "annualHmsPlan", defaultSimple: true },
   { href: "/dashboard/meetings", label: "nav.meetings", permission: "meetings", defaultSimple: false },
+  { href: "/dashboard/time-registration", label: "nav.timeRegistration", permission: "timeRegistration", defaultSimple: true },
   { href: "/dashboard/whistleblowing", label: "nav.whistleblowing", permission: "whistleblowing", defaultSimple: false },
   { href: "/dashboard/goals", label: "nav.goals", permission: "goals", defaultSimple: false },
   { href: "/dashboard/settings", label: "nav.settings", permission: "settings", defaultSimple: true },

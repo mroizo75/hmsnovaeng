@@ -68,6 +68,7 @@ export async function copyGlobalFormTemplate(formId: string) {
         tenantId: session.user.tenantId,
         title: copyTitle,
         description: globalForm.description,
+        numberPrefix: globalForm.numberPrefix,
         category: globalForm.category,
         isActive: true,
         isGlobal: false, // Ikke global lenger

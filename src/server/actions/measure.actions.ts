@@ -65,6 +65,34 @@ export async function getMeasures(tenantId: string) {
   }
 }
 
+// Hent ett tiltak
+export async function getMeasure(id: string) {
+  try {
+    const { tenantId } = await getSessionContext();
+
+    const measure = await prisma.measure.findUnique({
+      where: { id, tenantId },
+      include: {
+        risk: { select: { id: true, title: true } },
+        incident: { select: { id: true, title: true } },
+        audit: { select: { id: true, title: true } },
+        goal: { select: { id: true, title: true } },
+        responsible: { select: { id: true, name: true, email: true } },
+      },
+    });
+
+    if (!measure) {
+      return { success: false, error: "Tiltak ikke funnet", data: null };
+    }
+
+    return { success: true, data: measure };
+  } catch (error: unknown) {
+    const err = error as Error;
+    console.error("Get measure error:", err);
+    return { success: false, error: err.message || "Kunne ikke hente tiltak", data: null };
+  }
+}
+
 // Hent tiltak for en spesifikk risiko
 export async function getMeasuresByRisk(riskId: string) {
   try {
@@ -169,25 +197,40 @@ export async function updateMeasure(input: any) {
       dueAt: input.dueAt ? new Date(input.dueAt) : undefined,
       costEstimate: parseOptionalNumber(input.costEstimate),
       benefitEstimate: parseOptionalNumber(input.benefitEstimate),
+      completedAt: input.completedAt ? new Date(input.completedAt) : undefined,
     };
     const validated = updateMeasureSchema.parse(normalizedInput);
-    
+
     const existingMeasure = await prisma.measure.findUnique({
       where: { id: validated.id, tenantId },
     });
-    
+
     if (!existingMeasure) {
       return { success: false, error: "Tiltak ikke funnet" };
     }
-    
+
+    const data: Record<string, unknown> = {
+      ...validated,
+      costEstimate: validated.costEstimate,
+      benefitEstimate: validated.benefitEstimate,
+      effectiveness: validated.effectiveness,
+      effectivenessNote: validated.effectivenessNote,
+      updatedAt: new Date(),
+    };
+
+    if (validated.status === "DONE") {
+      data.completedAt = validated.completedAt ?? new Date();
+    } else if (validated.status) {
+      data.completedAt = null;
+      data.effectiveness = "NOT_EVALUATED";
+      data.effectivenessNote = null;
+    }
+
     const measure = await prisma.measure.update({
       where: { id: validated.id, tenantId },
-      data: {
-        ...validated,
-        costEstimate: validated.costEstimate,
-        benefitEstimate: validated.benefitEstimate,
-        updatedAt: new Date(),
-      },
+      data: Object.fromEntries(
+        Object.entries(data).filter(([k, v]) => v !== undefined && k !== "id")
+      ) as any,
     });
     
     await prisma.auditLog.create({
@@ -199,13 +242,14 @@ export async function updateMeasure(input: any) {
         metadata: JSON.stringify({ title: measure.title }),
       },
     });
-    
+
     revalidatePath("/dashboard/risks");
     revalidatePath("/dashboard/actions");
+    revalidatePath(`/dashboard/measures/${measure.id}`);
     if (measure.riskId) {
       revalidatePath(`/dashboard/risks/${measure.riskId}`);
     }
-    
+
     return { success: true, data: measure };
   } catch (error: any) {
     console.error("Update measure error:", error);

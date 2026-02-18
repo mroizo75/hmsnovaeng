@@ -164,11 +164,12 @@ export function getSeverityInfo(severity: number): { label: string; color: strin
 /**
  * Get status label
  */
+// ISO 9001/45001 kap. 10.2 – avvik skal følges opp til lukket
 export function getIncidentStatusLabel(status: string): string {
   const labels: Record<string, string> = {
-    OPEN: "Åpen",
+    OPEN: "Registrert",
     INVESTIGATING: "Under utredning",
-    ACTION_TAKEN: "Tiltak igangsatt",
+    ACTION_TAKEN: "Tiltak iverksatt",
     CLOSED: "Lukket",
   };
   return labels[status] || status;

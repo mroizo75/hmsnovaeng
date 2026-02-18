@@ -31,15 +31,29 @@ import { IsocyanateBadge } from "@/components/isocyanate-warning";
 
 interface ChemicalListProps {
   chemicals: Chemical[];
+  initialIsocyanateFilter?: "only" | "exclude" | undefined;
+  initialQuickFilter?: "missingSds" | "needsReview" | "overdue" | undefined;
 }
 
-export function ChemicalList({ chemicals }: ChemicalListProps) {
+export function ChemicalList({
+  chemicals,
+  initialIsocyanateFilter,
+  initialQuickFilter,
+}: ChemicalListProps) {
   const router = useRouter();
   const { toast } = useToast();
   const [loading, setLoading] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
-  const [revisionFilter, setRevisionFilter] = useState<string>("all");
+  const [isocyanateFilter, setIsocyanateFilter] = useState<string>(
+    initialIsocyanateFilter ?? "all"
+  );
+  const [revisionFilter, setRevisionFilter] = useState<string>(
+    initialQuickFilter === "needsReview" ? "next30days" : initialQuickFilter === "overdue" ? "overdue" : "all"
+  );
+  const [missingSdsFilter, setMissingSdsFilter] = useState<string>(
+    initialQuickFilter === "missingSds" ? "only" : "all"
+  );
   const [sortOption, setSortOption] = useState<string>("revisionAsc");
   const [page, setPage] = useState(1);
   const pageSize = 20;
@@ -53,6 +67,8 @@ export function ChemicalList({ chemicals }: ChemicalListProps) {
       const parsed = JSON.parse(raw) as {
         searchTerm?: string;
         statusFilter?: string;
+        isocyanateFilter?: string;
+        missingSdsFilter?: string;
         revisionFilter?: string;
         sortOption?: string;
         page?: number;
@@ -60,10 +76,21 @@ export function ChemicalList({ chemicals }: ChemicalListProps) {
       if (typeof parsed.searchTerm === "string") {
         setSearchTerm(parsed.searchTerm);
       }
-      if (typeof parsed.statusFilter === "string") {
-        setStatusFilter(parsed.statusFilter);
+      if (typeof parsed.isocyanateFilter === "string" && !initialIsocyanateFilter) {
+        setIsocyanateFilter(parsed.isocyanateFilter);
+      } else if (initialIsocyanateFilter) {
+        setIsocyanateFilter(initialIsocyanateFilter);
       }
-      if (typeof parsed.revisionFilter === "string") {
+      if (initialQuickFilter === "missingSds") {
+        setMissingSdsFilter("only");
+      } else if (typeof parsed.missingSdsFilter === "string") {
+        setMissingSdsFilter(parsed.missingSdsFilter);
+      }
+      if (initialQuickFilter === "needsReview") {
+        setRevisionFilter("next30days");
+      } else if (initialQuickFilter === "overdue") {
+        setRevisionFilter("overdue");
+      } else if (typeof parsed.revisionFilter === "string") {
         setRevisionFilter(parsed.revisionFilter);
       }
       if (typeof parsed.sortOption === "string") {
@@ -75,14 +102,22 @@ export function ChemicalList({ chemicals }: ChemicalListProps) {
     } catch {
       // Ignorer korrupte verdier
     }
-  }, []);
+  }, [initialIsocyanateFilter, initialQuickFilter]);
 
   // Lagre filter/paginering slik at det huskes ved navigering
   useEffect(() => {
     if (typeof window === "undefined") return;
-    const state = { searchTerm, statusFilter, revisionFilter, sortOption, page };
+    const state = {
+      searchTerm,
+      statusFilter,
+      isocyanateFilter,
+      missingSdsFilter,
+      revisionFilter,
+      sortOption,
+      page,
+    };
     window.localStorage.setItem("chemicalsTableState", JSON.stringify(state));
-  }, [searchTerm, statusFilter, revisionFilter, sortOption, page]);
+  }, [searchTerm, statusFilter, isocyanateFilter, missingSdsFilter, revisionFilter, sortOption, page]);
 
   const handleDelete = async (id: string, productName: string) => {
     if (!confirm(`Er du sikker på at du vil slette "${productName}"?\n\nDette kan ikke angres.`)) {
@@ -165,6 +200,11 @@ export function ChemicalList({ chemicals }: ChemicalListProps) {
 
     if (!matchesSearch) return false;
     if (statusFilter !== "all" && chemical.status !== statusFilter) return false;
+
+    if (isocyanateFilter === "only" && !chemical.containsIsocyanates) return false;
+    if (isocyanateFilter === "exclude" && chemical.containsIsocyanates) return false;
+
+    if (missingSdsFilter === "only" && chemical.sdsKey) return false;
 
     if (revisionFilter !== "all") {
       const now = new Date();
@@ -280,6 +320,22 @@ export function ChemicalList({ chemicals }: ChemicalListProps) {
         <div className="flex items-center gap-2 flex-wrap justify-end">
           <Filter className="h-4 w-4 text-muted-foreground" />
           <Select
+            value={isocyanateFilter}
+            onValueChange={(value) => {
+              setIsocyanateFilter(value);
+              setPage(1);
+            }}
+          >
+            <SelectTrigger className="w-[160px]">
+              <SelectValue placeholder="Isocyanater" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Alle stoffer</SelectItem>
+              <SelectItem value="only">Kun diisocyanater</SelectItem>
+              <SelectItem value="exclude">Ekskl. diisocyanater</SelectItem>
+            </SelectContent>
+          </Select>
+          <Select
             value={statusFilter}
             onValueChange={(value) => {
               setStatusFilter(value);
@@ -294,6 +350,21 @@ export function ChemicalList({ chemicals }: ChemicalListProps) {
               <SelectItem value="ACTIVE">I bruk</SelectItem>
               <SelectItem value="PHASED_OUT">Utfases</SelectItem>
               <SelectItem value="ARCHIVED">Arkivert</SelectItem>
+            </SelectContent>
+          </Select>
+          <Select
+            value={missingSdsFilter}
+            onValueChange={(value) => {
+              setMissingSdsFilter(value);
+              setPage(1);
+            }}
+          >
+            <SelectTrigger className="w-[150px]">
+              <SelectValue placeholder="Datablad" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Alle</SelectItem>
+              <SelectItem value="only">Mangler datablad</SelectItem>
             </SelectContent>
           </Select>
           <Select

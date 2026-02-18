@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -12,24 +13,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { CheckCircle, Trash2, Clock } from "lucide-react";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { completeMeasure, deleteMeasure } from "@/server/actions/measure.actions";
+import { Pencil, Trash2, Clock } from "lucide-react";
+import { deleteMeasure } from "@/server/actions/measure.actions";
 import { getMeasureStatusLabel, getMeasureStatusColor } from "@/features/measures/schemas/measure.schema";
 import { useToast } from "@/hooks/use-toast";
 import type { ActionEffectiveness, Measure } from "@prisma/client";
@@ -44,44 +29,6 @@ export function MeasureList({ measures }: MeasureListProps) {
   const router = useRouter();
   const { toast } = useToast();
   const [loading, setLoading] = useState<string | null>(null);
-  const [completeModal, setCompleteModal] = useState<{ id: string; title: string } | null>(null);
-  const [effectiveness, setEffectiveness] = useState<ActionEffectiveness>("EFFECTIVE");
-  const [completionNote, setCompletionNote] = useState("");
-
-  const openCompleteDialog = (id: string, title: string) => {
-    setCompleteModal({ id, title });
-    setEffectiveness("EFFECTIVE");
-    setCompletionNote("");
-  };
-
-  const handleComplete = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    if (!completeModal) return;
-    setLoading(completeModal.id);
-    const result = await completeMeasure({
-      id: completeModal.id,
-      completedAt: new Date().toISOString(),
-      completionNote,
-      effectiveness,
-    });
-
-    if (result.success) {
-      toast({
-        title: "✅ Tiltak fullført",
-        description: `"${completeModal.title}" er nå markert som fullført`,
-        className: "bg-green-50 border-green-200",
-      });
-      setCompleteModal(null);
-      router.refresh();
-    } else {
-      toast({
-        variant: "destructive",
-        title: "Feil",
-        description: result.error || "Kunne ikke fullføre tiltak",
-      });
-    }
-    setLoading(null);
-  };
 
   const handleDelete = async (id: string, title: string) => {
     if (!confirm(`Er du sikker på at du vil slette "${title}"?\n\nDette kan ikke angres.`)) {
@@ -130,13 +77,12 @@ export function MeasureList({ measures }: MeasureListProps) {
 
   return (
     <>
-      <div className="rounded-lg border">
+      <div className="rounded-lg border overflow-x-auto">
       <Table>
         <TableHeader>
           <TableRow>
             <TableHead>Tiltak</TableHead>
-            <TableHead>Knyttet til</TableHead>
-            <TableHead>Detaljer</TableHead>
+            <TableHead className="hidden md:table-cell">Detaljer</TableHead>
             <TableHead>Frist</TableHead>
             <TableHead>Status</TableHead>
             <TableHead className="text-right">Handlinger</TableHead>
@@ -171,15 +117,20 @@ export function MeasureList({ measures }: MeasureListProps) {
               <TableRow key={measure.id}>
                 <TableCell>
                   <div>
-                    <div className="font-medium">{measure.title}</div>
+                    <Link
+                      href={`/dashboard/measures/${measure.id}`}
+                      className="font-medium hover:underline"
+                    >
+                      {measure.title}
+                    </Link>
                     {measure.description && (
-                      <div className="text-sm text-muted-foreground line-clamp-1">
+                      <p className="text-sm text-muted-foreground line-clamp-1 mt-0.5">
                         {measure.description}
-                      </div>
+                      </p>
                     )}
                   </div>
                 </TableCell>
-                <TableCell>
+                <TableCell className="hidden md:table-cell">
                   <div className="space-y-1 text-sm">
                     <div>
                       <span className="text-muted-foreground">Type:</span>{" "}
@@ -228,17 +179,14 @@ export function MeasureList({ measures }: MeasureListProps) {
                 </TableCell>
                 <TableCell className="text-right">
                   <div className="flex justify-end gap-2">
-                    {measure.status !== "DONE" && (
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => openCompleteDialog(measure.id, measure.title)}
-                        disabled={loading === measure.id}
-                        title="Marker som fullført"
+                    <Button variant="ghost" size="sm" asChild>
+                      <Link
+                        href={`/dashboard/measures/${measure.id}`}
+                        title="Rediger og oppdater status"
                       >
-                        <CheckCircle className="h-4 w-4 text-green-600" />
-                      </Button>
-                    )}
+                        <Pencil className="h-4 w-4" />
+                      </Link>
+                    </Button>
                     <Button
                       variant="ghost"
                       size="sm"
@@ -255,67 +203,7 @@ export function MeasureList({ measures }: MeasureListProps) {
         </TableBody>
         </Table>
       </div>
-
-      <Dialog open={Boolean(completeModal)} onOpenChange={(open) => {
-      if (!open) {
-        setCompleteModal(null);
-        setCompletionNote("");
-      }
-    }}>
-      <DialogContent className="max-w-lg">
-        <DialogHeader>
-          <DialogTitle>Fullfør tiltak</DialogTitle>
-          <DialogDescription>
-            Evaluer effekt og skriv kort evaluering før du lukker tiltaket
-          </DialogDescription>
-        </DialogHeader>
-        <form onSubmit={handleComplete} className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="effectiveness">Effekt av tiltak</Label>
-            <Select
-              value={effectiveness}
-              onValueChange={(value: ActionEffectiveness) => setEffectiveness(value)}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Velg effekt" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="EFFECTIVE">Effektivt</SelectItem>
-                <SelectItem value="PARTIALLY_EFFECTIVE">Delvis effektivt</SelectItem>
-                <SelectItem value="INEFFECTIVE">Ikke effektivt</SelectItem>
-                <SelectItem value="NOT_EVALUATED">Ikke evaluert</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="completionNote">Evaluering</Label>
-            <Textarea
-              id="completionNote"
-              name="completionNote"
-              placeholder="Beskriv resultat, læringspunkter eller behov for oppfølging"
-              value={completionNote}
-              onChange={(event) => setCompletionNote(event.target.value)}
-              rows={3}
-            />
-          </div>
-
-          <div className="flex justify-end gap-2">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => setCompleteModal(null)}
-            >
-              Avbryt
-            </Button>
-            <Button type="submit" disabled={!completeModal || loading === completeModal?.id}>
-              {loading === completeModal?.id ? "Fullfører..." : "Fullfør tiltak"}
-            </Button>
-          </div>
-        </form>
-      </DialogContent>
-    </Dialog>
-   </>
+    </>
   );
 }
 

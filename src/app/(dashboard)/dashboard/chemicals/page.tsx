@@ -10,7 +10,21 @@ import { ChemicalList } from "@/features/chemicals/components/chemical-list";
 import { PageHelpDialog } from "@/components/dashboard/page-help-dialog";
 import { helpContent } from "@/lib/help-content";
 
-export default async function ChemicalsPage() {
+export default async function ChemicalsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ isocyanates?: string; filter?: string }>;
+}) {
+  const params = await searchParams;
+  const initialIsocyanateFilter = params?.isocyanates === "1" ? "only" : undefined;
+  const initialQuickFilter =
+    params?.filter === "missingSds"
+      ? "missingSds"
+      : params?.filter === "needsReview"
+        ? "needsReview"
+        : params?.filter === "overdue"
+          ? "overdue"
+          : undefined;
   const session = await getServerSession(authOptions);
 
   if (!session?.user?.email) {
@@ -44,9 +58,12 @@ export default async function ChemicalsPage() {
   const now = new Date();
   const thirtyDaysFromNow = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
 
+  const withIsocyanates = chemicals.filter((c) => c.containsIsocyanates).length;
+
   const stats = {
     total: chemicals.length,
     active: chemicals.filter((c) => c.status === "ACTIVE").length,
+    withIsocyanates,
     missingSDS: chemicals.filter((c) => !c.sdsKey).length,
     needsReview: chemicals.filter(
       (c) => c.nextReviewDate && new Date(c.nextReviewDate) <= thirtyDaysFromNow
@@ -108,7 +125,7 @@ export default async function ChemicalsPage() {
       </Card>
 
       {/* Stats */}
-      <div className="grid gap-4 grid-cols-2 sm:grid-cols-3 lg:grid-cols-5">
+      <div className="grid gap-4 grid-cols-2 sm:grid-cols-3 lg:grid-cols-6">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Totalt</CardTitle>
@@ -131,38 +148,78 @@ export default async function ChemicalsPage() {
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Mangler datablad</CardTitle>
-            <AlertTriangle className="h-4 w-4 text-red-600" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-red-600">{stats.missingSDS}</div>
-            <p className="text-xs text-muted-foreground">må lastes opp</p>
-          </CardContent>
-        </Card>
+        <Link href="/dashboard/chemicals?isocyanates=1">
+          <Card className="hover:bg-accent/50 transition-colors h-full cursor-pointer">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Diisocyanater</CardTitle>
+              <AlertTriangle className="h-4 w-4 text-orange-600" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-orange-600">{stats.withIsocyanates}</div>
+              <p className="text-xs text-muted-foreground">krever spesialkurs</p>
+            </CardContent>
+          </Card>
+        </Link>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Trenger revisjon</CardTitle>
-            <Clock className="h-4 w-4 text-yellow-600" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-yellow-600">{stats.needsReview}</div>
-            <p className="text-xs text-muted-foreground">neste 30 dager</p>
-          </CardContent>
-        </Card>
+        <Link
+          href="/dashboard/chemicals?filter=missingSds"
+          className={stats.missingSDS === 0 ? "pointer-events-none" : ""}
+        >
+          <Card
+            className={`h-full transition-colors ${
+              stats.missingSDS > 0 ? "hover:bg-accent/50 cursor-pointer" : ""
+            }`}
+          >
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Mangler datablad</CardTitle>
+              <AlertTriangle className="h-4 w-4 text-red-600" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-red-600">{stats.missingSDS}</div>
+              <p className="text-xs text-muted-foreground">må lastes opp</p>
+            </CardContent>
+          </Card>
+        </Link>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Forfalt revisjon</CardTitle>
-            <AlertTriangle className="h-4 w-4 text-red-600" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-red-600">{stats.overdue}</div>
-            <p className="text-xs text-muted-foreground">krever handling</p>
-          </CardContent>
-        </Card>
+        <Link
+          href="/dashboard/chemicals?filter=needsReview"
+          className={stats.needsReview === 0 ? "pointer-events-none" : ""}
+        >
+          <Card
+            className={`h-full transition-colors ${
+              stats.needsReview > 0 ? "hover:bg-accent/50 cursor-pointer" : ""
+            }`}
+          >
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Trenger revisjon</CardTitle>
+              <Clock className="h-4 w-4 text-yellow-600" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-yellow-600">{stats.needsReview}</div>
+              <p className="text-xs text-muted-foreground">neste 30 dager</p>
+            </CardContent>
+          </Card>
+        </Link>
+
+        <Link
+          href="/dashboard/chemicals?filter=overdue"
+          className={stats.overdue === 0 ? "pointer-events-none" : ""}
+        >
+          <Card
+            className={`h-full transition-colors ${
+              stats.overdue > 0 ? "hover:bg-accent/50 cursor-pointer" : ""
+            }`}
+          >
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Forfalt revisjon</CardTitle>
+              <AlertTriangle className="h-4 w-4 text-red-600" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-red-600">{stats.overdue}</div>
+              <p className="text-xs text-muted-foreground">krever handling</p>
+            </CardContent>
+          </Card>
+        </Link>
       </div>
 
       {/* Chemicals List */}
@@ -172,7 +229,11 @@ export default async function ChemicalsPage() {
           <CardDescription>Oversikt over registrerte produkter i stoffkartoteket</CardDescription>
         </CardHeader>
         <CardContent className="min-w-0">
-          <ChemicalList chemicals={chemicals} />
+          <ChemicalList
+            chemicals={chemicals}
+            initialIsocyanateFilter={initialIsocyanateFilter}
+            initialQuickFilter={initialQuickFilter}
+          />
         </CardContent>
       </Card>
     </div>

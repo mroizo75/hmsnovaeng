@@ -441,6 +441,7 @@ function getCategoryLabel(category: string): string {
     RISK: "Risikovurdering",
     TRAINING: "Opplæring",
     CHECKLIST: "Sjekkliste",
+    TIMESHEET: "Timeliste",
   };
   return labels[category] || category;
 }

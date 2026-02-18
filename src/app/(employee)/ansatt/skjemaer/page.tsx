@@ -185,6 +185,7 @@ function getCategoryLabel(category: string): string {
     RISK: "Risikovurdering",
     TRAINING: "Opplæring",
     CHECKLIST: "Sjekkliste",
+    TIMESHEET: "Timeliste",
     WELLBEING: "Psykososialt arbeidsmiljø",
   };
   return labels[category] || category;

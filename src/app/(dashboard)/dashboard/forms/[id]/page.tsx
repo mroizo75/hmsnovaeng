@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { CopyFormButton } from "@/components/forms/copy-form-button";
+import { TimesheetExportDropdown } from "@/components/forms/timesheet-export-dropdown";
 import {
   Table,
   TableBody,
@@ -91,10 +92,28 @@ export default async function FormDetailPage({
     orderBy: { createdAt: "desc" },
     include: {
       fieldValues: true,
+      submittedBy: { select: { id: true, name: true, email: true } },
     },
     skip,
     take: ITEMS_PER_PAGE,
   });
+
+  const submittedByIds = submissions
+    .map((s) => s.submittedById)
+    .filter((id): id is string => id != null);
+  const userTenants =
+    submittedByIds.length > 0
+      ? await prisma.userTenant.findMany({
+          where: {
+            userId: { in: submittedByIds },
+            tenantId: session.user.tenantId,
+          },
+          select: { userId: true, displayName: true },
+        })
+      : [];
+  const displayNameMap = new Map(
+    userTenants.map((ut) => [ut.userId, ut.displayName ?? null])
+  );
 
   const totalPages = Math.ceil(form._count.submissions / ITEMS_PER_PAGE);
 
@@ -307,14 +326,17 @@ export default async function FormDetailPage({
                 </p>
               )}
             </div>
-            {form._count.submissions > 0 && (
-              <Button size="sm" className="bg-green-600 hover:bg-green-700" asChild>
-                <a href={`/api/forms/${form.id}/submissions/export`} download>
-                  <Download className="h-4 w-4 mr-2" />
-                  📊 Eksporter til Excel
-                </a>
-              </Button>
-            )}
+            {form._count.submissions > 0 &&
+              (form.category === "TIMESHEET" ? (
+                <TimesheetExportDropdown formId={form.id} formTitle={form.title} />
+              ) : (
+                <Button size="sm" className="bg-green-600 hover:bg-green-700" asChild>
+                  <a href={`/api/forms/${form.id}/submissions/export`} download>
+                    <Download className="h-4 w-4 mr-2" />
+                    Eksporter til Excel
+                  </a>
+                </Button>
+              ))}
           </div>
         </CardHeader>
         <CardContent>
@@ -328,6 +350,10 @@ export default async function FormDetailPage({
               <Table>
                 <TableHeader>
                   <TableRow>
+                    <TableHead className="w-[110px]">Referanse</TableHead>
+                    {form.category === "TIMESHEET" && (
+                      <TableHead>Navn</TableHead>
+                    )}
                     <TableHead>Dato</TableHead>
                     <TableHead>Status</TableHead>
                     <TableHead>Antall felt utfylt</TableHead>
@@ -335,8 +361,24 @@ export default async function FormDetailPage({
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {submissions.map((submission) => (
+                  {submissions.map((submission) => {
+                    const displayName =
+                      form.category === "TIMESHEET"
+                        ? (submission.submittedById == null
+                            ? "–"
+                            : displayNameMap.get(submission.submittedById) ||
+                              submission.submittedBy?.name ||
+                              submission.submittedBy?.email ||
+                              "–")
+                        : null;
+                    return (
                     <TableRow key={submission.id}>
+                      <TableCell className="font-mono text-sm text-muted-foreground">
+                        {submission.submissionNumber || "–"}
+                      </TableCell>
+                      {form.category === "TIMESHEET" && (
+                        <TableCell className="font-medium">{displayName}</TableCell>
+                      )}
                       <TableCell>
                         {new Date(submission.createdAt).toLocaleDateString("nb-NO", {
                           day: "2-digit",
@@ -371,7 +413,8 @@ export default async function FormDetailPage({
                       </div>
                       </TableCell>
                     </TableRow>
-                  ))}
+                    );
+                  })}
                 </TableBody>
               </Table>
 
@@ -470,6 +513,7 @@ function getCategoryLabel(category: string): string {
     RISK: "Risikovurdering",
     TRAINING: "Opplæring",
     CHECKLIST: "Sjekkliste",
+    TIMESHEET: "Timeliste",
     WELLBEING: "Psykososialt arbeidsmiljø",
   };
   return labels[category] || category;

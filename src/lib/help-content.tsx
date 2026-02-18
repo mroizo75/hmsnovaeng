@@ -90,6 +90,19 @@ export const helpContent: Record<string, HelpContent> = {
           "Risikostyring handler om å identifisere hva som kan gå galt, vurdere hvor alvorlig det kan være, og sette inn tiltak for å forebygge eller redusere konsekvensene. Dette gjelder alt fra arbeidsulykker til miljøskader og forretningsrisiko.",
       },
       {
+        heading: "Skal tiltak i en risikovurdering lukkes?",
+        emoji: "1️⃣",
+        content:
+          "Ja. Tiltak som opprettes i en risikovurdering skal følges opp og lukkes når de er gjennomført og verifisert (ISO 45001 kap. 6.1 og 8.1, ISO 9001 kap. 6.1). Kravet er: Identifiser risiko → vurder risiko → planlegg tiltak → gjennomfør tiltak → evaluer effekt. Hvis tiltak ikke lukkes, kan du ikke dokumentere at risikoen er redusert.",
+        items: [
+          {
+            title: "Riktig praksis i HMS Nova",
+            description:
+              "1) Risiko registreres. 2) Tiltak opprettes med ansvarlig og frist. 3) Tiltaket gjennomføres. 4) Risiko revurderes. 5) Tiltaket settes til lukket. 6) Effekt dokumenteres. Tiltaket lukkes – selve risikovurderingen lukkes ikke, den revideres.",
+          },
+        ],
+      },
+      {
         heading: "Hvorfor er det viktig?",
         emoji: "🛡️",
         items: [
@@ -137,7 +150,29 @@ export const helpContent: Record<string, HelpContent> = {
           {
             title: "4. Oppfølging",
             description:
-              "Sjekk at tiltakene fungerer og at restrisikoen er akseptabel. Revurder årlig eller ved endringer.",
+              "Sjekk at tiltakene fungerer og at restrisikoen er akseptabel. Revurder årlig eller ved endringer. Lukk tiltak når de er gjennomført.",
+          },
+        ],
+      },
+      {
+        heading: "Hva skal lukkes – og hva skal ikke?",
+        emoji: "3️⃣",
+        items: [
+          {
+            title: "Tiltak i risikovurdering",
+            description: "✅ Ja – når gjennomført og kontrollert.",
+          },
+          {
+            title: "Avvik",
+            description: "✅ Ja – etter korrigerende tiltak og verifisering.",
+          },
+          {
+            title: "Risikovurdering",
+            description: "❌ Nei – den revideres, ikke lukkes.",
+          },
+          {
+            title: "Systemdokumenter",
+            description: "❌ Nei – de versjonstyres.",
           },
         ],
       },
@@ -153,8 +188,9 @@ export const helpContent: Record<string, HelpContent> = {
       "Involver de ansatte – de kjenner best til farene i sitt arbeid",
       "Bruk vernerunder, HMS-møter og inspeksjoner for å identifisere risikoer",
       "Dokumenter både risikoene og tiltakene grundig",
-      "Følg HMS-hierarkiet: Eliminere → Erstatte → Teknisk tiltak → Organisatorisk tiltak → Verneutstyr",
-      "Revurder risikoene ved endringer: ny prosess, nytt utstyr, nye ansatte",
+      "Lukk tiltak når de er gjennomført – ellers kan du ikke dokumentere redusert risiko",
+      "Revurder risikoen etter tiltak – fyll ut restrisiko (S×K etter tiltak)",
+      "ISO PDCA: Risiko = Plan, Tiltak = Do, Kontroll = Check, Forbedring = Act",
     ],
   },
 
@@ -246,6 +282,19 @@ export const helpContent: Record<string, HelpContent> = {
           "En hendelse er en uønsket eller uventet hendelse som har, eller kunne ha ført til skade på personer, miljø, materiell eller omdømme. Dette inkluderer ulykker, nestenulykker, miljøhendelser og avvik fra prosedyrer.",
       },
       {
+        heading: "Skal avvik lukkes?",
+        emoji: "2️⃣",
+        content:
+          "Ja – avvik skal lukkes. Et avvik skal: 1) Registreres. 2) Vurderes. 3) Årsaksanalyseres (ved behov). 4) Få korrigerende tiltak. 5) Tiltak gjennomføres. 6) Effekt verifiseres. 7) Avviket lukkes. Dette er eksplisitt krav i ISO 9001 kap. 10.2 og ISO 45001 kap. 10.2. Hvis avvik ikke lukkes, vil en revisor stille spørsmålet: Hvordan vet dere at problemet faktisk er løst? Et åpent avvik betyr at systemet ikke fungerer.",
+        items: [
+          {
+            title: "For revisjonssterkt system i HMS Nova",
+            description:
+              "Status: Åpen → Under utredning → Tiltak iverksatt → Lukket. Sjekk: Årsak vurdert? Tiltak opprettet? Effekt verifisert? Lukk med dato og hvem godkjente. Dette er det Arbeidstilsynet og ISO-revisor ser etter.",
+          },
+        ],
+      },
+      {
         heading: "Hvorfor registrere hendelser?",
         emoji: "📋",
         items: [
@@ -272,7 +321,7 @@ export const helpContent: Record<string, HelpContent> = {
         ],
       },
       {
-        heading: "Slik håndterer du hendelser",
+        heading: "Slik håndterer du avvik (ISO 10.2)",
         emoji: "🔧",
         items: [
           {
@@ -281,19 +330,41 @@ export const helpContent: Record<string, HelpContent> = {
               "Meld hendelsen så snart som mulig. Jo raskere, jo bedre kvalitet på informasjonen.",
           },
           {
-            title: "2. Undersøk grundig",
+            title: "2. Undersøk og årsaksanalyser",
             description:
               "Gjennomfør granskning for å finne grunnårsaker, ikke bare symptomer. Bruk f.eks. 5 Why eller Fishbone.",
           },
           {
             title: "3. Iverksett tiltak",
             description:
-              "Registrer konkrete tiltak med ansvarlig person og frist. Følg opp til lukket.",
+              "Registrer konkrete tiltak med ansvarlig person og frist. Følg opp til alle tiltak er fullført.",
           },
           {
-            title: "4. Del læring",
+            title: "4. Lukk avviket",
             description:
-              "Informer berørte ansatte om hendelsen og tiltakene. Bruk det i opplæring.",
+              "Når tiltak er gjennomført og effekt er verifisert: Lukk avviket. Dokumenter effektivitetsvurdering og hvem som godkjente lukking.",
+          },
+        ],
+      },
+      {
+        heading: "Hva skal lukkes – og hva skal ikke?",
+        emoji: "3️⃣",
+        items: [
+          {
+            title: "Tiltak i risikovurdering",
+            description: "✅ Ja – når gjennomført og kontrollert.",
+          },
+          {
+            title: "Avvik",
+            description: "✅ Ja – etter korrigerende tiltak og verifisering.",
+          },
+          {
+            title: "Risikovurdering",
+            description: "❌ Nei – den revideres, ikke lukkes.",
+          },
+          {
+            title: "Systemdokumenter",
+            description: "❌ Nei – de versjonstyres.",
           },
         ],
       },
@@ -305,11 +376,11 @@ export const helpContent: Record<string, HelpContent> = {
       "ISO 27001 (IT-sikkerhet): Krav 16 - Håndtering av informasjonssikkerhetshendelser",
     ],
     tips: [
-      "Skapa en kultur hvor det er trygt å melde hendelser",
+      "Skap en kultur hvor det er trygt å melde hendelser",
       "Fokuser på systemfeil, ikke personlig skyld",
-      "Bruk hendelsesdata i ledelsens gjennomgåelse",
-      "Sett opp varsling ved kritiske hendelser",
-      "Følg opp tiltak systematisk og lukk hendelser når ferdig",
+      "Lukk avvik når tiltak er gjennomført og effekt er verifisert",
+      "Et åpent avvik = systemet fungerer ikke – revisor vil stille spørsmål",
+      "ISO PDCA: Hvis du ikke lukker avvik og tiltak, stopper syklusen.",
     ],
   },
 
@@ -324,6 +395,19 @@ export const helpContent: Record<string, HelpContent> = {
           "Tiltak er konkrete handlinger for å løse avvik, redusere risikoer eller forbedre prosesser. De kan være korrigerende (rette opp feil) eller forebyggende (hindre at noe skjer).",
       },
       {
+        heading: "Skal tiltak lukkes?",
+        emoji: "1️⃣",
+        content:
+          "Ja. Tiltak skal lukkes når de er gjennomført og verifisert. ISO 45001 kap. 6.1 og 8.1, ISO 9001 kap. 6.1. Hvis tiltak ikke lukkes, kan du ikke dokumentere at risikoen er redusert eller at avviket er løst. I HMS Nova: marker tiltak som fullført, dokumenter effekt, og lukk – da støtter du PDCA-syklusen (Plan–Do–Check–Act) som ISO bygger på.",
+        items: [
+          {
+            title: "Hva skal lukkes – og hva skal ikke?",
+            description:
+              "Tiltak: ✅ Ja. Avvik: ✅ Ja. Risikovurdering: ❌ Nei (revideres). Systemdokumenter: ❌ Nei (versjonstyres).",
+          },
+        ],
+      },
+      {
         heading: "Hvorfor systematisere tiltak?",
         emoji: "🎯",
         items: [
@@ -335,7 +419,7 @@ export const helpContent: Record<string, HelpContent> = {
           {
             title: "Sporbarhet",
             description:
-              "Du kan bevise at tiltak er iverksatt og evaluert.",
+              "Du kan bevise at tiltak er iverksatt, evaluert og lukket.",
           },
           {
             title: "ISO-krav",
@@ -369,9 +453,9 @@ export const helpContent: Record<string, HelpContent> = {
               "Merk høyprioriterte tiltak og fokuser på dem først.",
           },
           {
-            title: "4. Evaluer effekt",
+            title: "4. Lukk når fullført",
             description:
-              "Når tiltaket er gjennomført: fungerte det? Er problemet løst?",
+              "Når tiltaket er gjennomført: fungerte det? Er problemet løst? Marker som fullført og dokumenter effekt. Lukk tiltaket.",
           },
         ],
       },
@@ -1616,6 +1700,27 @@ export const helpContent: Record<string, HelpContent> = {
         ],
       },
       {
+        heading: "Import av brukere",
+        emoji: "📥",
+        items: [
+          {
+            title: "1. Last ned Excel-eksempel",
+            description:
+              "Klikk «Last ned Excel-eksempel» for å få en ferdig mal med kolonnene email, navn og rolle.",
+          },
+          {
+            title: "2. Fyll ut og importer",
+            description:
+              "Bruk Excel (.xlsx) eller CSV. Gyldige roller: ANSATT, LEDER, HMS, VERNEOMBUD, BHT, REVISOR, ADMIN. Brukere legges til uten invitasjon.",
+          },
+          {
+            title: "3. Aktiver alle",
+            description:
+              "Etter import: Klikk «Aktiver alle» for å sende invitasjon med passord til alle importerte brukere på én gang, eller aktiver en og en under Handlinger.",
+          },
+        ],
+      },
+      {
         heading: "Best practices",
         emoji: "💡",
         items: [
@@ -1648,6 +1753,7 @@ export const helpContent: Record<string, HelpContent> = {
       "GDPR: Krav om tilgangsstyring og logging",
     ],
     tips: [
+      "Bruk «Aktiver alle» etter import for å sende invitasjoner til mange brukere samtidig",
       "Dokumenter hvem som har hvilke roller og hvorfor",
       "Logg alle administrative endringer for sporbarhet",
       "Test varslingsfunksjonen for å sikre at e-poster kommer fram",

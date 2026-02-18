@@ -79,6 +79,9 @@ export default async function AnsattFillFormPage({ params }: { params: Promise<{
     redirect("/ansatt/skjemaer");
   }
 
+  const isAnonymous =
+    form.category === "WELLBEING" || form.allowAnonymousResponses;
+
   return (
     <FormFiller
       form={{
@@ -96,6 +99,7 @@ export default async function AnsattFillFormPage({ params }: { params: Promise<{
           isRequired: field.isRequired,
           options: field.options ? JSON.parse(field.options) : undefined,
         })),
+        isAnonymous,
       }}
       userId={session.user.id}
       tenantId={session.user.tenantId}

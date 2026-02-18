@@ -34,6 +34,7 @@ import {
   Sparkles,
   Zap,
   ListChecks,
+  Clock,
 } from "lucide-react";
 import { usePermissions } from "@/hooks/use-permissions";
 import { getRoleDisplayName } from "@/lib/permissions";
@@ -67,6 +68,7 @@ const navItems = [
   { href: "/dashboard/management-reviews", label: "nav.managementReviews", icon: FileBarChart, permission: "managementReviews" as const, simple: false },
   { href: "/dashboard/annual-hms-plan", label: "nav.annualHmsPlan", icon: ListChecks, permission: "annualHmsPlan" as const, simple: true },
   { href: "/dashboard/meetings", label: "nav.meetings", icon: Calendar, permission: "meetings" as const, simple: false },
+  { href: "/dashboard/time-registration", label: "nav.timeRegistration", icon: Clock, permission: "timeRegistration" as const, simple: true },
   { href: "/dashboard/whistleblowing", label: "nav.whistleblowing", icon: Shield, permission: "whistleblowing" as const, simple: false },
   { href: "/dashboard/goals", label: "nav.goals", icon: Target, permission: "goals" as const, simple: false },
   

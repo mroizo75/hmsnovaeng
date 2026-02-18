@@ -42,6 +42,7 @@ export function usePermissions() {
         goals: false,
         security: false,
         settings: false,
+        timeRegistration: false,
       },
     };
   }

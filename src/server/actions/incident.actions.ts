@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/db";
+import { generateSequenceNumber } from "@/lib/sequence";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import {
@@ -166,10 +167,17 @@ export async function createIncident(input: any) {
     customerSatisfaction: parseOptionalNumber(input.customerSatisfaction),
     };
     const validated = createIncidentSchema.parse(normalizedInput);
-    
+
+    const avviksnummer = await generateSequenceNumber(
+      validated.tenantId,
+      "AVVIK",
+      new Date(validated.occurredAt).getFullYear()
+    );
+
     const incident = await prisma.incident.create({
       data: {
         tenantId: validated.tenantId,
+        avviksnummer,
         type: validated.type,
         title: validated.title,
         description: validated.description,

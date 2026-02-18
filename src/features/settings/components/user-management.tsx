@@ -37,9 +37,10 @@ import {
   removeUserFromTenant,
   importUsersFromFile,
   activateUserInTenant,
+  activateAllPendingUsers,
 } from "@/server/actions/settings.actions";
 import { useToast } from "@/hooks/use-toast";
-import { Upload, FileSpreadsheet, Send } from "lucide-react";
+import { Upload, FileSpreadsheet, Send, HelpCircle } from "lucide-react";
 
 interface UserManagementProps {
   users: Array<{
@@ -68,6 +69,11 @@ export function UserManagement({ users, currentUserId, isAdmin, pricingTier, max
   const [importLoading, setImportLoading] = useState(false);
   const [importFile, setImportFile] = useState<File | null>(null);
   const [activatingUserId, setActivatingUserId] = useState<string | null>(null);
+  const [activatingAll, setActivatingAll] = useState(false);
+
+  const pendingActivationCount = users.filter(
+    (u) => !u.invitationSentAt && u.userId !== currentUserId
+  ).length;
 
   const currentUserCount = users.length;
   const remainingSlots = maxUsers - currentUserCount;
@@ -229,6 +235,38 @@ export function UserManagement({ users, currentUserId, isAdmin, pricingTier, max
     }
   };
 
+  const handleActivateAll = async () => {
+    if (pendingActivationCount === 0) return;
+    if (
+      !confirm(
+        `Aktiver ${pendingActivationCount} bruker${pendingActivationCount === 1 ? "" : "e"}? Invitasjon med passord sendes til alle på e-post.`
+      )
+    ) {
+      return;
+    }
+    setActivatingAll(true);
+    const result = await activateAllPendingUsers();
+    setActivatingAll(false);
+    if (result.success) {
+      const msg =
+        result.failed > 0
+          ? `${result.activated} aktivert, ${result.failed} feilet.${result.errors.length > 0 ? ` ${result.errors[0]}` : ""}`
+          : `${result.activated} brukere aktivert – invitasjon sendt på e-post.`;
+      toast({
+        title: "Aktivering fullført",
+        description: msg,
+        className: "bg-green-50 border-green-200",
+      });
+      router.refresh();
+    } else {
+      toast({
+        variant: "destructive",
+        title: "Kunne ikke aktivere",
+        description: "error" in result ? result.error : "Kunne ikke aktivere",
+      });
+    }
+  };
+
   const getRoleBadge = (role: string) => {
     switch (role) {
       case "ADMIN":
@@ -315,11 +353,26 @@ export function UserManagement({ users, currentUserId, isAdmin, pricingTier, max
                   </Button>
                   <a
                     href="/api/users/import-example"
+                    download="bruker-import-eksempel.xlsx"
                     className="text-xs text-muted-foreground hover:underline"
                   >
-                    Last ned eksempelfil
+                    Last ned Excel-eksempel
                   </a>
                 </div>
+
+                <details className="group rounded-md border bg-muted/20 px-3 py-2 text-sm">
+                  <summary className="flex cursor-pointer list-none items-center gap-2 font-medium text-muted-foreground hover:text-foreground [&::-webkit-details-marker]:hidden">
+                    <HelpCircle className="h-4 w-4" />
+                    Hvordan importere brukere?
+                  </summary>
+                  <div className="mt-3 space-y-2 border-t pt-3 text-muted-foreground">
+                    <p><strong>1. Last ned eksempelfil</strong> – Klikk «Last ned Excel-eksempel» for å få en ferdig mal.</p>
+                    <p><strong>2. Fyll ut Excel-filen</strong> – Bruk kolonnene <code className="rounded bg-muted px-1">email</code>, <code className="rounded bg-muted px-1">navn</code> og <code className="rounded bg-muted px-1">rolle</code>. Gyldige roller: ANSATT, LEDER, HMS, VERNEOMBUD, BHT, REVISOR, ADMIN.</p>
+                    <p><strong>3. Importer filen</strong> – Velg din fil og klikk «Importer». Brukere legges til uten invitasjon.</p>
+                    <p><strong>4. Aktiver brukere</strong> – Klikk «Aktiver alle» for å sende invitasjon med passord til alle importerte brukere, eller aktiver en og en under Handlinger.</p>
+                    <p className="text-xs pt-1">Støtter både .csv og .xlsx (Excel). Maks 500 brukere per import, filstørrelse inntil 2 MB.</p>
+                  </div>
+                </details>
                 <Dialog open={inviteOpen} onOpenChange={setInviteOpen}>
                 <DialogTrigger asChild>
                   <Button disabled={hasReachedLimit && maxUsers !== 999}>
@@ -398,6 +451,23 @@ export function UserManagement({ users, currentUserId, isAdmin, pricingTier, max
           )}
       </CardHeader>
       <CardContent>
+        {pendingActivationCount > 0 && isAdmin && (
+          <div className="mb-4 flex items-center justify-between rounded-lg border border-amber-200 bg-amber-50 px-4 py-3">
+            <p className="text-sm text-amber-800">
+              {pendingActivationCount} bruker{pendingActivationCount === 1 ? "" : "e"} venter på aktivering (invitasjon med passord)
+            </p>
+            <Button
+              variant="default"
+              size="sm"
+              onClick={handleActivateAll}
+              disabled={activatingAll}
+            >
+              <Send className="mr-2 h-4 w-4" />
+              {activatingAll ? "Aktiverer..." : "Aktiver alle"}
+            </Button>
+          </div>
+        )}
+
         {users.length === 0 ? (
           <div className="text-center text-muted-foreground py-8">
             Ingen brukere funnet

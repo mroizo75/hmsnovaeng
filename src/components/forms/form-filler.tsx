@@ -12,7 +12,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { SignaturePad } from "./signature-pad";
-import { ArrowLeft, Send, Save, Upload } from "lucide-react";
+import { ArrowLeft, Send, Save, ShieldCheck } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
 
@@ -34,6 +34,7 @@ interface FormFillerProps {
     requiresSignature: boolean;
     requiresApproval: boolean;
     fields: FormField[];
+    isAnonymous?: boolean;
   };
   userId: string;
   tenantId: string;
@@ -41,6 +42,7 @@ interface FormFillerProps {
 }
 
 export function FormFiller({ form, userId, tenantId, returnUrl = "/dashboard/forms" }: FormFillerProps) {
+  const isAnonymous = form.isAnonymous ?? false;
   const router = useRouter();
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -113,7 +115,9 @@ export function FormFiller({ form, userId, tenantId, returnUrl = "/dashboard/for
       const formData = new FormData();
       formData.append("formId", form.id);
       formData.append("tenantId", tenantId);
-      formData.append("userId", userId);
+      if (!isAnonymous) {
+        formData.append("userId", userId);
+      }
       formData.append("status", status);
       formData.append("values", JSON.stringify(formValues));
       if (signature) {
@@ -165,13 +169,31 @@ export function FormFiller({ form, userId, tenantId, returnUrl = "/dashboard/for
             <ArrowLeft className="h-5 w-5" />
           </Button>
         </Link>
-        <div>
+        <div className="flex-1">
           <h1 className="text-3xl font-bold">{form.title}</h1>
           {form.description && (
             <p className="text-muted-foreground mt-1">{form.description}</p>
           )}
         </div>
       </div>
+
+      {isAnonymous && (
+        <Card className="border-green-200 bg-green-50 dark:bg-green-950/30 dark:border-green-800">
+          <CardContent className="pt-4">
+            <div className="flex items-start gap-3">
+              <ShieldCheck className="h-5 w-5 text-green-600 shrink-0 mt-0.5" />
+              <div>
+                <p className="font-medium text-green-800 dark:text-green-200">
+                  Anonym kartlegging
+                </p>
+                <p className="text-sm text-green-700 dark:text-green-300 mt-0.5">
+                  Dine svar lagres anonymt. Ingen kan se hvem som har svart. Dette sikrer trygghet og ærlige svar i tråd med arbeidsmiljøloven.
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Form fields */}

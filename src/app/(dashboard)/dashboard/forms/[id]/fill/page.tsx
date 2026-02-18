@@ -49,6 +49,9 @@ export default async function FillFormPage({ params }: { params: Promise<{ id: s
     }
   }
 
+  const isAnonymous =
+    form.category === "WELLBEING" || form.allowAnonymousResponses;
+
   return (
     <FormFiller
       form={{
@@ -66,6 +69,7 @@ export default async function FillFormPage({ params }: { params: Promise<{ id: s
           isRequired: field.isRequired,
           options: field.options ? JSON.parse(field.options) : undefined,
         })),
+        isAnonymous,
       }}
       userId={session.user.id}
       tenantId={session.user.tenantId}

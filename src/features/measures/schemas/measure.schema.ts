@@ -1,5 +1,10 @@
 import { z } from "zod";
-import { ActionEffectiveness, ActionStatus, ControlFrequency, MeasureCategory } from "@prisma/client";
+import {
+  ActionEffectiveness,
+  ActionStatus,
+  ControlFrequency,
+  MeasureCategory,
+} from "@prisma/client";
 
 /**
  * ISO 9001 Compliance:
@@ -17,7 +22,10 @@ export const createMeasureSchema = z.object({
   auditId: z.string().cuid().optional(),
   goalId: z.string().cuid().optional(),
   title: z.string().min(3, "Tittel må være minst 3 tegn"),
-  description: z.string().min(10, "Beskrivelse må være minst 10 tegn").optional(),
+  description: z.preprocess(
+    (v) => (v === "" || v == null ? undefined : v),
+    z.string().min(10, "Beskrivelse må være minst 10 tegn").optional()
+  ),
   dueAt: z.date(),
   responsibleId: z.string().cuid({ message: "Ansvarlig person må velges" }),
   status: z.nativeEnum(ActionStatus).default("PENDING"),
@@ -30,7 +38,10 @@ export const createMeasureSchema = z.object({
 export const updateMeasureSchema = z.object({
   id: z.string().cuid(),
   title: z.string().min(3).optional(),
-  description: z.string().min(10).optional(),
+  description: z.preprocess(
+    (v) => (v === "" || v == null ? undefined : v),
+    z.string().min(1).optional()
+  ),
   dueAt: z.date().optional(),
   responsibleId: z.string().cuid().optional(),
   status: z.nativeEnum(ActionStatus).optional(),
@@ -38,6 +49,9 @@ export const updateMeasureSchema = z.object({
   followUpFrequency: z.nativeEnum(ControlFrequency).optional(),
   costEstimate: z.number().int().min(0).optional(),
   benefitEstimate: z.number().int().min(0).optional(),
+  completedAt: z.date().optional(),
+  effectiveness: z.nativeEnum(ActionEffectiveness).optional(),
+  effectivenessNote: z.string().optional(),
 });
 
 export const completeMeasureSchema = z.object({

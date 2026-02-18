@@ -2,6 +2,7 @@ import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/db";
+import { getIncidentStatusLabel } from "@/features/incidents/schemas/incident.schema";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -121,7 +122,7 @@ export default async function AnsattAvvik() {
         <CardContent className="p-4">
           <p className="text-sm text-blue-900">
             <strong>💡 Tips:</strong> Du kan se status på dine rapporter her. 
-            HMS-ansvarlig vil behandle avviket og du får beskjed når det er lukket.
+            HMS-ansvarlig vil behandle avviket. Avvik skal lukkes når tiltak er gjennomført og effekt er verifisert (ISO 9001/45001 kap. 10.2). Du får beskjed når avviket er lukket.
           </p>
         </CardContent>
       </Card>
@@ -185,7 +186,7 @@ export default async function AnsattAvvik() {
                   default:
                     statusBadge = (
                       <Badge variant="outline" className="bg-gray-50 text-gray-700 border-gray-300">
-                        📋 {incident.status}
+                        📋 {getIncidentStatusLabel(incident.status)}
                       </Badge>
                     );
                 }

@@ -141,7 +141,7 @@ export default async function EditRiskPage({ params }: { params: Promise<{ id: s
         goalOptions={goals}
         templateOptions={inspectionTemplates}
         slotBetweenRisikonivaAndResidual={
-          <Card>
+          <Card id="tiltak">
             <CardHeader>
               <div className="flex items-center justify-between">
                 <div>

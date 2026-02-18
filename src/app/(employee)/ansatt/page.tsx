@@ -2,7 +2,7 @@ import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import Link from "next/link";
-import { FileText, AlertCircle, Beaker, GraduationCap, Shield, Bell, ClipboardList, ShieldAlert } from "lucide-react";
+import { FileText, AlertCircle, Beaker, GraduationCap, Shield, Bell, ClipboardList, ShieldAlert, Clock } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { prisma } from "@/lib/db";
@@ -14,13 +14,14 @@ export default async function AnsattDashboard() {
     redirect("/login");
   }
 
-  // Hent tenant settings for HMS-kontakt
+  // Hent tenant settings for HMS-kontakt og timeregistrering
   const tenant = await prisma.tenant.findUnique({
     where: { id: session.user.tenantId },
     select: {
       hmsContactName: true,
       hmsContactPhone: true,
       hmsContactEmail: true,
+      timeRegistrationEnabled: true,
     },
   });
 
@@ -155,6 +156,23 @@ export default async function AnsattDashboard() {
             </CardContent>
           </Card>
         </Link>
+
+        {/* Timeføring - kun når aktivert for bedriften */}
+        {tenant?.timeRegistrationEnabled && (
+          <Link href="/ansatt/timeregistrering">
+            <Card className="h-full hover:shadow-lg transition-shadow cursor-pointer border-2 hover:border-primary">
+              <CardContent className="flex flex-col items-center justify-center p-6 text-center">
+                <div className="h-16 w-16 rounded-full bg-emerald-100 flex items-center justify-center mb-3">
+                  <Clock className="h-8 w-8 text-emerald-600" />
+                </div>
+                <h3 className="font-semibold text-lg mb-1">Timeføring</h3>
+                <p className="text-xs text-muted-foreground">
+                  Timer og km godtgjørelse
+                </p>
+              </CardContent>
+            </Card>
+          </Link>
+        )}
       </div>
 
       {/* Mine oppgaver */}

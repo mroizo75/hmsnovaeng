@@ -3,6 +3,10 @@ import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { getStorage, generateFileKey } from "@/lib/storage";
+import {
+  generateSequenceNumber,
+  getFormSequenceType,
+} from "@/lib/sequence";
 import { notifyUsersByRole } from "@/server/actions/notification.actions";
 import { analyzeWellbeingSubmission } from "@/server/actions/wellbeing.actions";
 
@@ -35,12 +39,24 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Form not found" }, { status: 404 });
     }
 
+    const sequenceType = getFormSequenceType(form.numberPrefix ?? null);
+    const submissionNumber = await generateSequenceNumber(
+      tenantId,
+      sequenceType,
+      new Date().getFullYear()
+    );
+
+    // Anonyme svar for psykososiale skjemaer (ISO 45003, AML § 4-3)
+    const isAnonymous =
+      form.category === "WELLBEING" || form.allowAnonymousResponses;
+
     // Opprett submission
     const submission = await prisma.formSubmission.create({
       data: {
         formTemplateId: formId,
         tenantId,
-        submittedById: userId,
+        submissionNumber,
+        submittedById: isAnonymous ? null : userId,
         status: status as "DRAFT" | "SUBMITTED" | "APPROVED" | "REJECTED",
         signedAt: signature ? new Date() : null,
         metadata: signature ? JSON.stringify({ signatureData: signature }) : null,

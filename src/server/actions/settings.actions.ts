@@ -617,7 +617,97 @@ export async function activateUserInTenant(userId: string): Promise<{ success: t
     return { success: true };
   } catch (error: any) {
     console.error("Activate user error:", error);
-    return { success: false, error: error.message ?? "Kunne ikke aktivere bruker" };
+    return { success: false, error: error.message || "Kunne ikke aktivere bruker" };
+  }
+}
+
+export type ActivateAllResult =
+  | { success: true; activated: number; failed: number; errors: string[] }
+  | { success: false; error: string };
+
+export async function activateAllPendingUsers(): Promise<ActivateAllResult> {
+  try {
+    const { user, tenantId } = await getSessionContext();
+
+    const adminTenant = user.tenants.find((t) => t.tenantId === tenantId);
+    if (!adminTenant || adminTenant.role !== "ADMIN") {
+      return { success: false, error: "Kun administratorer kan aktivere brukere" };
+    }
+
+    const pending = await prisma.userTenant.findMany({
+      where: {
+        tenantId,
+        invitationSentAt: null,
+        userId: { not: user.id },
+      },
+      include: {
+        user: { select: { id: true, email: true, name: true } },
+      },
+    });
+
+    if (pending.length === 0) {
+      return { success: false, error: "Ingen brukere å aktivere. Alle importerte brukere er allerede aktiverte." };
+    }
+
+    const tenant = await prisma.tenant.findUnique({
+      where: { id: tenantId },
+      select: { name: true },
+    });
+    const tenantName = tenant?.name ?? "Bedrift";
+
+    const generateSecurePassword = () => {
+      const charset = "abcdefghijklmnopqrstuvwxyz0123456789";
+      let password = "";
+      for (let i = 0; i < 16; i++) {
+        password += charset.charAt(Math.floor(Math.random() * charset.length));
+      }
+      return password;
+    };
+
+    let activated = 0;
+    let failed = 0;
+    const errors: string[] = [];
+    const { sendUserInvitationEmail } = await import("@/lib/email-service");
+
+    for (const ut of pending) {
+      try {
+        const tempPassword = generateSecurePassword();
+        const hashedPassword = await bcrypt.hash(tempPassword, 10);
+
+        await prisma.user.update({
+          where: { id: ut.userId },
+          data: { password: hashedPassword },
+        });
+
+        await prisma.userTenant.update({
+          where: { id: ut.id },
+          data: { invitationSentAt: new Date() },
+        });
+
+        await sendUserInvitationEmail({
+          to: ut.user.email,
+          userName: ut.user.name ?? ut.user.email,
+          userEmail: ut.user.email,
+          tempPassword,
+          companyName: tenantName,
+          invitedByName: user.name || user.email,
+        });
+
+        await AuditLog.log(tenantId, user.id, "USER_ACTIVATED", "User", ut.userId, {
+          email: ut.user.email,
+        });
+        activated++;
+      } catch (err) {
+        failed++;
+        errors.push(`${ut.user.email}: ${err instanceof Error ? err.message : "Ukjent feil"}`);
+      }
+    }
+
+    revalidatePath("/dashboard/settings");
+    return { success: true, activated, failed, errors };
+  } catch (error: any) {
+    console.error("Activate all users error:", error);
+    return { success: false, error: error.message ?? "Kunne ikke aktivere brukere" };
   }
 }
 

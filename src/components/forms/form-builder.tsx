@@ -47,13 +47,15 @@ export interface FormField {
 
 interface FormBuilderProps {
   tenantId: string;
-  initialData?: {
+    initialData?: {
     id?: string;
     title?: string;
     description?: string;
     category?: string;
+    numberPrefix?: string;
     requiresSignature?: boolean;
     requiresApproval?: boolean;
+    allowAnonymousResponses?: boolean;
     accessType?: string;
     allowedRoles?: string[];
     allowedUsers?: string[];
@@ -70,9 +72,13 @@ export function FormBuilder({ tenantId, initialData }: FormBuilderProps) {
   const [title, setTitle] = useState(initialData?.title || "");
   const [description, setDescription] = useState(initialData?.description || "");
   const [category, setCategory] = useState(initialData?.category || "CUSTOM");
+  const [numberPrefix, setNumberPrefix] = useState(initialData?.numberPrefix || "");
   const [requiresSignature, setRequiresSignature] = useState(initialData?.requiresSignature ?? true);
   const [requiresApproval, setRequiresApproval] = useState(initialData?.requiresApproval ?? false);
-  
+  const [allowAnonymousResponses, setAllowAnonymousResponses] = useState(
+    initialData?.allowAnonymousResponses ?? initialData?.category === "WELLBEING"
+  );
+
   // Access control
   const [accessType, setAccessType] = useState(initialData?.accessType || "ALL");
   const [allowedRoles, setAllowedRoles] = useState<string[]>(initialData?.allowedRoles || []);
@@ -189,8 +195,10 @@ export function FormBuilder({ tenantId, initialData }: FormBuilderProps) {
           title,
           description,
           category,
+          numberPrefix: numberPrefix.trim() || null,
           requiresSignature,
           requiresApproval,
+          allowAnonymousResponses: category === "WELLBEING" ? allowAnonymousResponses : false,
           accessType,
           allowedRoles: accessType === "ROLES" || accessType === "ROLES_AND_USERS" ? allowedRoles : null,
           allowedUsers: accessType === "USERS" || accessType === "ROLES_AND_USERS" ? allowedUsers : null,
@@ -337,6 +345,20 @@ export function FormBuilder({ tenantId, initialData }: FormBuilderProps) {
         <Card className="p-6">
           <div className="space-y-6">
             <div>
+              <Label htmlFor="numberPrefix">Referansenummer-prefix</Label>
+              <Input
+                id="numberPrefix"
+                value={numberPrefix}
+                onChange={(e) => setNumberPrefix(e.target.value)}
+                placeholder="F.eks. RUH for Rapportering Uhell"
+                className="mt-2 max-w-xs"
+              />
+              <p className="text-sm text-muted-foreground mt-1">
+                Innsendte skjemaer får autogenerert nummer (f.eks. RUH-2025-001). Tom = SKJ.
+              </p>
+            </div>
+
+            <div>
               <Label>Kategori</Label>
               <Select value={category} onValueChange={setCategory}>
                 <SelectTrigger className="mt-2">
@@ -350,6 +372,7 @@ export function FormBuilder({ tenantId, initialData }: FormBuilderProps) {
                   <SelectItem value="RISK">Risikovurdering</SelectItem>
                   <SelectItem value="TRAINING">Opplæring</SelectItem>
                   <SelectItem value="CHECKLIST">Sjekkliste</SelectItem>
+                  <SelectItem value="TIMESHEET">Timeliste (regnskap)</SelectItem>
                   <SelectItem value="WELLBEING">Psykososial puls (ISO 45003)</SelectItem>
                   <SelectItem value="BCM">Beredskap (ISO 22301)</SelectItem>
                   <SelectItem value="COMPLAINT">Kundeklage (ISO 10002)</SelectItem>
@@ -361,6 +384,22 @@ export function FormBuilder({ tenantId, initialData }: FormBuilderProps) {
                 </p>
               )}
             </div>
+
+            {category === "WELLBEING" && (
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id="allowAnonymousResponses"
+                  checked={allowAnonymousResponses}
+                  onCheckedChange={(checked) => setAllowAnonymousResponses(!!checked)}
+                />
+                <div>
+                  <Label htmlFor="allowAnonymousResponses">Anonyme svar</Label>
+                  <p className="text-sm text-muted-foreground">
+                    Svarene lagres anonymt. Anbefalt for psykososial kartlegging (ISO 45003, AML § 4-3).
+                  </p>
+                </div>
+              </div>
+            )}
 
             <div className="flex items-center space-x-2">
               <Checkbox

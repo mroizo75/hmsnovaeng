@@ -21,6 +21,7 @@ interface Measure {
 }
 
 interface IncidentData {
+  avviksnummer?: string | null;
   title: string;
   type: string;
   severity: string;
@@ -117,7 +118,14 @@ export function IncidentPDFExport({ incident, typeLabel, severityLabel, statusLa
       doc.setFontSize(20);
       doc.setFont("helvetica", "bold");
       doc.text("Avviksrapport", margin, yPos);
-      yPos += 10;
+      yPos += 6;
+      if (incident.avviksnummer) {
+        doc.setFontSize(11);
+        doc.setFont("helvetica", "normal");
+        doc.text(`Avviksnummer: ${incident.avviksnummer}`, margin, yPos);
+        yPos += 4;
+      }
+      yPos += 4;
 
       // Metadata badges
       doc.setFontSize(10);
