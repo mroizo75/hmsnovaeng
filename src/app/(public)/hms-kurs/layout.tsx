@@ -5,7 +5,6 @@ import {
   getTwitterDefaults,
   getCanonicalUrl,
   ROBOTS_CONFIG,
-  SITE_CONFIG,
 } from "@/lib/seo-config";
 
 export const metadata: Metadata = {
@@ -19,28 +18,15 @@ export const metadata: Metadata = {
     canonical: getCanonicalUrl("/hms-kurs"),
   },
   robots: ROBOTS_CONFIG,
-  openGraph: {
-    ...getOpenGraphDefaults(
-      PAGE_METADATA.kurs.title,
-      PAGE_METADATA.kurs.description,
-      "/hms-kurs"
-    ),
-    images: [
-      {
-        url: `${SITE_CONFIG.url}/og-image-kurs.png`,
-        width: 1200,
-        height: 630,
-        alt: "HMS Nova HMS-kurs og Førstehjelp",
-      },
-    ],
-  },
-  twitter: {
-    ...getTwitterDefaults(
-      PAGE_METADATA.kurs.title,
-      PAGE_METADATA.kurs.description
-    ),
-    images: [`${SITE_CONFIG.url}/og-image-kurs.png`],
-  },
+  openGraph: getOpenGraphDefaults(
+    PAGE_METADATA.kurs.title,
+    PAGE_METADATA.kurs.description,
+    "/hms-kurs"
+  ),
+  twitter: getTwitterDefaults(
+    PAGE_METADATA.kurs.title,
+    PAGE_METADATA.kurs.description
+  ),
 };
 
 export default function HMSKursLayout({

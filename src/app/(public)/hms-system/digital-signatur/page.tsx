@@ -8,7 +8,7 @@ import { FAQSection } from "@/components/faq-section";
 
 export const metadata: Metadata = {
   title: "Digital signatur - Elektronisk godkjenning av HMS-dokumenter | HMS Nova",
-  description: "✍️ Digital signatur inkludert i HMS Nova · Lovlig og bindende · Sign på mobil · Spar timer hver uke · Økt etterlevelse · ISO 9001 · Prøv gratis →",
+  description: "Digital signatur inkludert i HMS Nova. Lovlig og bindende, sign på mobil, spar timer hver uke. Økt etterlevelse og ISO 9001. Prøv gratis.",
   keywords: "digital signatur, elektronisk signatur, digital godkjenning, hms digital signatur, signere dokumenter digitalt",
 };
 

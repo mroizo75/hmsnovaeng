@@ -75,14 +75,17 @@ export const ORGANIZATION_SCHEMA = {
   name: SITE_CONFIG.name,
   slogan: SITE_CONFIG.tagline,
   url: SITE_CONFIG.url,
-  logo: `${SITE_CONFIG.url}/logo.png`,
+  logo: `${SITE_CONFIG.url}/opengraph-image`,
   description: SITE_CONFIG.description,
   telephone: SITE_CONFIG.contactPhone,
   email: SITE_CONFIG.contactEmail,
   address: {
     "@type": "PostalAddress",
+    streetAddress: "Baneveien 290",
+    addressLocality: "Sylling",
+    postalCode: "3410",
+    addressRegion: "Lier",
     addressCountry: "NO",
-    addressLocality: "Norge",
   },
   sameAs: [
     SITE_CONFIG.socialMedia.linkedin,
@@ -143,12 +146,6 @@ export const SOFTWARE_PRODUCT_SCHEMA = {
       unitText: "MONTH",
     },
   },
-  aggregateRating: {
-    "@type": "AggregateRating",
-    ratingValue: "4.9",
-    ratingCount: "500",
-    bestRating: "5",
-  },
   featureList: [
     "Digital signatur",
     "Risikovurdering 5x5 matrise",
@@ -163,8 +160,8 @@ export const SOFTWARE_PRODUCT_SCHEMA = {
     "Revisjoner og audits",
     "Mål og KPI-oppfølging",
   ],
-  description: "HMS Nova bygger trygghet. Norges mest moderne HMS-system med full ISO 9001 compliance, digital signatur og mobilapp. Trusted av 500+ norske bedrifter.",
-  screenshot: `${SITE_CONFIG.url}/screenshots/dashboard.png`,
+  description: "HMS Nova bygger trygghet. Norges mest moderne HMS-system med full ISO 9001 compliance, digital signatur og mobilapp.",
+  screenshot: `${SITE_CONFIG.url}/opengraph-image`,
 } as const;
 
 // FAQ Schema for bedre synlighet i søk
@@ -239,17 +236,17 @@ export const getBreadcrumbSchema = (items: Array<{ name: string; url: string }>)
 export const PAGE_METADATA = {
   home: {
     title: "HMS Nova - Norges Mest Moderne HMS-system | HMS Nova Bygger Trygghet",
-    description: "⚡ HMS Nova bygger trygghet · 300 kr/mnd · Ubegrenset brukere · Digital signatur inkludert · ISO 9001 støtte · 14 dagers gratis prøve · Prøv i dag!",
+    description: "HMS Nova bygger trygghet. 300 kr/mnd, ubegrenset brukere, digital signatur inkludert, ISO 9001-støtte og 14 dagers gratis prøve. Prøv i dag!",
     keywords: [...PRIMARY_KEYWORDS, ...SECONDARY_KEYWORDS.slice(0, 10)].join(", "),
   },
   priser: {
     title: "Priser - HMS Nova | 300 kr/mnd | Ingen Skjulte Kostnader",
-    description: "💰 Transparente priser: 300 kr/mnd (3 600 kr/år), 12 mnd abonnement · Ubegrenset brukere · Digital signatur inkludert · 0 kr oppstart · Se alle priser →",
+    description: "Transparente priser: 300 kr/mnd (3 600 kr/år) med 12 mnd abonnement. Ubegrenset brukere, digital signatur inkludert og 0 kr oppstart. Se alle priser.",
     keywords: "hms system pris, hms programvare kostnad, billig hms system, hms system alle bedrifter, beste hms system pris",
   },
   kurs: {
     title: "HMS-kurs - Lovpålagte Kurs & Førstehjelp | HMS Nova",
-    description: "🎓 20% rabatt på HMS-kurs for medlemmer · Verneombud · Førstehjelp · Diisocyanater · HMS Nova AS · Fysisk, digitalt eller hybrid · Bestill i dag!",
+    description: "20% rabatt på HMS-kurs for medlemmer. Verneombud, førstehjelp og diisocyanater. Fysisk, digitalt eller hybrid. Bestill kurs hos HMS Nova i dag.",
     keywords: "hms kurs, verneombud kurs, førstehjelp kurs, hms opplæring, lovpålagt hms kurs",
   },
   bht: {
@@ -264,27 +261,27 @@ export const PAGE_METADATA = {
   },
   handbook: {
     title: "HMS-håndbok - Digital & Oppdatert | HMS Nova",
-    description: "📚 Ferdig HMS-håndbok tilpasset din bedrift · Alltid oppdatert med lovkrav · Digital signatur · Versjonskontroll · Spar uker med arbeid · Prøv gratis →",
+    description: "Ferdig HMS-håndbok tilpasset din bedrift. Alltid oppdatert med lovkrav, digital signatur og versjonskontroll. Spar uker med arbeid. Prøv gratis.",
     keywords: "hms håndbok, digital hms håndbok, hms dokumentasjon, arbeidsmiljøhåndbok",
   },
   risikovurdering: {
     title: "Risikovurdering - 5x5 Matrise & Analyse | HMS Nova",
-    description: "📊 Profesjonell risikovurdering med 5x5 matrise (ISO 9001) · Enkelt å bruke · Automatisk oppfølging · Bestå revisjoner med glans · Prøv gratis i 14 dager →",
+    description: "Profesjonell risikovurdering med 5x5 matrise (ISO 9001). Enkelt å bruke med automatisk oppfølging. Bestå revisjoner med glans. Prøv gratis i 14 dager.",
     keywords: "risikovurdering, risikoanalyse, 5x5 matrise, risikostyring, hms risikovurdering",
   },
   vernerunde: {
     title: "Vernerunde-guide - Digital Vernerunde på Mobil | HMS Nova",
-    description: "📱 Digital vernerunde på mobil · Fungerer offline · Automatisk rapportering · Perfekt for byggeplasser · Spar timer hver uke · Prøv gratis →",
+    description: "Digital vernerunde på mobil som fungerer offline. Automatisk rapportering, perfekt for byggeplasser. Spar timer hver uke. Prøv gratis.",
     keywords: "vernerunde, digital vernerunde, vernerunde mal, sikkerhetsinspeksjon, bygningsvernerunde",
   },
   lover: {
     title: "HMS Lover & Regler - Arbeidsmiljøloven & ISO 9001 | HMS Nova",
-    description: "⚖️ Komplett oversikt over HMS-lover i Norge · Arbeidsmiljøloven · Internkontrollforskriften · ISO 9001 · Oppdatert 2026 · Les mer →",
+    description: "Komplett oversikt over HMS-lover i Norge. Arbeidsmiljøloven, internkontrollforskriften og ISO 9001. Oppdatert 2026. Les mer om dine plikter.",
     keywords: "arbeidsmiljøloven, internkontrollforskriften, iso 9001, hms lovverk, arbeidstilsynet regler",
   },
   iso: {
     title: "ISO 9001 Sjekkliste - Gratis Last Ned | HMS Nova",
-    description: "✅ Gratis ISO 9001 sjekkliste · Full compliance med kvalitetsstyringsstandarden · HMS Nova har innebygd ISO 9001-støtte · Last ned nå →",
+    description: "Gratis ISO 9001 sjekkliste for full compliance med kvalitetsstyringsstandarden. HMS Nova har innebygd ISO 9001-støtte. Last ned nå.",
     keywords: "iso 9001 sjekkliste, iso 9001 compliance, kvalitetsstyring, iso sertifisering",
   },
 } as const;
@@ -301,14 +298,6 @@ export const getOpenGraphDefaults = (
   siteName: SITE_CONFIG.name,
   locale: SITE_CONFIG.locale,
   type: "website" as const,
-  images: [
-    {
-      url: `${SITE_CONFIG.url}/og-image.png`,
-      width: 1200,
-      height: 630,
-      alt: `${SITE_CONFIG.name} - ${SITE_CONFIG.tagline}`,
-    },
-  ],
 });
 
 // Twitter Card defaults
@@ -316,7 +305,6 @@ export const getTwitterDefaults = (title: string, description: string) => ({
   card: "summary_large_image" as const,
   title,
   description,
-  images: [`${SITE_CONFIG.url}/og-image.png`],
   creator: "@hmsnova",
 });
 

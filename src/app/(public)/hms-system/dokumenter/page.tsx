@@ -8,7 +8,7 @@ import { FAQSection } from "@/components/faq-section";
 
 export const metadata: Metadata = {
   title: "Dokumenthåndtering - Sentral lagring av HMS-dokumenter | HMS Nova",
-  description: "📁 Digital dokumenthåndtering · Sentral lagring · Versjonshistorikk · Tilgangsstyring · Søk · ISO 9001 · Prøv gratis →",
+  description: "Digital dokumenthåndtering med sentral lagring, versjonshistorikk, tilgangsstyring og søk. ISO 9001-compliance. Prøv gratis.",
   keywords: "dokumenthåndtering, hms dokumenter, dokumentstyring, digital arkivering, versjonskontr oll",
 };
 

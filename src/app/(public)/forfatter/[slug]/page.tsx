@@ -31,7 +31,7 @@ export async function generateMetadata({
       type: "profile",
       images: [
         {
-          url: author.image || "/og-image.png",
+          url: author.image || "/opengraph-image",
           width: 400,
           height: 400,
           alt: author.name,

@@ -134,7 +134,7 @@ export function generateArticleSchema(post: BlogPost) {
     '@type': 'Article',
     headline: post.title,
     description: post.excerpt,
-    image: post.coverImage || `${baseUrl}/og-image.png`,
+    image: post.coverImage || `${baseUrl}/opengraph-image`,
     datePublished: post.publishedAt.toISOString(),
     dateModified: post.updatedAt.toISOString(),
     author: {
@@ -154,9 +154,9 @@ export function generateArticleSchema(post: BlogPost) {
       url: baseUrl,
       logo: {
         '@type': 'ImageObject',
-        url: `${baseUrl}/logo-nova.png`,
-        width: 250,
-        height: 60,
+        url: `${baseUrl}/opengraph-image`,
+        width: 1200,
+        height: 630,
       },
     },
     mainEntityOfPage: {

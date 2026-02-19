@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { Providers } from "./providers";
 import { CookieConsent } from "@/components/cookie-consent";
 import { AITracker } from "@/components/ai-tracker";
-import { StructuredData } from "@/components/seo/structured-data";
 import { Toaster } from "sonner";
 import {
   SITE_CONFIG,
@@ -28,32 +27,26 @@ export const metadata: Metadata = {
   robots: ROBOTS_CONFIG,
   alternates: {
     canonical: SITE_CONFIG.url,
+    languages: {
+      "nb-NO": SITE_CONFIG.url,
+      "nn-NO": `${SITE_CONFIG.url}/nn`,
+      "en": `${SITE_CONFIG.url}/en`,
+    },
   },
   openGraph: {
     type: "website",
     locale: SITE_CONFIG.locale,
+    alternateLocale: ["nn_NO", "en_US"],
     url: SITE_CONFIG.url,
     siteName: SITE_CONFIG.name,
     title: `${SITE_CONFIG.name} - ${SITE_CONFIG.tagline}`,
     description: SITE_CONFIG.description,
-    images: [
-      {
-        url: `${SITE_CONFIG.url}/og-image.png`,
-        width: 1200,
-        height: 630,
-        alt: `${SITE_CONFIG.name} - ${SITE_CONFIG.tagline}`,
-      },
-    ],
   },
   twitter: {
     card: "summary_large_image",
     title: `${SITE_CONFIG.name} - ${SITE_CONFIG.tagline}`,
     description: SITE_CONFIG.description,
-    images: [`${SITE_CONFIG.url}/og-image.png`],
     creator: "@hmsnova",
-  },
-  verification: {
-    google: "google-site-verification-code", // Bytt ut med faktisk kode
   },
 };
 

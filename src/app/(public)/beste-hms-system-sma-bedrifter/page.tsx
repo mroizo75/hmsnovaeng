@@ -19,7 +19,7 @@ export const metadata: Metadata = {
     type: 'article',
   },
   other: {
-    'article:published_time': '2025-01-15',
+    'article:published_time': '2026-01-15',
     'content-type': 'comparison',
     'comparison-type': 'product',
   },
@@ -34,7 +34,7 @@ export default function BesteHMSSystemSmaBedrifterPage() {
       <section className="container mx-auto px-4 py-20">
         <div className="max-w-4xl mx-auto text-center">
           <Badge variant="secondary" className="mb-6">
-            🏆 Oppdatert januar 2025
+            Oppdatert januar 2026
           </Badge>
           <h1 className="text-4xl md:text-5xl font-bold mb-6">
             Beste HMS-system for små bedrifter (0-20 ansatte)

@@ -21,7 +21,7 @@ import { FAQSection } from '@/components/faq-section';
 import { getFAQsByCategory } from '@/lib/faq-data';
 
 export const metadata: Metadata = {
-  title: 'Beste HMS-system for helsesektoren 2025 | HMS Nova',
+  title: 'Beste HMS-system for helsesektoren 2026 | HMS Nova',
   description:
     'Sammenligning av HMS-systemer for sykehjem, legekontor, tannleger og helseinstitusjon. HMS Nova er spesialtilpasset helsesektoren med smittevern, legemiddelhåndtering og pasient-sikkerhet.',
   keywords: [
@@ -35,7 +35,7 @@ export const metadata: Metadata = {
     'HMS helseinstitusjon',
   ],
   openGraph: {
-    title: 'Beste HMS-system for helsesektoren 2025',
+    title: 'Beste HMS-system for helsesektoren 2026',
     description:
       'Sammenligning av HMS-systemer for helse. HMS Nova er spesialtilpasset med smittevern, legemiddelhåndtering og pasient-sikkerhet.',
     type: 'article',
@@ -53,7 +53,7 @@ export default function BesteHMSSystemHelsePage() {
           <div className="max-w-4xl mx-auto text-center">
             <Badge className="mb-4" variant="secondary">
               <Heart className="h-3 w-3 mr-1" />
-              Helsesektoren 2025
+              Helsesektoren 2026
             </Badge>
             <h1 className="text-4xl md:text-5xl font-bold mb-6">
               Beste HMS-system for helsesektoren

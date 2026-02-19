@@ -8,7 +8,7 @@ import { FAQSection } from "@/components/faq-section";
 
 export const metadata: Metadata = {
   title: "Vernerunde - Digital Vernerunde på Mobil | HMS Nova",
-  description: "📱 Digital vernerunde · Fungerer offline · Mobilapp for byggeplasser · Automatisk rapportering · Lovpålagt · Spar timer · Prøv gratis →",
+  description: "Digital vernerunde som fungerer offline. Mobilapp for byggeplasser med automatisk rapportering. Lovpålagt og tidsbesparende. Prøv gratis.",
   keywords: "vernerunde, digital vernerunde, vernerunde mal, sikkerhetsinspeksjon, verneombud, hms vernerunde",
 };
 

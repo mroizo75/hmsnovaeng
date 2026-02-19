@@ -111,7 +111,7 @@ export default function BesteHMSSystemISO9001Page() {
                       </div>
                       <div className="flex justify-between items-center">
                         <span>Lansert:</span>
-                        <span className="font-bold">2025</span>
+                        <span className="font-bold">2026</span>
                       </div>
                       <div className="flex justify-between items-center">
                         <span>Norsk språk og support:</span>
@@ -119,7 +119,7 @@ export default function BesteHMSSystemISO9001Page() {
                       </div>
                     </div>
                     <p className="text-xs text-muted-foreground mt-4">
-                      Kilde: HMS Nova kundedata, januar 2025
+                      Kilde: HMS Nova kundedata, januar 2026
                     </p>
                   </div>
 

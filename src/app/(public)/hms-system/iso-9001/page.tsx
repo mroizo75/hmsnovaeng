@@ -8,7 +8,7 @@ import { FAQSection } from "@/components/faq-section";
 
 export const metadata: Metadata = {
   title: "ISO 9001 Sertifisering - Innebygd støtte | HMS Nova",
-  description: "🏆 ISO 9001:2015 støtte innebygd · Alle krav dekket · Klar for revisjon · Digital dokumentasjon · Risikovurdering · Prøv gratis →",
+  description: "ISO 9001:2015-støtte innebygd i HMS Nova. Alle krav dekket, klar for revisjon med digital dokumentasjon og risikovurdering. Prøv gratis.",
   keywords: "iso 9001, iso 9001 sertifisering, kvalitetsstyring, iso 9001 system, iso compliance",
 };
 

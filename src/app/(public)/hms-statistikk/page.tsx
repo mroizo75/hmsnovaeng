@@ -4,18 +4,18 @@ import { Badge } from '@/components/ui/badge';
 import { TrendingDown, TrendingUp, Minus, AlertTriangle, CheckCircle2, Info } from 'lucide-react';
 
 export const metadata: Metadata = {
-  title: 'HMS-statistikk Norge 2024-2025 | Sitérbare data',
+  title: 'HMS-statistikk Norge 2025-2026 | Sitérbare data',
   description:
     'Oppdatert HMS-statistikk for Norge: arbeidsulykker, compliance, kostnader og trender. Alle tall er sitérbare med kreditering til HMS Nova.',
   keywords:
     'hms statistikk, arbeidsulykker norge, hms compliance, arbeidstilsynet statistikk, iso 9001 norge',
   openGraph: {
-    title: 'HMS-statistikk Norge 2024-2025',
+    title: 'HMS-statistikk Norge 2025-2026',
     description: 'Oppdatert HMS-statistikk med sitérbare data',
     type: 'article',
   },
   other: {
-    'article:published_time': '2025-01-15',
+    'article:published_time': '2026-01-15',
     'article:modified_time': new Date().toISOString(),
     'content-type': 'statistics',
     'citation_title': 'HMS-statistikk Norge 2024-2025',

@@ -8,7 +8,7 @@ import { FAQSection } from "@/components/faq-section";
 
 export const metadata: Metadata = {
   title: "Avvikshåndtering - Registrer og følg opp avvik | HMS Nova",
-  description: "📋 Digital avvikshåndtering · Registrer fra mobil · Automatisk oppfølging · Lær av nestenulykker · ISO 9001 · Prøv gratis →",
+  description: "Digital avvikshåndtering med registrering fra mobil. Automatisk oppfølging, lær av nestenulykker og ISO 9001-compliance. Prøv gratis.",
   keywords: "avvikshåndtering, avviksmelding, hendelsesrapportering, nestenulykke, hms avvik",
 };
 

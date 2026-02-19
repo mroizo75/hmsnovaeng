@@ -112,12 +112,6 @@ export const BHT_SERVICE_SCHEMA = {
     "@type": "Offer",
     description: "Grunnpakke BHT og tilleggstjenester. Kontakt for tilbud.",
   },
-  aggregateRating: {
-    "@type": "AggregateRating",
-    ratingValue: "4.8",
-    ratingCount: "500",
-    bestRating: "5",
-  },
 } as const;
 
 // How-To Schema for Gratis HMS-pakke
@@ -149,44 +143,42 @@ export const GRATIS_HMS_HOWTO_SCHEMA = {
   ],
 } as const;
 
-// Review Schema for testimonials
+// Review Schema — bør oppdateres med ekte kundeanmeldelser når de er tilgjengelige
 export const REVIEW_SCHEMA = {
   "@context": "https://schema.org",
-  "@type": "Review",
-  itemReviewed: {
-    "@type": "SoftwareApplication",
-    name: "HMS Nova",
+  "@type": "SoftwareApplication",
+  name: "HMS Nova",
+  applicationCategory: "BusinessApplication",
+  operatingSystem: "Web",
+  offers: {
+    "@type": "Offer",
+    price: "300",
+    priceCurrency: "NOK",
   },
-  author: {
-    "@type": "Person",
-    name: "Norske bedrifter",
-  },
-  reviewRating: {
-    "@type": "Rating",
-    ratingValue: "4.9",
-    bestRating: "5",
-    worstRating: "1",
-  },
-  reviewBody: "HMS Nova bygger trygghet. Beste HMS-system vi har brukt.",
 } as const;
 
-// LocalBusiness schema (hvis HMS Nova har fysisk kontor)
+// LocalBusiness schema — hovedkontor Sylling (flyttes til Lierbyen senere)
 export const LOCAL_BUSINESS_SCHEMA = {
   "@context": "https://schema.org",
   "@type": "LocalBusiness",
   name: SITE_CONFIG.name,
-  image: `${SITE_CONFIG.url}/logo.png`,
+  image: `${SITE_CONFIG.url}/opengraph-image`,
   "@id": SITE_CONFIG.url,
   url: SITE_CONFIG.url,
   telephone: SITE_CONFIG.contactPhone,
   email: SITE_CONFIG.contactEmail,
   address: {
     "@type": "PostalAddress",
+    streetAddress: "Baneveien 290",
+    addressLocality: "Sylling",
+    postalCode: "3410",
+    addressRegion: "Lier",
     addressCountry: "NO",
   },
   geo: {
     "@type": "GeoCoordinates",
-    // Legg til faktiske koordinater hvis aktuelt
+    latitude: 59.7744,
+    longitude: 10.2603,
   },
   openingHoursSpecification: {
     "@type": "OpeningHoursSpecification",
@@ -198,22 +190,56 @@ export const LOCAL_BUSINESS_SCHEMA = {
     SITE_CONFIG.socialMedia.linkedin,
     SITE_CONFIG.socialMedia.facebook,
   ],
+  location: [
+    {
+      "@type": "Place",
+      name: "HMS Nova - Lier/Sylling",
+      address: {
+        "@type": "PostalAddress",
+        streetAddress: "Baneveien 290",
+        addressLocality: "Sylling",
+        postalCode: "3410",
+        addressRegion: "Lier",
+        addressCountry: "NO",
+      },
+      geo: {
+        "@type": "GeoCoordinates",
+        latitude: 59.7744,
+        longitude: 10.2603,
+      },
+    },
+    {
+      "@type": "Place",
+      name: "HMS Nova - Ringsaker",
+      address: {
+        "@type": "PostalAddress",
+        streetAddress: "Næringsparkvegen 50",
+        addressLocality: "Ingeberg",
+        postalCode: "2323",
+        addressRegion: "Ringsaker",
+        addressCountry: "NO",
+      },
+      geo: {
+        "@type": "GeoCoordinates",
+        latitude: 60.8206,
+        longitude: 10.9946,
+      },
+    },
+  ],
 } as const;
 
-// WebSite schema with search action
+// WebSite schema
 export const WEBSITE_SCHEMA = {
   "@context": "https://schema.org",
   "@type": "WebSite",
   name: SITE_CONFIG.name,
   url: SITE_CONFIG.url,
   description: SITE_CONFIG.description,
-  potentialAction: {
-    "@type": "SearchAction",
-    target: {
-      "@type": "EntryPoint",
-      urlTemplate: `${SITE_CONFIG.url}/search?q={search_term_string}`,
-    },
-    "query-input": "required name=search_term_string",
+  publisher: {
+    "@type": "Organization",
+    name: SITE_CONFIG.name,
+    url: SITE_CONFIG.url,
   },
+  inLanguage: "nb",
 } as const;
 

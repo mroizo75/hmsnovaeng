@@ -20,7 +20,7 @@ import { FAQSection } from '@/components/faq-section';
 import { getFAQsByCategory } from '@/lib/faq-data';
 
 export const metadata: Metadata = {
-  title: 'Beste HMS-system for kontorbedrifter 2025 | HMS Nova',
+  title: 'Beste HMS-system for kontorbedrifter 2026 | HMS Nova',
   description:
     'Sammenligning av HMS-systemer for kontorbedrifter. HMS Nova er perfekt for kontor med ergonomi, psykososialt arbeidsmiljø og ISO 9001-støtte.',
   keywords: [
@@ -32,7 +32,7 @@ export const metadata: Metadata = {
     'ISO 9001 kontor',
   ],
   openGraph: {
-    title: 'Beste HMS-system for kontorbedrifter 2025',
+    title: 'Beste HMS-system for kontorbedrifter 2026',
     description:
       'Sammenligning av HMS-systemer for kontor. HMS Nova er perfekt med ergonomi, psykososialt arbeidsmiljø og ISO 9001.',
     type: 'article',
@@ -50,7 +50,7 @@ export default function BesteHMSSystemKontorPage() {
           <div className="max-w-4xl mx-auto text-center">
             <Badge className="mb-4" variant="secondary">
               <Building2 className="h-3 w-3 mr-1" />
-              Kontorbedrifter 2025
+              Kontorbedrifter 2026
             </Badge>
             <h1 className="text-4xl md:text-5xl font-bold mb-6">
               Beste HMS-system for kontorbedrifter

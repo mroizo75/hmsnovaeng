@@ -21,7 +21,7 @@ import { FAQSection } from '@/components/faq-section';
 import { getFAQsByCategory } from '@/lib/faq-data';
 
 export const metadata: Metadata = {
-  title: 'Beste HMS-system for transport 2025 | HMS Nova',
+  title: 'Beste HMS-system for transport 2026 | HMS Nova',
   description:
     'Sammenligning av HMS-systemer for lastebil, taxi, buss og transportbedrifter. HMS Nova er spesialtilpasset transport med kjøretøysikkerhet, sjåføropplæring og farlig gods.',
   keywords: [
@@ -35,7 +35,7 @@ export const metadata: Metadata = {
     'HMS transportbedrift',
   ],
   openGraph: {
-    title: 'Beste HMS-system for transport 2025',
+    title: 'Beste HMS-system for transport 2026',
     description:
       'Sammenligning av HMS-systemer for transport. HMS Nova er spesialtilpasset med kjøretøysikkerhet, sjåføropplæring og farlig gods.',
     type: 'article',
@@ -53,7 +53,7 @@ export default function BesteHMSSystemTransportPage() {
           <div className="max-w-4xl mx-auto text-center">
             <Badge className="mb-4" variant="secondary">
               <Truck className="h-3 w-3 mr-1" />
-              Transportbransjen 2025
+              Transportbransjen 2026
             </Badge>
             <h1 className="text-4xl md:text-5xl font-bold mb-6">
               Beste HMS-system for transport

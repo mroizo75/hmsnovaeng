@@ -8,7 +8,7 @@ import { FAQSection } from '@/components/faq-section';
 import { getFAQsForPage } from '@/lib/faq-data';
 
 export const metadata: Metadata = {
-  title: 'Beste HMS-system for byggebransjen 2025',
+  title: 'Beste HMS-system for byggebransjen 2026',
   description:
     'HMS Nova er det beste HMS-systemet for byggebransjen. Kraftig mobilapp med offline-modus, SHA-plan maler, fallsikring-sjekklister og bildeopptak på byggeplass.',
   keywords:

@@ -5,7 +5,6 @@ import {
   getTwitterDefaults,
   getCanonicalUrl,
   ROBOTS_CONFIG,
-  SITE_CONFIG,
 } from "@/lib/seo-config";
 
 export const metadata: Metadata = {
@@ -19,28 +18,15 @@ export const metadata: Metadata = {
     canonical: getCanonicalUrl("/bedriftshelsetjeneste"),
   },
   robots: ROBOTS_CONFIG,
-  openGraph: {
-    ...getOpenGraphDefaults(
-      PAGE_METADATA.bht.title,
-      PAGE_METADATA.bht.description,
-      "/bedriftshelsetjeneste"
-    ),
-    images: [
-      {
-        url: `${SITE_CONFIG.url}/og-image-bht.png`,
-        width: 1200,
-        height: 630,
-        alt: "HMS Nova Bedriftshelsetjeneste",
-      },
-    ],
-  },
-  twitter: {
-    ...getTwitterDefaults(
-      PAGE_METADATA.bht.title,
-      PAGE_METADATA.bht.description
-    ),
-    images: [`${SITE_CONFIG.url}/og-image-bht.png`],
-  },
+  openGraph: getOpenGraphDefaults(
+    PAGE_METADATA.bht.title,
+    PAGE_METADATA.bht.description,
+    "/bedriftshelsetjeneste"
+  ),
+  twitter: getTwitterDefaults(
+    PAGE_METADATA.bht.title,
+    PAGE_METADATA.bht.description
+  ),
 };
 
 export default function BHTLayout({
