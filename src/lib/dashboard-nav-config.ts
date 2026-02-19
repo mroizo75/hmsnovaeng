@@ -6,6 +6,7 @@
 export type NavPermission =
   | "dashboard"
   | "documents"
+  | "legalRegister"
   | "incidents"
   | "inspections"
   | "training"
@@ -35,6 +36,7 @@ export interface DashboardNavItemConfig {
 export const DASHBOARD_NAV_CONFIG: DashboardNavItemConfig[] = [
   { href: "/dashboard", label: "nav.dashboard", permission: "dashboard", defaultSimple: true },
   { href: "/dashboard/documents", label: "nav.documents", permission: "documents", defaultSimple: true },
+  { href: "/dashboard/juridisk-register", label: "nav.legalRegister", permission: "legalRegister", defaultSimple: true },
   { href: "/dashboard/incidents", label: "nav.incidents", permission: "incidents", defaultSimple: true },
   { href: "/dashboard/inspections", label: "nav.inspections", permission: "inspections", defaultSimple: true },
   { href: "/dashboard/training", label: "nav.training", permission: "training", defaultSimple: true },

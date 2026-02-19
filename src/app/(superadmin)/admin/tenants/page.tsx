@@ -11,7 +11,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import Link from "next/link";
-import { Plus, ExternalLink } from "lucide-react";
+import { Plus, ExternalLink, CheckCircle2 } from "lucide-react";
 
 export default async function TenantsPage() {
   // Hent kun tenants som har brukere (aktive bedrifter)
@@ -23,6 +23,10 @@ export default async function TenantsPage() {
     },
     include: {
       subscription: true,
+      offers: {
+        orderBy: { createdAt: "desc" },
+        take: 1,
+      },
       invoices: {
         where: {
           status: "OVERDUE",
@@ -70,6 +74,7 @@ export default async function TenantsPage() {
                 <TableHead>Bedrift</TableHead>
                 <TableHead>Org.nr</TableHead>
                 <TableHead>Status</TableHead>
+                <TableHead>Avtale</TableHead>
                 <TableHead>Abonnement</TableHead>
                 <TableHead>Brukere</TableHead>
                 <TableHead>Faktura</TableHead>
@@ -100,6 +105,33 @@ export default async function TenantsPage() {
                     >
                       {tenant.status}
                     </Badge>
+                  </TableCell>
+                  <TableCell>
+                    {(() => {
+                      const latestOffer = tenant.offers[0];
+                      const isAccepted =
+                        latestOffer?.status === "ACCEPTED" ||
+                        (tenant.status === "ACTIVE" && !latestOffer);
+                      if (isAccepted) {
+                        return (
+                          <Badge
+                            variant="default"
+                            className="flex w-fit items-center gap-1 bg-green-600 hover:bg-green-600"
+                          >
+                            <CheckCircle2 className="h-3 w-3" />
+                            Avtale godkjent
+                          </Badge>
+                        );
+                      }
+                      if (latestOffer?.status === "SENT") {
+                        return (
+                          <Badge variant="secondary">Tilbud sendt</Badge>
+                        );
+                      }
+                      return (
+                        <span className="text-sm text-muted-foreground">-</span>
+                      );
+                    })()}
                   </TableCell>
                   <TableCell>
                     {tenant.subscription ? (

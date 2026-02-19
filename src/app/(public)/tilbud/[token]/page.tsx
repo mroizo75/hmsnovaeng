@@ -29,17 +29,53 @@ async function getOffer(token: string) {
   return offer;
 }
 
+function getOfferUnavailableContent(offer: Awaited<ReturnType<typeof getOffer>>) {
+  if (!offer) {
+    return {
+      title: "Tilbud ikke funnet",
+      description: "Vi finner ikke dette tilbudet. Sjekk at lenken er riktig eller ta kontakt med oss.",
+    };
+  }
+
+  switch (offer.status) {
+    case "ACCEPTED":
+      return {
+        title: "Tilbud allerede godkjent",
+        description: "Dette tilbudet er allerede akseptert og avtalen er aktiv.",
+      };
+    case "REJECTED":
+      return {
+        title: "Tilbud avvist",
+        description: "Dette tilbudet er avvist.",
+      };
+    case "EXPIRED":
+      return {
+        title: "Tilbud utløpt",
+        description: "Dette tilbudet har utløpt.",
+      };
+    case "DRAFT":
+      return {
+        title: "Tilbud ikke sendt",
+        description: "Dette tilbudet er ikke sendt ennå.",
+      };
+    default:
+      return {
+        title: "Tilbud ikke tilgjengelig",
+        description: "Dette tilbudet er ikke tilgjengelig.",
+      };
+  }
+}
+
 async function OfferDetails({ token }: { token: string }) {
   const offer = await getOffer(token);
 
   if (!offer || offer.status !== "SENT") {
+    const content = getOfferUnavailableContent(offer);
     return (
       <Card className="max-w-xl mx-auto">
         <CardHeader>
-          <CardTitle>Tilbud ikke tilgjengelig</CardTitle>
-          <CardDescription>
-            Dette tilbudet er ikke lenger gyldig. Det kan være akseptert, avvist eller utløpt.
-          </CardDescription>
+          <CardTitle>{content.title}</CardTitle>
+          <CardDescription>{content.description}</CardDescription>
         </CardHeader>
       </Card>
     );

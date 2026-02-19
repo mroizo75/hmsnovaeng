@@ -79,6 +79,25 @@ export const helpContent: Record<string, HelpContent> = {
     ],
   },
 
+  legalRegister: {
+    title: "Juridisk register",
+    description: "Oversikt over lover og forskrifter som gjelder for virksomheten din basert på bransje",
+    sections: [
+      {
+        heading: "Hva vises her?",
+        emoji: "📋",
+        content:
+          "Listen viser lover og forskrifter som er relevante for din bransje. Lenkene åpner Lovdata.no eller Arbeidstilsynet der du kan lese fullstendig lovtekst.",
+      },
+      {
+        heading: "Viktig om juridisk ansvar",
+        emoji: "⚠️",
+        content:
+          "Dette er en oversikt og veiledning. Systemet utgjør ikke juridisk rådgivning. For spesifikke spørsmål om lover og forskrifter, rådfør deg med jurist eller sjekk Lovdata.no.",
+      },
+    ],
+  },
+
   risks: {
     title: "Risikostyring",
     description: "Identifiser, vurder og håndter risikoer i din organisasjon",

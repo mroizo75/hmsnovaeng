@@ -13,6 +13,14 @@ import { Loader2, FileText, CheckCircle2, Send } from "lucide-react";
 
 type TenantOfferStatus = "DRAFT" | "SENT" | "ACCEPTED" | "REJECTED" | "EXPIRED";
 
+const OFFER_STATUS_LABELS: Record<TenantOfferStatus, string> = {
+  ACCEPTED: "Avtale godkjent",
+  SENT: "Sendt",
+  REJECTED: "Avvist",
+  EXPIRED: "Utløpt",
+  DRAFT: "Utkast",
+};
+
 interface TenantOfferCardProps {
   tenant: {
     id: string;
@@ -171,7 +179,7 @@ export function TenantOfferCard({ tenant }: TenantOfferCardProps) {
                 {latestOffer.status === "ACCEPTED" && (
                   <CheckCircle2 className="h-3 w-3" />
                 )}
-                {latestOffer.status}
+                {OFFER_STATUS_LABELS[latestOffer.status]}
               </Badge>
             </div>
             <p className="text-sm">

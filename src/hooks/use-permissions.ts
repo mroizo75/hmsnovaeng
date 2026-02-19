@@ -24,6 +24,7 @@ export function usePermissions() {
       visibleNavItems: {
         dashboard: false,
         documents: false,
+        legalRegister: false,
         forms: false,
         risks: false,
         riskRegister: false,

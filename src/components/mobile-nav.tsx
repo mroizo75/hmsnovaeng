@@ -32,6 +32,7 @@ import {
   HeartPulse,
   ListChecks,
   Clock,
+  Scale,
 } from "lucide-react";
 import { usePermissions } from "@/hooks/use-permissions";
 import { getRoleDisplayName } from "@/lib/permissions";
@@ -44,6 +45,7 @@ const navItems = [
   // GRUNNLEGGENDE
   { href: "/dashboard", label: "nav.dashboard", icon: LayoutDashboard, permission: "dashboard" as const, simple: true },
   { href: "/dashboard/documents", label: "nav.documents", icon: FileText, permission: "documents" as const, simple: true },
+  { href: "/dashboard/juridisk-register", label: "nav.legalRegister", icon: Scale, permission: "legalRegister" as const, simple: true },
   { href: "/dashboard/incidents", label: "nav.incidents", icon: AlertCircle, permission: "incidents" as const, simple: true },
   { href: "/dashboard/inspections", label: "nav.inspections", icon: ShieldCheck, permission: "inspections" as const, simple: true },
   { href: "/dashboard/training", label: "nav.training", icon: GraduationCap, permission: "training" as const, simple: true },

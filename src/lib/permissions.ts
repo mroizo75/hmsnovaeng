@@ -121,6 +121,9 @@ export interface RolePermissions {
 
   // Timeregistrering (prosjekter, timer, kjøring)
   canAccessTimeRegistration: boolean;
+
+  // Juridisk register – lover og forskrifter per bransje (alle roller)
+  canReadLegalRegister: boolean;
 }
 
 /**
@@ -202,6 +205,7 @@ export const rolePermissions: Record<Role, RolePermissions> = {
     canExportReports: true,
     canViewAllReports: true,
     canAccessTimeRegistration: true,
+    canReadLegalRegister: true,
   },
 
   // HMS - HMS-ansvarlig, nesten full tilgang
@@ -279,6 +283,7 @@ export const rolePermissions: Record<Role, RolePermissions> = {
     canExportReports: true,
     canViewAllReports: true,
     canAccessTimeRegistration: true,
+    canReadLegalRegister: true,
   },
 
   // LEDER - Leder, kan administrere i sin avdeling
@@ -356,6 +361,7 @@ export const rolePermissions: Record<Role, RolePermissions> = {
     canExportReports: true,
     canViewAllReports: true,
     canAccessTimeRegistration: true,
+    canReadLegalRegister: true,
   },
 
   // VERNEOMBUD - Verneombud, fokus på HMS
@@ -433,6 +439,7 @@ export const rolePermissions: Record<Role, RolePermissions> = {
     canExportReports: false,
     canViewAllReports: false,
     canAccessTimeRegistration: true,
+    canReadLegalRegister: true,
   },
 
   // ANSATT - Ansatt, begrenset tilgang
@@ -510,6 +517,7 @@ export const rolePermissions: Record<Role, RolePermissions> = {
     canExportReports: false,
     canViewAllReports: false,
     canAccessTimeRegistration: true,
+    canReadLegalRegister: true,
   },
 
   // BHT - Bedriftshelsetjeneste, lesetilgang + rapportering
@@ -587,6 +595,7 @@ export const rolePermissions: Record<Role, RolePermissions> = {
     canExportReports: true,
     canViewAllReports: true,
     canAccessTimeRegistration: true,
+    canReadLegalRegister: true,
   },
 
   // REVISOR - Revisor, kun lesetilgang
@@ -664,6 +673,7 @@ export const rolePermissions: Record<Role, RolePermissions> = {
     canExportReports: true,
     canViewAllReports: true,
     canAccessTimeRegistration: true,
+    canReadLegalRegister: true,
   },
 };
 
@@ -713,6 +723,7 @@ export function getVisibleNavItems(role: Role) {
     complaints: perms.canCreateIncidents,
     settings: perms.canReadSettings,
     timeRegistration: perms.canAccessTimeRegistration,
+    legalRegister: perms.canReadLegalRegister,
   };
 }
 

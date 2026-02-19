@@ -56,6 +56,7 @@ async function main() {
       orgNumber: "123456789",
       slug: "test-bedrift",
       status: "ACTIVE",
+      industry: "construction",
       contactEmail: "post@testbedrift.no",
       contactPhone: "12345678",
       address: "Testveien 1",
@@ -75,6 +76,105 @@ async function main() {
   });
 
   console.log("✅ Tenant opprettet:", tenant.name);
+
+  // Juridiske referanser (gjelder alle bransjer eller spesifikke)
+  const legalRefCount = await prisma.legalReference.count();
+  if (legalRefCount === 0) {
+    const baseLaws = [
+      {
+        title: "Arbeidsmiljøloven",
+        paragraphRef: "Kapittel 3",
+        description: "Hovedloven for arbeidsmiljø. Arbepleier arbeidet, sikkerhetstiltak, arbeidstid og systematisk HMS-arbeid.",
+        sourceUrl: "https://lovdata.no/dokument/NL/lov/2005-06-17-62",
+        industries: ["all"],
+        sortOrder: 1,
+        lastVerifiedAt: new Date(),
+      },
+      {
+        title: "Arbeidsmiljøloven",
+        paragraphRef: "§ 3-2",
+        description: "Arbeidsgivers plikt til å kartlegge risiko for skade på liv og helse, og ivareta forebyggende HMS-arbeid.",
+        sourceUrl: "https://lovdata.no/dokument/NL/lov/2005-06-17-62/KAPITTEL_3#%C2%A73-2",
+        industries: ["all"],
+        sortOrder: 2,
+        lastVerifiedAt: new Date(),
+      },
+      {
+        title: "Forskrift om systematisk helse-, miljø- og sikkerhetsarbeid (HMS-forskriften)",
+        paragraphRef: null,
+        description: "Krav til systematisk HMS-arbeid, risikovurdering og dokumentasjon. Gjelder alle virksomheter.",
+        sourceUrl: "https://lovdata.no/dokument/SF/forskrift/2011-12-06-1357",
+        industries: ["all"],
+        sortOrder: 3,
+        lastVerifiedAt: new Date(),
+      },
+      {
+        title: "Forskrift om arbeidstid",
+        paragraphRef: null,
+        description: "Bestemmelser om arbeidstid, overtid, hviletid og fritidsavretting.",
+        sourceUrl: "https://lovdata.no/dokument/SF/forskrift/2005-11-18-1419",
+        industries: ["all"],
+        sortOrder: 4,
+        lastVerifiedAt: new Date(),
+      },
+      {
+        title: "Forskrift om tiltak for å forebygge og begrense eksponering for kreftfremkallende og mutagene stoffer",
+        paragraphRef: null,
+        description: "Krav ved bruk av farlige stoffer. Relevant for industri, bygg, transport og landbruk.",
+        sourceUrl: "https://lovdata.no/dokument/SF/forskrift/2013-12-18-1549",
+        industries: ["construction", "manufacturing", "transport", "agriculture"],
+        sortOrder: 5,
+        lastVerifiedAt: new Date(),
+      },
+      {
+        title: "Forskrift om vern mot støy (støyvernforskriften)",
+        paragraphRef: null,
+        description: "Grenseverdier og tiltak for å forebygge hørselskader. Særlig relevant for industri og bygg.",
+        sourceUrl: "https://lovdata.no/dokument/SF/forskrift/2011-12-06-1346",
+        industries: ["construction", "manufacturing"],
+        sortOrder: 6,
+        lastVerifiedAt: new Date(),
+      },
+      {
+        title: "Forskrift om utførelse av arbeid (Arbeidsutførelsesforskriften)",
+        paragraphRef: null,
+        description: "Tekniske krav til arbeidsplasser, utstyr, arbeidsmetoder og personlig verneutstyr.",
+        sourceUrl: "https://lovdata.no/dokument/SF/forskrift/2011-12-06-1356",
+        industries: ["all"],
+        sortOrder: 7,
+        lastVerifiedAt: new Date(),
+      },
+      {
+        title: "Pasientsikkerhetsloven",
+        paragraphRef: null,
+        description: "Krav til sikkerhetsarbeid i helsevesenet. Gjelder helsetjenester.",
+        sourceUrl: "https://lovdata.no/dokument/NL/lov/2019-06-21-42",
+        industries: ["healthcare"],
+        sortOrder: 8,
+        lastVerifiedAt: new Date(),
+      },
+      {
+        title: "Forskrift om krav til sikkerhetsdatablad (SDS-forskriften)",
+        paragraphRef: null,
+        description: "Krav til sikkerhetsdatablad for farlige stoffer. Gjelder alle som håndterer kjemikalier.",
+        sourceUrl: "https://lovdata.no/dokument/SF/forskrift/2013-05-15-532",
+        industries: ["all"],
+        sortOrder: 9,
+        lastVerifiedAt: new Date(),
+      },
+      {
+        title: "Lov om arbeidsmiljø, arbeidstid og stillingsvern m.v. (AML)",
+        paragraphRef: "§ 13-1",
+        description: "Varslingsordning. Alle virksomheter med minst 5 ansatte skal ha varslingsordning.",
+        sourceUrl: "https://lovdata.no/dokument/NL/lov/2005-06-17-62#%C2%A713-1",
+        industries: ["all"],
+        sortOrder: 10,
+        lastVerifiedAt: new Date(),
+      },
+    ];
+    await prisma.legalReference.createMany({ data: baseLaws });
+    console.log("✅ Juridiske referanser opprettet:", baseLaws.length, "stk");
+  }
 
   // Opprett admin bruker for tenant
   const hashedPassword = await bcrypt.hash("admin123", 10);
