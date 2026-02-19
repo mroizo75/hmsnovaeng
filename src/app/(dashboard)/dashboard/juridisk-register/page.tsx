@@ -89,8 +89,10 @@ export default async function JuridiskRegisterPage() {
               <p className="text-muted-foreground">
                 Ingen juridiske referanser er lagt inn for din bransje ennå.
               </p>
-              <p className="mt-2 text-sm text-muted-foreground">
-                Kontakt support for å legge til relevante lover og forskrifter.
+              <p className="mt-2 text-sm text-muted-foreground max-w-md">
+                {industryLabel === "Ikke angitt"
+                  ? "Bransjen er ikke satt for virksomheten. Be administrator sette bransje i innstillinger, eller kontakt support for å legge til referanser."
+                  : "Administrator kan legge til lover og forskrifter i superadmin. Kontakt support hvis du savner relevante referanser."}
               </p>
             </CardContent>
           </Card>

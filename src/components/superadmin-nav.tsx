@@ -17,6 +17,7 @@ import {
   UserPlus,
   Newspaper,
   Stethoscope,
+  Scale,
 } from "lucide-react";
 import { Badge } from "./ui/badge";
 
@@ -26,6 +27,7 @@ const allNavItems = [
   { href: "/admin/tenants", label: "Bedrifter", icon: Building2, supportAccess: true },
   { href: "/admin/bht", label: "BHT-kunder", icon: Stethoscope, supportAccess: true },
   { href: "/admin/invoices", label: "Fakturaer", icon: FileText, supportAccess: true },
+  { href: "/admin/legal-references", label: "Juridisk register", icon: Scale, supportAccess: true },
   { href: "/admin/blog", label: "Blogg & SEO", icon: Newspaper, supportAccess: false },
   { href: "/admin/newsletter", label: "Nyhetsbrev", icon: FileText, supportAccess: false },
   { href: "/admin/users", label: "Brukere", icon: Users, supportAccess: false },

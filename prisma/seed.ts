@@ -109,10 +109,10 @@ async function main() {
         lastVerifiedAt: new Date(),
       },
       {
-        title: "Forskrift om arbeidstid",
-        paragraphRef: null,
-        description: "Bestemmelser om arbeidstid, overtid, hviletid og fritidsavretting.",
-        sourceUrl: "https://lovdata.no/dokument/SF/forskrift/2005-11-18-1419",
+        title: "Arbeidsmiljøloven kap. 10 – Arbeidstid",
+        paragraphRef: "Kapittel 10",
+        description: "Bestemmelser om arbeidstid, overtid, hviletid og fritidsavretting. Alminnelig arbeidstid, overtidsgrenser, helgefri.",
+        sourceUrl: "https://lovdata.no/nav/lov/2005-06-17-62/kap10",
         industries: ["all"],
         sortOrder: 4,
         lastVerifiedAt: new Date(),
@@ -154,10 +154,10 @@ async function main() {
         lastVerifiedAt: new Date(),
       },
       {
-        title: "Forskrift om krav til sikkerhetsdatablad (SDS-forskriften)",
+        title: "Forskrift om utarbeidelse og distribusjon av helse-, miljø- og sikkerhetsdatablad (SDS)",
         paragraphRef: null,
-        description: "Krav til sikkerhetsdatablad for farlige stoffer. Gjelder alle som håndterer kjemikalier.",
-        sourceUrl: "https://lovdata.no/dokument/SF/forskrift/2013-05-15-532",
+        description: "Krav til sikkerhetsdatablad for farlige kjemikalier. Gjelder alle som håndterer kjemikalier yrkesmessig.",
+        sourceUrl: "https://lovdata.no/dokument/LTI/forskrift/1997-12-19-1323",
         industries: ["all"],
         sortOrder: 9,
         lastVerifiedAt: new Date(),
@@ -174,6 +174,51 @@ async function main() {
     ];
     await prisma.legalReference.createMany({ data: baseLaws });
     console.log("✅ Juridiske referanser opprettet:", baseLaws.length, "stk");
+  } else {
+    // Retting: Forskrift om arbeidstid (404) → Arbeidsmiljøloven kap. 10
+    const outdated = await prisma.legalReference.findFirst({
+      where: {
+        OR: [
+          { title: "Forskrift om arbeidstid" },
+          { sourceUrl: "https://lovdata.no/dokument/SF/forskrift/2005-11-18-1419" },
+        ],
+      },
+    });
+    if (outdated) {
+      await prisma.legalReference.update({
+        where: { id: outdated.id },
+        data: {
+          title: "Arbeidsmiljøloven kap. 10 – Arbeidstid",
+          paragraphRef: "Kapittel 10",
+          description:
+            "Bestemmelser om arbeidstid, overtid, hviletid og fritidsavretting. Alminnelig arbeidstid, overtidsgrenser, helgefri.",
+          sourceUrl: "https://lovdata.no/nav/lov/2005-06-17-62/kap10",
+          lastVerifiedAt: new Date(),
+        },
+      });
+      console.log("✅ Rettet arbeidstidsreferanse (404-lenke)");
+    }
+    const sdsOutdated = await prisma.legalReference.findFirst({
+      where: {
+        OR: [
+          { sourceUrl: "https://lovdata.no/dokument/SF/forskrift/2013-05-15-532" },
+          { title: { contains: "SDS-forskriften" } },
+        ],
+      },
+    });
+    if (sdsOutdated) {
+      await prisma.legalReference.update({
+        where: { id: sdsOutdated.id },
+        data: {
+          title: "Forskrift om utarbeidelse og distribusjon av helse-, miljø- og sikkerhetsdatablad (SDS)",
+          description:
+            "Krav til sikkerhetsdatablad for farlige kjemikalier. Gjelder alle som håndterer kjemikalier yrkesmessig.",
+          sourceUrl: "https://lovdata.no/dokument/LTI/forskrift/1997-12-19-1323",
+          lastVerifiedAt: new Date(),
+        },
+      });
+      console.log("✅ Rettet SDS-referanse (404-lenke)");
+    }
   }
 
   // Opprett admin bruker for tenant
