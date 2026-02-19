@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import {
   PAGE_METADATA,
+  SITE_CONFIG,
   getOpenGraphDefaults,
   getTwitterDefaults,
   getCanonicalUrl,
