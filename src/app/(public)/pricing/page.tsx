@@ -8,7 +8,6 @@ import { RegisterDialog } from "@/components/register-dialog";
 import { RingMegDialog } from "@/components/ring-meg-dialog";
 import {
   CheckCircle2,
-  X,
   ArrowRight,
   Shield,
   Users,
@@ -16,6 +15,9 @@ import {
   Phone,
   Award,
   HelpCircle,
+  BarChart3,
+  FileText,
+  Bell,
 } from "lucide-react";
 
 const allFeatures = [
@@ -37,17 +39,37 @@ const allFeatures = [
   "Email & phone support included",
 ];
 
-const comparisonRows = [
-  { feature: "Setup / implementation fee", nova: "None", competitor1: "$5,000–$25,000", competitor2: "$10,000+" },
-
-  { feature: "Pre-built EHS handbook", nova: true, competitor1: true, competitor2: false },
-  { feature: "OSHA 300 log automation", nova: true, competitor1: false, competitor2: "Add-on" },
-  { feature: "ISO 45001 audit module", nova: true, competitor1: true, competitor2: "Varies" },
-  { feature: "Digital e-signatures", nova: true, competitor1: false, competitor2: "Extra cost" },
-  { feature: "Unlimited users included", nova: true, competitor1: false, competitor2: false },
-  { feature: "Offline mobile app", nova: true, competitor1: false, competitor2: "Varies" },
-  { feature: "US-based EHS support", nova: true, competitor1: true, competitor2: "Varies" },
-  { feature: "Contract length", nova: "12 months", competitor1: "12 months", competitor2: "12–36 months" },
+const moduleHighlights = [
+  {
+    icon: Shield,
+    title: "Risk & Compliance",
+    items: ["5×5 risk assessment matrix", "ISO 45001 internal audit module", "OSHA 300/300A/301 log automation", "Legal register & compliance tracking"],
+  },
+  {
+    icon: FileText,
+    title: "Documents & Procedures",
+    items: ["Version-controlled document library", "Pre-built EHS handbook templates", "Digital e-signatures (legally binding)", "Audit trail on every document"],
+  },
+  {
+    icon: Users,
+    title: "People & Training",
+    items: ["Training management & competency matrix", "Unlimited user accounts — no per-seat fees", "Role-based access control", "Onboarding & certification tracking"],
+  },
+  {
+    icon: BarChart3,
+    title: "Goals & Performance",
+    items: ["EHS KPI dashboards", "Leading & lagging indicator tracking", "Custom goal setting", "Management review reports"],
+  },
+  {
+    icon: Bell,
+    title: "Incidents & Deviations",
+    items: ["Incident reporting with 5-Whys analysis", "Corrective & preventive actions (CAPA)", "Near-miss and hazard tracking", "Automated follow-up reminders"],
+  },
+  {
+    icon: Zap,
+    title: "Operations",
+    items: ["Offline mobile app for field use", "Chemical hazard register (HazCom 2012)", "Environmental aspect tracking", "Whistleblowing channel"],
+  },
 ];
 
 const faqs = [
@@ -103,66 +125,29 @@ export default function PricingPage() {
         </div>
       </section>
 
-      {/* Why others are expensive */}
-      <section className="container mx-auto px-4 py-12 bg-muted/30">
-        <div className="max-w-4xl mx-auto">
-          <div className="text-center mb-8">
-            <h2 className="text-2xl font-bold mb-4">Why do other EHS systems cost so much?</h2>
-          </div>
-          <div className="grid md:grid-cols-3 gap-6">
-            {[
-              {
-                title: "High setup fees",
-                desc: "$5,000–$25,000 in implementation and consulting costs before you get started.",
-              },
-              {
-                title: "Per-seat pricing",
-                desc: "Costs balloon as your workforce grows. More employees = dramatically higher monthly bills.",
-              },
-              {
-                title: "Module upsells",
-                desc: "Core features locked behind add-on modules — OSHA recordkeeping, ISO audits, and API access all cost extra.",
-              },
-            ].map((item) => (
-              <Card key={item.title} className="border-destructive/20">
-                <CardContent className="pt-6">
-                  <div className="flex flex-col items-center text-center space-y-3">
-                    <div className="p-3 rounded-full bg-destructive/10">
-                      <X className="h-6 w-6 text-destructive" />
-                    </div>
-                    <h3 className="font-semibold">{item.title}</h3>
-                    <p className="text-sm text-muted-foreground">{item.desc}</p>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </div>
-      </section>
-
       {/* Value prop */}
-      <section className="container mx-auto px-4 py-12">
-        <div className="max-w-4xl mx-auto text-center mb-12">
-          <Badge variant="default" className="mb-4">
-            HMS Nova is different
-          </Badge>
+      <section className="container mx-auto px-4 py-16 bg-muted/30">
+        <div className="max-w-4xl mx-auto text-center mb-10">
           <h2 className="text-3xl font-bold mb-4">
-            One price. Everything included. No surprises.
+            One price. Every module. No extras.
           </h2>
-          <p className="text-muted-foreground">We believe enterprise-grade EHS software should be affordable for every business.</p>
+          <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
+            $30/month gives your entire company access to everything — unlimited users,
+            all modules, guided onboarding, and expert support. Nothing is locked behind an upgrade.
+          </p>
         </div>
 
-        <div className="grid md:grid-cols-3 gap-6 max-w-4xl mx-auto mb-12">
+        <div className="grid md:grid-cols-3 gap-6 max-w-4xl mx-auto">
           {[
-            { icon: Shield, title: "All features included", desc: "Every module, every integration" },
-            { icon: Users, title: "Unlimited users", desc: "No per-seat charges, ever" },
-            { icon: Zap, title: "Free support", desc: "EHS experts available by email & phone" },
+            { icon: Shield, title: "All modules included", desc: "Risk, incidents, audits, training, chemicals, environment — all in one subscription." },
+            { icon: Users, title: "Unlimited users", desc: "Add your whole team, all facilities, all roles. The price stays the same." },
+            { icon: Zap, title: "Support included", desc: "EHS specialists available by email and phone — no support tier upgrades needed." },
           ].map((item) => (
             <Card key={item.title}>
               <CardContent className="pt-6 text-center">
-                <item.icon className="h-8 w-8 text-primary mx-auto mb-2" />
-                <h3 className="font-semibold text-sm">{item.title}</h3>
-                <p className="text-xs text-muted-foreground mt-1">{item.desc}</p>
+                <item.icon className="h-8 w-8 text-primary mx-auto mb-3" />
+                <h3 className="font-semibold mb-2">{item.title}</h3>
+                <p className="text-sm text-muted-foreground">{item.desc}</p>
               </CardContent>
             </Card>
           ))}
@@ -322,76 +307,40 @@ export default function PricingPage() {
         </div>
       </section>
 
-      {/* Comparison table */}
+      {/* Module overview */}
       <section className="container mx-auto px-4 py-20">
         <div className="max-w-5xl mx-auto">
           <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold mb-4">How HMS Nova compares</h2>
-            <p className="text-muted-foreground">
-              See how HMS Nova stacks up against other EHS platforms in the US market
+            <h2 className="text-3xl font-bold mb-4">Everything you get — all in one subscription</h2>
+            <p className="text-muted-foreground max-w-2xl mx-auto">
+              HMS Nova covers every aspect of EHS management. Every module below is included in your
+              $30/month subscription from day one.
             </p>
           </div>
 
-          <div className="overflow-x-auto rounded-lg border">
-            <table className="w-full border-collapse bg-card">
-              <thead>
-                <tr className="border-b bg-muted/30">
-                  <th className="text-left p-4 text-sm font-medium"></th>
-                  <th className="text-center p-4">
-                    <div className="font-bold text-primary">HMS Nova</div>
-                    <div className="text-sm text-muted-foreground">$30/month</div>
-                  </th>
-                  <th className="text-center p-4">
-                    <div className="font-semibold text-muted-foreground">Mid-tier EHS</div>
-                    <div className="text-sm text-muted-foreground">$500–$1,000/month</div>
-                  </th>
-                  <th className="text-center p-4">
-                    <div className="font-semibold text-muted-foreground">Enterprise EHS</div>
-                    <div className="text-sm text-muted-foreground">$2,000+/month</div>
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {comparisonRows.map((row, i) => (
-                  <tr key={row.feature} className={i % 2 === 1 ? "border-b bg-muted/20" : "border-b"}>
-                    <td className="p-4 text-sm font-medium">{row.feature}</td>
-                    <td className="p-4 text-center">
-                      {typeof row.nova === "boolean" ? (
-                        row.nova ? (
-                          <CheckCircle2 className="h-5 w-5 text-primary mx-auto" />
-                        ) : (
-                          <X className="h-5 w-5 text-muted-foreground mx-auto" />
-                        )
-                      ) : (
-                        <span className="text-sm font-medium text-primary">{row.nova}</span>
-                      )}
-                    </td>
-                    <td className="p-4 text-center">
-                      {typeof row.competitor1 === "boolean" ? (
-                        row.competitor1 ? (
-                          <CheckCircle2 className="h-5 w-5 text-primary mx-auto" />
-                        ) : (
-                          <X className="h-5 w-5 text-muted-foreground mx-auto" />
-                        )
-                      ) : (
-                        <span className="text-sm text-muted-foreground">{row.competitor1}</span>
-                      )}
-                    </td>
-                    <td className="p-4 text-center">
-                      {typeof row.competitor2 === "boolean" ? (
-                        row.competitor2 ? (
-                          <CheckCircle2 className="h-5 w-5 text-primary mx-auto" />
-                        ) : (
-                          <X className="h-5 w-5 text-muted-foreground mx-auto" />
-                        )
-                      ) : (
-                        <span className="text-sm text-muted-foreground">{row.competitor2}</span>
-                      )}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {moduleHighlights.map((mod) => (
+              <Card key={mod.title} className="border-primary/20">
+                <CardHeader className="pb-3">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 rounded-lg bg-primary/10">
+                      <mod.icon className="h-5 w-5 text-primary" />
+                    </div>
+                    <CardTitle className="text-base">{mod.title}</CardTitle>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <ul className="space-y-2">
+                    {mod.items.map((item) => (
+                      <li key={item} className="flex items-start gap-2 text-sm text-muted-foreground">
+                        <CheckCircle2 className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
+                        {item}
+                      </li>
+                    ))}
+                  </ul>
+                </CardContent>
+              </Card>
+            ))}
           </div>
         </div>
       </section>
