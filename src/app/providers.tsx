@@ -5,7 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { NextIntlClientProvider } from "next-intl";
 import { useState } from "react";
-import nbMessages from "@/i18n/messages/nb.json";
+import enMessages from "@/i18n/messages/en.json";
 
 export function Providers({ children }: { children: React.ReactNode }) {
   const [queryClient] = useState(
@@ -22,10 +22,10 @@ export function Providers({ children }: { children: React.ReactNode }) {
 
   return (
     <SessionProvider>
-      <NextIntlClientProvider 
-        locale="nb" 
-        messages={nbMessages}
-        timeZone="Europe/Oslo"
+      <NextIntlClientProvider
+        locale="en"
+        messages={enMessages}
+        timeZone="America/New_York"
         now={new Date()}
       >
         <QueryClientProvider client={queryClient}>

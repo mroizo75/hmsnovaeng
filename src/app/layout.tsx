@@ -27,16 +27,10 @@ export const metadata: Metadata = {
   robots: ROBOTS_CONFIG,
   alternates: {
     canonical: SITE_CONFIG.url,
-    languages: {
-      "nb-NO": SITE_CONFIG.url,
-      "nn-NO": `${SITE_CONFIG.url}/nn`,
-      "en": `${SITE_CONFIG.url}/en`,
-    },
   },
   openGraph: {
     type: "website",
     locale: SITE_CONFIG.locale,
-    alternateLocale: ["nn_NO", "en_US"],
     url: SITE_CONFIG.url,
     siteName: SITE_CONFIG.name,
     title: `${SITE_CONFIG.name} - ${SITE_CONFIG.tagline}`,
@@ -56,7 +50,7 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="nb">
+    <html lang="en">
       <head>
         <MultipleStructuredData dataArray={[ORGANIZATION_SCHEMA, LOCAL_BUSINESS_SCHEMA]} />
       </head>

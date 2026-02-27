@@ -1,74 +1,61 @@
 /**
  * HMS Nova SEO Configuration
- * 
- * Fokusområder:
- * - "HMS Nova bygger trygghet" som kjerneverdi
- * - Overgå konkurrenter (Grønn Jobb, Avonova, Kuba)
- * - Optimalisert for både tradisjonelle søkemotorer og AI (ChatGPT, Perplexity, etc.)
+ * Optimized for US EHS market and search engines / AI (ChatGPT, Perplexity, etc.)
  */
 
-const rawBaseUrl = process.env.NEXT_PUBLIC_APP_URL || "https://hmsnova.no";
+const rawBaseUrl = process.env.NEXT_PUBLIC_APP_URL || "https://ehsnova.com";
 const normalizedBaseUrl = rawBaseUrl.startsWith("http") ? rawBaseUrl : `https://${rawBaseUrl}`;
 
 export const SITE_CONFIG = {
   name: "HMS Nova",
-  tagline: "HMS Nova bygger trygghet",
-  description: "Norges mest moderne HMS-system. Byggjer trygghet gjennom digitalisering, automatisering og ISO 9001 compliance. Fra små bedrifter til store konsern.",
+  tagline: "Complete EHS Management — $30/month",
+  description: "HMS Nova is an all-in-one EHS management platform for US businesses. OSHA recordkeeping, incident reporting, risk assessments, ISO 45001 audits, training matrix, and more — unlimited users, all modules, one flat price.",
   url: normalizedBaseUrl,
-  locale: "nb_NO",
-  contactPhone: "+47 99 11 29 16",
-  contactEmail: "post@hmsnova.no",
+  locale: "en_US",
+  contactPhone: "+1 (800) 555-0100",
+  contactEmail: "us@hmsnova.com",
   socialMedia: {
     linkedin: "https://www.linkedin.com/company/hmsnova",
     facebook: "https://www.facebook.com/hmsnova",
   },
 } as const;
 
-// Keywords som overgår konkurrentene
 export const PRIMARY_KEYWORDS = [
-  "HMS-system",
-  "HMS system Norge",
+  "EHS management software",
+  "EHS system",
   "HMS Nova",
-  "bedriftshelsetjeneste",
-  "BHT",
-  "ISO 9001",
-  "risikovurdering",
-  "HMS håndbok",
-  "vernerunde",
-  "arbeidsmiljø",
-  "internkontroll",
-  "HMS compliance",
-  "digital HMS",
-  "HMS automation",
-  "trygt arbeidsmiljø",
+  "OSHA compliance software",
+  "ISO 45001",
+  "incident reporting software",
+  "risk assessment software",
+  "EHS handbook",
+  "safety inspection software",
+  "occupational health software",
+  "EHS compliance",
+  "digital EHS",
+  "EHS automation",
+  "workplace safety software",
 ] as const;
 
-// Sekundære keywords for long-tail SEO
 export const SECONDARY_KEYWORDS = [
-  "hms system pris",
-  "beste hms system",
-  "hms programvare",
-  "hms digitalisering",
-  "hms app",
-  "mobil hms løsning",
-  "billig hms system",
-  "hms system små bedrifter",
-  "godkjent bedriftshelsetjeneste",
-  "arbeidstilsynet krav",
-  "internkontrollforskriften",
-  "arbeidsmiljøloven",
-  "hms kurs",
-  "verneombud opplæring",
-  "5 whys analyse",
-  "hendelsesrapportering",
-  "avviksbehandling",
-  "stoffkartotek",
-  "sikkerhetsdatablad",
-  "kompetansematrise",
-  "hms dokumentasjon",
+  "EHS software price",
+  "best EHS software",
+  "EHS platform",
+  "EHS digitalization",
+  "EHS mobile app",
+  "mobile safety solution",
+  "affordable EHS software",
+  "EHS software small business",
+  "OSHA 300 log software",
+  "OSHA recordkeeping",
+  "safety data sheet management",
+  "chemical registry software",
+  "training competency matrix",
+  "EHS documentation",
+  "5 whys root cause analysis",
+  "corrective action software",
 ] as const;
 
-// Strukturerte data for søkemotorer
 export const ORGANIZATION_SCHEMA = {
   "@context": "https://schema.org",
   "@type": "Organization",
@@ -81,11 +68,7 @@ export const ORGANIZATION_SCHEMA = {
   email: SITE_CONFIG.contactEmail,
   address: {
     "@type": "PostalAddress",
-    streetAddress: "Baneveien 290",
-    addressLocality: "Sylling",
-    postalCode: "3410",
-    addressRegion: "Lier",
-    addressCountry: "NO",
+    addressCountry: "US",
   },
   sameAs: [
     SITE_CONFIG.socialMedia.linkedin,
@@ -93,41 +76,40 @@ export const ORGANIZATION_SCHEMA = {
   ],
   areaServed: {
     "@type": "Country",
-    name: "Norway",
+    name: "United States",
   },
   hasOfferCatalog: {
     "@type": "OfferCatalog",
-    name: "HMS-tjenester",
+    name: "EHS Services",
     itemListElement: [
       {
         "@type": "Offer",
         itemOffered: {
           "@type": "Service",
-          name: "HMS-system",
-          description: "Komplett digitalt HMS-system for norske bedrifter",
+          name: "EHS Management Software",
+          description: "Complete digital EHS management platform for US businesses",
         },
       },
       {
         "@type": "Offer",
         itemOffered: {
           "@type": "Service",
-          name: "Bedriftshelsetjeneste",
-          description: "HMS Nova etablerer seg som godkjent bedriftshelsetjeneste med minimum krav, tilleggstjenester og kurs.",
+          name: "OSHA Compliance Tools",
+          description: "OSHA 300/300A/301 log automation, incident reporting and recordkeeping",
         },
       },
       {
         "@type": "Offer",
         itemOffered: {
           "@type": "Service",
-          name: "HMS-kurs",
-          description: "Lovpålagte HMS-kurs og førstehjelp",
+          name: "ISO 45001 Audit Module",
+          description: "Internal audit management and corrective action tracking for ISO 45001 certification",
         },
       },
     ],
   },
 } as const;
 
-// Software Product Schema for HMS Nova systemet
 export const SOFTWARE_PRODUCT_SCHEMA = {
   "@context": "https://schema.org",
   "@type": "SoftwareApplication",
@@ -136,85 +118,84 @@ export const SOFTWARE_PRODUCT_SCHEMA = {
   operatingSystem: "Web, iOS, Android",
   offers: {
     "@type": "AggregateOffer",
-    priceCurrency: "NOK",
-    lowPrice: "300",
-    highPrice: "300",
+    priceCurrency: "USD",
+    lowPrice: "30",
+    highPrice: "30",
     priceSpecification: {
       "@type": "UnitPriceSpecification",
-      price: "300",
-      priceCurrency: "NOK",
+      price: "30",
+      priceCurrency: "USD",
       unitText: "MONTH",
     },
   },
   featureList: [
-    "Digital signatur",
-    "Risikovurdering 5x5 matrise",
-    "Hendelsesrapportering",
-    "5 Whys analyse",
-    "Automatiske påminnelser",
-    "Mobilapp (offline)",
-    "ISO 9001 compliance",
-    "Dokumenthåndtering",
-    "Kompetansematrise",
-    "Stoffkartotek",
-    "Revisjoner og audits",
-    "Mål og KPI-oppfølging",
+    "Digital e-signatures",
+    "5x5 risk assessment matrix",
+    "Incident reporting & 5-Whys analysis",
+    "Automated reminders & alerts",
+    "Offline mobile app",
+    "ISO 45001 compliance",
+    "Document management with version control",
+    "Training competency matrix",
+    "Chemical hazard register (HazCom 2012)",
+    "Internal audits & CAP tracking",
+    "Goals & KPI dashboards",
+    "OSHA 300/300A/301 log automation",
   ],
-  description: "HMS Nova bygger trygghet. Norges mest moderne HMS-system med full ISO 9001 compliance, digital signatur og mobilapp.",
+  description: "HMS Nova is an all-in-one EHS management platform. $30/month, unlimited users, all modules included — OSHA compliance, ISO 45001 audits, incident reporting, and more.",
   screenshot: `${SITE_CONFIG.url}/opengraph-image`,
 } as const;
 
-// FAQ Schema for bedre synlighet i søk
 export const FAQ_SCHEMA = {
   "@context": "https://schema.org",
   "@type": "FAQPage",
   mainEntity: [
     {
       "@type": "Question",
-      name: "Hva er HMS Nova?",
+      name: "What is HMS Nova?",
       acceptedAnswer: {
         "@type": "Answer",
-        text: "HMS Nova er Norges mest moderne HMS-system. Vi bygger trygghet gjennom digitalisering av HMS-arbeid. Med HMS Nova får bedrifter et komplett verktøy for risikovurdering, hendelsesrapportering, dokumenthåndtering og ISO 9001 compliance.",
+        text: "HMS Nova is an all-in-one EHS management platform for US businesses. It covers OSHA recordkeeping, incident reporting, risk assessments, ISO 45001 audits, training matrix, chemical register, and more — all in a single $30/month subscription with unlimited users.",
       },
     },
     {
       "@type": "Question",
-      name: "Hva koster HMS Nova?",
+      name: "How much does HMS Nova cost?",
       acceptedAnswer: {
         "@type": "Answer",
-        text: "HMS Nova koster 300 kr/mnd (3 600 kr/år) med 12 måneders abonnement. Ubegrenset antall brukere inkludert. Ingen oppstartskostnader, alt inkludert.",
+        text: "HMS Nova costs $30/month ($360/year) with a 12-month subscription. Unlimited users are included. No setup fees, no per-seat charges, no add-on modules — everything is included from day one.",
       },
     },
     {
       "@type": "Question",
-      name: "Er HMS Nova godkjent av Arbeidstilsynet?",
+      name: "Does HMS Nova support OSHA compliance?",
       acceptedAnswer: {
         "@type": "Answer",
-        text: "HMS Nova følger alle krav i Arbeidsmiljøloven, Internkontrollforskriften og ISO 9001:2015. Systemet er bygget for å sikre full compliance med norsk lov og internasjonale standarder.",
+        text: "Yes. HMS Nova includes automated OSHA 300, 300A, and 301 log management, incident reporting with 5-Whys root cause analysis, and corrective action tracking. The platform is built to support full OSHA compliance for US businesses.",
       },
     },
     {
       "@type": "Question",
-      name: "Tilbyr HMS Nova bedriftshelsetjeneste?",
+      name: "Does HMS Nova support ISO 45001?",
       acceptedAnswer: {
         "@type": "Answer",
-        text: "HMS Nova etablerer seg som godkjent bedriftshelsetjeneste (BHT) og vil tilby minimum lovkrav, tilleggstjenester og et bredt kursutbud inkludert Diisocyanater. HMS-system og BHT vil være under ett tak.",
+        text: "Yes. HMS Nova includes a dedicated ISO 45001 internal audit module with corrective and preventive action (CAPA) tracking, management review tools, and KPI dashboards — everything needed to achieve and maintain ISO 45001 certification.",
       },
     },
     {
       "@type": "Question",
-      name: "Fungerer HMS Nova på mobil og offline?",
+      name: "Does HMS Nova work on mobile and offline?",
       acceptedAnswer: {
         "@type": "Answer",
-        text: "Ja! HMS Nova har full mobilstøtte og fungerer offline. Perfekt for byggeplasser, verksteder og feltarbeid. Synkronisering skjer automatisk når du er tilbake online.",
+        text: "Yes. HMS Nova has a fully offline-capable mobile app — ideal for job sites, warehouses, and field operations. Data syncs automatically when connectivity is restored.",
       },
     },
     {
       "@type": "Question",
-      name: "Hvordan skiller HMS Nova seg fra Grønn Jobb, Avonova og Kuba?",
+      name: "Is there a free trial?",
       acceptedAnswer: {
         "@type": "Answer",
-        text: "HMS Nova er 100% digitalt og moderne. Vi har digital signatur inkludert (ikke ekstrakostnad), 12 måneders abonnement (300 kr/mnd), mobilapp med offline-støtte, og betydelig lavere priser. Vår visjon er enkel: HMS Nova bygger trygghet - ikke byråkrati.",
+        text: "Yes. HMS Nova offers a 14-day free trial with full access to all features. No credit card required. Most teams are fully onboarded within one week.",
       },
     },
   ],
@@ -232,57 +213,56 @@ export const getBreadcrumbSchema = (items: Array<{ name: string; url: string }>)
   })),
 });
 
-// Page-spesifikke metadata templates
 export const PAGE_METADATA = {
   home: {
-    title: "HMS Nova - Norges Mest Moderne HMS-system | HMS Nova Bygger Trygghet",
-    description: "HMS Nova bygger trygghet. 300 kr/mnd, ubegrenset brukere, digital signatur inkludert, ISO 9001-støtte og 14 dagers gratis prøve. Prøv i dag!",
+    title: "HMS Nova — Complete EHS Management Software | $30/month",
+    description: "HMS Nova is an all-in-one EHS platform for US businesses. OSHA compliance, ISO 45001 audits, incident reporting, training matrix — unlimited users, all modules, $30/month. Start free today.",
     keywords: [...PRIMARY_KEYWORDS, ...SECONDARY_KEYWORDS.slice(0, 10)].join(", "),
   },
   priser: {
-    title: "Priser - HMS Nova | 300 kr/mnd | Ingen Skjulte Kostnader",
-    description: "Transparente priser: 300 kr/mnd (3 600 kr/år) med 12 mnd abonnement. Ubegrenset brukere, digital signatur inkludert og 0 kr oppstart. Se alle priser.",
-    keywords: "hms system pris, hms programvare kostnad, billig hms system, hms system alle bedrifter, beste hms system pris",
+    title: "Pricing — HMS Nova | $30/month | No Hidden Fees",
+    description: "Transparent pricing: $30/month ($360/year) with a 12-month subscription. Unlimited users, all modules included, no setup fees. See everything you get.",
+    keywords: "EHS software price, EHS platform cost, affordable EHS software, EHS software all features, best EHS software price",
   },
   kurs: {
-    title: "HMS-kurs - Lovpålagte Kurs & Førstehjelp | HMS Nova",
-    description: "20% rabatt på HMS-kurs for medlemmer. Verneombud, førstehjelp og diisocyanater. Fysisk, digitalt eller hybrid. Bestill kurs hos HMS Nova i dag.",
-    keywords: "hms kurs, verneombud kurs, førstehjelp kurs, hms opplæring, lovpålagt hms kurs",
+    title: "EHS Training — OSHA Courses & Safety Programs | HMS Nova",
+    description: "Manage all EHS training in one place. Track certifications, assign courses, and monitor competency with HMS Nova's built-in training matrix.",
+    keywords: "EHS training software, OSHA training, safety training management, competency matrix, training records",
   },
   bht: {
-    title: "Bedriftshelsetjeneste (BHT) - HMS Nova blir BHT-organ | Minimum krav + kurs",
-    description: "HMS Nova etablerer seg som godkjent BHT · Minimum lovkrav + tilleggstjenester + Diisocyanater og HMS-kurs · Ett sted for HMS og BHT · Registrer interesse →",
-    keywords: "bedriftshelsetjeneste, BHT, godkjent bedriftshelsetjeneste, arbeidstilsynet bht, diisocyanater kurs, AMO-kurs",
+    title: "Occupational Health Services — HMS Nova",
+    description: "HMS Nova integrates occupational health service management. Track medical surveillance, exposure monitoring, and health program compliance.",
+    keywords: "occupational health software, OHS management, medical surveillance, exposure monitoring",
   },
   komplettPakke: {
-    title: "Komplett HMS-pakke - BHT + HMS Nova fra 6 900 kr/år | HMS Nova",
-    description: "Lovpålagt BHT + HMS Nova. START 6 900 kr/år (1-5 ansatte), PRO 14 900 kr/år (6-20), PREMIUM fra 29 900 kr/år (20+). Tilleggstjenester til fast pris. Ring salg eller venteliste.",
-    keywords: "komplett hms pakke, bht pakke, hms oppsett, implementering hms, hms nova pakke, bht pris",
+    title: "Complete EHS Package — HMS Nova",
+    description: "Everything you need for EHS compliance. Risk assessments, incident reporting, audits, training, and more — all in one $30/month subscription.",
+    keywords: "complete EHS package, EHS setup, EHS implementation, HMS Nova plan",
   },
   handbook: {
-    title: "HMS-håndbok - Digital & Oppdatert | HMS Nova",
-    description: "Ferdig HMS-håndbok tilpasset din bedrift. Alltid oppdatert med lovkrav, digital signatur og versjonskontroll. Spar uker med arbeid. Prøv gratis.",
-    keywords: "hms håndbok, digital hms håndbok, hms dokumentasjon, arbeidsmiljøhåndbok",
+    title: "EHS Handbook — Digital & Always Current | HMS Nova",
+    description: "Pre-built EHS handbook templates tailored to your industry. Always up-to-date with OSHA requirements, digital e-signatures, and version control.",
+    keywords: "EHS handbook, digital EHS handbook, EHS documentation, safety manual",
   },
   risikovurdering: {
-    title: "Risikovurdering - 5x5 Matrise & Analyse | HMS Nova",
-    description: "Profesjonell risikovurdering med 5x5 matrise (ISO 9001). Enkelt å bruke med automatisk oppfølging. Bestå revisjoner med glans. Prøv gratis i 14 dager.",
-    keywords: "risikovurdering, risikoanalyse, 5x5 matrise, risikostyring, hms risikovurdering",
+    title: "Risk Assessment — 5x5 Matrix & Analysis | HMS Nova",
+    description: "Professional risk assessment with 5x5 probability-severity matrix. Easy to use with automatic follow-up. Built for ISO 45001 compliance.",
+    keywords: "risk assessment software, risk analysis, 5x5 matrix, risk management, EHS risk assessment",
   },
   vernerunde: {
-    title: "Vernerunde-guide - Digital Vernerunde på Mobil | HMS Nova",
-    description: "Digital vernerunde på mobil som fungerer offline. Automatisk rapportering, perfekt for byggeplasser. Spar timer hver uke. Prøv gratis.",
-    keywords: "vernerunde, digital vernerunde, vernerunde mal, sikkerhetsinspeksjon, bygningsvernerunde",
+    title: "Safety Inspection — Digital & Mobile | HMS Nova",
+    description: "Digital safety inspections on mobile, works offline. Automatic reporting, perfect for warehouses and job sites.",
+    keywords: "safety inspection software, digital safety inspection, inspection checklist, site inspection app",
   },
   lover: {
-    title: "HMS Lover & Regler - Arbeidsmiljøloven & ISO 9001 | HMS Nova",
-    description: "Komplett oversikt over HMS-lover i Norge. Arbeidsmiljøloven, internkontrollforskriften og ISO 9001. Oppdatert 2026. Les mer om dine plikter.",
-    keywords: "arbeidsmiljøloven, internkontrollforskriften, iso 9001, hms lovverk, arbeidstilsynet regler",
+    title: "EHS Laws & Regulations — OSHA & EPA | HMS Nova",
+    description: "Complete overview of US EHS regulations. OSHA standards, EPA requirements, and ISO 45001. Updated 2026.",
+    keywords: "OSHA regulations, EPA compliance, EHS laws, workplace safety regulations, OSHA standards",
   },
   iso: {
-    title: "ISO 9001 Sjekkliste - Gratis Last Ned | HMS Nova",
-    description: "Gratis ISO 9001 sjekkliste for full compliance med kvalitetsstyringsstandarden. HMS Nova har innebygd ISO 9001-støtte. Last ned nå.",
-    keywords: "iso 9001 sjekkliste, iso 9001 compliance, kvalitetsstyring, iso sertifisering",
+    title: "ISO 45001 Checklist — Free Download | HMS Nova",
+    description: "Free ISO 45001 checklist for full compliance with occupational health and safety management standards. HMS Nova has built-in ISO 45001 support.",
+    keywords: "ISO 45001 checklist, ISO 45001 compliance, OHS management, ISO certification",
   },
 } as const;
 
