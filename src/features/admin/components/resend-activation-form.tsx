@@ -35,7 +35,7 @@ export function ResendActivationForm({ tenantId, defaultEmail }: ResendActivatio
     if (result.success) {
       toast({
         title: "✅ Aktiverings-e-post sendt",
-        description: "Brukeren vil motta påloggingsinformasjon",
+        description: "The user will receive login information",
       });
       router.refresh();
       (e.target as HTMLFormElement).reset();

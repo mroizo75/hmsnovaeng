@@ -55,15 +55,15 @@ export function ProfileForm({ user }: ProfileFormProps) {
       }
 
       toast({
-        title: "✅ Profil oppdatert",
-        description: "Dine endringer er lagret",
+        title: "✅ Profile updated",
+        description: "Your changes have been saved",
       });
 
       router.refresh();
     } catch (error) {
       toast({
-        title: "❌ Feil",
-        description: "Kunne ikke oppdatere profil. Prøv igjen.",
+        title: "❌ Error",
+        description: "Could not update profile. Please try again.",
         variant: "destructive",
       });
     } finally {
@@ -82,8 +82,8 @@ export function ProfileForm({ user }: ProfileFormProps) {
 
     if (newPassword !== confirmPassword) {
       toast({
-        title: "❌ Feil",
-        description: "Nye passord matcher ikke",
+        title: "❌ Error",
+        description: "New passwords do not match",
         variant: "destructive",
       });
       setIsChangingPassword(false);
@@ -99,20 +99,20 @@ export function ProfileForm({ user }: ProfileFormProps) {
 
       if (!response.ok) {
         const data = await response.json();
-        throw new Error(data.error || "Kunne ikke endre passord");
+        throw new Error(data.error || "Could not change password");
       }
 
       toast({
-        title: "✅ Passord endret",
-        description: "Ditt nye passord er lagret",
+        title: "✅ Password changed",
+        description: "Your new password has been saved",
       });
 
-      // Reset skjema
+      // Reset form
       (e.target as HTMLFormElement).reset();
     } catch (error: any) {
       toast({
-        title: "❌ Feil",
-        description: error.message || "Kunne ikke endre passord. Prøv igjen.",
+        title: "❌ Error",
+        description: error.message || "Could not change password. Please try again.",
         variant: "destructive",
       });
     } finally {
@@ -122,16 +122,16 @@ export function ProfileForm({ user }: ProfileFormProps) {
 
   return (
     <div className="space-y-8">
-      {/* Profilbilde-seksjon */}
+      {/* Profile picture section */}
       <div className="flex flex-col items-center gap-4">
         <div className="relative">
           <div className="h-32 w-32 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden border-4 border-white shadow-lg">
             {avatarPreview ? (
-              // Bruk vanlig img tag for både storage og blob URLs
+              // Use regular img tag for both storage and blob URLs
               // eslint-disable-next-line @next/next/no-img-element
               <img
                 src={avatarPreview}
-                alt="Profilbilde"
+                alt="Profile picture"
                 className="h-full w-full object-cover"
               />
             ) : (
@@ -146,7 +146,7 @@ export function ProfileForm({ user }: ProfileFormProps) {
           </Label>
         </div>
         <p className="text-sm text-muted-foreground">
-          Klikk på kamera-ikonet for å endre profilbilde
+          Click the camera icon to change profile picture
         </p>
       </div>
 
@@ -161,9 +161,9 @@ export function ProfileForm({ user }: ProfileFormProps) {
           className="sr-only"
         />
 
-        {/* Navn */}
+        {/* Name */}
         <div className="space-y-2">
-          <Label htmlFor="name">Navn *</Label>
+          <Label htmlFor="name">Name *</Label>
           <Input
             id="name"
             name="name"
@@ -173,9 +173,9 @@ export function ProfileForm({ user }: ProfileFormProps) {
           />
         </div>
 
-        {/* E-post (read-only) */}
+        {/* Email (read-only) */}
         <div className="space-y-2">
-          <Label htmlFor="email">E-post</Label>
+          <Label htmlFor="email">Email</Label>
           <Input
             id="email"
             value={user.email}
@@ -183,54 +183,54 @@ export function ProfileForm({ user }: ProfileFormProps) {
             className="h-12 bg-gray-50"
           />
           <p className="text-xs text-muted-foreground">
-            E-postadressen kan ikke endres
+            Email address cannot be changed
           </p>
         </div>
 
-        {/* Telefon */}
+        {/* Phone */}
         <div className="space-y-2">
-          <Label htmlFor="phone">Telefon</Label>
+          <Label htmlFor="phone">Phone</Label>
           <Input
             id="phone"
             name="phone"
             type="tel"
             defaultValue={user.phone || ""}
-            placeholder="+47 999 99 999"
+            placeholder="+1 (555) 000-0000"
             className="h-12"
           />
         </div>
 
-        {/* Adresse */}
+        {/* Address */}
         <div className="space-y-2">
-          <Label htmlFor="address">Adresse</Label>
+          <Label htmlFor="address">Address</Label>
           <Input
             id="address"
             name="address"
             defaultValue={user.address || ""}
-            placeholder="Eksempel: Storgata 1"
+            placeholder="E.g.: 123 Main Street"
             className="h-12"
           />
         </div>
 
-        {/* Postnummer og Sted */}
+        {/* ZIP and City */}
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
-            <Label htmlFor="postalCode">Postnummer</Label>
+            <Label htmlFor="postalCode">ZIP code</Label>
             <Input
               id="postalCode"
               name="postalCode"
               defaultValue={user.postalCode || ""}
-              placeholder="0000"
+              placeholder="00000"
               className="h-12"
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="city">Poststed</Label>
+            <Label htmlFor="city">City</Label>
             <Input
               id="city"
               name="city"
               defaultValue={user.city || ""}
-              placeholder="Oslo"
+              placeholder="New York"
               className="h-12"
             />
           </div>
@@ -245,20 +245,20 @@ export function ProfileForm({ user }: ProfileFormProps) {
           {isSubmitting ? (
             <>
               <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-              Lagrer...
+              Saving...
             </>
           ) : (
-            "💾 Lagre endringer"
+            "💾 Save changes"
           )}
         </Button>
       </form>
 
-      {/* Passord-seksjon */}
+      {/* Password section */}
       <div className="border-t pt-8">
-        <h3 className="text-lg font-semibold mb-4">Endre passord</h3>
+        <h3 className="text-lg font-semibold mb-4">Change password</h3>
         <form onSubmit={handlePasswordChange} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="currentPassword">Nåværende passord *</Label>
+            <Label htmlFor="currentPassword">Current password *</Label>
             <Input
               id="currentPassword"
               name="currentPassword"
@@ -269,7 +269,7 @@ export function ProfileForm({ user }: ProfileFormProps) {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="newPassword">Nytt passord *</Label>
+            <Label htmlFor="newPassword">New password *</Label>
             <Input
               id="newPassword"
               name="newPassword"
@@ -279,12 +279,12 @@ export function ProfileForm({ user }: ProfileFormProps) {
               className="h-12"
             />
             <p className="text-xs text-muted-foreground">
-              Minimum 8 tegn
+              Minimum 8 characters
             </p>
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="confirmPassword">Bekreft nytt passord *</Label>
+            <Label htmlFor="confirmPassword">Confirm new password *</Label>
             <Input
               id="confirmPassword"
               name="confirmPassword"
@@ -304,10 +304,10 @@ export function ProfileForm({ user }: ProfileFormProps) {
             {isChangingPassword ? (
               <>
                 <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                Endrer...
+                Changing...
               </>
             ) : (
-              "🔒 Endre passord"
+              "🔒 Change password"
             )}
           </Button>
         </form>

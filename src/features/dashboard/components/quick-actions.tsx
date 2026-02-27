@@ -18,25 +18,25 @@ interface QuickActionsProps {
 
 const PRIORITY_ACTIONS = [
   {
-    label: "Rapporter hendelse",
+    label: "Report incident",
     icon: AlertCircle,
     href: "/dashboard/incidents/new",
     canPerform: (p: RolePermissions) => p.canCreateIncidents,
   },
   {
-    label: "Nytt tiltak",
+    label: "New action",
     icon: ListTodo,
     href: "/dashboard/actions",
     canPerform: (p: RolePermissions) => p.canCreateActions,
   },
   {
-    label: "Ny risikovurdering",
+    label: "New risk assessment",
     icon: AlertTriangle,
     href: "/dashboard/risks/new",
     canPerform: (p: RolePermissions) => p.canCreateRisks,
   },
   {
-    label: "Nytt dokument",
+    label: "New document",
     icon: FileText,
     href: "/dashboard/documents/new",
     canPerform: (p: RolePermissions) => p.canCreateDocuments,
@@ -50,7 +50,7 @@ export function QuickActions({ permissions, userRole }: QuickActionsProps) {
 
   return (
     <div className="flex flex-wrap items-center gap-2">
-      <span className="text-sm text-muted-foreground mr-1">Hurtighandlinger:</span>
+      <span className="text-sm text-muted-foreground mr-1">Quick actions:</span>
       {available.map((action) => {
         const Icon = action.icon;
         return (

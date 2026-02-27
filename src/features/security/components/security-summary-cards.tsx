@@ -19,24 +19,24 @@ export function SecuritySummaryCards({
 }: SecuritySummaryCardsProps) {
   const stats = [
     {
-      title: "Kontroller",
+      title: "Controls",
       value: controls,
-      subtitle: `${controlsImplemented} implementert`,
+      subtitle: `${controlsImplemented} implemented`,
     },
     {
-      title: "Evidens",
+      title: "Evidence",
       value: evidenceCount,
-      subtitle: "Siste 12 mnd",
+      subtitle: "Last 12 months",
     },
     {
-      title: "Sikkerhetsobjekter",
+      title: "Security Assets",
       value: assets,
-      subtitle: "Kritiske ressurser",
+      subtitle: "Critical resources",
     },
     {
-      title: "Tilgangsrevisjoner",
+      title: "Access Reviews",
       value: reviewsOpen,
-      subtitle: "Åpne runder",
+      subtitle: "Open rounds",
     },
   ];
 

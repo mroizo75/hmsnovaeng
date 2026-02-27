@@ -28,7 +28,7 @@ import {
   CreditCard,
 } from "lucide-react";
 import { format } from "date-fns";
-import { nb } from "date-fns/locale";
+import { enUS } from "date-fns/locale";
 
 interface PageProps {
   params: Promise<{
@@ -142,7 +142,7 @@ async function TenantDetails({ id }: { id: string }) {
             <CardHeader>
               <CardTitle>Bedriftsinformasjon</CardTitle>
               <CardDescription>
-                Grunnleggende informasjon om bedriften
+                Basic information about the company
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -150,48 +150,48 @@ async function TenantDetails({ id }: { id: string }) {
             </CardContent>
           </Card>
 
-          {/* Årlig HMS-plan / Ledelsens gjennomgang */}
+          {/* Annual EHS plan / Management review */}
           <Card>
             <CardHeader>
-              <CardTitle>Årlig HMS-plan</CardTitle>
+              <CardTitle>Annual EHS plan</CardTitle>
               <CardDescription>
-                Konfigurasjon for årlig HMS-plan og ledelsens gjennomgang for denne bedriften
+                Configuration for annual EHS plan and management review for this company
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid md:grid-cols-3 gap-4">
                 <div>
                   <p className="text-xs font-medium text-muted-foreground uppercase">
-                    Årlig HMS-plan
+                    Annual EHS plan
                   </p>
                   <p className="mt-1 font-medium">
-                    {tenant.hmsAnnualPlanEnabled ? "Aktivert" : "Deaktivert"}
+                    {tenant.hmsAnnualPlanEnabled ? "Enabled" : "Disabled"}
                   </p>
                 </div>
                 <div>
                   <p className="text-xs font-medium text-muted-foreground uppercase">
-                    Frekvens ledelsens gjennomgang
+                    Management review frequency
                   </p>
                   <p className="mt-1 font-medium">
-                    Hver {tenant.managementReviewFrequencyMonths} måned
-                    {tenant.managementReviewFrequencyMonths !== 1 ? "er" : ""}
+                    Every {tenant.managementReviewFrequencyMonths} month
+                    {tenant.managementReviewFrequencyMonths !== 1 ? "s" : ""}
                   </p>
                 </div>
                 <div>
                   <p className="text-xs font-medium text-muted-foreground uppercase">
-                    Siste gjennomgang
+                    Last review
                   </p>
                   <p className="mt-1 font-medium">
                     {lastManagementReview
-                      ? format(new Date(lastManagementReview.reviewDate), "d. MMM yyyy", { locale: nb })
-                      : "Ingen registrert"}
+                      ? format(new Date(lastManagementReview.reviewDate), "MMM d, yyyy", { locale: enUS })
+                      : "None registered"}
                   </p>
                 </div>
               </div>
               {lastManagementReview && (
                 <p className="text-xs text-muted-foreground">
-                  Neste anbefalte ledelsens gjennomgang beregnes automatisk ut fra valgt frekvens
-                  og brukes i varslingsmotoren for denne tenanten.
+                  The next recommended management review is automatically calculated based on the selected frequency
+                  and used in the notification engine for this tenant.
                 </p>
               )}
             </CardContent>
@@ -204,9 +204,9 @@ async function TenantDetails({ id }: { id: string }) {
           {hasSubscription && (
             <Card>
               <CardHeader>
-                <CardTitle>Abonnement</CardTitle>
+                  <CardTitle>Subscription</CardTitle>
                 <CardDescription>
-                  Abonnementsinformasjon og fakturering
+                  Subscription information and billing
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
@@ -219,12 +219,12 @@ async function TenantDetails({ id }: { id: string }) {
                   </div>
                   <div>
                     <label className="text-sm font-medium text-muted-foreground">
-                      Pris
+                      Price
                     </label>
                     <p className="font-medium mt-1 text-primary">
-                      {tenant.subscription.price.toLocaleString("nb-NO")} kr
+                      ${tenant.subscription.price.toLocaleString("en-US")}
                       <span className="text-sm text-muted-foreground">
-                        /{tenant.subscription.billingInterval === "YEARLY" ? "år" : "mnd"}
+                        /{tenant.subscription.billingInterval === "YEARLY" ? "yr" : "mo"}
                       </span>
                     </p>
                   </div>
@@ -245,11 +245,11 @@ async function TenantDetails({ id }: { id: string }) {
                     <div className="flex items-center gap-2">
                       <Clock className="h-4 w-4 text-muted-foreground" />
                       <label className="text-sm font-medium text-muted-foreground">
-                        Periode utløper
+                        Period expires
                       </label>
                     </div>
                     <p className="font-medium mt-1">
-                      {new Date(tenant.subscription.currentPeriodEnd).toLocaleDateString("nb-NO", {
+                      {new Date(tenant.subscription.currentPeriodEnd).toLocaleDateString("en-US", {
                         day: "2-digit",
                         month: "long",
                         year: "numeric",
@@ -357,9 +357,9 @@ async function TenantDetails({ id }: { id: string }) {
               <div className="flex items-start gap-3">
                 <Calendar className="h-4 w-4 text-muted-foreground mt-0.5" />
                 <div>
-                  <p className="text-sm font-medium">Registrert</p>
+                  <p className="text-sm font-medium">Registered</p>
                   <p className="text-xs text-muted-foreground">
-                    {new Date(tenant.createdAt).toLocaleDateString("nb-NO", {
+                    {new Date(tenant.createdAt).toLocaleDateString("en-US", {
                       day: "2-digit",
                       month: "long",
                       year: "numeric",
@@ -374,9 +374,9 @@ async function TenantDetails({ id }: { id: string }) {
                 <div className="flex items-start gap-3">
                   <CheckCircle2 className="h-4 w-4 text-green-500 mt-0.5" />
                   <div>
-                    <p className="text-sm font-medium">Aktivert</p>
+                    <p className="text-sm font-medium">Activated</p>
                     <p className="text-xs text-muted-foreground">
-                      {new Date(tenant.onboardingCompletedAt).toLocaleDateString("nb-NO", {
+                      {new Date(tenant.onboardingCompletedAt).toLocaleDateString("en-US", {
                         day: "2-digit",
                         month: "long",
                         year: "numeric",
@@ -392,9 +392,9 @@ async function TenantDetails({ id }: { id: string }) {
                 <div className="flex items-start gap-3">
                   <Clock className="h-4 w-4 text-muted-foreground mt-0.5" />
                   <div>
-                    <p className="text-sm font-medium">Prøveperiode utløper</p>
+                    <p className="text-sm font-medium">Trial period expires</p>
                     <p className="text-xs text-muted-foreground">
-                      {new Date(tenant.trialEndsAt).toLocaleDateString("nb-NO", {
+                      {new Date(tenant.trialEndsAt).toLocaleDateString("en-US", {
                         day: "2-digit",
                         month: "long",
                         year: "numeric",
@@ -410,9 +410,9 @@ async function TenantDetails({ id }: { id: string }) {
           {adminUser && (
             <Card>
               <CardHeader>
-                <CardTitle>Endre admin e-post</CardTitle>
+                <CardTitle>Change admin email</CardTitle>
                 <CardDescription>
-                  Oppdater e-postadressen til admin-brukeren
+                  Update the email address of the admin user
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -427,9 +427,9 @@ async function TenantDetails({ id }: { id: string }) {
           {/* Resend Activation */}
           <Card>
             <CardHeader>
-              <CardTitle>Send aktivering på nytt</CardTitle>
+              <CardTitle>Resend activation</CardTitle>
               <CardDescription>
-                Send ny aktiverings-e-post med påloggingsinformasjon
+                Send new activation email with login information
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -443,9 +443,9 @@ async function TenantDetails({ id }: { id: string }) {
           {/* Status Actions */}
           <Card className="border-destructive/50">
             <CardHeader>
-              <CardTitle className="text-destructive">Administrer status</CardTitle>
+              <CardTitle className="text-destructive">Manage status</CardTitle>
               <CardDescription>
-                Endre bedriftens status
+                Change company status
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-2">
@@ -456,7 +456,7 @@ async function TenantDetails({ id }: { id: string }) {
                 }}>
                   <Button type="submit" variant="default" className="w-full">
                     <CheckCircle2 className="h-4 w-4 mr-2" />
-                    Aktiver bedrift
+                    Activate company
                   </Button>
                 </form>
               )}
@@ -467,7 +467,7 @@ async function TenantDetails({ id }: { id: string }) {
                 }}>
                   <Button type="submit" variant="outline" className="w-full">
                     <AlertCircle className="h-4 w-4 mr-2" />
-                    Suspender bedrift
+                    Suspend company
                   </Button>
                 </form>
               )}
@@ -478,7 +478,7 @@ async function TenantDetails({ id }: { id: string }) {
                 }}>
                   <Button type="submit" variant="destructive" className="w-full">
                     <AlertCircle className="h-4 w-4 mr-2" />
-                    Kanseller bedrift
+                    Cancel company
                   </Button>
                 </form>
               )}
@@ -488,9 +488,9 @@ async function TenantDetails({ id }: { id: string }) {
           {/* Delete Tenant */}
           <Card className="border-destructive">
             <CardHeader>
-              <CardTitle className="text-destructive">Fare-sone</CardTitle>
+              <CardTitle className="text-destructive">Danger zone</CardTitle>
               <CardDescription>
-                Slett bedrift og alle tilhørende data permanent
+                Delete company and all associated data permanently
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -507,7 +507,7 @@ async function TenantDetails({ id }: { id: string }) {
               />
               {(tenant.status === "ACTIVE" || tenant.status === "TRIAL") && (
                 <p className="text-xs text-muted-foreground mt-2">
-                  ⚠️ Endre status til SUSPENDED eller CANCELLED før sletting
+                  ⚠️ Change status to SUSPENDED or CANCELLED before deleting
                 </p>
               )}
             </CardContent>
@@ -526,7 +526,7 @@ export default async function TenantDetailsPage({ params }: PageProps) {
       fallback={
         <Card>
           <CardContent className="p-12 text-center">
-            <p className="text-muted-foreground">Laster detaljer...</p>
+            <p className="text-muted-foreground">Loading details...</p>
           </CardContent>
         </Card>
       }

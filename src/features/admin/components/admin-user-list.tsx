@@ -56,12 +56,12 @@ export function AdminUserList({ users, currentPage, totalPages }: AdminUserListP
     const value = e.target.value;
     setSearchTerm(value);
     
-    // Debounce søk med timeout
+    // Debounce search with timeout
     const timeoutId = setTimeout(() => {
       const params = new URLSearchParams(searchParams.toString());
       if (value) {
         params.set("search", value);
-        params.set("page", "1"); // Reset til side 1 ved søk
+        params.set("page", "1"); // Reset to page 1 on search
       } else {
         params.delete("search");
       }
@@ -78,7 +78,7 @@ export function AdminUserList({ users, currentPage, totalPages }: AdminUserListP
   const handleDelete = async (userId: string, userEmail: string) => {
     if (
       !confirm(
-        `Er du sikker på at du vil slette brukeren ${userEmail}?\n\nDette vil fjerne brukeren permanent.`
+        `Are you sure you want to delete the user ${userEmail}?\n\nThis will permanently remove the user.`
       )
     ) {
       return;
@@ -88,16 +88,16 @@ export function AdminUserList({ users, currentPage, totalPages }: AdminUserListP
 
     if (result.success) {
       toast({
-        title: "✅ Bruker slettet",
-        description: "Brukeren er permanent fjernet fra systemet",
+        title: "✅ User deleted",
+        description: "The user has been permanently removed from the system",
         className: "bg-green-50 border-green-200",
       });
       router.refresh();
     } else {
       toast({
         variant: "destructive",
-        title: "Feil",
-        description: result.error || "Kunne ikke slette bruker",
+        title: "Error",
+        description: result.error || "Could not delete user",
       });
     }
   };
@@ -107,7 +107,7 @@ export function AdminUserList({ users, currentPage, totalPages }: AdminUserListP
       <div className="flex items-center gap-2">
         <Search className="h-4 w-4 text-muted-foreground" />
         <Input
-          placeholder="Søk etter bruker, e-post eller bedrift..."
+          placeholder="Search for user, email or company..."
           value={searchTerm}
           onChange={handleSearchChange}
           className="max-w-sm"
@@ -121,7 +121,7 @@ export function AdminUserList({ users, currentPage, totalPages }: AdminUserListP
               router.push("/admin/users");
             }}
           >
-            Nullstill
+            Reset
           </Button>
         )}
       </div>
@@ -130,19 +130,19 @@ export function AdminUserList({ users, currentPage, totalPages }: AdminUserListP
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Navn</TableHead>
-              <TableHead>E-post</TableHead>
-              <TableHead>Bedrifter</TableHead>
+              <TableHead>Name</TableHead>
+              <TableHead>Email</TableHead>
+              <TableHead>Companies</TableHead>
               <TableHead>Status</TableHead>
-              <TableHead>Opprettet</TableHead>
-              <TableHead className="text-right">Handlinger</TableHead>
+              <TableHead>Created</TableHead>
+              <TableHead className="text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {filteredUsers.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={6} className="text-center text-muted-foreground">
-                  Ingen brukere funnet
+                  No users found
                 </TableCell>
               </TableRow>
             ) : (
@@ -159,7 +159,7 @@ export function AdminUserList({ users, currentPage, totalPages }: AdminUserListP
                   <TableCell>{user.email}</TableCell>
                   <TableCell>
                     {user.tenants.length === 0 ? (
-                      <span className="text-muted-foreground">Ingen</span>
+                      <span className="text-muted-foreground">None</span>
                     ) : (
                       <div className="flex flex-col gap-1">
                         {user.tenants.map((t) => (
@@ -178,13 +178,13 @@ export function AdminUserList({ users, currentPage, totalPages }: AdminUserListP
                     {user.isSuperAdmin ? (
                       <Badge className="bg-primary">SUPERADMIN</Badge>
                     ) : user.tenants.length > 0 ? (
-                      <Badge variant="default">Aktiv</Badge>
+                      <Badge variant="default">Active</Badge>
                     ) : (
-                      <Badge variant="secondary">Uten tenant</Badge>
+                      <Badge variant="secondary">No tenant</Badge>
                     )}
                   </TableCell>
                   <TableCell className="text-sm text-muted-foreground">
-                    {new Date(user.createdAt).toLocaleDateString("no-NO")}
+                    {new Date(user.createdAt).toLocaleDateString("en-US")}
                   </TableCell>
                   <TableCell className="text-right">
                     <div className="flex items-center justify-end gap-2">
@@ -227,7 +227,7 @@ export function AdminUserList({ users, currentPage, totalPages }: AdminUserListP
                 />
               </PaginationItem>
 
-              {/* Første side */}
+              {/* First page */}
               {currentPage > 2 && (
                 <PaginationItem>
                   <PaginationLink href={`/admin/users?page=1${searchTerm ? `&search=${searchTerm}` : ""}`}>
@@ -252,7 +252,7 @@ export function AdminUserList({ users, currentPage, totalPages }: AdminUserListP
                 </PaginationItem>
               )}
 
-              {/* Nåværende side */}
+              {/* Current page */}
               <PaginationItem>
                 <PaginationLink href={`/admin/users?page=${currentPage}${searchTerm ? `&search=${searchTerm}` : ""}`} isActive>
                   {currentPage}
@@ -299,7 +299,7 @@ export function AdminUserList({ users, currentPage, totalPages }: AdminUserListP
           </Pagination>
 
           <div className="text-center text-sm text-muted-foreground mt-4">
-            Side {currentPage} av {totalPages}
+            Page {currentPage} of {totalPages}
           </div>
         </div>
       )}

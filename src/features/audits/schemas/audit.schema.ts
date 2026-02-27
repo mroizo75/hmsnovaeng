@@ -20,14 +20,14 @@ import { z } from "zod";
 
 export const createAuditSchema = z.object({
   tenantId: z.string().cuid(),
-  title: z.string().min(5, "Tittel må være minst 5 tegn"),
+  title: z.string().min(5, "Title must be at least 5 characters"),
   auditType: z.enum(["INTERNAL", "EXTERNAL", "SUPPLIER", "CERTIFICATION"]),
-  scope: z.string().min(20, "Omfang må være minst 20 tegn"),
-  criteria: z.string().min(20, "Revisjonskriterier må være minst 20 tegn"),
+  scope: z.string().min(20, "Scope must be at least 20 characters"),
+  criteria: z.string().min(20, "Audit criteria must be at least 20 characters"),
   leadAuditorId: z.string().cuid(),
   teamMemberIds: z.array(z.string().cuid()).optional(),
   scheduledDate: z.date(),
-  area: z.string().min(2, "Område må være minst 2 tegn"),
+  area: z.string().min(2, "Area must be at least 2 characters"),
   department: z.string().optional(),
   status: z.enum(["PLANNED", "IN_PROGRESS", "COMPLETED", "CANCELLED"]).default("PLANNED"),
 });
@@ -52,10 +52,10 @@ export const updateAuditSchema = z.object({
 export const createFindingSchema = z.object({
   auditId: z.string().cuid(),
   findingType: z.enum(["MAJOR_NC", "MINOR_NC", "OBSERVATION", "STRENGTH"]),
-  clause: z.string().min(1, "ISO 9001 klausul må spesifiseres"),
-  description: z.string().min(20, "Beskrivelse må være minst 20 tegn"),
-  evidence: z.string().min(10, "Bevis må være minst 10 tegn"),
-  requirement: z.string().min(10, "Krav må være minst 10 tegn"),
+  clause: z.string().min(1, "ISO 9001 clause must be specified"),
+  description: z.string().min(20, "Description must be at least 20 characters"),
+  evidence: z.string().min(10, "Evidence must be at least 10 characters"),
+  requirement: z.string().min(10, "Requirement must be at least 10 characters"),
   responsibleId: z.string().cuid(),
   dueDate: z.date().optional(),
 });
@@ -84,10 +84,10 @@ export type UpdateFindingInput = z.infer<typeof updateFindingSchema>;
  */
 export function getAuditTypeLabel(type: string): string {
   const labels: Record<string, string> = {
-    INTERNAL: "Internrevisjon",
-    EXTERNAL: "Ekstern revisjon",
-    SUPPLIER: "Leverandørrevisjon",
-    CERTIFICATION: "Sertifiseringsrevisjon",
+    INTERNAL: "Internal Audit",
+    EXTERNAL: "External Audit",
+    SUPPLIER: "Supplier Audit",
+    CERTIFICATION: "Certification Audit",
   };
   return labels[type] || type;
 }
@@ -110,10 +110,10 @@ export function getAuditTypeColor(type: string): string {
  */
 export function getAuditStatusLabel(status: string): string {
   const labels: Record<string, string> = {
-    PLANNED: "Planlagt",
-    IN_PROGRESS: "Pågår",
-    COMPLETED: "Fullført",
-    CANCELLED: "Avbrutt",
+    PLANNED: "Planned",
+    IN_PROGRESS: "In Progress",
+    COMPLETED: "Completed",
+    CANCELLED: "Cancelled",
   };
   return labels[status] || status;
 }
@@ -136,10 +136,10 @@ export function getAuditStatusColor(status: string): string {
  */
 export function getFindingTypeLabel(type: string): string {
   const labels: Record<string, string> = {
-    MAJOR_NC: "Større avvik",
-    MINOR_NC: "Mindre avvik",
-    OBSERVATION: "Observasjon",
-    STRENGTH: "Styrke",
+    MAJOR_NC: "Major Non-Conformance",
+    MINOR_NC: "Minor Non-Conformance",
+    OBSERVATION: "Observation",
+    STRENGTH: "Strength",
   };
   return labels[type] || type;
 }
@@ -162,10 +162,10 @@ export function getFindingTypeColor(type: string): string {
  */
 export function getFindingStatusLabel(status: string): string {
   const labels: Record<string, string> = {
-    OPEN: "Åpen",
-    IN_PROGRESS: "Under arbeid",
-    RESOLVED: "Løst",
-    VERIFIED: "Verifisert",
+    OPEN: "Open",
+    IN_PROGRESS: "In Progress",
+    RESOLVED: "Resolved",
+    VERIFIED: "Verified",
   };
   return labels[status] || status;
 }
@@ -187,33 +187,33 @@ export function getFindingStatusColor(status: string): string {
  * ISO 9001 Standard Clauses (for checklist)
  */
 export const ISO_9001_CLAUSES = [
-  { clause: "4.1", title: "Forstå organisasjonen og dens kontekst" },
-  { clause: "4.2", title: "Forstå interessenters behov og forventninger" },
-  { clause: "4.3", title: "Bestemme omfanget til ledelsessystemet for kvalitet" },
-  { clause: "4.4", title: "Ledelsessystem for kvalitet og dets prosesser" },
-  { clause: "5.1", title: "Lederskap og forpliktelse" },
-  { clause: "5.2", title: "Politikk" },
-  { clause: "5.3", title: "Roller, ansvar og myndighet i organisasjonen" },
-  { clause: "6.1", title: "Handlinger for å håndtere risikoer og muligheter" },
-  { clause: "6.2", title: "Kvalitetsmål og planlegging for å oppnå dem" },
-  { clause: "6.3", title: "Planlegging av endringer" },
-  { clause: "7.1", title: "Ressurser" },
-  { clause: "7.2", title: "Kompetanse" },
-  { clause: "7.3", title: "Bevissthet" },
-  { clause: "7.4", title: "Kommunikasjon" },
-  { clause: "7.5", title: "Dokumentert informasjon" },
-  { clause: "8.1", title: "Operasjonell planlegging og kontroll" },
-  { clause: "8.2", title: "Krav til produkter og tjenester" },
-  { clause: "8.3", title: "Utforming og utvikling av produkter og tjenester" },
-  { clause: "8.4", title: "Kontroll av eksternt tilbudte produkter og tjenester" },
-  { clause: "8.5", title: "Produksjon og tjenesteleveranse" },
-  { clause: "8.6", title: "Frigivelse av produkter og tjenester" },
-  { clause: "8.7", title: "Kontroll av avvikende resultat" },
-  { clause: "9.1", title: "Overvåking, måling, analyse og evaluering" },
-  { clause: "9.2", title: "Internrevisjon" },
-  { clause: "9.3", title: "Ledelsens gjennomgang" },
-  { clause: "10.1", title: "Generelt - Forbedring" },
-  { clause: "10.2", title: "Avvik og korrigerende tiltak" },
-  { clause: "10.3", title: "Kontinuerlig forbedring" },
+  { clause: "4.1", title: "Understanding the organization and its context" },
+  { clause: "4.2", title: "Understanding the needs and expectations of interested parties" },
+  { clause: "4.3", title: "Determining the scope of the quality management system" },
+  { clause: "4.4", title: "Quality management system and its processes" },
+  { clause: "5.1", title: "Leadership and commitment" },
+  { clause: "5.2", title: "Policy" },
+  { clause: "5.3", title: "Organizational roles, responsibilities and authorities" },
+  { clause: "6.1", title: "Actions to address risks and opportunities" },
+  { clause: "6.2", title: "Quality objectives and planning to achieve them" },
+  { clause: "6.3", title: "Planning of changes" },
+  { clause: "7.1", title: "Resources" },
+  { clause: "7.2", title: "Competence" },
+  { clause: "7.3", title: "Awareness" },
+  { clause: "7.4", title: "Communication" },
+  { clause: "7.5", title: "Documented information" },
+  { clause: "8.1", title: "Operational planning and control" },
+  { clause: "8.2", title: "Requirements for products and services" },
+  { clause: "8.3", title: "Design and development of products and services" },
+  { clause: "8.4", title: "Control of externally provided products and services" },
+  { clause: "8.5", title: "Production and service provision" },
+  { clause: "8.6", title: "Release of products and services" },
+  { clause: "8.7", title: "Control of nonconforming outputs" },
+  { clause: "9.1", title: "Monitoring, measurement, analysis and evaluation" },
+  { clause: "9.2", title: "Internal audit" },
+  { clause: "9.3", title: "Management review" },
+  { clause: "10.1", title: "General - Improvement" },
+  { clause: "10.2", title: "Nonconformity and corrective action" },
+  { clause: "10.3", title: "Continual improvement" },
 ];
 

@@ -24,7 +24,7 @@ export default async function RisksPage() {
   });
 
   if (!user || user.tenants.length === 0) {
-    return <div>Ingen tilgang til tenant</div>;
+    return <div>No tenant access</div>;
   }
 
   const tenantId = user.tenants[0].tenantId;
@@ -70,9 +70,9 @@ export default async function RisksPage() {
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div>
-            <h1 className="text-3xl font-bold">Risikovurdering</h1>
+            <h1 className="text-3xl font-bold">Risk Assessment</h1>
             <p className="text-muted-foreground">
-              5x5 risikomatrise for systematisk vurdering av HMS-risikoer
+              5x5 risk matrix for systematic evaluation of EHS risks
             </p>
           </div>
           <PageHelpDialog content={helpContent.risks} />
@@ -80,7 +80,7 @@ export default async function RisksPage() {
         <Button asChild>
           <Link href="/dashboard/risks/new">
             <Plus className="mr-2 h-4 w-4" />
-            Ny risikovurdering
+            New Risk Assessment
           </Link>
         </Button>
       </div>
@@ -88,18 +88,18 @@ export default async function RisksPage() {
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Totalt</CardTitle>
+            <CardTitle className="text-sm font-medium">Total</CardTitle>
             <Shield className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{stats.total}</div>
-            <p className="text-xs text-muted-foreground">Registrerte risikoer</p>
+            <p className="text-xs text-muted-foreground">Registered risks</p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Kritisk/Høy</CardTitle>
+            <CardTitle className="text-sm font-medium">Critical/High</CardTitle>
             <AlertTriangle className="h-4 w-4 text-red-600" />
           </CardHeader>
           <CardContent>
@@ -107,30 +107,30 @@ export default async function RisksPage() {
               {stats.critical + stats.high}
             </div>
             <p className="text-xs text-muted-foreground">
-              {stats.critical} kritisk, {stats.high} høy
+              {stats.critical} critical, {stats.high} high
             </p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Åpne</CardTitle>
+            <CardTitle className="text-sm font-medium">Open</CardTitle>
             <Clock className="h-4 w-4 text-orange-600" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{stats.open}</div>
-            <p className="text-xs text-muted-foreground">Venter på håndtering</p>
+            <p className="text-xs text-muted-foreground">Awaiting action</p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Under håndtering</CardTitle>
+            <CardTitle className="text-sm font-medium">Being Mitigated</CardTitle>
             <CheckCircle className="h-4 w-4 text-blue-600" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{stats.mitigating}</div>
-            <p className="text-xs text-muted-foreground">Tiltak pågår</p>
+            <p className="text-xs text-muted-foreground">Actions in progress</p>
           </CardContent>
         </Card>
       </div>
@@ -140,10 +140,10 @@ export default async function RisksPage() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <FileText className="h-5 w-5" />
-              Risikovurderinger (år)
+              Risk Assessments (by year)
             </CardTitle>
             <p className="text-sm text-muted-foreground">
-              Årlige risikovurderinger med risikopunkter – ISO 45001
+              Annual risk assessments with risk items – ISO 45001
             </p>
           </CardHeader>
           <CardContent>
@@ -156,7 +156,7 @@ export default async function RisksPage() {
                   >
                     <span className="font-medium">{a.title}</span>
                     <span className="text-muted-foreground text-sm">
-                      {a._count.risks} risikopunkt{a._count.risks !== 1 ? "er" : ""}
+                      {a._count.risks} risk {a._count.risks !== 1 ? "items" : "item"}
                     </span>
                   </Link>
                 </li>
@@ -169,7 +169,7 @@ export default async function RisksPage() {
       <RiskMatrix risks={risks} />
 
       <div>
-        <h2 className="text-xl font-semibold mb-4">Alle risikoer</h2>
+        <h2 className="text-xl font-semibold mb-4">All Risks</h2>
         <RiskList risks={risks} />
       </div>
     </div>

@@ -20,9 +20,9 @@ import { ActionEffectiveness, IncidentStage, IncidentType, IncidentStatus } from
 export const createIncidentSchema = z.object({
   tenantId: z.string().cuid(),
   type: z.nativeEnum(IncidentType),
-  title: z.string().min(5, "Tittel må være minst 5 tegn"),
-  description: z.string().min(20, "Beskrivelse må være minst 20 tegn"),
-  severity: z.number().int().min(1).max(5, "Alvorlighetsgrad må være 1-5"),
+  title: z.string().min(5, "Title must be at least 5 characters"),
+  description: z.string().min(20, "Description must be at least 20 characters"),
+  severity: z.number().int().min(1).max(5, "Severity must be 1-5"),
   occurredAt: z.date(),
   reportedBy: z.string().cuid(),
   location: z.string().optional(),
@@ -69,7 +69,7 @@ export const updateIncidentSchema = z.object({
 
 export const investigateIncidentSchema = z.object({
   id: z.string().cuid(),
-  rootCause: z.string().min(20, "Årsaksanalyse må være minst 20 tegn"),
+  rootCause: z.string().min(20, "Root cause analysis must be at least 20 characters"),
   contributingFactors: z.string().optional(),
   investigatedBy: z.string().cuid(),
 });
@@ -77,7 +77,7 @@ export const investigateIncidentSchema = z.object({
 export const closeIncidentSchema = z.object({
   id: z.string().cuid(),
   closedBy: z.string().cuid(),
-  effectivenessReview: z.string().min(20, "Effektivitetsvurdering må være minst 20 tegn"),
+  effectivenessReview: z.string().min(20, "Effectiveness review must be at least 20 characters"),
   lessonsLearned: z.string().optional(),
   measureEffectiveness: z.nativeEnum(ActionEffectiveness).optional(),
 });
@@ -92,13 +92,13 @@ export type CloseIncidentInput = z.infer<typeof closeIncidentSchema>;
  */
 export function getIncidentTypeLabel(type: IncidentType): string {
   const labels: Record<IncidentType, string> = {
-    AVVIK: "Avvik",
-    NESTEN: "Nestenulykke",
-    SKADE: "Personskade",
-    MILJO: "Miljøhendelse",
-    KVALITET: "Kvalitetsavvik",
-    HMS: "HMS",
-    CUSTOMER: "Kundeklage",
+    AVVIK: "Deviation",
+    NESTEN: "Near Miss",
+    SKADE: "Personal Injury",
+    MILJO: "Environmental Incident",
+    KVALITET: "Quality Deviation",
+    HMS: "H&S",
+    CUSTOMER: "Customer Complaint",
   };
   return labels[type];
 }
@@ -125,35 +125,35 @@ export function getIncidentTypeColor(type: IncidentType): string {
 export function getSeverityInfo(severity: number): { label: string; color: string; bgColor: string; textColor: string } {
   if (severity >= 5) {
     return {
-      label: "Kritisk",
+      label: "Critical",
       color: "text-red-900",
       bgColor: "bg-red-100 border-red-300",
       textColor: "text-red-900",
     };
   } else if (severity >= 4) {
     return {
-      label: "Alvorlig",
+      label: "Serious",
       color: "text-orange-900",
       bgColor: "bg-orange-100 border-orange-300",
       textColor: "text-orange-900",
     };
   } else if (severity >= 3) {
     return {
-      label: "Moderat",
+      label: "Moderate",
       color: "text-yellow-900",
       bgColor: "bg-yellow-100 border-yellow-300",
       textColor: "text-yellow-900",
     };
   } else if (severity >= 2) {
     return {
-      label: "Mindre",
+      label: "Minor",
       color: "text-blue-900",
       bgColor: "bg-blue-100 border-blue-300",
       textColor: "text-blue-900",
     };
   } else {
     return {
-      label: "Ubetydelig",
+      label: "Negligible",
       color: "text-gray-900",
       bgColor: "bg-gray-100 border-gray-300",
       textColor: "text-gray-900",
@@ -167,10 +167,10 @@ export function getSeverityInfo(severity: number): { label: string; color: strin
 // ISO 9001/45001 kap. 10.2 – avvik skal følges opp til lukket
 export function getIncidentStatusLabel(status: string): string {
   const labels: Record<string, string> = {
-    OPEN: "Registrert",
-    INVESTIGATING: "Under utredning",
-    ACTION_TAKEN: "Tiltak iverksatt",
-    CLOSED: "Lukket",
+    OPEN: "Registered",
+    INVESTIGATING: "Under Investigation",
+    ACTION_TAKEN: "Action Taken",
+    CLOSED: "Closed",
   };
   return labels[status] || status;
 }
@@ -190,12 +190,12 @@ export function getIncidentStatusColor(status: string): string {
 
 export function getIncidentStageLabel(stage: IncidentStage): string {
   const labels: Record<IncidentStage, string> = {
-    REPORTED: "Rapportert",
-    UNDER_REVIEW: "Under vurdering",
-    ROOT_CAUSE: "Årsak funnet",
-    ACTIONS_DEFINED: "Tiltak planlagt",
-    ACTIONS_COMPLETE: "Tiltak utført",
-    VERIFIED: "Verifisert",
+    REPORTED: "Reported",
+    UNDER_REVIEW: "Under Review",
+    ROOT_CAUSE: "Root Cause Identified",
+    ACTIONS_DEFINED: "Actions Planned",
+    ACTIONS_COMPLETE: "Actions Completed",
+    VERIFIED: "Verified",
   };
   return labels[stage];
 }

@@ -181,38 +181,38 @@ async function RegistrationDetails({ id }: { id: string }) {
           {registration.subscription && (
             <Card>
               <CardHeader>
-                <CardTitle>Abonnementsinformasjon</CardTitle>
+                <CardTitle>Subscription information</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="grid md:grid-cols-3 gap-4">
                   <div>
                     <label className="text-sm font-medium text-muted-foreground">
-                      Prisnivå
+                      Pricing tier
                     </label>
                     <p className="font-medium mt-1">
-                      {registration.pricingTier === "MICRO" && "Micro (1-20 ansatte)"}
-                      {registration.pricingTier === "SMALL" && "Small (21-50 ansatte)"}
-                      {registration.pricingTier === "MEDIUM" && "Medium (51+ ansatte)"}
-                      {registration.pricingTier === "LARGE" && "Large (51+ ansatte)"}
+                      {registration.pricingTier === "MICRO" && "Micro (1-20 employees)"}
+                      {registration.pricingTier === "SMALL" && "Small (21-50 employees)"}
+                      {registration.pricingTier === "MEDIUM" && "Medium (51+ employees)"}
+                      {registration.pricingTier === "LARGE" && "Large (51+ employees)"}
                     </p>
                   </div>
 
                   <div>
                     <label className="text-sm font-medium text-muted-foreground">
-                      Årspris
+                      Annual price
                     </label>
                     <p className="font-medium mt-1 text-primary">
-                      {registration.subscription.price.toLocaleString("nb-NO")} kr
+                      ${registration.subscription.price.toLocaleString("en-US")}
                     </p>
                   </div>
 
                   <div>
                     <label className="text-sm font-medium text-muted-foreground">
-                      Faktureringsinterval
+                      Billing interval
                     </label>
                     <p className="font-medium mt-1">
-                      {registration.subscription.billingInterval === "YEARLY" && "Årlig"}
-                      {registration.subscription.billingInterval === "MONTHLY" && "Månedlig"}
+                      {registration.subscription.billingInterval === "YEARLY" && "Yearly"}
+                      {registration.subscription.billingInterval === "MONTHLY" && "Monthly"}
                     </p>
                   </div>
                 </div>
@@ -222,11 +222,11 @@ async function RegistrationDetails({ id }: { id: string }) {
                     <div className="flex items-center gap-2">
                       <Clock className="h-4 w-4 text-muted-foreground" />
                       <label className="text-sm font-medium text-muted-foreground">
-                        Prøveperiode utløper
+                        Trial period expires
                       </label>
                     </div>
                     <p className="font-medium mt-1">
-                      {new Date(registration.trialEndsAt).toLocaleDateString("nb-NO", {
+                      {new Date(registration.trialEndsAt).toLocaleDateString("en-US", {
                         day: "2-digit",
                         month: "long",
                         year: "numeric",
@@ -242,7 +242,7 @@ async function RegistrationDetails({ id }: { id: string }) {
           {registration.notes && (
             <Card>
               <CardHeader>
-                <CardTitle>Merknader</CardTitle>
+                <CardTitle>Notes</CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-sm whitespace-pre-wrap">{registration.notes}</p>
@@ -254,9 +254,9 @@ async function RegistrationDetails({ id }: { id: string }) {
           {hasUsers && (
             <Card>
               <CardHeader>
-                <CardTitle>Opprettede brukere</CardTitle>
+                <CardTitle>Created users</CardTitle>
                 <CardDescription>
-                  Brukere som er knyttet til denne bedriften
+                  Users associated with this company
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -267,7 +267,7 @@ async function RegistrationDetails({ id }: { id: string }) {
                       className="flex items-center justify-between p-3 border rounded-lg"
                     >
                       <div>
-                        <p className="font-medium">{userTenant.user.name || "Ukjent"}</p>
+                        <p className="font-medium">{userTenant.user.name || "Unknown"}</p>
                         <p className="text-sm text-muted-foreground">
                           {userTenant.user.email}
                         </p>
@@ -276,7 +276,7 @@ async function RegistrationDetails({ id }: { id: string }) {
                         <ResendWelcomeEmailForm
                           tenantId={registration.id}
                           userEmail={userTenant.user.email}
-                          userName={userTenant.user.name || "Bruker"}
+                          userName={userTenant.user.name || "User"}
                         />
                         <Badge variant="secondary">{userTenant.role}</Badge>
                       </div>
@@ -293,15 +293,15 @@ async function RegistrationDetails({ id }: { id: string }) {
           {/* Timeline */}
           <Card>
             <CardHeader>
-              <CardTitle>Tidslinje</CardTitle>
+              <CardTitle>Timeline</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="flex items-start gap-3">
                 <Calendar className="h-4 w-4 text-muted-foreground mt-0.5" />
                 <div>
-                  <p className="text-sm font-medium">Registrert</p>
+                  <p className="text-sm font-medium">Registered</p>
                   <p className="text-xs text-muted-foreground">
-                    {new Date(registration.createdAt).toLocaleDateString("nb-NO", {
+                    {new Date(registration.createdAt).toLocaleDateString("en-US", {
                       day: "2-digit",
                       month: "long",
                       year: "numeric",
@@ -316,9 +316,9 @@ async function RegistrationDetails({ id }: { id: string }) {
                 <div className="flex items-start gap-3">
                   <CheckCircle2 className="h-4 w-4 text-green-500 mt-0.5" />
                   <div>
-                    <p className="text-sm font-medium">Aktivert</p>
+                    <p className="text-sm font-medium">Activated</p>
                     <p className="text-xs text-muted-foreground">
-                      {new Date(registration.onboardingCompletedAt).toLocaleDateString("nb-NO", {
+                      {new Date(registration.onboardingCompletedAt).toLocaleDateString("en-US", {
                         day: "2-digit",
                         month: "long",
                         year: "numeric",
@@ -332,7 +332,7 @@ async function RegistrationDetails({ id }: { id: string }) {
 
               {registration.salesRep && (
                 <div className="pt-4 border-t">
-                  <p className="text-xs text-muted-foreground mb-1">Behandlet av</p>
+                  <p className="text-xs text-muted-foreground mb-1">Handled by</p>
                   <p className="text-sm font-medium">{registration.salesRep}</p>
                 </div>
               )}
@@ -344,9 +344,9 @@ async function RegistrationDetails({ id }: { id: string }) {
             <>
               <Card>
                 <CardHeader>
-                  <CardTitle>Aktiver tenant</CardTitle>
+                  <CardTitle>Activate tenant</CardTitle>
                   <CardDescription>
-                    Opprett admin-bruker og send påloggingsinformasjon
+                    Create admin user and send login information
                   </CardDescription>
                 </CardHeader>
                 <CardContent>

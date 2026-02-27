@@ -34,7 +34,7 @@ export function TimesheetExportDropdown({ formId, formTitle }: TimesheetExportDr
   const handleDownload = (url: string) => {
     const a = document.createElement("a");
     a.href = url;
-    a.download = `${formTitle.replace(/[^a-z0-9æøå]/gi, "_")}_svar.xlsx`;
+    a.download = `${formTitle.replace(/[^a-z0-9]/gi, "_")}_responses.xlsx`;
     a.click();
     setOpen(false);
   };
@@ -44,11 +44,11 @@ export function TimesheetExportDropdown({ formId, formTitle }: TimesheetExportDr
       <DropdownMenuTrigger asChild>
         <Button size="sm" className="bg-green-600 hover:bg-green-700">
           <Download className="h-4 w-4 mr-2" />
-          Eksporter til Excel
+          Export to Excel
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-56">
-        <DropdownMenuLabel>Velg periode</DropdownMenuLabel>
+        <DropdownMenuLabel>Select period</DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuItem
           onSelect={(e) => {
@@ -56,7 +56,7 @@ export function TimesheetExportDropdown({ formId, formTitle }: TimesheetExportDr
             handleDownload(buildUrl({}));
           }}
         >
-          Alle utfyllinger
+          All submissions
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem
@@ -67,7 +67,7 @@ export function TimesheetExportDropdown({ formId, formTitle }: TimesheetExportDr
             );
           }}
         >
-          Denne uken (uke {currentWeek})
+          This week (week {currentWeek})
         </DropdownMenuItem>
         <DropdownMenuItem
           onSelect={(e) => {
@@ -81,7 +81,7 @@ export function TimesheetExportDropdown({ formId, formTitle }: TimesheetExportDr
             );
           }}
         >
-          Denne måneden
+          This month
         </DropdownMenuItem>
         <DropdownMenuItem
           onSelect={(e) => {

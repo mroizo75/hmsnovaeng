@@ -20,29 +20,28 @@ export function LogoutButton() {
       <AlertDialogTrigger asChild>
         <button
           className="p-2 hover:bg-gray-100 rounded-full transition-colors"
-          title="Logg ut"
+          title="Sign out"
         >
           <LogOut className="h-5 w-5 text-gray-600" />
         </button>
       </AlertDialogTrigger>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>Logg ut?</AlertDialogTitle>
+          <AlertDialogTitle>Sign out?</AlertDialogTitle>
           <AlertDialogDescription>
-            Er du sikker på at du vil logge ut av HMS Nova?
+            Are you sure you want to sign out of EHS Nova?
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel>Avbryt</AlertDialogCancel>
+          <AlertDialogCancel>Cancel</AlertDialogCancel>
           <AlertDialogAction
             onClick={() => signOut({ callbackUrl: "/login" })}
             className="bg-red-600 hover:bg-red-700"
           >
-            Ja, logg ut
+            Yes, sign out
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>
   );
 }
-

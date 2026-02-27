@@ -8,7 +8,7 @@ import { FormCategory, FieldType } from "@prisma/client";
  */
 export const createFormTemplateSchema = z.object({
   tenantId: z.string().cuid(),
-  title: z.string().min(3, "Tittel må være minst 3 tegn"),
+  title: z.string().min(3, "Title must be at least 3 characters"),
   description: z.string().optional(),
   category: z.nativeEnum(FormCategory).default("CUSTOM"),
   requiresSignature: z.boolean().default(true),
@@ -25,7 +25,7 @@ export const createFormTemplateSchema = z.object({
 export const createFormFieldSchema = z.object({
   formTemplateId: z.string().cuid(),
   fieldType: z.nativeEnum(FieldType),
-  label: z.string().min(1, "Feltnavn er påkrevd"),
+  label: z.string().min(1, "Field name is required"),
   helpText: z.string().optional(),
   placeholder: z.string().optional(),
   isRequired: z.boolean().default(false),

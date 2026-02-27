@@ -32,7 +32,7 @@ export default async function ChemicalDetailPage({ params }: { params: Promise<{
   });
 
   if (!user || user.tenants.length === 0) {
-    return <div>Du er ikke tilknyttet en tenant.</div>;
+    return <div>You are not associated with a tenant.</div>;
   }
 
   const tenantId = user.tenants[0].tenantId;
@@ -48,11 +48,11 @@ export default async function ChemicalDetailPage({ params }: { params: Promise<{
   const getStatusBadge = (status: string) => {
     switch (status) {
       case "ACTIVE":
-        return <Badge className="bg-green-100 text-green-800 border-green-200">I bruk</Badge>;
+        return <Badge className="bg-green-100 text-green-800 border-green-200">In Use</Badge>;
       case "PHASED_OUT":
-        return <Badge className="bg-yellow-100 text-yellow-800 border-yellow-200">Utfases</Badge>;
+        return <Badge className="bg-yellow-100 text-yellow-800 border-yellow-200">Being Phased Out</Badge>;
       case "ARCHIVED":
-        return <Badge className="bg-gray-100 text-gray-800 border-gray-200">Arkivert</Badge>;
+        return <Badge className="bg-gray-100 text-gray-800 border-gray-200">Archived</Badge>;
       default:
         return <Badge variant="outline">{status}</Badge>;
     }
@@ -67,7 +67,7 @@ export default async function ChemicalDetailPage({ params }: { params: Promise<{
         <Link href="/dashboard/chemicals">
           <Button variant="ghost" size="sm" className="mb-4">
             <ArrowLeft className="mr-2 h-4 w-4" />
-            Tilbake til stoffkartotek
+            Back to Chemical Registry
           </Button>
         </Link>
         <div className="flex items-start justify-between">
@@ -77,29 +77,29 @@ export default async function ChemicalDetailPage({ params }: { params: Promise<{
               {getStatusBadge(chemical.status)}
             </div>
             {chemical.supplier && (
-              <p className="text-muted-foreground">Leverandør: {chemical.supplier}</p>
+              <p className="text-muted-foreground">Supplier: {chemical.supplier}</p>
             )}
           </div>
           <Link href={`/dashboard/chemicals/${chemical.id}/edit`}>
             <Button variant="outline">
               <Edit className="mr-2 h-4 w-4" />
-              Rediger
+              Edit
             </Button>
           </Link>
         </div>
       </div>
 
-      {/* Varsel om forfalt revisjon */}
+      {/* Overdue review warning */}
       {isOverdue && (
         <Card className="bg-red-50 border-red-200">
           <CardContent className="pt-6">
             <div className="flex items-start gap-3">
               <AlertTriangle className="h-5 w-5 text-red-600 mt-0.5" />
               <div>
-                <p className="font-medium text-red-900">Revisjon forfalt!</p>
+                <p className="font-medium text-red-900">Review Overdue!</p>
                 <p className="text-sm text-red-800">
-                  Dette kjemikaliet har forfalt revisjonsdato. Vennligst gjennomgå og oppdater
-                  sikkerhetsdatabladet.
+                  This chemical has a past review date. Please review and update
+                  the safety data sheet.
                 </p>
               </div>
             </div>
@@ -107,7 +107,7 @@ export default async function ChemicalDetailPage({ params }: { params: Promise<{
         </Card>
       )}
 
-      {/* Varsel om diisocyanater */}
+      {/* Diisocyanate warning */}
       {chemical.containsIsocyanates && (
         <IsocyanateWarning details={chemical.aiExtractedData ? (() => {
           try {
@@ -119,7 +119,7 @@ export default async function ChemicalDetailPage({ params }: { params: Promise<{
         })() : undefined} />
       )}
 
-      {/* Foreslåtte risikovurderinger */}
+      {/* Suggested risk assessments */}
       <ChemicalRiskSuggestions
         chemicalId={chemical.id}
         chemicalName={chemical.productName}
@@ -130,16 +130,16 @@ export default async function ChemicalDetailPage({ params }: { params: Promise<{
       />
 
       <div className="grid gap-6 md:grid-cols-2">
-        {/* Produktinformasjon */}
+        {/* Product Information */}
         <Card>
           <CardHeader>
-            <CardTitle>Produktinformasjon</CardTitle>
-            <CardDescription>Detaljer om produktet</CardDescription>
+            <CardTitle>Product Information</CardTitle>
+            <CardDescription>Product details</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             {chemical.casNumber && (
               <div>
-                <p className="text-sm text-muted-foreground">CAS-nummer</p>
+                <p className="text-sm text-muted-foreground">CAS Number</p>
                 <p className="font-medium">{chemical.casNumber}</p>
               </div>
             )}
@@ -148,7 +148,7 @@ export default async function ChemicalDetailPage({ params }: { params: Promise<{
               <div>
                 <p className="text-sm text-muted-foreground flex items-center gap-2">
                   <MapPin className="h-4 w-4" />
-                  Lagringssted
+                  Storage Location
                 </p>
                 <p className="font-medium">{chemical.location}</p>
               </div>
@@ -158,7 +158,7 @@ export default async function ChemicalDetailPage({ params }: { params: Promise<{
               <div>
                 <p className="text-sm text-muted-foreground flex items-center gap-2">
                   <Package className="h-4 w-4" />
-                  Mengde
+                  Quantity
                 </p>
                 <p className="font-medium">
                   {chemical.quantity} {chemical.unit || ""}
@@ -168,16 +168,16 @@ export default async function ChemicalDetailPage({ params }: { params: Promise<{
           </CardContent>
         </Card>
 
-        {/* Farepiktogrammer */}
+        {/* Hazard Pictograms */}
         <Card>
           <CardHeader>
-            <CardTitle>Faremarkering</CardTitle>
-            <CardDescription>GHS/CLP-klassifisering</CardDescription>
+            <CardTitle>Hazard Labeling</CardTitle>
+            <CardDescription>GHS/CLP Classification</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             {chemical.hazardStatements && (
               <div>
-                <p className="text-sm text-muted-foreground">H-setninger</p>
+                <p className="text-sm text-muted-foreground">H-statements</p>
                 <p className="font-medium whitespace-pre-wrap">{chemical.hazardStatements}</p>
               </div>
             )}
@@ -187,13 +187,13 @@ export default async function ChemicalDetailPage({ params }: { params: Promise<{
                 const pictograms = JSON.parse(chemical.warningPictograms);
                 return pictograms.length > 0 ? (
                   <div>
-                    <p className="text-sm text-muted-foreground mb-3">Faresymboler</p>
+                    <p className="text-sm text-muted-foreground mb-3">Hazard Symbols</p>
                     <div className="flex flex-wrap gap-3">
                       {pictograms.map((file: string, idx: number) => (
                         <div key={idx} className="relative w-20 h-20 border-2 border-orange-200 rounded-lg p-1">
                           <Image
                             src={`/faremerker/${file}`}
-                            alt="Faresymbol"
+                            alt="Hazard symbol"
                             fill
                             className="object-contain"
                           />
@@ -210,15 +210,15 @@ export default async function ChemicalDetailPage({ params }: { params: Promise<{
         </Card>
       </div>
 
-      {/* Personlig verneutstyr */}
+      {/* Personal Protective Equipment */}
       {chemical.requiredPPE && (() => {
         try {
           const ppeList = JSON.parse(chemical.requiredPPE);
           return ppeList.length > 0 ? (
             <Card>
               <CardHeader>
-                <CardTitle>Påkrevd personlig verneutstyr (PPE)</CardTitle>
-                <CardDescription>ISO 7010 - Verneutstyr som må benyttes</CardDescription>
+                <CardTitle>Required Personal Protective Equipment (PPE)</CardTitle>
+                <CardDescription>ISO 7010 - Equipment required for use</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="flex flex-wrap gap-3">
@@ -229,7 +229,7 @@ export default async function ChemicalDetailPage({ params }: { params: Promise<{
                       <div key={idx} className="relative w-16 h-16 border-2 border-blue-200 rounded-lg p-1 bg-blue-50">
                         <Image
                           src={`/ppe/${normalizedFile}`}
-                          alt="PPE-krav"
+                          alt="PPE requirement"
                           fill
                           className="object-contain"
                           unoptimized
@@ -246,26 +246,26 @@ export default async function ChemicalDetailPage({ params }: { params: Promise<{
         }
       })()}
 
-      {/* Sikkerhetsdatablad */}
+      {/* Safety Data Sheet */}
       <Card>
         <CardHeader>
-          <CardTitle>Sikkerhetsdatablad (SDS)</CardTitle>
-          <CardDescription>Dokumentasjon og revisjoner</CardDescription>
+          <CardTitle>Safety Data Sheet (SDS)</CardTitle>
+          <CardDescription>Documentation and reviews</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid gap-4 md:grid-cols-3">
             {chemical.sdsVersion && (
               <div>
-                <p className="text-sm text-muted-foreground">Versjon</p>
+                <p className="text-sm text-muted-foreground">Version</p>
                 <p className="font-medium">{chemical.sdsVersion}</p>
               </div>
             )}
 
             {chemical.sdsDate && (
               <div>
-                <p className="text-sm text-muted-foreground">Dato</p>
+                <p className="text-sm text-muted-foreground">Date</p>
                 <p className="font-medium">
-                  {new Date(chemical.sdsDate).toLocaleDateString("nb-NO")}
+                  {new Date(chemical.sdsDate).toLocaleDateString("en-US")}
                 </p>
               </div>
             )}
@@ -274,11 +274,11 @@ export default async function ChemicalDetailPage({ params }: { params: Promise<{
               <div>
                 <p className="text-sm text-muted-foreground flex items-center gap-2">
                   <Calendar className="h-4 w-4" />
-                  Neste revisjon
+                  Next Review
                 </p>
                 <p className={`font-medium ${isOverdue ? "text-red-600" : ""}`}>
-                  {new Date(chemical.nextReviewDate).toLocaleDateString("nb-NO")}
-                  {isOverdue && " (Forfalt!)"}
+                  {new Date(chemical.nextReviewDate).toLocaleDateString("en-US")}
+                  {isOverdue && " (Overdue!)"}
                 </p>
               </div>
             )}
@@ -289,7 +289,7 @@ export default async function ChemicalDetailPage({ params }: { params: Promise<{
               <Link href={`/api/chemicals/${chemical.id}/download-sds`} target="_blank">
                 <Button>
                   <Download className="mr-2 h-4 w-4" />
-                  Last ned sikkerhetsdatablad
+                  Download Safety Data Sheet
                 </Button>
               </Link>
             </div>
@@ -297,7 +297,7 @@ export default async function ChemicalDetailPage({ params }: { params: Promise<{
             <Card className="bg-amber-50 border-amber-200">
               <CardContent className="pt-4">
                 <p className="text-sm text-amber-800">
-                  ⚠️ Sikkerhetsdatablad mangler - vennligst last opp
+                  ⚠️ Safety data sheet missing – please upload
                 </p>
               </CardContent>
             </Card>
@@ -308,7 +308,7 @@ export default async function ChemicalDetailPage({ params }: { params: Promise<{
               <CardContent className="pt-4 flex items-center gap-2">
                 <CheckCircle className="h-4 w-4 text-green-600" />
                 <p className="text-sm text-green-800">
-                  Sist verifisert: {new Date(chemical.lastVerifiedAt).toLocaleDateString("nb-NO")}
+                  Last verified: {new Date(chemical.lastVerifiedAt).toLocaleDateString("en-US")}
                 </p>
               </CardContent>
             </Card>
@@ -316,12 +316,12 @@ export default async function ChemicalDetailPage({ params }: { params: Promise<{
         </CardContent>
       </Card>
 
-      {/* Tilleggsinfo – Notater */}
+      {/* Additional Info – Notes */}
       {chemical.notes && (
         <Card>
           <CardHeader>
-            <CardTitle>Tilleggsinfo</CardTitle>
-            <CardDescription>Notater</CardDescription>
+            <CardTitle>Additional Info</CardTitle>
+            <CardDescription>Notes</CardDescription>
           </CardHeader>
           <CardContent>
             <p className="whitespace-pre-wrap">{chemical.notes}</p>
@@ -331,4 +331,3 @@ export default async function ChemicalDetailPage({ params }: { params: Promise<{
     </div>
   );
 }
-

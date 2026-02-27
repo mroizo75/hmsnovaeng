@@ -56,8 +56,8 @@ export function UpdateAuditStatusForm({
 
     if (result.success) {
       toast({
-        title: "✅ Status oppdatert",
-        description: `Revisjonsstatusen er endret til "${getStatusLabel(newStatus)}"`,
+        title: "✅ Status updated",
+        description: `The audit status has been changed to "${getStatusLabel(newStatus)}"`,
         className: "bg-green-50 border-green-200",
       });
       setOpen(false);
@@ -65,8 +65,8 @@ export function UpdateAuditStatusForm({
     } else {
       toast({
         variant: "destructive",
-        title: "Feil",
-        description: result.error || "Kunne ikke oppdatere status",
+        title: "Error",
+        description: result.error || "Could not update status",
       });
     }
 
@@ -75,10 +75,10 @@ export function UpdateAuditStatusForm({
 
   const getStatusLabel = (status: string) => {
     const labels: Record<string, string> = {
-      PLANNED: "Planlagt",
-      IN_PROGRESS: "Pågår",
-      COMPLETED: "Fullført",
-      CANCELLED: "Avbrutt",
+      PLANNED: "Planned",
+      IN_PROGRESS: "In Progress",
+      COMPLETED: "Completed",
+      CANCELLED: "Cancelled",
     };
     return labels[status] || status;
   };
@@ -89,30 +89,30 @@ export function UpdateAuditStatusForm({
         {trigger || (
           <Button variant="outline">
             <Edit className="mr-2 h-4 w-4" />
-            Endre status
+            Change status
           </Button>
         )}
       </DialogTrigger>
       <DialogContent className="max-w-md">
         <DialogHeader>
-          <DialogTitle>Endre revisjonsstatus</DialogTitle>
+          <DialogTitle>Change audit status</DialogTitle>
           <DialogDescription>
-            Oppdater statusen for revisjonen
+            Update the status for the audit
           </DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="status">Ny status *</Label>
+            <Label htmlFor="status">New status *</Label>
             <Select name="status" required disabled={loading} defaultValue={currentStatus}>
               <SelectTrigger>
-                <SelectValue placeholder="Velg status" />
+                <SelectValue placeholder="Select status" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="PLANNED">Planlagt</SelectItem>
-                <SelectItem value="IN_PROGRESS">Pågår</SelectItem>
-                <SelectItem value="COMPLETED">Fullført</SelectItem>
-                <SelectItem value="CANCELLED">Avbrutt</SelectItem>
+                <SelectItem value="PLANNED">Planned</SelectItem>
+                <SelectItem value="IN_PROGRESS">In Progress</SelectItem>
+                <SelectItem value="COMPLETED">Completed</SelectItem>
+                <SelectItem value="CANCELLED">Cancelled</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -120,8 +120,8 @@ export function UpdateAuditStatusForm({
           <Card className="bg-blue-50 border-blue-200">
             <CardContent className="pt-4">
               <p className="text-sm text-blue-900">
-                <strong>Tips:</strong> Bruk "Fullfør revisjon"-knappen for å legge til
-                oppsummering og konklusjon når revisjonen er ferdig.
+                <strong>Tip:</strong> Use the "Complete audit" button to add
+                summary and conclusion when the audit is finished.
               </p>
             </CardContent>
           </Card>
@@ -133,10 +133,10 @@ export function UpdateAuditStatusForm({
               onClick={() => setOpen(false)}
               disabled={loading}
             >
-              Avbryt
+              Cancel
             </Button>
             <Button type="submit" disabled={loading}>
-              {loading ? "Oppdaterer..." : "Oppdater status"}
+              {loading ? "Updating..." : "Update status"}
             </Button>
           </div>
         </form>
@@ -144,4 +144,3 @@ export function UpdateAuditStatusForm({
     </Dialog>
   );
 }
-

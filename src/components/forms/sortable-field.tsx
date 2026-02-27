@@ -72,7 +72,7 @@ export function SortableField({ field, isSelected, onSelect, onDelete }: Sortabl
                 <Icon className="h-4 w-4 text-primary" />
                 <Label className="font-medium">{field.label}</Label>
                 {field.isRequired && (
-                  <Badge variant="destructive" className="text-xs">Påkrevd</Badge>
+                  <Badge variant="destructive" className="text-xs">Required</Badge>
                 )}
               </div>
 
@@ -102,16 +102,16 @@ export function SortableField({ field, isSelected, onSelect, onDelete }: Sortabl
                     ))}
                   </div>
                   <div className="flex justify-between text-xs text-muted-foreground">
-                    <span>Svært uenig</span>
-                    <span>Svært enig</span>
+                    <span>Strongly disagree</span>
+                    <span>Strongly agree</span>
                   </div>
                 </div>
               )}
               {field.type === "TEXT" && (
-                <Input placeholder={field.placeholder || "Skriv her..."} disabled />
+                <Input placeholder={field.placeholder || "Type here..."} disabled />
               )}
               {field.type === "TEXTAREA" && (
-                <Textarea placeholder={field.placeholder || "Skriv her..."} disabled rows={3} />
+                <Textarea placeholder={field.placeholder || "Type here..."} disabled rows={3} />
               )}
               {field.type === "NUMBER" && (
                 <Input type="number" placeholder={field.placeholder || "0"} disabled />
@@ -125,7 +125,7 @@ export function SortableField({ field, isSelected, onSelect, onDelete }: Sortabl
               {field.type === "CHECKBOX" && (
                 <div className="flex items-center space-x-2">
                   <Checkbox disabled />
-                  <Label>Avkrysningsboks</Label>
+                  <Label>Checkbox</Label>
                 </div>
               )}
               {field.type === "RADIO" && field.options && (
@@ -140,7 +140,7 @@ export function SortableField({ field, isSelected, onSelect, onDelete }: Sortabl
               )}
               {field.type === "SELECT" && field.options && (
                 <select className="w-full h-10 px-3 rounded-md border" disabled>
-                  <option>Velg...</option>
+                  <option>Select...</option>
                   {field.options.map((option, i) => (
                     <option key={i}>{option}</option>
                   ))}
@@ -149,13 +149,13 @@ export function SortableField({ field, isSelected, onSelect, onDelete }: Sortabl
               {field.type === "FILE" && (
                 <div className="border-2 border-dashed rounded-lg p-4 text-center">
                   <FileUp className="h-8 w-8 text-gray-400 mx-auto mb-2" />
-                  <p className="text-sm text-muted-foreground">Klikk eller dra fil hit</p>
+                  <p className="text-sm text-muted-foreground">Click or drag file here</p>
                 </div>
               )}
               {field.type === "SIGNATURE" && (
                 <div className="border-2 border-dashed rounded-lg p-8 text-center bg-gray-50">
                   <PenTool className="h-8 w-8 text-gray-400 mx-auto mb-2" />
-                  <p className="text-sm text-muted-foreground">Signeringsområde</p>
+                  <p className="text-sm text-muted-foreground">Signature area</p>
                 </div>
               )}
             </div>

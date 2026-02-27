@@ -12,14 +12,14 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Download } from "lucide-react";
 import { getYear, getMonth, getWeek } from "date-fns";
-import { nb } from "date-fns/locale";
+import { enUS } from "date-fns/locale";
 
 export function ReportExportDropdown() {
   const [open, setOpen] = useState(false);
   const now = new Date();
   const currentYear = getYear(now);
   const currentMonth = getMonth(now) + 1;
-  const currentWeek = getWeek(now, { weekStartsOn: 1, locale: nb });
+  const currentWeek = getWeek(now, { weekStartsOn: 0, locale: enUS });
 
   const buildUrl = (
     format: "excel" | "pdf",
@@ -42,7 +42,7 @@ export function ReportExportDropdown() {
       <DropdownMenuTrigger asChild>
         <Button variant="outline" size="sm">
           <Download className="h-4 w-4 mr-2" />
-          Rapporter
+          Reports
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-56">
@@ -60,7 +60,7 @@ export function ReportExportDropdown() {
             );
           }}
         >
-          Denne uken
+          This week
         </DropdownMenuItem>
         <DropdownMenuItem
           onSelect={(e) => {
@@ -74,7 +74,7 @@ export function ReportExportDropdown() {
             );
           }}
         >
-          Denne måneden
+          This month
         </DropdownMenuItem>
         <DropdownMenuItem
           onSelect={(e) => {
@@ -101,7 +101,7 @@ export function ReportExportDropdown() {
             );
           }}
         >
-          Denne måneden (PDF)
+          This month (PDF)
         </DropdownMenuItem>
         <DropdownMenuItem
           onSelect={(e) => {

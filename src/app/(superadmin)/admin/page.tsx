@@ -11,7 +11,7 @@ export default async function SuperAdminDashboard() {
       <div>
         <h1 className="text-3xl font-bold">Superadmin Dashboard</h1>
         <p className="text-muted-foreground">
-          Administrer bedrifter, brukere og fakturering
+          Manage companies, users, and billing
         </p>
       </div>
 
@@ -19,14 +19,14 @@ export default async function SuperAdminDashboard() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">
-              Totalt bedrifter
+              Total companies
             </CardTitle>
             <Building2 className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{stats.totalTenants}</div>
             <p className="text-xs text-muted-foreground">
-              {stats.activeTenants} aktive
+              {stats.activeTenants} active
             </p>
           </CardContent>
         </Card>
@@ -34,14 +34,14 @@ export default async function SuperAdminDashboard() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">
-              Aktive abonnementer
+              Active subscriptions
             </CardTitle>
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{stats.activeSubscriptions}</div>
             <p className="text-xs text-muted-foreground">
-              {stats.trialSubscriptions} i prøveperiode
+              {stats.trialSubscriptions} in trial period
             </p>
           </CardContent>
         </Card>
@@ -49,14 +49,14 @@ export default async function SuperAdminDashboard() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">
-              Ubetalte fakturaer
+              Unpaid invoices
             </CardTitle>
             <FileText className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{stats.unpaidInvoices}</div>
             <p className="text-xs text-muted-foreground">
-              {stats.overdueInvoices} forfalt
+              {stats.overdueInvoices} overdue
             </p>
           </CardContent>
         </Card>
@@ -64,16 +64,16 @@ export default async function SuperAdminDashboard() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">
-              Månedlig inntekt (MRR)
+              Monthly Revenue (MRR)
             </CardTitle>
             <AlertCircle className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {stats.mrr.toLocaleString("no-NO")} kr
+              ${stats.mrr.toLocaleString("en-US")}
             </div>
             <p className="text-xs text-muted-foreground">
-              ARR: {(stats.mrr * 12).toLocaleString("no-NO")} kr
+              ARR: ${(stats.mrr * 12).toLocaleString("en-US")}
             </p>
           </CardContent>
         </Card>
@@ -82,9 +82,9 @@ export default async function SuperAdminDashboard() {
       <div className="grid gap-4 md:grid-cols-2">
         <Card>
           <CardHeader>
-            <CardTitle>Nylige bedrifter</CardTitle>
+            <CardTitle>Recent companies</CardTitle>
             <CardDescription>
-              Siste 5 registrerte bedrifter
+              Last 5 registered companies
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -94,7 +94,7 @@ export default async function SuperAdminDashboard() {
                   <div>
                     <p className="font-medium">{tenant.name}</p>
                     <p className="text-sm text-muted-foreground">
-                      {new Date(tenant.createdAt).toLocaleDateString("no-NO")}
+                      {new Date(tenant.createdAt).toLocaleDateString("en-US")}
                     </p>
                   </div>
                   <Badge variant={tenant.status === "ACTIVE" ? "default" : "secondary"}>
@@ -108,15 +108,15 @@ export default async function SuperAdminDashboard() {
 
         <Card>
           <CardHeader>
-            <CardTitle>Forfalt betalinger</CardTitle>
+            <CardTitle>Overdue payments</CardTitle>
             <CardDescription>
-              Bedrifter med forfalt faktura
+              Companies with overdue invoice
             </CardDescription>
           </CardHeader>
           <CardContent>
             {stats.tenantsWithOverdueInvoices.length === 0 ? (
               <p className="text-sm text-muted-foreground">
-                Ingen forfalte fakturaer 🎉
+                No overdue invoices 🎉
               </p>
             ) : (
               <div className="space-y-4">
@@ -125,11 +125,11 @@ export default async function SuperAdminDashboard() {
                     <div>
                       <p className="font-medium">{item.tenant.name}</p>
                       <p className="text-sm text-muted-foreground">
-                        {item.overdueAmount.toLocaleString("no-NO")} kr
+                        ${item.overdueAmount.toLocaleString("en-US")}
                       </p>
                     </div>
                     <Badge variant="destructive">
-                      {item.overdueCount} faktura(er)
+                      {item.overdueCount} invoice(s)
                     </Badge>
                   </div>
                 ))}
@@ -202,4 +202,3 @@ async function getStats() {
     tenantsWithOverdueInvoices,
   };
 }
-

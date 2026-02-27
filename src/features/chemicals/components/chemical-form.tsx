@@ -36,13 +36,11 @@ export function ChemicalForm({ chemical, mode = "create" }: ChemicalFormProps) {
   const [parsing, setParsing] = useState(false);
   const [aiData, setAiData] = useState<any>(null);
 
-  // Håndter SDS-opplasting med AI-parsing
   const handleSDSUpload = async (file: File) => {
     setSdsFile(file);
     setParsing(true);
 
     try {
-      // Last opp fil til storage
       const uploadFormData = new FormData();
       uploadFormData.append("file", file);
 
@@ -52,15 +50,14 @@ export function ChemicalForm({ chemical, mode = "create" }: ChemicalFormProps) {
       });
 
       if (!uploadRes.ok) {
-        throw new Error("Filopplasting feilet");
+        throw new Error("File upload failed");
       }
 
       const { key } = await uploadRes.json();
 
-      // Parse SDS med AI
       toast({
-        title: "🤖 AI analyserer sikkerhetsdatablad",
-        description: "Adobe ekstraher tekst + OpenAI analyserer innhold...",
+        title: "🤖 AI analyzing safety data sheet",
+        description: "Extracting text and analyzing content...",
       });
 
       const parseRes = await fetch("/api/chemicals/parse-sds", {
@@ -71,24 +68,23 @@ export function ChemicalForm({ chemical, mode = "create" }: ChemicalFormProps) {
 
       if (!parseRes.ok) {
         const errorData = await parseRes.json();
-        throw new Error(errorData.error || "AI-parsing feilet");
+        throw new Error(errorData.error || "AI parsing failed");
       }
 
       const { data } = await parseRes.json();
       setAiData(data);
 
       toast({
-        title: "✅ AI-analyse fullført",
-        description: `Feltene er fylt ut automatisk - sjekk og juster`,
+        title: "✅ AI analysis complete",
+        description: "Fields have been filled in automatically - review and adjust as needed",
         className: "bg-green-50 border-green-200",
       });
     } catch (error: any) {
       toast({
         variant: "destructive",
-        title: "Feil ved AI-parsing",
-        description: error.message || "Kunne ikke analysere sikkerhetsdatabladet. Fyll ut manuelt.",
+        title: "AI parsing error",
+        description: error.message || "Could not analyze the safety data sheet. Please fill in manually.",
       });
-      // Behold filen selv om parsing feiler
     } finally {
       setParsing(false);
     }
@@ -101,7 +97,6 @@ export function ChemicalForm({ chemical, mode = "create" }: ChemicalFormProps) {
     try {
       const formData = new FormData(e.currentTarget);
 
-      // Last opp SDS-fil først hvis den finnes
       let sdsKey: string | undefined;
       if (sdsFile) {
         const uploadFormData = new FormData();
@@ -114,7 +109,7 @@ export function ChemicalForm({ chemical, mode = "create" }: ChemicalFormProps) {
 
         if (!uploadRes.ok) {
           const errorData = await uploadRes.json();
-          throw new Error(errorData.error || "Filopplasting feilet");
+          throw new Error(errorData.error || "File upload failed");
         }
 
         const uploadData = await uploadRes.json();
@@ -148,8 +143,8 @@ export function ChemicalForm({ chemical, mode = "create" }: ChemicalFormProps) {
 
       if (result.success) {
         toast({
-          title: mode === "edit" ? "✅ Kjemikalie oppdatert" : "✅ Kjemikalie registrert",
-          description: mode === "edit" ? "Endringene er lagret" : "Produktet er lagt til i stoffkartoteket",
+          title: mode === "edit" ? "✅ Chemical updated" : "✅ Chemical registered",
+          description: mode === "edit" ? "Changes have been saved" : "The product has been added to the chemical registry",
           className: "bg-green-50 border-green-200",
         });
         router.push("/dashboard/chemicals");
@@ -157,15 +152,15 @@ export function ChemicalForm({ chemical, mode = "create" }: ChemicalFormProps) {
       } else {
         toast({
           variant: "destructive",
-          title: "Feil",
-          description: result.error || "Kunne ikke lagre kjemikalie",
+          title: "Error",
+          description: result.error || "Could not save chemical",
         });
       }
     } catch (error: any) {
       toast({
         variant: "destructive",
-        title: "Feil",
-        description: error.message || "Noe gikk galt",
+        title: "Error",
+        description: error.message || "Something went wrong",
       });
     } finally {
       setLoading(false);
@@ -174,21 +169,21 @@ export function ChemicalForm({ chemical, mode = "create" }: ChemicalFormProps) {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
-      {/* Steg 1: Sikkerhetsdatablad – last opp først så AI fyller ut */}
+      {/* Step 1: Safety Data Sheet */}
       <Card className="border-primary/30 bg-primary/5">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Upload className="h-5 w-5" />
-            Steg 1: Last opp sikkerhetsdatablad
+            Step 1: Upload Safety Data Sheet
           </CardTitle>
           <CardDescription>
-            Last opp PDF – AI analyserer og fyller ut feltene under automatisk
+            Upload PDF – AI will analyze and fill in the fields below automatically
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="sdsFile" className="flex items-center gap-2">
-              Datablad (PDF) {mode === "create" && "*"}
+              Safety Data Sheet (PDF) {mode === "create" && "*"}
               {parsing && <Loader2 className="h-4 w-4 animate-spin text-blue-600" />}
             </Label>
             <div className="flex items-center gap-2">
@@ -207,7 +202,7 @@ export function ChemicalForm({ chemical, mode = "create" }: ChemicalFormProps) {
               {chemical?.sdsKey && !sdsFile && (
                 <Button variant="outline" size="sm" disabled>
                   <FileText className="h-4 w-4 mr-2" />
-                  Eksisterende
+                  Existing
                 </Button>
               )}
             </div>
@@ -215,32 +210,32 @@ export function ChemicalForm({ chemical, mode = "create" }: ChemicalFormProps) {
               <div className="flex items-center gap-2 p-3 bg-blue-50 border border-blue-200 rounded-lg">
                 <Loader2 className="h-4 w-4 animate-spin text-blue-600" />
                 <p className="text-sm text-blue-900">
-                  AI analyserer sikkerhetsdatablad... Dette tar ca. 30-60 sekunder
+                  AI analyzing safety data sheet... This takes approximately 30-60 seconds
                 </p>
               </div>
             )}
             {!chemical?.sdsKey && mode === "create" && !parsing && (
               <p className="text-xs text-blue-600">
                 <Sparkles className="inline h-3 w-3 mr-1" />
-                AI vil automatisk fylle ut feltene når du laster opp sikkerhetsdatabladet
+                AI will automatically fill in fields when you upload the safety data sheet
               </p>
             )}
           </div>
 
           <div className="grid gap-4 md:grid-cols-3">
             <div className="space-y-2">
-              <Label htmlFor="sdsVersion">Versjon</Label>
+              <Label htmlFor="sdsVersion">Version</Label>
               <Input
                 id="sdsVersion"
                 name="sdsVersion"
-                placeholder="F.eks. 3.2"
+                placeholder="e.g. 3.2"
                 disabled={loading}
                 defaultValue={chemical?.sdsVersion || ""}
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="sdsDate">Dato for datablad</Label>
+              <Label htmlFor="sdsDate">SDS Date</Label>
               <Input
                 id="sdsDate"
                 name="sdsDate"
@@ -255,7 +250,7 @@ export function ChemicalForm({ chemical, mode = "create" }: ChemicalFormProps) {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="nextReviewDate">Neste revisjon</Label>
+              <Label htmlFor="nextReviewDate">Next Review</Label>
               <Input
                 id="nextReviewDate"
                 name="nextReviewDate"
@@ -270,30 +265,30 @@ export function ChemicalForm({ chemical, mode = "create" }: ChemicalFormProps) {
                 }
               />
               <p className="text-xs text-muted-foreground">
-                Anbefalt: Årlig gjennomgang
+                Recommended: Annual review
               </p>
             </div>
           </div>
         </CardContent>
       </Card>
 
-      {/* Steg 2: Produktinformasjon */}
+      {/* Step 2: Product Information */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <FileText className="h-5 w-5" />
-            Produktinformasjon
+            Product Information
           </CardTitle>
-          <CardDescription>Grunnleggende informasjon om kjemikaliet</CardDescription>
+          <CardDescription>Basic information about the chemical</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           {aiData && (
             <div className="p-3 bg-green-50 border border-green-200 rounded-lg flex items-start gap-2">
               <Sparkles className="h-5 w-5 text-green-600 mt-0.5" />
               <div className="flex-1">
-                <p className="text-sm font-medium text-green-900">AI har fylt ut feltene automatisk</p>
+                <p className="text-sm font-medium text-green-900">AI has filled in fields automatically</p>
                 <p className="text-xs text-green-700">
-                  Sjekk og juster informasjonen om nødvendig
+                  Review and adjust information if necessary
                 </p>
               </div>
             </div>
@@ -301,12 +296,12 @@ export function ChemicalForm({ chemical, mode = "create" }: ChemicalFormProps) {
 
           <div className="space-y-2">
             <Label htmlFor="productName">
-              Produktnavn * {aiData?.productName && <Badge variant="secondary" className="ml-2 text-xs">AI-fylt</Badge>}
+              Product Name * {aiData?.productName && <Badge variant="secondary" className="ml-2 text-xs">AI-filled</Badge>}
             </Label>
             <Input
               id="productName"
               name="productName"
-              placeholder="F.eks. Rengjøringsmiddel XYZ"
+              placeholder="e.g. Cleaning Agent XYZ"
               required
               disabled={loading}
               key={aiData?.productName || "default"}
@@ -317,12 +312,12 @@ export function ChemicalForm({ chemical, mode = "create" }: ChemicalFormProps) {
           <div className="grid gap-4 md:grid-cols-2">
             <div className="space-y-2">
               <Label htmlFor="supplier">
-                Leverandør {aiData?.supplier && <Badge variant="secondary" className="ml-2 text-xs">AI-fylt</Badge>}
+                Supplier {aiData?.supplier && <Badge variant="secondary" className="ml-2 text-xs">AI-filled</Badge>}
               </Label>
               <Input
                 id="supplier"
                 name="supplier"
-                placeholder="Leverandørnavn"
+                placeholder="Supplier name"
                 disabled={loading}
                 key={aiData?.supplier || "default"}
                 defaultValue={aiData?.supplier || chemical?.supplier || ""}
@@ -331,7 +326,7 @@ export function ChemicalForm({ chemical, mode = "create" }: ChemicalFormProps) {
 
             <div className="space-y-2">
               <Label htmlFor="casNumber">
-                CAS-nummer {aiData?.casNumber && <Badge variant="secondary" className="ml-2 text-xs">AI-fylt</Badge>}
+                CAS Number {aiData?.casNumber && <Badge variant="secondary" className="ml-2 text-xs">AI-filled</Badge>}
               </Label>
               <Input
                 id="casNumber"
@@ -342,18 +337,18 @@ export function ChemicalForm({ chemical, mode = "create" }: ChemicalFormProps) {
                 defaultValue={aiData?.casNumber || chemical?.casNumber || ""}
               />
               <p className="text-xs text-muted-foreground">
-                Unikt identifikasjonsnummer for kjemisk stoff
+                Unique identification number for the chemical substance
               </p>
             </div>
           </div>
 
           <div className="grid gap-4 md:grid-cols-2">
             <div className="space-y-2">
-              <Label htmlFor="location">Lagringssted</Label>
+              <Label htmlFor="location">Storage Location</Label>
               <Input
                 id="location"
                 name="location"
-                placeholder="F.eks. Lager A, hylle 3"
+                placeholder="e.g. Warehouse A, shelf 3"
                 disabled={loading}
                 defaultValue={chemical?.location || ""}
               />
@@ -363,12 +358,12 @@ export function ChemicalForm({ chemical, mode = "create" }: ChemicalFormProps) {
               <Label htmlFor="status">Status *</Label>
               <Select name="status" required disabled={loading} defaultValue={chemical?.status || "ACTIVE"}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Velg status" />
+                  <SelectValue placeholder="Select status" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="ACTIVE">I bruk</SelectItem>
-                  <SelectItem value="PHASED_OUT">Utfases</SelectItem>
-                  <SelectItem value="ARCHIVED">Arkivert</SelectItem>
+                  <SelectItem value="ACTIVE">In Use</SelectItem>
+                  <SelectItem value="PHASED_OUT">Being Phased Out</SelectItem>
+                  <SelectItem value="ARCHIVED">Archived</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -376,7 +371,7 @@ export function ChemicalForm({ chemical, mode = "create" }: ChemicalFormProps) {
 
           <div className="grid gap-4 md:grid-cols-3">
             <div className="space-y-2">
-              <Label htmlFor="quantity">Mengde</Label>
+              <Label htmlFor="quantity">Quantity</Label>
               <Input
                 id="quantity"
                 name="quantity"
@@ -389,16 +384,16 @@ export function ChemicalForm({ chemical, mode = "create" }: ChemicalFormProps) {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="unit">Enhet</Label>
+              <Label htmlFor="unit">Unit</Label>
               <Select name="unit" disabled={loading} defaultValue={chemical?.unit || "liter"}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Velg enhet" />
+                  <SelectValue placeholder="Select unit" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="liter">Liter</SelectItem>
                   <SelectItem value="kg">Kilogram</SelectItem>
-                  <SelectItem value="stk">Stykk</SelectItem>
-                  <SelectItem value="m3">Kubikkmeter</SelectItem>
+                  <SelectItem value="stk">Piece</SelectItem>
+                  <SelectItem value="m3">Cubic Meter</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -406,40 +401,40 @@ export function ChemicalForm({ chemical, mode = "create" }: ChemicalFormProps) {
         </CardContent>
       </Card>
 
-      {/* Steg 3: Farepiktogrammer og klassifisering */}
+      {/* Step 3: Hazard Pictograms and Classification */}
       <Card>
         <CardHeader>
-          <CardTitle>Steg 3: Faremarkering (GHS/CLP)</CardTitle>
-          <CardDescription>H-setninger og varslingspiktogrammer</CardDescription>
+          <CardTitle>Step 3: Hazard Labeling (GHS/HazCom)</CardTitle>
+          <CardDescription>H-statements and warning pictograms</CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
           <div className="space-y-2">
             <Label htmlFor="hazardStatements">
-              H-setninger {aiData?.hazardStatements && <Badge variant="secondary" className="ml-2 text-xs">AI-fylt</Badge>}
+              H-Statements {aiData?.hazardStatements && <Badge variant="secondary" className="ml-2 text-xs">AI-filled</Badge>}
             </Label>
             <Textarea
               id="hazardStatements"
               name="hazardStatements"
               rows={3}
-              placeholder="F.eks. H226 (Brannfarlig væske og damp), H315 (Irriterer huden)"
+              placeholder="e.g. H226 (Flammable liquid and vapor), H315 (Causes skin irritation)"
               disabled={loading}
               key={aiData?.hazardStatements || "default"}
               defaultValue={aiData?.hazardStatements || chemical?.hazardStatements || ""}
             />
             <p className="text-xs text-muted-foreground">
-              Faresetninger (Hazard statements)
+              Hazard statements
             </p>
           </div>
 
           <div>
-            {aiData?.warningPictograms && <Badge variant="secondary" className="mb-2 text-xs">AI-fylt</Badge>}
+            {aiData?.warningPictograms && <Badge variant="secondary" className="mb-2 text-xs">AI-filled</Badge>}
             <HazardPictogramSelector 
               key={aiData?.warningPictograms || "default"}
               defaultValue={aiData?.warningPictograms || chemical?.warningPictograms || ""} 
             />
           </div>
 
-          {/* Diisocyanater advarsel */}
+          {/* Diisocyanates warning */}
           <div className="flex items-start gap-3 p-4 bg-orange-50 border border-orange-200 rounded-lg">
             <div className="flex items-center h-5">
               <Checkbox 
@@ -456,26 +451,26 @@ export function ChemicalForm({ chemical, mode = "create" }: ChemicalFormProps) {
                 className="text-sm font-medium text-orange-900 flex items-center gap-2 cursor-pointer"
               >
                 <AlertTriangle className="h-4 w-4" />
-                Inneholder diisocyanater
-                {aiData?.containsIsocyanates && <Badge variant="secondary" className="ml-2 text-xs">AI-oppdaget</Badge>}
+                Contains Diisocyanates
+                {aiData?.containsIsocyanates && <Badge variant="secondary" className="ml-2 text-xs">AI-detected</Badge>}
               </Label>
               <p className="text-xs text-orange-800 mt-1">
-                Produkter med diisocyanater krever obligatorisk opplæring (EU-forordning 2020/1149). 
-                AI detekterer dette automatisk ved SDS-analyse.
+                Products with diisocyanates require mandatory training (EU Regulation 2020/1149). 
+                AI detects this automatically during SDS analysis.
               </p>
             </div>
           </div>
         </CardContent>
       </Card>
 
-      {/* Steg 4: Personlig verneutstyr */}
+      {/* Step 4: Personal Protective Equipment */}
       <Card>
         <CardHeader>
-          <CardTitle>Steg 4: Personlig verneutstyr (PPE)</CardTitle>
-          <CardDescription>Påkrevd verneutstyr ved håndtering (ISO 7010)</CardDescription>
+          <CardTitle>Step 4: Personal Protective Equipment (PPE)</CardTitle>
+          <CardDescription>Required protective equipment when handling (ISO 7010 / OSHA 29 CFR 1910.132)</CardDescription>
         </CardHeader>
         <CardContent>
-          {aiData?.requiredPPE && <Badge variant="secondary" className="mb-2 text-xs">AI-foreslått</Badge>}
+          {aiData?.requiredPPE && <Badge variant="secondary" className="mb-2 text-xs">AI-suggested</Badge>}
           <PPESelector 
             key={aiData?.requiredPPE || "default"}
             defaultValue={aiData?.requiredPPE || chemical?.requiredPPE || ""} 
@@ -483,20 +478,20 @@ export function ChemicalForm({ chemical, mode = "create" }: ChemicalFormProps) {
         </CardContent>
       </Card>
 
-      {/* Notater */}
+      {/* Notes */}
       <Card>
         <CardHeader>
-          <CardTitle>Tilleggsinfo</CardTitle>
-          <CardDescription>Notater og kommentarer</CardDescription>
+          <CardTitle>Additional Information</CardTitle>
+          <CardDescription>Notes and comments</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="space-y-2">
-            <Label htmlFor="notes">Notater</Label>
+            <Label htmlFor="notes">Notes</Label>
             <Textarea
               id="notes"
               name="notes"
               rows={4}
-              placeholder="Spesielle håndteringsinstruksjoner, restriksjoner, etc..."
+              placeholder="Special handling instructions, restrictions, etc..."
               disabled={loading}
               defaultValue={chemical?.notes || ""}
             />
@@ -504,17 +499,17 @@ export function ChemicalForm({ chemical, mode = "create" }: ChemicalFormProps) {
         </CardContent>
       </Card>
 
-      {/* ISO 9001 Info */}
+      {/* Compliance Info */}
       <Card className="bg-blue-50 border-blue-200">
         <CardContent className="pt-6">
           <p className="text-sm font-medium text-blue-900 mb-2">
-            📋 HMS-krav og beste praksis
+            📋 EHS Requirements and Best Practices
           </p>
           <ul className="text-sm text-blue-800 space-y-1 list-disc list-inside">
-            <li>Alle kjemikalier må ha oppdatert sikkerhetsdatablad</li>
-            <li>Gjennomgå databladene minimum årlig</li>
-            <li>Sikre at ansatte har tilgang til relevante sikkerhetsdatablad</li>
-            <li>Dokumenter opplæring i sikker håndtering</li>
+            <li>All chemicals must have an updated Safety Data Sheet (OSHA HazCom 2012 / GHS)</li>
+            <li>Review safety data sheets at minimum annually</li>
+            <li>Ensure employees have access to relevant safety data sheets</li>
+            <li>Document training on safe handling procedures</li>
           </ul>
         </CardContent>
       </Card>
@@ -527,13 +522,12 @@ export function ChemicalForm({ chemical, mode = "create" }: ChemicalFormProps) {
           onClick={() => router.back()}
           disabled={loading}
         >
-          Avbryt
+          Cancel
         </Button>
         <Button type="submit" disabled={loading || (mode === "create" && !sdsFile)}>
-          {loading ? "Lagrer..." : mode === "edit" ? "Lagre endringer" : "Registrer kjemikalie"}
+          {loading ? "Saving..." : mode === "edit" ? "Save Changes" : "Register Chemical"}
         </Button>
       </div>
     </form>
   );
 }
-

@@ -27,7 +27,7 @@ export default async function NewIncidentPage({ searchParams }: { searchParams?:
   });
 
   if (!user || user.tenants.length === 0) {
-    return <div>Ingen tilgang til tenant</div>;
+    return <div>No tenant access</div>;
   }
 
   const tenantId = user.tenants[0].tenantId;
@@ -53,12 +53,12 @@ export default async function NewIncidentPage({ searchParams }: { searchParams?:
         <Button variant="ghost" asChild className="mb-4">
           <Link href="/dashboard/incidents">
             <ArrowLeft className="mr-2 h-4 w-4" />
-            Tilbake til avvik
+            Back to Incidents
           </Link>
         </Button>
-        <h1 className="text-3xl font-bold">Rapporter avvik</h1>
+        <h1 className="text-3xl font-bold">Report Incident</h1>
         <p className="text-muted-foreground">
-          ISO 9001: Rapporter hendelser, avvik og nestenulykker
+          ISO 9001: Report incidents, deviations, and near-misses
         </p>
       </div>
 
@@ -71,4 +71,3 @@ export default async function NewIncidentPage({ searchParams }: { searchParams?:
     </div>
   );
 }
-

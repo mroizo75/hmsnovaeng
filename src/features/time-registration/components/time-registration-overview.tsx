@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { format, getWeek } from "date-fns";
-import { nb } from "date-fns/locale";
+import { enUS } from "date-fns/locale";
 import {
   Table,
   TableBody,
@@ -43,11 +43,11 @@ import {
 } from "@/components/ui/alert-dialog";
 
 const TIME_TYPE_LABELS: Record<string, string> = {
-  NORMAL: "Ordinær",
-  OVERTIME_50: "Overtid 50 %",
-  OVERTIME_100: "Overtid 100 %",
-  WEEKEND: "Helg/helligdag",
-  TRAVEL: "Reise/kjøring",
+  NORMAL: "Regular",
+  OVERTIME_50: "Overtime 50%",
+  OVERTIME_100: "Overtime 100%",
+  WEEKEND: "Weekend/holiday",
+  TRAVEL: "Travel/driving",
 };
 
 type OverviewData = NonNullable<
@@ -58,7 +58,7 @@ interface TimeRegistrationOverviewProps {
   initialData: OverviewData;
   tenantId: string;
   isAdmin: boolean;
-  /** Når satt, viser kun denne brukerens registreringer (for ansatt) */
+  /** When set, shows only this user's entries (for employee) */
   restrictToUserId?: string;
 }
 
@@ -75,7 +75,7 @@ export function TimeRegistrationOverview({
   const [year] = useState(now.getFullYear());
   const [month] = useState(now.getMonth() + 1);
   const [week] = useState(() =>
-    getWeek(new Date(), { weekStartsOn: 1, locale: nb })
+    getWeek(new Date(), { weekStartsOn: 0, locale: enUS })
   );
   const ALL_FILTER = "__all__" as const;
   const [projectFilter, setProjectFilter] = useState<string>(ALL_FILTER);
@@ -117,7 +117,7 @@ export function TimeRegistrationOverview({
       toast({ variant: "destructive", title: res.error });
       return;
     }
-    toast({ title: "Slettet" });
+    toast({ title: "Deleted" });
     setDeleteId(null);
     refresh();
   };
@@ -143,7 +143,7 @@ export function TimeRegistrationOverview({
     <div className="space-y-4">
       {restrictToUserId && (
         <p className="text-sm text-muted-foreground">
-          Gjeldende måned – oversikt for lønn
+          Current month – payroll overview
         </p>
       )}
       <div className="flex flex-wrap gap-3">
@@ -153,18 +153,18 @@ export function TimeRegistrationOverview({
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="week">Uke</SelectItem>
-            <SelectItem value="month">Måned</SelectItem>
-            <SelectItem value="year">År</SelectItem>
+            <SelectItem value="week">Week</SelectItem>
+            <SelectItem value="month">Month</SelectItem>
+            <SelectItem value="year">Year</SelectItem>
           </SelectContent>
         </Select>
         )}
         <Select value={projectFilter} onValueChange={setProjectFilter}>
           <SelectTrigger className="w-48">
-            <SelectValue placeholder="Alle prosjekter" />
+            <SelectValue placeholder="All projects" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value={ALL_FILTER}>Alle prosjekter</SelectItem>
+            <SelectItem value={ALL_FILTER}>All projects</SelectItem>
             {data.projects.map((p) => (
               <SelectItem key={p.id} value={p.id}>
                 {p.name}
@@ -175,10 +175,10 @@ export function TimeRegistrationOverview({
         {isAdmin && (
           <Select value={userFilter} onValueChange={setUserFilter}>
             <SelectTrigger className="w-40">
-              <SelectValue placeholder="Alle ansatte" />
+              <SelectValue placeholder="All employees" />
             </SelectTrigger>
             <SelectContent>
-            <SelectItem value={ALL_FILTER}>Alle ansatte</SelectItem>
+            <SelectItem value={ALL_FILTER}>All employees</SelectItem>
             {data.users.map((u) => (
                 <SelectItem key={u.id} value={u.id}>
                   {u.name}
@@ -188,26 +188,26 @@ export function TimeRegistrationOverview({
           </Select>
         )}
         <Button variant="ghost" size="sm" onClick={refresh}>
-          Oppdater
+          Refresh
         </Button>
       </div>
 
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-sm">
         <div className="rounded-lg border p-3">
-          <span className="text-muted-foreground">Ordinære timer</span>
+          <span className="text-muted-foreground">Regular hours</span>
           <p className="text-xl font-bold">{normalHours.toFixed(1)}</p>
         </div>
         <div className="rounded-lg border p-3">
-          <span className="text-muted-foreground">Overtidstimer</span>
+          <span className="text-muted-foreground">Overtime hours</span>
           <p className="text-xl font-bold">{overtimeHours.toFixed(1)}</p>
         </div>
         <div className="rounded-lg border p-3">
-          <span className="text-muted-foreground">Totalt km</span>
+          <span className="text-muted-foreground">Total miles</span>
           <p className="text-xl font-bold">{totalKm.toFixed(0)}</p>
         </div>
         <div className="rounded-lg border p-3">
-          <span className="text-muted-foreground">Km godtgjørelse</span>
-          <p className="text-xl font-bold">{totalAmount.toFixed(0)} kr</p>
+          <span className="text-muted-foreground">Mileage reimbursement</span>
+          <p className="text-xl font-bold">${totalAmount.toFixed(0)}</p>
         </div>
       </div>
 
@@ -215,12 +215,12 @@ export function TimeRegistrationOverview({
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Navn</TableHead>
-              <TableHead>Dato</TableHead>
-              <TableHead>Prosjekt</TableHead>
+              <TableHead>Name</TableHead>
+              <TableHead>Date</TableHead>
+              <TableHead>Project</TableHead>
               <TableHead>Type</TableHead>
-              <TableHead className="text-right">Timer / Km</TableHead>
-              <TableHead>Kommentar</TableHead>
+              <TableHead className="text-right">Hours / Miles</TableHead>
+              <TableHead>Comment</TableHead>
               {isAdmin && <TableHead className="w-20"></TableHead>}
             </TableRow>
           </TableHeader>
@@ -231,7 +231,7 @@ export function TimeRegistrationOverview({
                   {displayName(e.user.id)}
                 </TableCell>
                 <TableCell>
-                  {format(new Date(e.date), "dd.MM.yy", { locale: nb })}
+                  {format(new Date(e.date), "MM/dd/yy", { locale: enUS })}
                 </TableCell>
                 <TableCell>
                   {e.project.code ? `${e.project.code} – ` : ""}
@@ -242,7 +242,7 @@ export function TimeRegistrationOverview({
                     {TIME_TYPE_LABELS[e.timeType] || e.timeType}
                   </Badge>
                 </TableCell>
-                <TableCell className="text-right">{e.hours} t</TableCell>
+                <TableCell className="text-right">{e.hours}h</TableCell>
                 <TableCell className="text-muted-foreground text-sm">
                   {e.comment || "–"}
                 </TableCell>
@@ -274,7 +274,7 @@ export function TimeRegistrationOverview({
                   {displayName(e.user.id)}
                 </TableCell>
                 <TableCell>
-                  {format(new Date(e.date), "dd.MM.yy", { locale: nb })}
+                  {format(new Date(e.date), "MM/dd/yy", { locale: enUS })}
                 </TableCell>
                 <TableCell>
                   {e.project.code ? `${e.project.code} – ` : ""}
@@ -282,12 +282,11 @@ export function TimeRegistrationOverview({
                 </TableCell>
                 <TableCell>
                   <Badge variant="secondary" className="text-xs">
-                    Km
+                    Miles
                   </Badge>
                 </TableCell>
                 <TableCell className="text-right">
-                  {e.kilometers} km (
-                  {(e.amount ?? 0).toFixed(0)} kr)
+                  {e.kilometers} mi (${(e.amount ?? 0).toFixed(0)})
                 </TableCell>
                 <TableCell className="text-muted-foreground text-sm">
                   {e.comment || "–"}
@@ -319,7 +318,7 @@ export function TimeRegistrationOverview({
             {data.timeEntries.length === 0 && data.mileageEntries.length === 0 && (
               <TableRow>
                 <TableCell colSpan={isAdmin ? 7 : 6} className="text-center py-8 text-muted-foreground">
-                  Ingen registreringer i valgt periode
+                  No entries in the selected period
                 </TableCell>
               </TableRow>
             )}
@@ -352,15 +351,15 @@ export function TimeRegistrationOverview({
       <AlertDialog open={!!deleteId} onOpenChange={() => setDeleteId(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Slette registrering?</AlertDialogTitle>
+            <AlertDialogTitle>Delete entry?</AlertDialogTitle>
             <AlertDialogDescription>
-              Denne handlingen kan ikke angres.
+              This action cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Avbryt</AlertDialogCancel>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction onClick={handleDelete} className="bg-destructive text-destructive-foreground">
-              Slett
+              Delete
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

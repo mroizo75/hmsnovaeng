@@ -26,8 +26,8 @@ export function TenantSettingsForm({ tenant, isAdmin }: TenantSettingsFormProps)
     if (!isAdmin) {
       toast({
         variant: "destructive",
-        title: "Ingen tilgang",
-        description: "Kun administratorer kan endre bedriftsinnstillinger",
+        title: "No access",
+        description: "Only administrators can change company settings",
       });
       return;
     }
@@ -52,16 +52,16 @@ export function TenantSettingsForm({ tenant, isAdmin }: TenantSettingsFormProps)
 
     if (result.success) {
       toast({
-        title: "✅ Innstillinger lagret",
-        description: "Bedriftsinformasjonen er oppdatert",
+        title: "✅ Settings saved",
+        description: "Company information has been updated",
         className: "bg-green-50 border-green-200",
       });
       router.refresh();
     } else {
       toast({
         variant: "destructive",
-        title: "Feil",
-        description: result.error || "Kunne ikke lagre innstillinger",
+        title: "Error",
+        description: result.error || "Could not save settings",
       });
     }
 
@@ -74,15 +74,15 @@ export function TenantSettingsForm({ tenant, isAdmin }: TenantSettingsFormProps)
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Building2 className="h-5 w-5" />
-            Bedriftsinformasjon
+            Company information
           </CardTitle>
           <CardDescription>
-            Grunnleggende informasjon om bedriften
+            Basic information about the company
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="name">Bedriftsnavn *</Label>
+            <Label htmlFor="name">Company name *</Label>
             <Input
               id="name"
               name="name"
@@ -93,7 +93,7 @@ export function TenantSettingsForm({ tenant, isAdmin }: TenantSettingsFormProps)
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="orgNumber">Organisasjonsnummer</Label>
+            <Label htmlFor="orgNumber">Organization number</Label>
             <Input
               id="orgNumber"
               name="orgNumber"
@@ -105,19 +105,19 @@ export function TenantSettingsForm({ tenant, isAdmin }: TenantSettingsFormProps)
 
           <div className="grid gap-4 md:grid-cols-2">
             <div className="space-y-2">
-              <Label htmlFor="contactEmail">Kontakt e-post</Label>
+              <Label htmlFor="contactEmail">Contact email</Label>
               <Input
                 id="contactEmail"
                 name="contactEmail"
                 type="email"
-                placeholder="post@bedrift.no"
+                placeholder="contact@company.com"
                 disabled={loading || !isAdmin}
                 defaultValue={tenant.contactEmail || ""}
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="contactPhone">Kontakt telefon</Label>
+              <Label htmlFor="contactPhone">Contact phone</Label>
               <Input
                 id="contactPhone"
                 name="contactPhone"
@@ -130,11 +130,11 @@ export function TenantSettingsForm({ tenant, isAdmin }: TenantSettingsFormProps)
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="address">Adresse</Label>
+            <Label htmlFor="address">Address</Label>
             <Input
               id="address"
               name="address"
-              placeholder="Gateveien 1"
+              placeholder="123 Main Street"
               disabled={loading || !isAdmin}
               defaultValue={tenant.address || ""}
             />
@@ -142,7 +142,7 @@ export function TenantSettingsForm({ tenant, isAdmin }: TenantSettingsFormProps)
 
           <div className="grid gap-4 md:grid-cols-2">
             <div className="space-y-2">
-              <Label htmlFor="postalCode">Postnummer</Label>
+              <Label htmlFor="postalCode">ZIP/Postal Code</Label>
               <Input
                 id="postalCode"
                 name="postalCode"
@@ -153,7 +153,7 @@ export function TenantSettingsForm({ tenant, isAdmin }: TenantSettingsFormProps)
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="city">Poststed</Label>
+              <Label htmlFor="city">City</Label>
               <Input
                 id="city"
                 name="city"
@@ -171,19 +171,19 @@ export function TenantSettingsForm({ tenant, isAdmin }: TenantSettingsFormProps)
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <ShieldAlert className="h-5 w-5 text-orange-600" />
-            HMS-ansvarlig kontaktinformasjon
+            EHS Manager contact information
           </CardTitle>
           <CardDescription>
-            Dette vises for alle ansatte på deres dashboard under "Nødkontakter"
+            This is displayed for all employees on their dashboard under "Emergency contacts"
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="hmsContactName">Navn på HMS-ansvarlig</Label>
+            <Label htmlFor="hmsContactName">EHS Manager name</Label>
             <Input
               id="hmsContactName"
               name="hmsContactName"
-              placeholder="Navn Navnesen"
+                placeholder="John Smith"
               disabled={loading || !isAdmin}
               defaultValue={tenant.hmsContactName || ""}
             />
@@ -191,7 +191,7 @@ export function TenantSettingsForm({ tenant, isAdmin }: TenantSettingsFormProps)
 
           <div className="grid gap-4 md:grid-cols-2">
             <div className="space-y-2">
-              <Label htmlFor="hmsContactPhone">Telefonnummer</Label>
+              <Label htmlFor="hmsContactPhone">Phone number</Label>
               <Input
                 id="hmsContactPhone"
                 name="hmsContactPhone"
@@ -203,7 +203,7 @@ export function TenantSettingsForm({ tenant, isAdmin }: TenantSettingsFormProps)
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="hmsContactEmail">E-postadresse</Label>
+              <Label htmlFor="hmsContactEmail">Email address</Label>
               <Input
                 id="hmsContactEmail"
                 name="hmsContactEmail"
@@ -220,7 +220,7 @@ export function TenantSettingsForm({ tenant, isAdmin }: TenantSettingsFormProps)
       {isAdmin && (
         <div className="flex justify-end">
           <Button type="submit" disabled={loading}>
-            {loading ? "Lagrer..." : "Lagre endringer"}
+            {loading ? "Saving..." : "Save changes"}
           </Button>
         </div>
       )}
@@ -229,7 +229,7 @@ export function TenantSettingsForm({ tenant, isAdmin }: TenantSettingsFormProps)
         <Card className="bg-amber-50 border-amber-200">
           <CardContent className="pt-4">
             <p className="text-sm text-amber-800">
-              ℹ️ Kun administratorer kan endre bedriftsinnstillinger
+              ℹ️ Only administrators can change company settings
             </p>
           </CardContent>
         </Card>

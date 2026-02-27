@@ -21,7 +21,7 @@ export function PropertiesPanel({ selectedField, onUpdateField }: PropertiesPane
       <Card className="sticky top-6">
         <CardContent className="p-6 text-center">
           <p className="text-muted-foreground text-sm">
-            Velg et felt for å redigere egenskaper
+            Select a field to edit properties
           </p>
         </CardContent>
       </Card>
@@ -38,7 +38,7 @@ export function PropertiesPanel({ selectedField, onUpdateField }: PropertiesPane
   function addOption() {
     if (!selectedField) return;
     const current = selectedField.options || [];
-    updateOptions([...current, `Alternativ ${current.length + 1}`]);
+    updateOptions([...current, `Option ${current.length + 1}`]);
   }
 
   function removeOption(index: number) {
@@ -56,16 +56,16 @@ export function PropertiesPanel({ selectedField, onUpdateField }: PropertiesPane
   return (
     <Card className="sticky top-6 max-h-[calc(100vh-8rem)] overflow-y-auto">
       <CardHeader>
-        <CardTitle className="text-lg">Egenskaper</CardTitle>
+        <CardTitle className="text-lg">Properties</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         {/* Label */}
         <div>
-          <Label>Etikett *</Label>
+          <Label>Label *</Label>
           <Input
             value={selectedField.label}
             onChange={(e) => onUpdateField(selectedField.id, { label: e.target.value })}
-            placeholder="Feltnavn"
+            placeholder="Field name"
             className="mt-2"
           />
         </div>
@@ -73,11 +73,11 @@ export function PropertiesPanel({ selectedField, onUpdateField }: PropertiesPane
         {/* Placeholder */}
         {!["CHECKBOX", "RADIO", "FILE", "SIGNATURE", "LIKERT_SCALE", "SECTION_HEADER"].includes(selectedField.type) && (
           <div>
-            <Label>Plassholder</Label>
+            <Label>Placeholder</Label>
             <Input
               value={selectedField.placeholder || ""}
               onChange={(e) => onUpdateField(selectedField.id, { placeholder: e.target.value })}
-              placeholder="F.eks: Skriv her..."
+              placeholder="E.g.: Type here..."
               className="mt-2"
             />
           </div>
@@ -85,11 +85,11 @@ export function PropertiesPanel({ selectedField, onUpdateField }: PropertiesPane
 
         {/* Help text */}
         <div>
-          <Label>Hjelpetekst</Label>
+          <Label>Help text</Label>
           <Textarea
             value={selectedField.helpText || ""}
             onChange={(e) => onUpdateField(selectedField.id, { helpText: e.target.value })}
-            placeholder="Valgfri beskrivelse..."
+            placeholder="Optional description..."
             className="mt-2"
             rows={3}
           />
@@ -106,7 +106,7 @@ export function PropertiesPanel({ selectedField, onUpdateField }: PropertiesPane
               }
             />
             <Label htmlFor="required" className="cursor-pointer">
-              Påkrevd felt
+              Required field
             </Label>
           </div>
         )}
@@ -114,13 +114,13 @@ export function PropertiesPanel({ selectedField, onUpdateField }: PropertiesPane
         {/* Likert Scale Info */}
         {selectedField.type === "LIKERT_SCALE" && (
           <div className="p-3 bg-blue-50 rounded-lg border border-blue-200">
-            <p className="text-sm font-medium text-blue-900 mb-1">Likert-skala (1-5)</p>
+            <p className="text-sm font-medium text-blue-900 mb-1">Likert scale (1-5)</p>
             <div className="text-xs text-blue-700 space-y-1">
-              <div>1 = Svært uenig</div>
-              <div>2 = Uenig</div>
-              <div>3 = Nøytral</div>
-              <div>4 = Enig</div>
-              <div>5 = Svært enig</div>
+              <div>1 = Strongly disagree</div>
+              <div>2 = Disagree</div>
+              <div>3 = Neutral</div>
+              <div>4 = Agree</div>
+              <div>5 = Strongly agree</div>
             </div>
           </div>
         )}
@@ -128,9 +128,9 @@ export function PropertiesPanel({ selectedField, onUpdateField }: PropertiesPane
         {/* Section Header Info */}
         {selectedField.type === "SECTION_HEADER" && (
           <div className="p-3 bg-purple-50 rounded-lg border border-purple-200">
-            <p className="text-sm font-medium text-purple-900 mb-1">📋 Seksjonsoverskrift</p>
+            <p className="text-sm font-medium text-purple-900 mb-1">📋 Section header</p>
             <p className="text-xs text-purple-700">
-              Brukes til å dele opp skjemaet i seksjoner (f.eks. "DEL 1 - Arbeidsbelastning")
+              Used to divide the form into sections (e.g. &quot;PART 1 - Workload&quot;)
             </p>
           </div>
         )}
@@ -138,14 +138,14 @@ export function PropertiesPanel({ selectedField, onUpdateField }: PropertiesPane
         {/* Options for SELECT, RADIO, CHECKBOX */}
         {hasOptions && (
           <div>
-            <Label className="mb-2 block">Alternativer</Label>
+            <Label className="mb-2 block">Options</Label>
             <div className="space-y-2">
               {(selectedField.options || []).map((option, index) => (
                 <div key={index} className="flex items-center gap-2">
                   <Input
                     value={option}
                     onChange={(e) => updateOption(index, e.target.value)}
-                    placeholder={`Alternativ ${index + 1}`}
+                    placeholder={`Option ${index + 1}`}
                   />
                   <Button
                     variant="ghost"
@@ -159,7 +159,7 @@ export function PropertiesPanel({ selectedField, onUpdateField }: PropertiesPane
               ))}
               <Button variant="outline" size="sm" onClick={addOption} className="w-full">
                 <Plus className="h-4 w-4 mr-1" />
-                Legg til alternativ
+                Add option
               </Button>
             </div>
           </div>
@@ -167,7 +167,7 @@ export function PropertiesPanel({ selectedField, onUpdateField }: PropertiesPane
 
         {/* Field type badge */}
         <div className="pt-4 border-t">
-          <Label className="text-xs text-muted-foreground">Felttype</Label>
+          <Label className="text-xs text-muted-foreground">Field type</Label>
           <Badge variant="secondary" className="mt-2">
             {selectedField.type}
           </Badge>

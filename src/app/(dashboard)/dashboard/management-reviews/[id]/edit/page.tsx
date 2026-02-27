@@ -96,7 +96,7 @@ export default function EditManagementReviewPage() {
         const data = await response.json();
 
         if (!response.ok) {
-          throw new Error(data.error || "Kunne ikke hente gjennomgang");
+          throw new Error(data.error || "Could not fetch review");
         }
 
         const review = data.data;
@@ -124,7 +124,7 @@ export default function EditManagementReviewPage() {
         });
       } catch (error: any) {
         toast({
-          title: "Feil",
+          title: "Error",
           description: error.message,
           variant: "destructive",
         });
@@ -173,18 +173,18 @@ export default function EditManagementReviewPage() {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || "Kunne ikke oppdatere gjennomgang");
+        throw new Error(data.error || "Could not update review");
       }
 
       toast({
-        title: "Gjennomgang oppdatert",
-        description: "Endringene er lagret",
+        title: "Review updated",
+        description: "Changes have been saved",
       });
 
       router.push(`/dashboard/management-reviews/${params.id}`);
     } catch (error: any) {
       toast({
-        title: "Feil",
+        title: "Error",
         description: error.message,
         variant: "destructive",
       });
@@ -204,18 +204,18 @@ export default function EditManagementReviewPage() {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || "Kunne ikke slette gjennomgang");
+        throw new Error(data.error || "Could not delete review");
       }
 
       toast({
-        title: "Gjennomgang slettet",
-        description: "Gjennomgangen er slettet",
+        title: "Review deleted",
+        description: "The review has been deleted",
       });
 
       router.push("/dashboard/management-reviews");
     } catch (error: any) {
       toast({
-        title: "Feil",
+        title: "Error",
         description: error.message,
         variant: "destructive",
       });
@@ -226,7 +226,7 @@ export default function EditManagementReviewPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12">
-        <p>Laster...</p>
+        <p>Loading...</p>
       </div>
     );
   }
@@ -241,28 +241,28 @@ export default function EditManagementReviewPage() {
             </Button>
           </Link>
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">Rediger gjennomgang</h1>
-            <p className="text-muted-foreground">Oppdater detaljer for gjennomgangen</p>
+            <h1 className="text-3xl font-bold tracking-tight">Edit Review</h1>
+            <p className="text-muted-foreground">Update details for the review</p>
           </div>
         </div>
         <AlertDialog>
           <AlertDialogTrigger asChild>
             <Button variant="destructive" disabled={deleting}>
               <Trash2 className="mr-2 h-4 w-4" />
-              Slett
+              Delete
             </Button>
           </AlertDialogTrigger>
           <AlertDialogContent>
             <AlertDialogHeader>
-              <AlertDialogTitle>Er du sikker?</AlertDialogTitle>
+              <AlertDialogTitle>Are you sure?</AlertDialogTitle>
               <AlertDialogDescription>
-                Dette vil permanent slette gjennomgangen. Denne handlingen kan ikke angres.
+                This will permanently delete the review. This action cannot be undone.
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
-              <AlertDialogCancel>Avbryt</AlertDialogCancel>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
               <AlertDialogAction onClick={handleDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
-                Slett
+                Delete
               </AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>
@@ -270,19 +270,19 @@ export default function EditManagementReviewPage() {
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
-        {/* Grunnleggende informasjon */}
+        {/* Basic information */}
         <Card>
           <CardHeader>
-            <CardTitle>Grunnleggende informasjon</CardTitle>
+            <CardTitle>Basic Information</CardTitle>
             <CardDescription>
-              Fyll inn grunnleggende detaljer om gjennomgangen
+              Fill in basic details about the review
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="grid gap-4 md:grid-cols-2">
               <div className="space-y-2">
                 <Label htmlFor="title">
-                  Tittel <span className="text-destructive">*</span>
+                  Title <span className="text-destructive">*</span>
                 </Label>
                 <Input
                   id="title"
@@ -296,7 +296,7 @@ export default function EditManagementReviewPage() {
 
               <div className="space-y-2">
                 <Label htmlFor="period">
-                  Periode <span className="text-destructive">*</span>
+                  Period <span className="text-destructive">*</span>
                 </Label>
                 <Input
                   id="period"
@@ -310,7 +310,7 @@ export default function EditManagementReviewPage() {
 
               <div className="space-y-2">
                 <Label htmlFor="reviewDate">
-                  Gjennomgangsdato <span className="text-destructive">*</span>
+                  Review Date <span className="text-destructive">*</span>
                 </Label>
                 <Input
                   id="reviewDate"
@@ -325,7 +325,7 @@ export default function EditManagementReviewPage() {
 
               <div className="space-y-2">
                 <Label htmlFor="conductedBy">
-                  Gjennomført av <span className="text-destructive">*</span>
+                  Conducted by <span className="text-destructive">*</span>
                 </Label>
                 <Select
                   value={formData.conductedBy}
@@ -335,7 +335,7 @@ export default function EditManagementReviewPage() {
                   disabled={loadingUsers}
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder={loadingUsers ? "Laster brukere..." : "Velg bruker"} />
+                    <SelectValue placeholder={loadingUsers ? "Loading users..." : "Select user"} />
                   </SelectTrigger>
                   <SelectContent>
                     {users.map((u) => (
@@ -359,16 +359,16 @@ export default function EditManagementReviewPage() {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="PLANNED">Planlagt</SelectItem>
-                    <SelectItem value="IN_PROGRESS">Pågår</SelectItem>
-                    <SelectItem value="COMPLETED">Fullført</SelectItem>
-                    <SelectItem value="APPROVED">Godkjent</SelectItem>
+                    <SelectItem value="PLANNED">Planned</SelectItem>
+                    <SelectItem value="IN_PROGRESS">In Progress</SelectItem>
+                    <SelectItem value="COMPLETED">Completed</SelectItem>
+                    <SelectItem value="APPROVED">Approved</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="nextReviewDate">Neste gjennomgang</Label>
+                <Label htmlFor="nextReviewDate">Next review</Label>
                 <Input
                   id="nextReviewDate"
                   type="datetime-local"
@@ -382,17 +382,17 @@ export default function EditManagementReviewPage() {
           </CardContent>
         </Card>
 
-        {/* HMS-gjennomgang */}
+        {/* EHS review */}
         <Card>
           <CardHeader>
-            <CardTitle>HMS-gjennomgang</CardTitle>
+            <CardTitle>EHS Review</CardTitle>
             <CardDescription>
-              Status og resultater fra ulike HMS-områder
+              Status and results from various EHS areas
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="hmsGoalsReview">HMS-mål og resultater</Label>
+              <Label htmlFor="hmsGoalsReview">EHS Goals and Results</Label>
               <Textarea
                 id="hmsGoalsReview"
                 value={formData.hmsGoalsReview}
@@ -404,7 +404,7 @@ export default function EditManagementReviewPage() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="incidentStatistics">Avvik og hendelser</Label>
+              <Label htmlFor="incidentStatistics">Incidents and Deviations</Label>
               <Textarea
                 id="incidentStatistics"
                 value={formData.incidentStatistics}
@@ -416,7 +416,7 @@ export default function EditManagementReviewPage() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="riskReview">Risikovurderinger</Label>
+              <Label htmlFor="riskReview">Risk assessments</Label>
               <Textarea
                 id="riskReview"
                 value={formData.riskReview}
@@ -428,7 +428,7 @@ export default function EditManagementReviewPage() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="auditResults">Revisjoner og inspeksjoner</Label>
+              <Label htmlFor="auditResults">Audits and inspections</Label>
               <Textarea
                 id="auditResults"
                 value={formData.auditResults}
@@ -440,7 +440,7 @@ export default function EditManagementReviewPage() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="trainingStatus">Opplæring og kompetanse</Label>
+              <Label htmlFor="trainingStatus">Training and competence</Label>
               <Textarea
                 id="trainingStatus"
                 value={formData.trainingStatus}
@@ -452,7 +452,7 @@ export default function EditManagementReviewPage() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="resourcesReview">Ressurser og budsjett</Label>
+              <Label htmlFor="resourcesReview">Resources and budget</Label>
               <Textarea
                 id="resourcesReview"
                 value={formData.resourcesReview}
@@ -464,7 +464,7 @@ export default function EditManagementReviewPage() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="externalChanges">Eksterne endringer</Label>
+              <Label htmlFor="externalChanges">External changes</Label>
               <Textarea
                 id="externalChanges"
                 value={formData.externalChanges}
@@ -477,16 +477,16 @@ export default function EditManagementReviewPage() {
           </CardContent>
         </Card>
 
-        {/* Psykososialt arbeidsmiljø */}
+        {/* Psychosocial work environment */}
         <Card>
           <CardHeader>
-            <CardTitle>Psykososialt arbeidsmiljø</CardTitle>
+            <CardTitle>Psychosocial work environment</CardTitle>
             <CardDescription>
-              Automatisk oppsummering basert på psykososiale kartlegginger
+              Automatic summary based on psychosocial assessments
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            {/* Hent året fra reviewDate eller period */}
+            {/* Get year from reviewDate or period */}
             {formData.reviewDate && (
               <WellbeingSummaryCard
                 year={new Date(formData.reviewDate).getFullYear()}
@@ -497,7 +497,7 @@ export default function EditManagementReviewPage() {
             )}
             
             <div className="space-y-2">
-              <Label htmlFor="wellbeingSummary">Oppsummering (auto-generert)</Label>
+              <Label htmlFor="wellbeingSummary">Summary (auto-generated)</Label>
               <Textarea
                 id="wellbeingSummary"
                 value={formData.wellbeingSummary}
@@ -505,26 +505,26 @@ export default function EditManagementReviewPage() {
                   setFormData({ ...formData, wellbeingSummary: e.target.value })
                 }
                 rows={10}
-                placeholder="Klikk 'Last inn data' over for å generere oppsummering"
+                placeholder="Click 'Load data' above to generate summary"
               />
               <p className="text-xs text-muted-foreground">
-                Oppsummeringen kan redigeres manuelt om nødvendig
+                The summary can be edited manually if needed
               </p>
             </div>
           </CardContent>
         </Card>
 
-        {/* Konklusjoner */}
+        {/* Conclusions */}
         <Card>
           <CardHeader>
-            <CardTitle>Konklusjoner og oppfølging</CardTitle>
+            <CardTitle>Conclusions and Follow-up</CardTitle>
             <CardDescription>
-              Oppsummer konklusjoner og nødvendige tiltak
+              Summarize conclusions and required actions
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="conclusions">Konklusjoner</Label>
+              <Label htmlFor="conclusions">Conclusions</Label>
               <Textarea
                 id="conclusions"
                 value={formData.conclusions}
@@ -536,7 +536,7 @@ export default function EditManagementReviewPage() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="notes">Notater</Label>
+              <Label htmlFor="notes">Notes</Label>
               <Textarea
                 id="notes"
                 value={formData.notes}
@@ -552,12 +552,12 @@ export default function EditManagementReviewPage() {
         <div className="flex justify-end gap-4">
           <Link href={`/dashboard/management-reviews/${params.id}`}>
             <Button type="button" variant="outline">
-              Avbryt
+              Cancel
             </Button>
           </Link>
           <Button type="submit" disabled={saving}>
             <Save className="mr-2 h-4 w-4" />
-            {saving ? "Lagrer..." : "Lagre endringer"}
+            {saving ? "Saving..." : "Save changes"}
           </Button>
         </div>
       </form>

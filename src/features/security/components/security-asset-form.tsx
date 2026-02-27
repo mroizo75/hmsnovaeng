@@ -23,19 +23,19 @@ interface SecurityAssetFormProps {
 }
 
 const ciaOptions: Array<{ value: CIAValue; label: string }> = [
-  { value: "LOW", label: "Lav" },
-  { value: "MEDIUM", label: "Middels" },
-  { value: "HIGH", label: "Høy" },
+  { value: "LOW", label: "Low" },
+  { value: "MEDIUM", label: "Medium" },
+  { value: "HIGH", label: "High" },
 ];
 
 const typeOptions: Array<{ value: SecurityAssetType; label: string }> = [
-  { value: "INFORMATION_SYSTEM", label: "Informasjonssystem" },
-  { value: "APPLICATION", label: "Applikasjon" },
-  { value: "INFRASTRUCTURE", label: "Infrastruktur" },
-  { value: "DOCUMENT", label: "Dokumentasjon" },
-  { value: "PEOPLE", label: "Personell" },
-  { value: "FACILITY", label: "Fasilitet" },
-  { value: "OTHER", label: "Annet" },
+  { value: "INFORMATION_SYSTEM", label: "Information System" },
+  { value: "APPLICATION", label: "Application" },
+  { value: "INFRASTRUCTURE", label: "Infrastructure" },
+  { value: "DOCUMENT", label: "Documentation" },
+  { value: "PEOPLE", label: "Personnel" },
+  { value: "FACILITY", label: "Facility" },
+  { value: "OTHER", label: "Other" },
 ];
 
 const NO_OWNER_VALUE = "__none_security_asset_owner__";
@@ -65,13 +65,13 @@ export function SecurityAssetForm({ users }: SecurityAssetFormProps) {
       });
 
       if (result.success) {
-        toast({ title: "Sikkerhetsobjekt registrert" });
+        toast({ title: "Security asset registered" });
         setOpen(false);
       } else {
         toast({
           variant: "destructive",
-          title: "Feil",
-          description: result.error || "Kunne ikke registrere objektet",
+          title: "Error",
+          description: result.error || "Could not register asset",
         });
       }
     });
@@ -82,22 +82,22 @@ export function SecurityAssetForm({ users }: SecurityAssetFormProps) {
       <DialogTrigger asChild>
         <Button size="sm">
           <Plus className="mr-2 h-4 w-4" />
-          Nytt objekt
+          New Asset
         </Button>
       </DialogTrigger>
       <DialogContent className="max-w-xl">
         <DialogHeader>
-          <DialogTitle>Registrer sikkerhetsobjekt</DialogTitle>
+          <DialogTitle>Register Security Asset</DialogTitle>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="name">Navn *</Label>
-            <Input id="name" name="name" required disabled={isPending} placeholder="F.eks. HR-system" />
+            <Label htmlFor="name">Name *</Label>
+            <Input id="name" name="name" required disabled={isPending} placeholder="e.g. HR System" />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="description">Beskrivelse</Label>
+            <Label htmlFor="description">Description</Label>
             <Textarea id="description" name="description" rows={3} disabled={isPending} />
           </div>
 
@@ -118,13 +118,13 @@ export function SecurityAssetForm({ users }: SecurityAssetFormProps) {
               </Select>
             </div>
             <div className="space-y-2">
-              <Label>Eier</Label>
+              <Label>Owner</Label>
               <Select name="ownerId" disabled={isPending}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Velg ansvarlig (valgfritt)" />
+                  <SelectValue placeholder="Select responsible (optional)" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value={NO_OWNER_VALUE}>Ingen</SelectItem>
+                  <SelectItem value={NO_OWNER_VALUE}>None</SelectItem>
                   {users.map((user) => (
                     <SelectItem key={user.id} value={user.id}>
                       {user.name || user.email}
@@ -138,7 +138,7 @@ export function SecurityAssetForm({ users }: SecurityAssetFormProps) {
           <div className="grid gap-4 md:grid-cols-3">
             {["confidentiality", "integrity", "availability"].map((field) => (
               <div key={field} className="space-y-2">
-                <Label>{field === "confidentiality" ? "Konfidensialitet" : field === "integrity" ? "Integritet" : "Tilgjengelighet"}</Label>
+                <Label>{field === "confidentiality" ? "Confidentiality" : field === "integrity" ? "Integrity" : "Availability"}</Label>
                 <Select name={field} defaultValue="MEDIUM" disabled={isPending}>
                   <SelectTrigger>
                     <SelectValue />
@@ -156,7 +156,7 @@ export function SecurityAssetForm({ users }: SecurityAssetFormProps) {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="businessCriticality">Forretningskritikalitet (1-5)</Label>
+            <Label htmlFor="businessCriticality">Business Criticality (1-5)</Label>
             <Input
               id="businessCriticality"
               name="businessCriticality"
@@ -169,10 +169,10 @@ export function SecurityAssetForm({ users }: SecurityAssetFormProps) {
 
           <div className="flex justify-end gap-2">
             <Button type="button" variant="outline" onClick={() => setOpen(false)} disabled={isPending}>
-              Avbryt
+              Cancel
             </Button>
             <Button type="submit" disabled={isPending}>
-              {isPending ? "Lagrer..." : "Lagre objekt"}
+              {isPending ? "Saving..." : "Save Asset"}
             </Button>
           </div>
         </form>
@@ -180,4 +180,3 @@ export function SecurityAssetForm({ users }: SecurityAssetFormProps) {
     </Dialog>
   );
 }
-

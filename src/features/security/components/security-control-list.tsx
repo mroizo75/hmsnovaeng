@@ -35,16 +35,16 @@ const statusBadge: Record<SecurityControlStatus, string> = {
 
 const maturityLabel: Record<SecurityControlMaturity, string> = {
   INITIAL: "Initial",
-  MANAGED: "Styrt",
-  DEFINED: "Definert",
-  OPTIMIZED: "Optimalisert",
+  MANAGED: "Managed",
+  DEFINED: "Defined",
+  OPTIMIZED: "Optimized",
 };
 
 export function SecurityControlList({ controls }: SecurityControlListProps) {
   if (controls.length === 0) {
     return (
       <div className="rounded-lg border border-dashed p-6 text-center text-sm text-muted-foreground">
-        Ingen kontroller registrert ennå.
+        No controls registered yet.
       </div>
     );
   }
@@ -54,12 +54,12 @@ export function SecurityControlList({ controls }: SecurityControlListProps) {
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>Kode</TableHead>
-            <TableHead>Kontroll</TableHead>
+            <TableHead>Code</TableHead>
+            <TableHead>Control</TableHead>
             <TableHead>Status</TableHead>
-            <TableHead>Modenhet</TableHead>
-            <TableHead>Ansvarlig</TableHead>
-            <TableHead>Evidens</TableHead>
+            <TableHead>Maturity</TableHead>
+            <TableHead>Owner</TableHead>
+            <TableHead>Evidence</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -74,12 +74,12 @@ export function SecurityControlList({ controls }: SecurityControlListProps) {
                   )}
                   {control.documents.length > 0 && (
                     <p className="text-xs text-blue-600">
-                      Dokument: {control.documents[0].document.title}
+                      Document: {control.documents[0].document.title}
                       {control.documents.length > 1 ? ` +${control.documents.length - 1}` : ""}
                     </p>
                   )}
                   {control.linkedAsset && (
-                    <p className="text-xs text-muted-foreground">Objekt: {control.linkedAsset.name}</p>
+                    <p className="text-xs text-muted-foreground">Asset: {control.linkedAsset.name}</p>
                   )}
                 </div>
               </TableCell>
@@ -90,7 +90,7 @@ export function SecurityControlList({ controls }: SecurityControlListProps) {
               </TableCell>
               <TableCell className="text-sm">{maturityLabel[control.maturity]}</TableCell>
               <TableCell className="text-sm">
-                {control.owner ? control.owner.name || control.owner.email : "Ikke satt"}
+                {control.owner ? control.owner.name || control.owner.email : "Not set"}
               </TableCell>
               <TableCell className="text-sm">{control.evidences.length}</TableCell>
             </TableRow>

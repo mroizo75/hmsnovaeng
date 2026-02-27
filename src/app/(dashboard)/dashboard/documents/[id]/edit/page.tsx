@@ -16,7 +16,7 @@ export default async function EditDocumentPage({ params }: { params: Promise<{ i
 
   const userTenant = user.tenants[0];
   if (!userTenant) {
-    return <div>Ingen tilgang til tenant</div>;
+    return <div>No tenant access</div>;
   }
 
   const document = await prisma.document.findFirst({
@@ -29,14 +29,14 @@ export default async function EditDocumentPage({ params }: { params: Promise<{ i
   if (!document) {
     return (
       <div className="space-y-6">
-        <h1 className="text-3xl font-bold">Dokument ikke funnet</h1>
+        <h1 className="text-3xl font-bold">Document not found</h1>
         <p className="text-muted-foreground">
-          Dette dokumentet finnes ikke eller du har ikke tilgang til det.
+          This document does not exist or you do not have access to it.
         </p>
         <Button asChild>
           <Link href="/dashboard/documents">
             <ArrowLeft className="mr-2 h-4 w-4" />
-            Tilbake til dokumenter
+            Back to Documents
           </Link>
         </Button>
       </div>
@@ -68,7 +68,7 @@ export default async function EditDocumentPage({ params }: { params: Promise<{ i
   const ownerOptions = tenantUsers
     .map((member) => ({
       id: member.user?.id ?? "",
-      name: member.user?.name ?? member.user?.email ?? "Ukjent",
+      name: member.user?.name ?? member.user?.email ?? "Unknown",
       email: member.user?.email ?? "",
       role: member.role,
     }))
@@ -90,12 +90,12 @@ export default async function EditDocumentPage({ params }: { params: Promise<{ i
         <Button variant="ghost" asChild className="mb-4">
           <Link href="/dashboard/documents">
             <ArrowLeft className="mr-2 h-4 w-4" />
-            Tilbake til dokumenter
+            Back to Documents
           </Link>
         </Button>
-        <h1 className="text-3xl font-bold">Rediger dokument</h1>
+        <h1 className="text-3xl font-bold">Edit Document</h1>
         <p className="text-muted-foreground">
-          Oppdater metadata og tilgangskontroll for "{document.title}"
+          Update metadata and access control for "{document.title}"
         </p>
       </div>
 
@@ -107,4 +107,3 @@ export default async function EditDocumentPage({ params }: { params: Promise<{ i
     </div>
   );
 }
-

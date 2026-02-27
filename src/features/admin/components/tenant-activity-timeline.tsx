@@ -45,8 +45,8 @@ export function TenantActivityTimeline({ tenantId, activities }: TenantActivityT
     if (!note.trim()) {
       toast({
         variant: "destructive",
-        title: "Tomt notat",
-        description: "Skriv et kort notat før du lagrer.",
+        title: "Empty note",
+        description: "Write a short note before saving.",
       });
       return;
     }
@@ -62,16 +62,16 @@ export function TenantActivityTimeline({ tenantId, activities }: TenantActivityT
 
     if (result.success) {
       toast({
-        title: "Aktivitet lagret",
-        description: "CRM-aktiviteten er lagret for kunden.",
+        title: "Activity saved",
+        description: "The CRM activity has been saved for the customer.",
       });
       setNote("");
       router.refresh();
     } else {
       toast({
         variant: "destructive",
-        title: "Kunne ikke lagre aktivitet",
-        description: result.error || "Noe gikk galt. Prøv igjen.",
+        title: "Could not save activity",
+        description: result.error || "Something went wrong. Please try again.",
       });
     }
   };
@@ -79,30 +79,30 @@ export function TenantActivityTimeline({ tenantId, activities }: TenantActivityT
   const formatTypeLabel = (value: TenantActivityType) => {
     switch (value) {
       case "CONTACT":
-        return "Førstegangskontakt";
+        return "Initial contact";
       case "FOLLOW_UP":
-        return "Oppfølging";
+        return "Follow-up";
       case "OFFER_SENT":
-        return "Tilbud sendt";
+        return "Offer sent";
       case "MEETING":
-        return "Møte / demo";
+        return "Meeting / demo";
       case "OTHER":
       default:
-        return "Annet";
+        return "Other";
     }
   };
 
   const formatChannelLabel = (value: TenantActivityChannel) => {
     switch (value) {
       case "PHONE":
-        return "Telefon";
+        return "Phone";
       case "EMAIL":
-        return "E-post";
+        return "Email";
       case "MEETING":
-        return "Møte";
+        return "Meeting";
       case "OTHER":
       default:
-        return "Annet";
+        return "Other";
     }
   };
 
@@ -123,16 +123,16 @@ export function TenantActivityTimeline({ tenantId, activities }: TenantActivityT
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Aktivitetslogg (salg / oppfølging)</CardTitle>
+        <CardTitle>Activity log (sales / follow-up)</CardTitle>
         <CardDescription>
-          Registrer kontakt, tilbud, møter og annen oppfølging for denne kunden.
+          Record contact, offers, meetings and other follow-up for this customer.
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid md:grid-cols-3 gap-4">
             <div>
-              <Label htmlFor="activity-type">Type aktivitet</Label>
+              <Label htmlFor="activity-type">Activity type</Label>
               <Select
                 value={type}
                 onValueChange={(value) => setType(value as TenantActivityType)}
@@ -141,16 +141,16 @@ export function TenantActivityTimeline({ tenantId, activities }: TenantActivityT
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="CONTACT">Førstegangskontakt</SelectItem>
-                  <SelectItem value="FOLLOW_UP">Oppfølging</SelectItem>
-                  <SelectItem value="OFFER_SENT">Tilbud sendt</SelectItem>
-                  <SelectItem value="MEETING">Møte / demo</SelectItem>
-                  <SelectItem value="OTHER">Annet</SelectItem>
+                  <SelectItem value="CONTACT">Initial contact</SelectItem>
+                  <SelectItem value="FOLLOW_UP">Follow-up</SelectItem>
+                  <SelectItem value="OFFER_SENT">Offer sent</SelectItem>
+                  <SelectItem value="MEETING">Meeting / demo</SelectItem>
+                  <SelectItem value="OTHER">Other</SelectItem>
                 </SelectContent>
               </Select>
             </div>
             <div>
-              <Label htmlFor="activity-channel">Kanal</Label>
+              <Label htmlFor="activity-channel">Channel</Label>
               <Select
                 value={channel}
                 onValueChange={(value) => setChannel(value as TenantActivityChannel)}
@@ -159,22 +159,22 @@ export function TenantActivityTimeline({ tenantId, activities }: TenantActivityT
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="PHONE">Telefon</SelectItem>
-                  <SelectItem value="EMAIL">E-post</SelectItem>
-                  <SelectItem value="MEETING">Møte</SelectItem>
-                  <SelectItem value="OTHER">Annet</SelectItem>
+                  <SelectItem value="PHONE">Phone</SelectItem>
+                  <SelectItem value="EMAIL">Email</SelectItem>
+                  <SelectItem value="MEETING">Meeting</SelectItem>
+                  <SelectItem value="OTHER">Other</SelectItem>
                 </SelectContent>
               </Select>
             </div>
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="activity-note">Notat</Label>
+            <Label htmlFor="activity-note">Note</Label>
             <Textarea
               id="activity-note"
               value={note}
               onChange={(e) => setNote(e.target.value)}
-              placeholder="F.eks. 2026-02-09 – Ringte kontaktperson, avtalt demo neste uke, tilbud sendes innen fredag."
+              placeholder="E.g. 2026-02-09 – Called contact person, demo scheduled for next week, offer to be sent by Friday."
               rows={3}
               disabled={isSubmitting}
             />
@@ -183,22 +183,22 @@ export function TenantActivityTimeline({ tenantId, activities }: TenantActivityT
           <div className="flex justify-end">
             <Button type="submit" disabled={isSubmitting}>
               {isSubmitting && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
-              Lagre aktivitet
+              Save activity
             </Button>
           </div>
         </form>
 
         <div className="space-y-3">
           <div className="flex items-center justify-between">
-            <h3 className="text-sm font-medium text-muted-foreground">Historikk</h3>
+            <h3 className="text-sm font-medium text-muted-foreground">History</h3>
             <p className="text-xs text-muted-foreground">
-              Viser de {activities.length} siste aktivitetene
+              Showing the {activities.length} most recent activities
             </p>
           </div>
 
           {activities.length === 0 ? (
             <p className="text-sm text-muted-foreground">
-              Ingen registrerte aktiviteter ennå. Legg inn første aktivitet over.
+              No registered activities yet. Add the first activity above.
             </p>
           ) : (
             <div className="space-y-3">
@@ -219,13 +219,13 @@ export function TenantActivityTimeline({ tenantId, activities }: TenantActivityT
                     <div className="flex-1 space-y-1">
                       <div className="flex flex-wrap items-center gap-2">
                         <span className="text-xs text-muted-foreground">
-                          {createdAt.toLocaleDateString("nb-NO", {
+                          {createdAt.toLocaleDateString("en-US", {
                             day: "2-digit",
                             month: "short",
                             year: "numeric",
                           })}{" "}
-                          kl.{" "}
-                          {createdAt.toLocaleTimeString("nb-NO", {
+                          at{" "}
+                          {createdAt.toLocaleTimeString("en-US", {
                             hour: "2-digit",
                             minute: "2-digit",
                           })}

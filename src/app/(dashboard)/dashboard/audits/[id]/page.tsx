@@ -41,7 +41,7 @@ export default async function AuditDetailPage({ params }: { params: Promise<{ id
   });
 
   if (!currentUser || currentUser.tenants.length === 0) {
-    return <div>Ingen tilgang til tenant</div>;
+    return <div>No tenant access</div>;
   }
 
   const tenantId = currentUser.tenants[0].tenantId;
@@ -56,23 +56,23 @@ export default async function AuditDetailPage({ params }: { params: Promise<{ id
   });
 
   if (!audit) {
-    return <div>Revisjon ikke funnet</div>;
+    return <div>Audit not found</div>;
   }
 
-  // Hent hovedrevisor
+  // Fetch lead auditor
   const leadAuditor = await prisma.user.findUnique({
     where: { id: audit.leadAuditorId },
     select: { id: true, name: true, email: true },
   });
 
-  // Hent revisjonsteam
+  // Fetch audit team
   const teamMemberIds = audit.teamMemberIds ? JSON.parse(audit.teamMemberIds) : [];
   const teamMembers = await prisma.user.findMany({
     where: { id: { in: teamMemberIds } },
     select: { id: true, name: true, email: true },
   });
 
-  // Hent alle brukere for tenant (for å kunne legge til funn)
+  // Fetch all users for tenant (to be able to add findings)
   const tenantUsers = await prisma.user.findMany({
     where: {
       tenants: {
@@ -109,13 +109,13 @@ export default async function AuditDetailPage({ params }: { params: Promise<{ id
       <div>
         <Button variant="ghost" asChild className="mb-4">
           <Link href="/dashboard/audits">
-            <ArrowLeft className="mr-2 h-4 w-4" /> Tilbake til revisjoner
+            <ArrowLeft className="mr-2 h-4 w-4" /> Back to audits
           </Link>
         </Button>
         <div className="flex items-start justify-between">
           <div>
             <h1 className="text-3xl font-bold">{audit.title}</h1>
-            <p className="text-muted-foreground">Revisjonsdetaljer</p>
+            <p className="text-muted-foreground">Audit details</p>
           </div>
           <div className="flex items-center gap-2">
             <Badge className={typeColor}>{typeLabel}</Badge>
@@ -131,7 +131,7 @@ export default async function AuditDetailPage({ params }: { params: Promise<{ id
             <Link href={`/dashboard/audits/${audit.id}/edit`}>
               <Button variant="outline" size="sm">
                 <Edit className="mr-2 h-4 w-4" />
-                Rediger
+                Edit
               </Button>
             </Link>
           </div>
@@ -142,15 +142,15 @@ export default async function AuditDetailPage({ params }: { params: Promise<{ id
         {/* Basic Info */}
         <Card>
           <CardHeader>
-            <CardTitle>Grunnleggende informasjon</CardTitle>
+            <CardTitle>Basic Information</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="flex items-start gap-3">
               <Calendar className="h-5 w-5 text-muted-foreground mt-0.5" />
               <div>
-                <p className="text-sm font-medium text-muted-foreground">Planlagt dato</p>
+                <p className="text-sm font-medium text-muted-foreground">Scheduled date</p>
                 <p className="font-medium">
-                  {new Date(audit.scheduledDate).toLocaleDateString("nb-NO", {
+                  {new Date(audit.scheduledDate).toLocaleDateString("en-US", {
                     day: "numeric",
                     month: "long",
                     year: "numeric",
@@ -163,9 +163,9 @@ export default async function AuditDetailPage({ params }: { params: Promise<{ id
               <div className="flex items-start gap-3">
                 <CheckCircle2 className="h-5 w-5 text-green-600 mt-0.5" />
                 <div>
-                  <p className="text-sm font-medium text-muted-foreground">Fullført</p>
+                  <p className="text-sm font-medium text-muted-foreground">Completed</p>
                   <p className="font-medium">
-                    {new Date(audit.completedAt).toLocaleDateString("nb-NO", {
+                    {new Date(audit.completedAt).toLocaleDateString("en-US", {
                       day: "numeric",
                       month: "long",
                       year: "numeric",
@@ -178,10 +178,10 @@ export default async function AuditDetailPage({ params }: { params: Promise<{ id
             <div className="flex items-start gap-3">
               <FileText className="h-5 w-5 text-muted-foreground mt-0.5" />
               <div>
-                <p className="text-sm font-medium text-muted-foreground">Område</p>
+                <p className="text-sm font-medium text-muted-foreground">Area</p>
                 <p className="font-medium">{audit.area}</p>
                 {audit.department && (
-                  <p className="text-sm text-muted-foreground">Avdeling: {audit.department}</p>
+                  <p className="text-sm text-muted-foreground">Department: {audit.department}</p>
                 )}
               </div>
             </div>
@@ -191,14 +191,14 @@ export default async function AuditDetailPage({ params }: { params: Promise<{ id
         {/* Team */}
         <Card>
           <CardHeader>
-            <CardTitle>Revisjonsteam</CardTitle>
+            <CardTitle>Audit Team</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="flex items-start gap-3">
               <User className="h-5 w-5 text-muted-foreground mt-0.5" />
               <div>
-                <p className="text-sm font-medium text-muted-foreground">Hovedrevisor</p>
-                <p className="font-medium">{leadAuditor?.name || "Ukjent"}</p>
+                <p className="text-sm font-medium text-muted-foreground">Lead Auditor</p>
+                <p className="font-medium">{leadAuditor?.name || "Unknown"}</p>
                 <p className="text-sm text-muted-foreground">{leadAuditor?.email}</p>
               </div>
             </div>
@@ -207,10 +207,10 @@ export default async function AuditDetailPage({ params }: { params: Promise<{ id
               <div className="flex items-start gap-3">
                 <Users className="h-5 w-5 text-muted-foreground mt-0.5" />
                 <div>
-                  <p className="text-sm font-medium text-muted-foreground">Revisjonsteam</p>
+                  <p className="text-sm font-medium text-muted-foreground">Audit Team</p>
                   {teamMembers.map((member) => (
                     <div key={member.id}>
-                      <p className="font-medium">{member.name || "Ukjent"}</p>
+                      <p className="font-medium">{member.name || "Unknown"}</p>
                       <p className="text-sm text-muted-foreground">{member.email}</p>
                     </div>
                   ))}
@@ -224,15 +224,15 @@ export default async function AuditDetailPage({ params }: { params: Promise<{ id
       {/* Scope and Criteria */}
       <Card>
         <CardHeader>
-          <CardTitle>Omfang og kriterier (ISO 9001)</CardTitle>
+          <CardTitle>Scope and Criteria (ISO 9001)</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div>
-            <p className="text-sm font-medium text-muted-foreground mb-1">Omfang:</p>
+            <p className="text-sm font-medium text-muted-foreground mb-1">Scope:</p>
             <p className="text-sm whitespace-pre-wrap">{audit.scope}</p>
           </div>
           <div>
-            <p className="text-sm font-medium text-muted-foreground mb-1">Revisjonskriterier:</p>
+            <p className="text-sm font-medium text-muted-foreground mb-1">Audit Criteria:</p>
             <p className="text-sm whitespace-pre-wrap">{audit.criteria}</p>
           </div>
         </CardContent>
@@ -242,18 +242,18 @@ export default async function AuditDetailPage({ params }: { params: Promise<{ id
       {(audit.summary || audit.conclusion) && (
         <Card>
           <CardHeader>
-            <CardTitle>Oppsummering og konklusjon</CardTitle>
+            <CardTitle>Summary and Conclusion</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             {audit.summary && (
               <div>
-                <p className="text-sm font-medium text-muted-foreground mb-1">Oppsummering:</p>
+                <p className="text-sm font-medium text-muted-foreground mb-1">Summary:</p>
                 <p className="text-sm whitespace-pre-wrap">{audit.summary}</p>
               </div>
             )}
             {audit.conclusion && (
               <div>
-                <p className="text-sm font-medium text-muted-foreground mb-1">Konklusjon:</p>
+                <p className="text-sm font-medium text-muted-foreground mb-1">Conclusion:</p>
                 <p className="text-sm whitespace-pre-wrap">{audit.conclusion}</p>
               </div>
             )}
@@ -265,24 +265,24 @@ export default async function AuditDetailPage({ params }: { params: Promise<{ id
       {findingStats.total > 0 && (
         <Card className="border-orange-200 bg-orange-50">
           <CardHeader>
-            <CardTitle className="text-orange-900">Funn fra revisjon</CardTitle>
+            <CardTitle className="text-orange-900">Audit Findings</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="grid gap-4 md:grid-cols-4">
               <div>
-                <p className="text-sm font-medium text-orange-900">Større avvik</p>
+                <p className="text-sm font-medium text-orange-900">Major Nonconformities</p>
                 <p className="text-3xl font-bold text-red-600">{findingStats.majorNCs}</p>
               </div>
               <div>
-                <p className="text-sm font-medium text-orange-900">Mindre avvik</p>
+                <p className="text-sm font-medium text-orange-900">Minor Nonconformities</p>
                 <p className="text-3xl font-bold text-orange-600">{findingStats.minorNCs}</p>
               </div>
               <div>
-                <p className="text-sm font-medium text-orange-900">Observasjoner</p>
+                <p className="text-sm font-medium text-orange-900">Observations</p>
                 <p className="text-3xl font-bold text-yellow-600">{findingStats.observations}</p>
               </div>
               <div>
-                <p className="text-sm font-medium text-orange-900">Styrker</p>
+                <p className="text-sm font-medium text-orange-900">Strengths</p>
                 <p className="text-3xl font-bold text-green-600">{findingStats.strengths}</p>
               </div>
             </div>
@@ -295,9 +295,9 @@ export default async function AuditDetailPage({ params }: { params: Promise<{ id
         <CardHeader>
           <div className="flex items-center justify-between">
             <div>
-              <CardTitle>Funn og observasjoner</CardTitle>
+              <CardTitle>Findings and Observations</CardTitle>
               <CardDescription>
-                Dokumenter avvik, observasjoner og styrker fra revisjonen
+                Document nonconformities, observations, and strengths from the audit
               </CardDescription>
             </div>
             <FindingForm auditId={audit.id} users={tenantUsers} />
@@ -316,11 +316,11 @@ export default async function AuditDetailPage({ params }: { params: Promise<{ id
         <CardContent className="space-y-2 text-sm text-blue-800">
           <div className="flex items-center gap-2">
             <CheckCircle2 className="h-4 w-4 text-blue-600" />
-            <span>Omfang og kriterier definert</span>
+            <span>Scope and criteria defined</span>
           </div>
           <div className="flex items-center gap-2">
             <CheckCircle2 className="h-4 w-4 text-blue-600" />
-            <span>Hovedrevisor utnevnt (objektivitet sikret)</span>
+            <span>Lead auditor appointed (objectivity ensured)</span>
           </div>
           <div className="flex items-center gap-2">
             {audit.completedAt ? (
@@ -328,7 +328,7 @@ export default async function AuditDetailPage({ params }: { params: Promise<{ id
             ) : (
               <AlertTriangle className="h-4 w-4 text-yellow-600" />
             )}
-            <span>Revisjon {audit.completedAt ? "fullført" : "ikke fullført ennå"}</span>
+            <span>Audit {audit.completedAt ? "completed" : "not yet completed"}</span>
           </div>
           <div className="flex items-center gap-2">
             {findingStats.total > 0 ? (
@@ -338,8 +338,8 @@ export default async function AuditDetailPage({ params }: { params: Promise<{ id
             )}
             <span>
               {findingStats.total > 0
-                ? `${findingStats.total} funn dokumentert`
-                : "Ingen funn dokumentert"}
+                ? `${findingStats.total} findings documented`
+                : "No findings documented"}
             </span>
           </div>
           <div className="flex items-center gap-2">
@@ -352,8 +352,8 @@ export default async function AuditDetailPage({ params }: { params: Promise<{ id
             )}
             <span>
               {findingStats.open > 0
-                ? `${findingStats.open} åpne funn (krever korrigerende tiltak)`
-                : "Alle funn er lukket"}
+                ? `${findingStats.open} open findings (require corrective actions)`
+                : "All findings are closed"}
             </span>
           </div>
         </CardContent>

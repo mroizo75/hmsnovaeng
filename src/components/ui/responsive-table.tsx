@@ -11,7 +11,7 @@ interface ResponsiveTableProps {
 }
 
 /**
- * ResponsiveTable - Viser tabell på desktop, kort på mobil
+ * ResponsiveTable - Shows table on desktop, cards on mobile
  * 
  * Bruk:
  * <ResponsiveTable 

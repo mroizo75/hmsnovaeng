@@ -35,7 +35,7 @@ export default async function IncidentDetailPage({ params }: { params: Promise<{
   });
 
   if (!user || user.tenants.length === 0) {
-    return <div>Ingen tilgang til tenant</div>;
+    return <div>No tenant access</div>;
   }
 
   const tenantId = user.tenants[0].tenantId;
@@ -67,7 +67,7 @@ export default async function IncidentDetailPage({ params }: { params: Promise<{
   });
 
   if (!incident) {
-    return <div>Avvik ikke funnet</div>;
+    return <div>Incident not found</div>;
   }
 
   const tenantUsers = await prisma.user.findMany({
@@ -91,7 +91,7 @@ export default async function IncidentDetailPage({ params }: { params: Promise<{
 
   const formatDate = (date: Date | null) => {
     if (!date) return "-";
-    return new Date(date).toLocaleString("no-NO", {
+    return new Date(date).toLocaleString("en-US", {
       day: "2-digit",
       month: "short",
       year: "numeric",
@@ -143,7 +143,7 @@ export default async function IncidentDetailPage({ params }: { params: Promise<{
           <Button variant="ghost" asChild>
             <Link href="/dashboard/incidents">
               <ArrowLeft className="mr-2 h-4 w-4" />
-              Tilbake til avvik
+              Back to Incidents
             </Link>
           </Button>
           <IncidentPDFExport
@@ -164,7 +164,7 @@ export default async function IncidentDetailPage({ params }: { params: Promise<{
               )}
               <Badge className={typeColor}>{typeLabel}</Badge>
               <Badge className={`${severityColor} ${severityTextColor}`}>
-                Alvorlighet: {incident.severity} - {severityLabel}
+                Severity: {incident.severity} - {severityLabel}
               </Badge>
               <Badge className={statusColor}>{statusLabel}</Badge>
             </div>
@@ -172,18 +172,18 @@ export default async function IncidentDetailPage({ params }: { params: Promise<{
         </div>
       </div>
 
-      {/* ISO 9001: a) Reagere på avvik */}
+      {/* ISO 9001: a) React to incident */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <AlertTriangle className="h-5 w-5" />
-            Hva skjedde?
+            What happened?
           </CardTitle>
-          <CardDescription>ISO 9001: Natur av avvik</CardDescription>
+          <CardDescription>ISO 9001: Nature of incident</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div>
-            <h4 className="font-semibold mb-2">Beskrivelse</h4>
+            <h4 className="font-semibold mb-2">Description</h4>
             <p className="text-sm whitespace-pre-wrap">{incident.description}</p>
           </div>
 
@@ -191,7 +191,7 @@ export default async function IncidentDetailPage({ params }: { params: Promise<{
             <div>
               <h4 className="font-semibold mb-1 flex items-center gap-2">
                 <Clock className="h-4 w-4" />
-                Tidspunkt
+                Time
               </h4>
               <p className="text-sm text-muted-foreground">{formatDate(incident.occurredAt)}</p>
             </div>
@@ -200,7 +200,7 @@ export default async function IncidentDetailPage({ params }: { params: Promise<{
               <div>
                 <h4 className="font-semibold mb-1 flex items-center gap-2">
                   <MapPin className="h-4 w-4" />
-                  Sted
+                  Location
                 </h4>
                 <p className="text-sm text-muted-foreground">{incident.location}</p>
               </div>
@@ -210,7 +210,7 @@ export default async function IncidentDetailPage({ params }: { params: Promise<{
               <div>
                 <h4 className="font-semibold mb-1 flex items-center gap-2">
                   <Eye className="h-4 w-4" />
-                  Vitner
+                  Witnesses
                 </h4>
                 <p className="text-sm text-muted-foreground">{incident.witnessName}</p>
               </div>
@@ -221,28 +221,28 @@ export default async function IncidentDetailPage({ params }: { params: Promise<{
             <div className="grid gap-4 md:grid-cols-3">
               {(incident.injuryType || incident.medicalAttentionRequired) && (
                 <div>
-                  <h4 className="font-semibold mb-1">Skade</h4>
+                  <h4 className="font-semibold mb-1">Injury</h4>
                   <p className="text-sm text-muted-foreground">
-                    {incident.injuryType || "Ingen skade registrert"}
+                    {incident.injuryType || "No injury registered"}
                   </p>
                   <p className="text-xs text-muted-foreground">
-                    {incident.medicalAttentionRequired ? "Legebehandling nødvendig" : "Ingen legebehandling"}
+                    {incident.medicalAttentionRequired ? "Medical attention required" : "No medical attention"}
                   </p>
                 </div>
               )}
 
               {typeof incident.lostTimeMinutes === "number" && (
                 <div>
-                  <h4 className="font-semibold mb-1">Tapt tid</h4>
+                  <h4 className="font-semibold mb-1">Lost Time</h4>
                   <p className="text-sm text-muted-foreground">
-                    {incident.lostTimeMinutes} minutter
+                    {incident.lostTimeMinutes} minutes
                   </p>
                 </div>
               )}
 
               {incident.risk && (
                 <div>
-                  <h4 className="font-semibold mb-1">Knyttet risiko</h4>
+                  <h4 className="font-semibold mb-1">Linked Risk</h4>
                   <Link
                     href={`/dashboard/risks/${incident.risk.id}`}
                     className="text-sm text-primary underline"
@@ -259,17 +259,17 @@ export default async function IncidentDetailPage({ params }: { params: Promise<{
 
           {incident.immediateAction && (
             <div>
-              <h4 className="font-semibold mb-2">Umiddelbare tiltak</h4>
+              <h4 className="font-semibold mb-2">Immediate Actions</h4>
               <p className="text-sm text-muted-foreground whitespace-pre-wrap">
                 {incident.immediateAction}
               </p>
             </div>
           )}
 
-          {/* Bilder og vedlegg */}
+          {/* Attachments */}
           {incident.attachments && incident.attachments.length > 0 && (
             <div>
-              <h4 className="font-semibold mb-3">Vedlegg ({incident.attachments.length})</h4>
+              <h4 className="font-semibold mb-3">Attachments ({incident.attachments.length})</h4>
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                 {incident.attachments.map((attachment, index) => {
                   const isImage = attachment.mime.startsWith("image/");
@@ -308,12 +308,12 @@ export default async function IncidentDetailPage({ params }: { params: Promise<{
         </CardContent>
       </Card>
 
-      {/* Behandle avvik */}
+      {/* Handle incident */}
       {incident.status !== "CLOSED" && (
         <Card className="border-2 border-primary/20">
           <CardHeader>
-            <CardTitle>Behandle avvik</CardTitle>
-            <CardDescription>Oppdater status, alvorlighet og ansvarlig</CardDescription>
+            <CardTitle>Handle Incident</CardTitle>
+            <CardDescription>Update status, severity, and responsible party</CardDescription>
           </CardHeader>
           <CardContent>
             <IncidentTreatmentForm
@@ -327,24 +327,24 @@ export default async function IncidentDetailPage({ params }: { params: Promise<{
         </Card>
       )}
 
-      {/* ISO 9001: b) Vurdere behovet for tiltak - Årsaksanalyse */}
+      {/* ISO 9001: b) Root Cause Analysis */}
       {!incident.rootCause ? (
         <InvestigationForm incidentId={incident.id} users={tenantUsers} />
       ) : (
         <Card>
           <CardHeader>
-            <CardTitle>Årsaksanalyse (Root Cause Analysis)</CardTitle>
-            <CardDescription>ISO 9001: Identifisere årsaken til avviket</CardDescription>
+            <CardTitle>Root Cause Analysis</CardTitle>
+            <CardDescription>ISO 9001: Identify the root cause of the incident</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div>
-              <h4 className="font-semibold mb-2">Grunnårsak</h4>
+              <h4 className="font-semibold mb-2">Root Cause</h4>
               <p className="text-sm whitespace-pre-wrap">{incident.rootCause}</p>
             </div>
 
             {incident.contributingFactors && (
               <div>
-                <h4 className="font-semibold mb-2">Medvirkende faktorer</h4>
+                <h4 className="font-semibold mb-2">Contributing Factors</h4>
                 <p className="text-sm text-muted-foreground whitespace-pre-wrap">
                   {incident.contributingFactors}
                 </p>
@@ -353,22 +353,22 @@ export default async function IncidentDetailPage({ params }: { params: Promise<{
 
             {incident.investigatedAt && (
               <div className="text-sm text-muted-foreground">
-                Utredet: {formatDate(incident.investigatedAt)}
+                Investigated: {formatDate(incident.investigatedAt)}
               </div>
             )}
           </CardContent>
         </Card>
       )}
 
-      {/* ISO 9001: c) Implementere nødvendige tiltak */}
+      {/* ISO 9001: c) Corrective Actions */}
       {incident.rootCause && (
         <Card>
           <CardHeader>
             <div className="flex items-center justify-between">
               <div>
-                <CardTitle>Korrigerende tiltak</CardTitle>
+                <CardTitle>Corrective Actions</CardTitle>
                 <CardDescription>
-                  ISO 9001: Planlagte tiltak for å eliminere årsaken
+                  ISO 9001: Planned actions to eliminate the root cause
                 </CardDescription>
               </div>
               {incident.status !== "CLOSED" && (
@@ -380,34 +380,34 @@ export default async function IncidentDetailPage({ params }: { params: Promise<{
             <MeasureList measures={incident.measures} />
             {incident.measures.length === 0 && (
               <div className="text-center py-8 text-muted-foreground">
-                <p>Ingen tiltak planlagt ennå</p>
-                <p className="text-xs mt-2">Klikk "Legg til tiltak" ovenfor</p>
+                <p>No actions planned yet</p>
+                <p className="text-xs mt-2">Click "Add Action" above</p>
               </div>
             )}
           </CardContent>
         </Card>
       )}
 
-      {/* ISO 9001: d) Gjennomgå effektiviteten */}
+      {/* ISO 9001: d) Effectiveness Review */}
       {canClose ? (
         <CloseIncidentForm incidentId={incident.id} userId={user.id} />
       ) : incident.status === "CLOSED" ? (
         <Card>
           <CardHeader>
-            <CardTitle>Avvik lukket</CardTitle>
-            <CardDescription>ISO 9001: Effektivitetsvurdering</CardDescription>
+            <CardTitle>Incident Closed</CardTitle>
+            <CardDescription>ISO 9001: Effectiveness Review</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             {incident.effectivenessReview && (
               <div>
-                <h4 className="font-semibold mb-2">Effektivitetsvurdering</h4>
+                <h4 className="font-semibold mb-2">Effectiveness Review</h4>
                 <p className="text-sm whitespace-pre-wrap">{incident.effectivenessReview}</p>
               </div>
             )}
 
             {incident.lessonsLearned && (
               <div>
-                <h4 className="font-semibold mb-2">Læringspunkter</h4>
+                <h4 className="font-semibold mb-2">Lessons Learned</h4>
                 <p className="text-sm text-muted-foreground whitespace-pre-wrap">
                   {incident.lessonsLearned}
                 </p>
@@ -416,7 +416,7 @@ export default async function IncidentDetailPage({ params }: { params: Promise<{
 
             <div className="flex items-center gap-2 text-sm text-green-600">
               <User className="h-4 w-4" />
-              <span>Lukket: {formatDate(incident.closedAt)}</span>
+              <span>Closed: {formatDate(incident.closedAt)}</span>
             </div>
           </CardContent>
         </Card>
@@ -424,4 +424,3 @@ export default async function IncidentDetailPage({ params }: { params: Promise<{
     </div>
   );
 }
-

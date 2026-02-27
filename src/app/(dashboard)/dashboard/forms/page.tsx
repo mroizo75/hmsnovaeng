@@ -45,7 +45,6 @@ export default async function FormsPage({
   const currentPage = parseInt(params.page || "1", 10);
   const skip = (currentPage - 1) * ITEMS_PER_PAGE;
 
-  // Hent totalt antall skjemaer (tenant + globale)
   const totalForms = await prisma.formTemplate.count({
     where: {
       OR: [
@@ -57,7 +56,6 @@ export default async function FormsPage({
 
   const totalPages = Math.ceil(totalForms / ITEMS_PER_PAGE);
 
-  // Hent skjemaer for current page (tenant + globale)
   const forms = await prisma.formTemplate.findMany({
     where: {
       OR: [
@@ -71,14 +69,14 @@ export default async function FormsPage({
           fields: true,
           submissions: {
             where: {
-              tenantId: session.user.tenantId, // VIKTIG: Kun tenant-spesifikke submissions
+              tenantId: session.user.tenantId,
             },
           },
         },
       },
       submissions: {
         where: {
-          tenantId: session.user.tenantId, // VIKTIG: Kun tenant-spesifikke submissions
+          tenantId: session.user.tenantId,
         },
         orderBy: { createdAt: "desc" },
         take: 1,
@@ -92,7 +90,6 @@ export default async function FormsPage({
     take: ITEMS_PER_PAGE,
   });
 
-  // Beregn stats (alle skjemaer - tenant + globale, men KUN tenant-submissions)
   const allForms = await prisma.formTemplate.findMany({
     where: {
       OR: [
@@ -105,7 +102,7 @@ export default async function FormsPage({
         select: {
           submissions: {
             where: {
-              tenantId: session.user.tenantId, // VIKTIG: Kun tenant-spesifikke submissions
+              tenantId: session.user.tenantId,
             },
           },
         },
@@ -122,9 +119,9 @@ export default async function FormsPage({
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div>
-            <h1 className="text-3xl font-bold">Digitale skjemaer</h1>
+            <h1 className="text-3xl font-bold">Digital Forms</h1>
             <p className="text-muted-foreground mt-1">
-              Lag, administrer og analyser egendefinerte skjemaer
+              Create, manage, and analyze custom forms
             </p>
           </div>
           <PageHelpDialog content={helpContent.forms} />
@@ -132,7 +129,7 @@ export default async function FormsPage({
         <Link href="/dashboard/forms/new">
           <Button size="lg">
             <Plus className="h-5 w-5 mr-2" />
-            Nytt skjema
+            New Form
           </Button>
         </Link>
       </div>
@@ -143,7 +140,7 @@ export default async function FormsPage({
           <CardHeader className="pb-3">
             <div className="flex items-center justify-between">
               <CardTitle className="text-sm font-medium text-muted-foreground">
-                Totalt antall skjemaer
+                Total Forms
               </CardTitle>
               <FileText className="h-4 w-4 text-muted-foreground" />
             </div>
@@ -151,7 +148,7 @@ export default async function FormsPage({
           <CardContent>
             <div className="text-3xl font-bold">{totalForms}</div>
             <p className="text-xs text-muted-foreground mt-1">
-              {activeForms} aktive
+              {activeForms} active
             </p>
           </CardContent>
         </Card>
@@ -160,7 +157,7 @@ export default async function FormsPage({
           <CardHeader className="pb-3">
             <div className="flex items-center justify-between">
               <CardTitle className="text-sm font-medium text-muted-foreground">
-                Totalt antall utfyllinger
+                Total Submissions
               </CardTitle>
               <TrendingUp className="h-4 w-4 text-muted-foreground" />
             </div>
@@ -168,7 +165,7 @@ export default async function FormsPage({
           <CardContent>
             <div className="text-3xl font-bold">{totalSubmissions}</div>
             <p className="text-xs text-muted-foreground mt-1">
-              Alle skjemaer
+              All forms
             </p>
           </CardContent>
         </Card>
@@ -177,7 +174,7 @@ export default async function FormsPage({
           <CardHeader className="pb-3">
             <div className="flex items-center justify-between">
               <CardTitle className="text-sm font-medium text-muted-foreground">
-                Gjennomsnitt per skjema
+                Average per Form
               </CardTitle>
               <BarChart3 className="h-4 w-4 text-muted-foreground" />
             </div>
@@ -187,7 +184,7 @@ export default async function FormsPage({
               {totalForms > 0 ? Math.round(totalSubmissions / totalForms) : 0}
             </div>
             <p className="text-xs text-muted-foreground mt-1">
-              Utfyllinger
+              Submissions
             </p>
           </CardContent>
         </Card>
@@ -197,8 +194,8 @@ export default async function FormsPage({
       <Card className="border-l-4 border-l-blue-500 bg-blue-50">
         <CardContent className="p-4">
           <p className="text-sm text-blue-900">
-            <strong>💡 Tips:</strong> Klikk på et skjema for å se alle utfyllinger, statistikk og laste ned PDF-er. 
-            Bruk målinger for å følge med på hvor ofte skjemaene brukes!
+            <strong>💡 Tips:</strong> Click on a form to see all submissions, statistics, and download PDFs.
+            Use measurements to track how often forms are used!
           </p>
         </CardContent>
       </Card>
@@ -208,14 +205,14 @@ export default async function FormsPage({
         <Card>
           <CardContent className="flex flex-col items-center justify-center py-16">
             <FileText className="h-16 w-16 text-gray-300 mb-4" />
-            <h3 className="text-lg font-semibold mb-2">Ingen skjemaer ennå</h3>
+            <h3 className="text-lg font-semibold mb-2">No forms yet</h3>
             <p className="text-muted-foreground text-center mb-6 max-w-md">
-              Opprett ditt første digitale skjema med vår drag-and-drop builder
+              Create your first digital form with our drag-and-drop builder
             </p>
             <Link href="/dashboard/forms/new">
               <Button size="lg">
                 <Plus className="h-5 w-5 mr-2" />
-                Opprett skjema
+                Create Form
               </Button>
             </Link>
           </CardContent>
@@ -224,9 +221,9 @@ export default async function FormsPage({
         <Card>
           <CardHeader>
             <div className="flex items-center justify-between">
-              <CardTitle>Alle skjemaer</CardTitle>
+              <CardTitle>All Forms</CardTitle>
               <p className="text-sm text-muted-foreground">
-                Viser {skip + 1}-{Math.min(skip + ITEMS_PER_PAGE, totalForms)} av {totalForms}
+                Showing {skip + 1}–{Math.min(skip + ITEMS_PER_PAGE, totalForms)} of {totalForms}
               </p>
             </div>
           </CardHeader>
@@ -234,14 +231,14 @@ export default async function FormsPage({
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Skjemanavn</TableHead>
-                  <TableHead>Kategori</TableHead>
+                  <TableHead>Form Name</TableHead>
+                  <TableHead>Category</TableHead>
                   <TableHead>Status</TableHead>
-                  <TableHead>Tilgang</TableHead>
-                  <TableHead className="text-right">Felt</TableHead>
-                  <TableHead className="text-right">Utfyllinger</TableHead>
-                  <TableHead>Sist brukt</TableHead>
-                  <TableHead className="text-right">Handlinger</TableHead>
+                  <TableHead>Access</TableHead>
+                  <TableHead className="text-right">Fields</TableHead>
+                  <TableHead className="text-right">Submissions</TableHead>
+                  <TableHead>Last Used</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -272,10 +269,10 @@ export default async function FormsPage({
                     <TableCell>
                       {form.isActive ? (
                         <Badge className="bg-green-100 text-green-700 hover:bg-green-100">
-                          Aktiv
+                          Active
                         </Badge>
                       ) : (
-                        <Badge variant="secondary">Inaktiv</Badge>
+                        <Badge variant="secondary">Inactive</Badge>
                       )}
                     </TableCell>
                     <TableCell>
@@ -295,20 +292,20 @@ export default async function FormsPage({
                     <TableCell>
                       {form.submissions.length > 0 ? (
                         <span className="text-sm text-muted-foreground">
-                          {new Date(form.submissions[0].createdAt).toLocaleDateString("nb-NO", {
+                          {new Date(form.submissions[0].createdAt).toLocaleDateString("en-US", {
                             day: "2-digit",
                             month: "short",
                             year: "numeric",
                           })}
                         </span>
                       ) : (
-                        <span className="text-sm text-muted-foreground">Aldri</span>
+                        <span className="text-sm text-muted-foreground">Never</span>
                       )}
                     </TableCell>
                     <TableCell>
                       <div className="flex items-center justify-end gap-2">
                         <Link href={`/dashboard/forms/${form.id}`}>
-                          <Button variant="ghost" size="sm" title="Se detaljer og statistikk">
+                          <Button variant="ghost" size="sm" title="View details and statistics">
                             <Eye className="h-4 w-4" />
                           </Button>
                         </Link>
@@ -316,7 +313,7 @@ export default async function FormsPage({
                           <CopyFormButton formId={form.id} formTitle={form.title} />
                         ) : (
                           <Link href={`/dashboard/forms/${form.id}/edit`}>
-                            <Button variant="ghost" size="sm" title="Rediger skjema">
+                            <Button variant="ghost" size="sm" title="Edit form">
                               <Pencil className="h-4 w-4" />
                             </Button>
                           </Link>
@@ -325,7 +322,7 @@ export default async function FormsPage({
                           <Button
                             variant="ghost"
                             size="sm"
-                            title="Eksporter alle svar til Excel"
+                            title="Export all answers to Excel"
                             asChild
                           >
                             <a href={`/api/forms/${form.id}/submissions/export`} download>
@@ -353,21 +350,18 @@ export default async function FormsPage({
                       />
                     </PaginationItem>
 
-                    {/* First page */}
                     {currentPage > 2 && (
                       <PaginationItem>
                         <PaginationLink href="/dashboard/forms?page=1">1</PaginationLink>
                       </PaginationItem>
                     )}
 
-                    {/* Ellipsis */}
                     {currentPage > 3 && (
                       <PaginationItem>
                         <PaginationEllipsis />
                       </PaginationItem>
                     )}
 
-                    {/* Previous page */}
                     {currentPage > 1 && (
                       <PaginationItem>
                         <PaginationLink href={`/dashboard/forms?page=${currentPage - 1}`}>
@@ -376,14 +370,12 @@ export default async function FormsPage({
                       </PaginationItem>
                     )}
 
-                    {/* Current page */}
                     <PaginationItem>
                       <PaginationLink href={`/dashboard/forms?page=${currentPage}`} isActive>
                         {currentPage}
                       </PaginationLink>
                     </PaginationItem>
 
-                    {/* Next page */}
                     {currentPage < totalPages && (
                       <PaginationItem>
                         <PaginationLink href={`/dashboard/forms?page=${currentPage + 1}`}>
@@ -392,14 +384,12 @@ export default async function FormsPage({
                       </PaginationItem>
                     )}
 
-                    {/* Ellipsis */}
                     {currentPage < totalPages - 2 && (
                       <PaginationItem>
                         <PaginationEllipsis />
                       </PaginationItem>
                     )}
 
-                    {/* Last page */}
                     {currentPage < totalPages - 1 && (
                       <PaginationItem>
                         <PaginationLink href={`/dashboard/forms?page=${totalPages}`}>
@@ -434,37 +424,37 @@ export default async function FormsPage({
 
 function getCategoryLabel(category: string): string {
   const labels: Record<string, string> = {
-    CUSTOM: "Egendefinert",
-    MEETING: "Møtereferat",
-    INSPECTION: "Inspeksjon",
-    INCIDENT: "Hendelsesrapport",
-    RISK: "Risikovurdering",
-    TRAINING: "Opplæring",
-    CHECKLIST: "Sjekkliste",
-    TIMESHEET: "Timeliste",
+    CUSTOM: "Custom",
+    MEETING: "Meeting Minutes",
+    INSPECTION: "Inspection",
+    INCIDENT: "Incident Report",
+    RISK: "Risk Assessment",
+    TRAINING: "Training",
+    CHECKLIST: "Checklist",
+    TIMESHEET: "Timesheet",
   };
   return labels[category] || category;
 }
 
 const roleLabels: Record<string, string> = {
   ADMIN: "Admin",
-  HMS: "HMS",
-  LEDER: "Leder",
-  VERNEOMBUD: "Verneombud",
-  ANSATT: "Ansatt",
-  BHT: "BHT",
-  REVISOR: "Revisor",
+  HMS: "H&S",
+  LEDER: "Manager",
+  VERNEOMBUD: "Safety Representative",
+  ANSATT: "Employee",
+  BHT: "OHS",
+  REVISOR: "Auditor",
 };
 
 function getAccessLabel(accessType: string, allowedRoles: string | null, allowedUsers: string | null) {
   if (accessType === "ALL") {
-    return <span className="text-sm text-muted-foreground">Alle</span>;
+    return <span className="text-sm text-muted-foreground">All</span>;
   }
 
   if (accessType === "ROLES" && allowedRoles) {
     try {
       const roles = JSON.parse(allowedRoles);
-      if (roles.length === 0) return <span className="text-sm text-muted-foreground">Ingen</span>;
+      if (roles.length === 0) return <span className="text-sm text-muted-foreground">None</span>;
       return (
         <div className="flex flex-wrap gap-1">
           {roles.slice(0, 2).map((role: string) => (
@@ -488,7 +478,7 @@ function getAccessLabel(accessType: string, allowedRoles: string | null, allowed
       return (
         <div className="flex items-center gap-1">
           <Badge variant="outline" className="text-xs">
-            {users.length} bruker{users.length !== 1 ? "e" : ""}
+            {users.length} user{users.length !== 1 ? "s" : ""}
           </Badge>
         </div>
       );
@@ -513,7 +503,7 @@ function getAccessLabel(accessType: string, allowedRoles: string | null, allowed
           )}
           {users.length > 0 && (
             <Badge variant="outline" className="text-xs">
-              {users.length} bruker{users.length !== 1 ? "e" : ""}
+              {users.length} user{users.length !== 1 ? "s" : ""}
             </Badge>
           )}
         </div>

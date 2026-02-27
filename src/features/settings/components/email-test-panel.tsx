@@ -63,50 +63,50 @@ const notificationTypes: Array<{
 }> = [
   {
     value: "meeting",
-    label: "Møtevarsling",
-    description: "Påminnelse om kommende møte (vernerunde, ledelsesgjennomgang, etc.)",
+    label: "Meeting notification",
+    description: "Reminder about an upcoming meeting (safety committee, management review, etc.)",
     icon: Calendar,
   },
   {
     value: "inspection",
-    label: "Inspeksjonsvarsling",
-    description: "Påminnelse om planlagt inspeksjon/vernerunde",
+    label: "Inspection notification",
+    description: "Reminder about a planned inspection/safety walkthrough",
     icon: ClipboardCheck,
   },
   {
     value: "audit",
-    label: "Revisjonsvarsling",
-    description: "Påminnelse om kommende revisjon eller audit",
+    label: "Audit notification",
+    description: "Reminder about an upcoming audit or review",
     icon: Target,
   },
   {
     value: "measure",
-    label: "Tiltaksvarsling",
-    description: "Påminnelse om tiltak som nærmer seg forfallsdato",
+    label: "Action notification",
+    description: "Reminder about actions approaching their due date",
     icon: ListTodo,
   },
   {
     value: "incident",
-    label: "Hendelsesrapport",
-    description: "Varsling om nytt avvik eller hendelse som krever oppfølging",
+    label: "Incident report",
+    description: "Notification about a new incident or deviation requiring follow-up",
     icon: AlertCircle,
   },
   {
     value: "training",
-    label: "Opplæringsvarsling",
-    description: "Påminnelse om kurs som utløper snart eller er obligatorisk",
+    label: "Training notification",
+    description: "Reminder about a course expiring soon or that is mandatory",
     icon: Target,
   },
   {
     value: "document",
-    label: "Dokumentvarsling",
-    description: "Varsling om dokument som må gjennomgås/godkjennes",
+    label: "Document notification",
+    description: "Notification about a document that needs review/approval",
     icon: FileBarChart,
   },
   {
     value: "management-review",
-    label: "Ledelsesgjennomgang",
-    description: "Påminnelse om planlagt ledelsesgjennomgang",
+    label: "Management review",
+    description: "Reminder about a planned management review",
     icon: FileBarChart,
   },
 ];
@@ -131,8 +131,8 @@ export function EmailTestPanel({
   const handleSendTest = async () => {
     if (!selectedUserData) {
       toast({
-        title: "Feil",
-        description: "Ingen bruker valgt",
+        title: "Error",
+        description: "No user selected",
         variant: "destructive",
       });
       return;
@@ -140,8 +140,8 @@ export function EmailTestPanel({
 
     if (!selectedUserData.notifyByEmail) {
       toast({
-        title: "Advarsel",
-        description: `${selectedUserData.name || selectedUserData.email} har deaktivert e-postvarslinger`,
+        title: "Warning",
+        description: `${selectedUserData.name || selectedUserData.email} has disabled email notifications`,
         variant: "destructive",
       });
       return;
@@ -164,8 +164,8 @@ export function EmailTestPanel({
 
       if (response.ok) {
         toast({
-          title: "✅ Test-e-post sendt!",
-          description: `${selectedNotification?.label} sendt til ${selectedUserData.email}`,
+          title: "✅ Test email sent!",
+          description: `${selectedNotification?.label} sent to ${selectedUserData.email}`,
           className: "bg-green-50 border-green-200",
         });
         setLastSent({
@@ -175,16 +175,16 @@ export function EmailTestPanel({
         });
       } else {
         toast({
-          title: "Feil ved sending",
-          description: result.error || "Kunne ikke sende test-e-post",
+          title: "Error sending",
+          description: result.error || "Could not send test email",
           variant: "destructive",
         });
       }
     } catch (error) {
       console.error("Test email error:", error);
       toast({
-        title: "Feil",
-        description: "Kunne ikke sende test-e-post",
+        title: "Error",
+        description: "Could not send test email",
         variant: "destructive",
       });
     } finally {
@@ -201,17 +201,17 @@ export function EmailTestPanel({
           <div className="flex items-center gap-3">
             <Mail className="h-6 w-6 text-primary" />
             <div>
-              <CardTitle>Send test-e-post</CardTitle>
+              <CardTitle>Send test email</CardTitle>
               <CardDescription>
-                Velg type varsling og mottaker for å teste e-postsystemet
+                Select notification type and recipient to test the email system
               </CardDescription>
             </div>
           </div>
         </CardHeader>
         <CardContent className="space-y-6">
-          {/* Type velger */}
+          {/* Type selector */}
           <div className="space-y-2">
-            <Label>Type varsling</Label>
+            <Label>Notification type</Label>
             <Select value={selectedType} onValueChange={(v) => setSelectedType(v as NotificationType)}>
               <SelectTrigger>
                 <SelectValue />
@@ -235,9 +235,9 @@ export function EmailTestPanel({
             )}
           </div>
 
-          {/* Mottaker */}
+          {/* Recipient */}
           <div className="space-y-2">
-            <Label>Mottaker</Label>
+            <Label>Recipient</Label>
             <Select value={selectedUser} onValueChange={setSelectedUser}>
               <SelectTrigger>
                 <SelectValue />
@@ -249,12 +249,12 @@ export function EmailTestPanel({
                       <span>{user.name || user.email}</span>
                       {user.notifyByEmail && (
                         <Badge variant="outline" className="text-xs">
-                          ✓ E-post aktivert
+                          ✓ Email enabled
                         </Badge>
                       )}
                       {!user.notifyByEmail && (
                         <Badge variant="destructive" className="text-xs">
-                          E-post deaktivert
+                          Email disabled
                         </Badge>
                       )}
                     </div>
@@ -264,29 +264,29 @@ export function EmailTestPanel({
             </Select>
             {selectedUserData && (
               <p className="text-sm text-muted-foreground">
-                E-post vil bli sendt til: <code className="bg-muted px-1 py-0.5 rounded">{selectedUserData.email}</code>
+                Email will be sent to: <code className="bg-muted px-1 py-0.5 rounded">{selectedUserData.email}</code>
               </p>
             )}
           </div>
 
-          {/* Forhåndsvisning */}
+          {/* Preview */}
           {selectedNotification && (
             <Card className="bg-muted/50">
               <CardHeader>
                 <CardTitle className="text-sm flex items-center gap-2">
                   <Icon className="h-4 w-4" />
-                  Forhåndsvisning av e-post
+                  Email preview
                 </CardTitle>
               </CardHeader>
               <CardContent className="text-sm space-y-2">
                 <div>
-                  <span className="font-medium">Emne:</span>{" "}
+                  <span className="font-medium">Subject:</span>{" "}
                   <span className="text-muted-foreground">
                     {getEmailSubject(selectedType, tenantName)}
                   </span>
                 </div>
                 <div>
-                  <span className="font-medium">Innhold:</span>{" "}
+                  <span className="font-medium">Content:</span>{" "}
                   <span className="text-muted-foreground">
                     {getEmailPreview(selectedType, tenantName)}
                   </span>
@@ -295,32 +295,32 @@ export function EmailTestPanel({
             </Card>
           )}
 
-          {/* Send knapp */}
+          {/* Send button */}
           <Button onClick={handleSendTest} disabled={loading} className="w-full" size="lg">
             {loading ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Sender...
+                Sending...
               </>
             ) : (
               <>
                 <Mail className="mr-2 h-4 w-4" />
-                Send test-e-post
+                Send test email
               </>
             )}
           </Button>
 
-          {/* Siste sending */}
+          {/* Last sent */}
           {lastSent && (
             <div className="flex items-start gap-3 p-4 bg-green-50 border border-green-200 rounded-lg">
               <CheckCircle2 className="h-5 w-5 text-green-600 mt-0.5" />
               <div className="text-sm">
-                <p className="font-medium text-green-900">Sist sendt e-post</p>
+                <p className="font-medium text-green-900">Last email sent</p>
                 <p className="text-green-700">
-                  {lastSent.type} til {lastSent.email}
+                  {lastSent.type} to {lastSent.email}
                 </p>
                 <p className="text-green-600 text-xs mt-1">
-                  {lastSent.time.toLocaleString("nb-NO")}
+                  {lastSent.time.toLocaleString("en-US")}
                 </p>
               </div>
             </div>
@@ -328,12 +328,12 @@ export function EmailTestPanel({
         </CardContent>
       </Card>
 
-      {/* Brukeroversikt */}
+      {/* User overview */}
       <Card>
         <CardHeader>
-          <CardTitle>Brukere med e-postvarslinger</CardTitle>
+          <CardTitle>Users with email notifications</CardTitle>
           <CardDescription>
-            Oversikt over hvilke brukere som har aktivert e-postvarslinger
+            Overview of which users have enabled email notifications
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -344,14 +344,14 @@ export function EmailTestPanel({
                 className="flex items-center justify-between p-3 border rounded-lg"
               >
                 <div>
-                  <p className="font-medium">{user.name || "Ukjent"}</p>
+                  <p className="font-medium">{user.name || "Unknown"}</p>
                   <p className="text-sm text-muted-foreground">{user.email}</p>
                 </div>
                 <div className="flex gap-2">
                   {user.notifyByEmail && (
                     <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
                       <Mail className="h-3 w-3 mr-1" />
-                      E-post
+                      Email
                     </Badge>
                   )}
                   {user.notifyBySms && user.phone && (
@@ -361,7 +361,7 @@ export function EmailTestPanel({
                   )}
                   {!user.notifyByEmail && !user.notifyBySms && (
                     <Badge variant="outline" className="text-muted-foreground">
-                      Ingen varsler
+                      No notifications
                     </Badge>
                   )}
                 </div>
@@ -377,45 +377,45 @@ export function EmailTestPanel({
 function getEmailSubject(type: NotificationType, tenantName: string): string {
   switch (type) {
     case "meeting":
-      return `Påminnelse: Møte i morgen - ${tenantName}`;
+      return `Reminder: Meeting tomorrow - ${tenantName}`;
     case "inspection":
-      return `Påminnelse: Vernerunde planlagt - ${tenantName}`;
+      return `Reminder: Safety inspection scheduled - ${tenantName}`;
     case "audit":
-      return `Påminnelse: Revisjon planlagt - ${tenantName}`;
+      return `Reminder: Audit scheduled - ${tenantName}`;
     case "measure":
-      return `Påminnelse: Tiltak forfaller snart - ${tenantName}`;
+      return `Reminder: Action due soon - ${tenantName}`;
     case "incident":
-      return `Nytt avvik rapportert - ${tenantName}`;
+      return `New incident reported - ${tenantName}`;
     case "training":
-      return `Påminnelse: Kurs utløper snart - ${tenantName}`;
+      return `Reminder: Course expiring soon - ${tenantName}`;
     case "document":
-      return `Dokument venter på godkjenning - ${tenantName}`;
+      return `Document awaiting approval - ${tenantName}`;
     case "management-review":
-      return `Påminnelse: Ledelsesgjennomgang planlagt - ${tenantName}`;
+      return `Reminder: Management review scheduled - ${tenantName}`;
     default:
-      return `Varsling fra ${tenantName}`;
+      return `Notification from ${tenantName}`;
   }
 }
 
 function getEmailPreview(type: NotificationType, tenantName: string): string {
   switch (type) {
     case "meeting":
-      return "Du har et møte i morgen kl. 10:00. Husk å forberede deg ved å gå gjennom sakslisten.";
+      return "You have a meeting tomorrow at 10:00 AM. Remember to prepare by reviewing the agenda.";
     case "inspection":
-      return "Det er planlagt en vernerunde/inspeksjon i morgen. Vennligst sørg for at alt er klart.";
+      return "A safety inspection is scheduled for tomorrow. Please make sure everything is ready.";
     case "audit":
-      return "En revisjon er planlagt neste uke. Sjekk at all dokumentasjon er oppdatert.";
+      return "An audit is scheduled for next week. Make sure all documentation is up to date.";
     case "measure":
-      return "Du har 3 tiltak som forfaller i løpet av de neste 7 dagene. Logg inn for å se detaljer.";
+      return "You have 3 actions due within the next 7 days. Sign in to see details.";
     case "incident":
-      return "Et nytt avvik er rapportert og krever din oppfølging. Logg inn for å se mer.";
+      return "A new incident has been reported and requires your follow-up. Sign in to see more.";
     case "training":
-      return "Ditt førstehjelpskurs utløper om 30 dager. Vennligst sørg for å fornye sertifikatet.";
+      return "Your first aid certification expires in 30 days. Please make sure to renew your certificate.";
     case "document":
-      return "Ett eller flere dokumenter venter på godkjenning. Logg inn for å gjennomgå.";
+      return "One or more documents are awaiting approval. Sign in to review.";
     case "management-review":
-      return "Det er snart tid for ledelsesgjennomgang. Vennligst forbered rapport og data.";
+      return "It is almost time for the management review. Please prepare your report and data.";
     default:
-      return "Du har en ny varsling fra HMS Nova.";
+      return `You have a new notification from EHS Nova.`;
   }
 }

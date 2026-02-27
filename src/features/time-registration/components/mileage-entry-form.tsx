@@ -27,9 +27,9 @@ interface MileageEntryFormProps {
   projects: Project[];
   defaultKmRate: number;
   defaultDate?: Date;
-  /** Når false: skjuler Kr/km (admin har satt sats), for ansatt */
+  /** When false: hides $/mile (admin has set rate), for employee */
   rateEditable?: boolean;
-  /** Vis forklaring om at km godtgjørelse er tillegg som må være avtalt */
+  /** Show explanation that mileage reimbursement is an add-on that must be agreed upon */
   showDisclaimer?: boolean;
 }
 
@@ -54,7 +54,7 @@ export function MileageEntryForm({
     e.preventDefault();
     const km = parseFloat(kilometers.replace(",", "."));
     if (!projectId || isNaN(km) || km <= 0) {
-      toast({ variant: "destructive", title: "Fyll ut prosjekt og km" });
+      toast({ variant: "destructive", title: "Please fill in project and mileage" });
       return;
     }
     setLoading(true);
@@ -70,7 +70,7 @@ export function MileageEntryForm({
         comment: comment.trim() || undefined,
       });
       if (!res.success) throw new Error(res.error);
-      toast({ title: "Km godtgjørelse registrert" });
+      toast({ title: "Mileage reimbursement registered" });
       router.refresh();
       setDate(format(new Date(), "yyyy-MM-dd"));
       setProjectId("");
@@ -89,17 +89,17 @@ export function MileageEntryForm({
     <div className="space-y-3">
       {showDisclaimer && (
         <p className="text-xs text-muted-foreground bg-muted/50 rounded-md p-3">
-          Km godtgjørelse er et tillegg som må være avtalt med arbeidsgiver. Legg kun inn kjøring hvis dere har avtalt dette.
+          Mileage reimbursement is an add-on that must be agreed upon with your employer. Only enter mileage if this has been agreed upon.
         </p>
       )}
       {!rateEditable && (
         <p className="text-xs text-muted-foreground">
-          Sats: {defaultKmRate} kr/km (satt av leder)
+          Rate: ${defaultKmRate}/mi (set by manager)
         </p>
       )}
     <form onSubmit={handleSubmit} className="flex flex-wrap items-end gap-3">
       <div className="space-y-1">
-        <Label className="text-xs">Dato</Label>
+        <Label className="text-xs">Date</Label>
         <Input
           type="date"
           value={date}
@@ -108,10 +108,10 @@ export function MileageEntryForm({
         />
       </div>
       <div className="space-y-1">
-        <Label className="text-xs">Prosjekt</Label>
+        <Label className="text-xs">Project</Label>
         <Select value={projectId} onValueChange={setProjectId} required>
           <SelectTrigger className="w-48">
-            <SelectValue placeholder="Velg prosjekt" />
+            <SelectValue placeholder="Select project" />
           </SelectTrigger>
           <SelectContent>
             {projects.map((p) => (
@@ -123,7 +123,7 @@ export function MileageEntryForm({
         </Select>
       </div>
       <div className="space-y-1">
-        <Label className="text-xs">Km</Label>
+        <Label className="text-xs">Miles</Label>
         <Input
           type="text"
           value={kilometers}
@@ -134,7 +134,7 @@ export function MileageEntryForm({
       </div>
       {rateEditable && (
         <div className="space-y-1">
-          <Label className="text-xs">Kr/km</Label>
+          <Label className="text-xs">$/mile</Label>
           <Input
             type="text"
             value={ratePerKm}
@@ -145,15 +145,15 @@ export function MileageEntryForm({
         </div>
       )}
       <div className="space-y-1 flex-1 min-w-[120px]">
-        <Label className="text-xs">Kommentar</Label>
+        <Label className="text-xs">Comment</Label>
         <Input
           value={comment}
           onChange={(e) => setComment(e.target.value)}
-          placeholder="Valgfritt"
+          placeholder="Optional"
         />
       </div>
       <Button type="submit" size="sm" variant="outline" disabled={loading}>
-        {loading ? "..." : "Registrer km"}
+        {loading ? "..." : "Register mileage"}
       </Button>
     </form>
     </div>

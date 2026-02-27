@@ -16,14 +16,22 @@
     "legalRegister": "Legal Register",
     "forms": "Forms",
     "risks": "Risk Assessments",
+    "riskRegister": "Risk Register",
     "incidents": "Incidents",
-    "inspections": "Inspections",
+    "inspections": "Safety Inspections",
     "chemicals": "Chemical Registry",
+    "environment": "Environment",
+    "wellbeing": "Psychosocial Pulse",
+    "security": "Security",
+    "complaints": "Customer Complaints",
+    "feedback": "Feedback",
+    "bcm": "Emergency Preparedness",
     "training": "Training",
     "audits": "Audits",
     "managementReviews": "Management Reviews",
     "annualHmsPlan": "Annual H&S Plan",
     "meetings": "Meetings (WEC/SRs)",
+    "timeRegistration": "Time Tracking",
     "whistleblowing": "Whistleblowing",
     "actions": "Actions",
     "goals": "Goals",
@@ -31,10 +39,9 @@
   },
   "auth": {
     "login": "Login",
-    "logout": "Logout",
+    "logout": "Log out",
     "email": "Email",
     "password": "Password",
     "forgotPassword": "Forgot password?"
   }
 }
-

@@ -47,10 +47,10 @@ export function BhtAmoActions({
       });
 
       if (result.success) {
-        toast({ title: "✅ Møte planlagt" });
+        toast({ title: "✅ Meeting scheduled" });
         router.refresh();
       } else {
-        toast({ variant: "destructive", title: "Feil", description: result.error });
+        toast({ variant: "destructive", title: "Error", description: result.error });
       }
     } finally {
       setLoading(false);
@@ -66,10 +66,10 @@ export function BhtAmoActions({
       });
 
       if (result.success) {
-        toast({ title: "✅ Agenda lagret" });
+        toast({ title: "✅ Agenda saved" });
         router.refresh();
       } else {
-        toast({ variant: "destructive", title: "Feil", description: result.error });
+        toast({ variant: "destructive", title: "Error", description: result.error });
       }
     } finally {
       setLoading(false);
@@ -86,10 +86,10 @@ export function BhtAmoActions({
       });
 
       if (result.success) {
-        toast({ title: "✅ Referat lagret" });
+        toast({ title: "✅ Minutes saved" });
         router.refresh();
       } else {
-        toast({ variant: "destructive", title: "Feil", description: result.error });
+        toast({ variant: "destructive", title: "Error", description: result.error });
       }
     } finally {
       setLoading(false);
@@ -105,10 +105,10 @@ export function BhtAmoActions({
       });
 
       if (result.success) {
-        toast({ title: "✅ AMO-møte fullført" });
+        toast({ title: "✅ EHS committee meeting completed" });
         router.refresh();
       } else {
-        toast({ variant: "destructive", title: "Feil", description: result.error });
+        toast({ variant: "destructive", title: "Error", description: result.error });
       }
     } finally {
       setLoading(false);
@@ -119,17 +119,17 @@ export function BhtAmoActions({
     return (
       <div className="flex items-center gap-2 text-green-600">
         <CheckCircle2 className="h-5 w-5" />
-        <span>AMO-møtet er fullført og dokumentert</span>
+        <span>EHS committee meeting is completed and documented</span>
       </div>
     );
   }
 
   return (
     <div className="space-y-6">
-      {/* Planlegg møte */}
+      {/* Schedule meeting */}
       {currentStatus === "PLANNED" && (
         <div className="space-y-3">
-          <Label htmlFor="meetingDate">Planlegg møtedato</Label>
+          <Label htmlFor="meetingDate">Schedule meeting date</Label>
           <div className="flex gap-4">
             <Input
               id="meetingDate"
@@ -144,7 +144,7 @@ export function BhtAmoActions({
               ) : (
                 <Calendar className="h-4 w-4 mr-2" />
               )}
-              Sett dato
+              Set date
             </Button>
           </div>
         </div>
@@ -153,29 +153,29 @@ export function BhtAmoActions({
       {/* Agenda */}
       {(currentStatus === "PREPARED" || currentStatus === "PLANNED") && (
         <div className="space-y-3">
-          <Label htmlFor="agenda">Endelig agenda</Label>
+          <Label htmlFor="agenda">Final agenda</Label>
           <Textarea
             id="agenda"
             value={agenda}
             onChange={(e) => setAgenda(e.target.value)}
-            placeholder="Skriv inn endelig agenda for møtet..."
+            placeholder="Enter final agenda for the meeting..."
             rows={6}
           />
           <Button onClick={handleSaveAgenda} disabled={loading} variant="outline">
-            Lagre agenda
+            Save agenda
           </Button>
         </div>
       )}
 
-      {/* Referat */}
+      {/* Minutes */}
       {(currentStatus === "PREPARED" || currentStatus === "CONDUCTED") && (
         <div className="space-y-3">
-          <Label htmlFor="minutes">Møtereferat</Label>
+          <Label htmlFor="minutes">Meeting minutes</Label>
           <Textarea
             id="minutes"
             value={minutes}
             onChange={(e) => setMinutes(e.target.value)}
-            placeholder="Skriv møtereferat..."
+            placeholder="Write meeting minutes..."
             rows={8}
           />
           <Button onClick={handleSaveMinutes} disabled={loading}>
@@ -184,12 +184,12 @@ export function BhtAmoActions({
             ) : (
               <FileText className="h-4 w-4 mr-2" />
             )}
-            Lagre referat
+            Save minutes
           </Button>
         </div>
       )}
 
-      {/* Fullfør */}
+      {/* Complete */}
       {currentStatus === "MINUTES_DONE" && (
         <Button
           onClick={handleComplete}
@@ -201,7 +201,7 @@ export function BhtAmoActions({
           ) : (
             <CheckCircle2 className="h-4 w-4 mr-2" />
           )}
-          Marker som fullført
+          Mark as completed
         </Button>
       )}
     </div>

@@ -66,7 +66,7 @@ export default async function FormDetailPage({
         select: {
           submissions: {
             where: {
-              tenantId: session.user.tenantId, // VIKTIG: Kun tenant-spesifikke submissions
+              tenantId: session.user.tenantId,
             },
           },
         },
@@ -78,16 +78,14 @@ export default async function FormDetailPage({
     redirect("/dashboard/forms");
   }
 
-  // Sjekk tilgang: enten eier av skjemaet eller globalt skjema
   if (form.tenantId && form.tenantId !== session.user.tenantId) {
     redirect("/dashboard/forms");
   }
 
-  // Hent submissions med paginering (KUN for denne tenanten)
   const submissions = await prisma.formSubmission.findMany({
     where: { 
       formTemplateId: id,
-      tenantId: session.user.tenantId, // VIKTIG: Kun tenant-spesifikke submissions
+      tenantId: session.user.tenantId,
     },
     orderBy: { createdAt: "desc" },
     include: {
@@ -117,11 +115,10 @@ export default async function FormDetailPage({
 
   const totalPages = Math.ceil(form._count.submissions / ITEMS_PER_PAGE);
 
-  // Hent alle submissions for statistikk (KUN for denne tenanten)
   const allSubmissions = await prisma.formSubmission.findMany({
     where: { 
       formTemplateId: id,
-      tenantId: session.user.tenantId, // VIKTIG: Kun tenant-spesifikke submissions
+      tenantId: session.user.tenantId,
     },
     select: {
       createdAt: true,
@@ -129,7 +126,6 @@ export default async function FormDetailPage({
     },
   });
 
-  // Beregn statistikk
   const submissionsThisMonth = allSubmissions.filter((s) => {
     const date = new Date(s.createdAt);
     const now = new Date();
@@ -143,7 +139,6 @@ export default async function FormDetailPage({
     return date >= weekAgo;
   }).length;
 
-  // Completion rate
   const completedSubmissions = allSubmissions.filter((s) => s.status === "SUBMITTED" || s.status === "APPROVED").length;
   const completionRate = form._count.submissions > 0 ? Math.round((completedSubmissions / form._count.submissions) * 100) : 0;
 
@@ -168,7 +163,7 @@ export default async function FormDetailPage({
           <Link href={`/dashboard/forms/${form.id}/fill`}>
             <Button variant="default" className="bg-green-600 hover:bg-green-700">
               <FileText className="h-4 w-4 mr-2" />
-              Fyll ut skjema
+              Fill Out Form
             </Button>
           </Link>
           {form.isGlobal ? (
@@ -177,7 +172,7 @@ export default async function FormDetailPage({
             <Link href={`/dashboard/forms/${form.id}/edit`}>
               <Button variant="outline">
                 <Pencil className="h-4 w-4 mr-2" />
-                Rediger
+                Edit
               </Button>
             </Link>
           )}
@@ -190,14 +185,14 @@ export default async function FormDetailPage({
           <CardHeader className="pb-3">
             <div className="flex items-center justify-between">
               <CardTitle className="text-sm font-medium text-muted-foreground">
-                Totalt antall
+                Total
               </CardTitle>
               <FileText className="h-4 w-4 text-muted-foreground" />
             </div>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{form._count.submissions}</div>
-            <p className="text-xs text-muted-foreground mt-1">Utfyllinger totalt</p>
+            <p className="text-xs text-muted-foreground mt-1">Total submissions</p>
           </CardContent>
         </Card>
 
@@ -205,14 +200,14 @@ export default async function FormDetailPage({
           <CardHeader className="pb-3">
             <div className="flex items-center justify-between">
               <CardTitle className="text-sm font-medium text-muted-foreground">
-                Denne måneden
+                This Month
               </CardTitle>
               <Calendar className="h-4 w-4 text-muted-foreground" />
             </div>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{submissionsThisMonth}</div>
-            <p className="text-xs text-muted-foreground mt-1">Siste 30 dager</p>
+            <p className="text-xs text-muted-foreground mt-1">Last 30 days</p>
           </CardContent>
         </Card>
 
@@ -220,14 +215,14 @@ export default async function FormDetailPage({
           <CardHeader className="pb-3">
             <div className="flex items-center justify-between">
               <CardTitle className="text-sm font-medium text-muted-foreground">
-                Denne uken
+                This Week
               </CardTitle>
               <TrendingUp className="h-4 w-4 text-muted-foreground" />
             </div>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{submissionsThisWeek}</div>
-            <p className="text-xs text-muted-foreground mt-1">Siste 7 dager</p>
+            <p className="text-xs text-muted-foreground mt-1">Last 7 days</p>
           </CardContent>
         </Card>
 
@@ -235,7 +230,7 @@ export default async function FormDetailPage({
           <CardHeader className="pb-3">
             <div className="flex items-center justify-between">
               <CardTitle className="text-sm font-medium text-muted-foreground">
-                Fullføringsrate
+                Completion Rate
               </CardTitle>
               <Users className="h-4 w-4 text-muted-foreground" />
             </div>
@@ -243,7 +238,7 @@ export default async function FormDetailPage({
           <CardContent>
             <div className="text-2xl font-bold">{completionRate}%</div>
             <p className="text-xs text-muted-foreground mt-1">
-              {completedSubmissions} av {form._count.submissions}
+              {completedSubmissions} of {form._count.submissions}
             </p>
           </CardContent>
         </Card>
@@ -253,39 +248,39 @@ export default async function FormDetailPage({
       <div className="grid md:grid-cols-2 gap-6">
         <Card>
           <CardHeader>
-            <CardTitle>Skjema-detaljer</CardTitle>
+            <CardTitle>Form Details</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
             <div className="flex items-center justify-between">
-              <span className="text-sm text-muted-foreground">Kategori</span>
+              <span className="text-sm text-muted-foreground">Category</span>
               <Badge variant="outline">{getCategoryLabel(form.category)}</Badge>
             </div>
             <div className="flex items-center justify-between">
               <span className="text-sm text-muted-foreground">Status</span>
               {form.isActive ? (
-                <Badge className="bg-green-100 text-green-700">Aktiv</Badge>
+                <Badge className="bg-green-100 text-green-700">Active</Badge>
               ) : (
-                <Badge variant="secondary">Inaktiv</Badge>
+                <Badge variant="secondary">Inactive</Badge>
               )}
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-sm text-muted-foreground">Antall felt</span>
+              <span className="text-sm text-muted-foreground">Number of Fields</span>
               <span className="font-medium">{form.fields.length}</span>
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-sm text-muted-foreground">Krever signatur</span>
+              <span className="text-sm text-muted-foreground">Requires Signature</span>
               <Badge variant={form.requiresSignature ? "default" : "outline"}>
-                {form.requiresSignature ? "Ja" : "Nei"}
+                {form.requiresSignature ? "Yes" : "No"}
               </Badge>
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-sm text-muted-foreground">Krever godkjenning</span>
+              <span className="text-sm text-muted-foreground">Requires Approval</span>
               <Badge variant={form.requiresApproval ? "default" : "outline"}>
-                {form.requiresApproval ? "Ja" : "Nei"}
+                {form.requiresApproval ? "Yes" : "No"}
               </Badge>
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-sm text-muted-foreground">Tilgang</span>
+              <span className="text-sm text-muted-foreground">Access</span>
               <Badge variant="outline">{getAccessTypeLabel(form.accessType)}</Badge>
             </div>
           </CardContent>
@@ -293,7 +288,7 @@ export default async function FormDetailPage({
 
         <Card>
           <CardHeader>
-            <CardTitle>Felt i skjemaet</CardTitle>
+            <CardTitle>Form Fields</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-2 max-h-[300px] overflow-y-auto">
@@ -305,7 +300,7 @@ export default async function FormDetailPage({
                     <p className="text-xs text-muted-foreground">{getFieldTypeLabel(field.fieldType)}</p>
                   </div>
                   {field.isRequired && (
-                    <Badge variant="destructive" className="text-xs">Påkrevd</Badge>
+                    <Badge variant="destructive" className="text-xs">Required</Badge>
                   )}
                 </div>
               ))}
@@ -319,10 +314,10 @@ export default async function FormDetailPage({
         <CardHeader>
           <div className="flex items-center justify-between">
             <div>
-              <CardTitle>Innsendte svar ({form._count.submissions})</CardTitle>
+              <CardTitle>Submitted Answers ({form._count.submissions})</CardTitle>
               {form._count.submissions > 0 && (
                 <p className="text-sm text-muted-foreground mt-1">
-                  Viser {skip + 1}-{Math.min(skip + ITEMS_PER_PAGE, form._count.submissions)} av {form._count.submissions}
+                  Showing {skip + 1}–{Math.min(skip + ITEMS_PER_PAGE, form._count.submissions)} of {form._count.submissions}
                 </p>
               )}
             </div>
@@ -333,7 +328,7 @@ export default async function FormDetailPage({
                 <Button size="sm" className="bg-green-600 hover:bg-green-700" asChild>
                   <a href={`/api/forms/${form.id}/submissions/export`} download>
                     <Download className="h-4 w-4 mr-2" />
-                    Eksporter til Excel
+                    Export to Excel
                   </a>
                 </Button>
               ))}
@@ -343,21 +338,21 @@ export default async function FormDetailPage({
           {form._count.submissions === 0 ? (
             <div className="text-center py-12">
               <FileText className="h-12 w-12 text-gray-300 mx-auto mb-3" />
-              <p className="text-muted-foreground">Ingen utfyllinger ennå</p>
+              <p className="text-muted-foreground">No submissions yet</p>
             </div>
           ) : (
             <>
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead className="w-[110px]">Referanse</TableHead>
+                    <TableHead className="w-[110px]">Reference</TableHead>
                     {form.category === "TIMESHEET" && (
-                      <TableHead>Navn</TableHead>
+                      <TableHead>Name</TableHead>
                     )}
-                    <TableHead>Dato</TableHead>
+                    <TableHead>Date</TableHead>
                     <TableHead>Status</TableHead>
-                    <TableHead>Antall felt utfylt</TableHead>
-                    <TableHead className="text-right">Handlinger</TableHead>
+                    <TableHead>Fields Filled</TableHead>
+                    <TableHead className="text-right">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -380,7 +375,7 @@ export default async function FormDetailPage({
                         <TableCell className="font-medium">{displayName}</TableCell>
                       )}
                       <TableCell>
-                        {new Date(submission.createdAt).toLocaleDateString("nb-NO", {
+                        {new Date(submission.createdAt).toLocaleDateString("en-US", {
                           day: "2-digit",
                           month: "short",
                           year: "numeric",
@@ -401,10 +396,10 @@ export default async function FormDetailPage({
                         <Link href={`/dashboard/forms/${form.id}/submissions/${submission.id}`}>
                           <Button variant="ghost" size="sm">
                             <Eye className="h-4 w-4 mr-1" />
-                            Se
+                            View
                           </Button>
                         </Link>
-                        <Button variant="ghost" size="sm" title="Last ned som PDF" asChild>
+                        <Button variant="ghost" size="sm" title="Download as PDF" asChild>
                           <a href={`/api/forms/${form.id}/submissions/${submission.id}/pdf`} download>
                             <Download className="h-4 w-4 mr-1" />
                             PDF
@@ -506,53 +501,53 @@ export default async function FormDetailPage({
 
 function getCategoryLabel(category: string): string {
   const labels: Record<string, string> = {
-    CUSTOM: "Egendefinert",
-    MEETING: "Møtereferat",
-    INSPECTION: "Inspeksjon",
-    INCIDENT: "Hendelsesrapport",
-    RISK: "Risikovurdering",
-    TRAINING: "Opplæring",
-    CHECKLIST: "Sjekkliste",
-    TIMESHEET: "Timeliste",
-    WELLBEING: "Psykososialt arbeidsmiljø",
+    CUSTOM: "Custom",
+    MEETING: "Meeting Minutes",
+    INSPECTION: "Inspection",
+    INCIDENT: "Incident Report",
+    RISK: "Risk Assessment",
+    TRAINING: "Training",
+    CHECKLIST: "Checklist",
+    TIMESHEET: "Timesheet",
+    WELLBEING: "Psychosocial Work Environment",
   };
   return labels[category] || category;
 }
 
 function getAccessTypeLabel(accessType: string): string {
   const labels: Record<string, string> = {
-    ALL: "Alle ansatte",
-    ROLES: "Spesifikke roller",
-    USERS: "Spesifikke brukere",
-    ROLES_AND_USERS: "Roller + brukere",
+    ALL: "All employees",
+    ROLES: "Specific roles",
+    USERS: "Specific users",
+    ROLES_AND_USERS: "Roles + users",
   };
   return labels[accessType] || accessType;
 }
 
 function getFieldTypeLabel(fieldType: string): string {
   const labels: Record<string, string> = {
-    TEXT: "Kort tekst",
-    TEXTAREA: "Lang tekst",
-    NUMBER: "Tall",
-    DATE: "Dato",
-    DATETIME: "Dato og tid",
-    CHECKBOX: "Avkrysning",
-    RADIO: "Radioknapper",
-    SELECT: "Rullegardin",
-    FILE: "Fil",
-    SIGNATURE: "Signatur",
-    LIKERT_SCALE: "Likert-skala (1-5)",
-    SECTION_HEADER: "Seksjonsoverskrift",
+    TEXT: "Short text",
+    TEXTAREA: "Long text",
+    NUMBER: "Number",
+    DATE: "Date",
+    DATETIME: "Date and time",
+    CHECKBOX: "Checkbox",
+    RADIO: "Radio buttons",
+    SELECT: "Dropdown",
+    FILE: "File",
+    SIGNATURE: "Signature",
+    LIKERT_SCALE: "Likert scale (1–5)",
+    SECTION_HEADER: "Section header",
   };
   return labels[fieldType] || fieldType;
 }
 
 function getStatusLabel(status: string): string {
   const labels: Record<string, string> = {
-    DRAFT: "Kladd",
-    SUBMITTED: "Innsendt",
-    APPROVED: "Godkjent",
-    REJECTED: "Avvist",
+    DRAFT: "Draft",
+    SUBMITTED: "Submitted",
+    APPROVED: "Approved",
+    REJECTED: "Rejected",
   };
   return labels[status] || status;
 }

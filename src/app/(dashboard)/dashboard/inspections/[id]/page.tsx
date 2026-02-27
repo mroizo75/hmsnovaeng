@@ -19,7 +19,6 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { format } from "date-fns";
-import { nb } from "date-fns/locale";
 import { InspectionFindingForm } from "@/features/inspections/components/inspection-finding-form";
 import { InspectionFindingList } from "@/features/inspections/components/inspection-finding-list";
 import { UpdateInspectionStatusForm } from "@/features/inspections/components/update-inspection-status-form";
@@ -31,10 +30,10 @@ function getStatusBadge(status: string) {
     string,
     { className: string; label: string }
   > = {
-    PLANNED: { className: "bg-blue-100 text-blue-800", label: "Planlagt" },
-    IN_PROGRESS: { className: "bg-yellow-100 text-yellow-800", label: "Pågår" },
-    COMPLETED: { className: "bg-green-100 text-green-800", label: "Fullført" },
-    CANCELLED: { className: "bg-red-100 text-red-800", label: "Avbrutt" },
+    PLANNED: { className: "bg-blue-100 text-blue-800", label: "Planned" },
+    IN_PROGRESS: { className: "bg-yellow-100 text-yellow-800", label: "In Progress" },
+    COMPLETED: { className: "bg-green-100 text-green-800", label: "Completed" },
+    CANCELLED: { className: "bg-red-100 text-red-800", label: "Cancelled" },
   };
   const config = variants[status] || variants.PLANNED;
   return <Badge className={config.className}>{config.label}</Badge>;
@@ -42,23 +41,23 @@ function getStatusBadge(status: string) {
 
 function getTypeBadge(type: string) {
   const labels: Record<string, string> = {
-    VERNERUNDE: "Vernerunde",
-    HMS_INSPEKSJON: "HMS-inspeksjon",
-    BRANNØVELSE: "Brannøvelse",
-    SHA_PLAN: "SHA-plan",
-    SIKKERHETSVANDRING: "Sikkerhetsvandring",
-    ANDRE: "Annet",
+    VERNERUNDE: "Safety Inspection",
+    HMS_INSPEKSJON: "H&S Inspection",
+    BRANNØVELSE: "Fire Drill",
+    SHA_PLAN: "SHA Plan",
+    SIKKERHETSVANDRING: "Safety Walk",
+    ANDRE: "Other",
   };
   return <Badge variant="outline">{labels[type] || type}</Badge>;
 }
 
 function getSeverityBadge(severity: number) {
   const config: Record<number, { className: string; label: string }> = {
-    1: { className: "bg-blue-100 text-blue-800", label: "Lav" },
-    2: { className: "bg-green-100 text-green-800", label: "Moderat" },
-    3: { className: "bg-yellow-100 text-yellow-800", label: "Betydelig" },
-    4: { className: "bg-orange-100 text-orange-800", label: "Alvorlig" },
-    5: { className: "bg-red-100 text-red-800", label: "Kritisk" },
+    1: { className: "bg-blue-100 text-blue-800", label: "Low" },
+    2: { className: "bg-green-100 text-green-800", label: "Moderate" },
+    3: { className: "bg-yellow-100 text-yellow-800", label: "Significant" },
+    4: { className: "bg-orange-100 text-orange-800", label: "High" },
+    5: { className: "bg-red-100 text-red-800", label: "Critical" },
   };
   const severityConfig = config[severity] || config[1];
   return <Badge className={severityConfig.className}>{severityConfig.label}</Badge>;
@@ -66,10 +65,10 @@ function getSeverityBadge(severity: number) {
 
 function getFindingStatusBadge(status: string) {
   const config: Record<string, { className: string; label: string }> = {
-    OPEN: { className: "bg-red-100 text-red-800", label: "Åpen" },
-    IN_PROGRESS: { className: "bg-yellow-100 text-yellow-800", label: "Pågår" },
-    RESOLVED: { className: "bg-green-100 text-green-800", label: "Løst" },
-    CLOSED: { className: "bg-gray-100 text-gray-800", label: "Lukket" },
+    OPEN: { className: "bg-red-100 text-red-800", label: "Open" },
+    IN_PROGRESS: { className: "bg-yellow-100 text-yellow-800", label: "In Progress" },
+    RESOLVED: { className: "bg-green-100 text-green-800", label: "Resolved" },
+    CLOSED: { className: "bg-gray-100 text-gray-800", label: "Closed" },
   };
   return <Badge className={config[status]?.className || config.OPEN.className}>
     {config[status]?.label || status}
@@ -94,7 +93,7 @@ export default async function InspectionDetailPage({
   });
 
   if (!currentUser || currentUser.tenants.length === 0) {
-    return <div>Ingen tilgang til tenant</div>;
+    return <div>No tenant access</div>;
   }
 
   const tenantId = currentUser.tenants[0].tenantId;
@@ -121,23 +120,20 @@ export default async function InspectionDetailPage({
   });
 
   if (!inspection) {
-    return <div>Inspeksjon ikke funnet</div>;
+    return <div>Inspection not found</div>;
   }
 
-  // Hent gjennomfører
   const conductedByUser = await prisma.user.findUnique({
     where: { id: inspection.conductedBy },
     select: { id: true, name: true, email: true },
   });
 
-  // Hent deltakere
   const participantIds = inspection.participants ? JSON.parse(inspection.participants) : [];
   const participants = await prisma.user.findMany({
     where: { id: { in: participantIds } },
     select: { id: true, name: true, email: true },
   });
 
-  // Hent alle brukere for tenant (for å kunne legge til funn)
   const tenantUsers = await prisma.user.findMany({
     where: {
       tenants: {
@@ -151,7 +147,6 @@ export default async function InspectionDetailPage({
     },
   });
 
-  // Finding statistics
   const findingStats = {
     total: inspection.findings.length,
     open: inspection.findings.filter((f) => f.status === "OPEN").length,
@@ -169,13 +164,13 @@ export default async function InspectionDetailPage({
       <div>
         <Button variant="ghost" asChild className="mb-4">
           <Link href="/dashboard/inspections">
-            <ArrowLeft className="mr-2 h-4 w-4" /> Tilbake til inspeksjoner
+            <ArrowLeft className="mr-2 h-4 w-4" /> Back to Inspections
           </Link>
         </Button>
         <div className="flex items-start justify-between">
           <div>
             <h1 className="text-3xl font-bold">{inspection.title}</h1>
-            <p className="text-muted-foreground">Inspeksjonsdetaljer</p>
+            <p className="text-muted-foreground">Inspection details</p>
           </div>
           <div className="flex items-center gap-2">
             {getTypeBadge(inspection.type)}
@@ -184,26 +179,26 @@ export default async function InspectionDetailPage({
             <Link href={`/dashboard/inspections/${inspection.id}/mobil`}>
               <Button className="bg-green-600 hover:bg-green-700" size="sm">
                 <Smartphone className="mr-2 h-4 w-4" />
-                Mobilvisning
+                Mobile View
               </Button>
             </Link>
             <Link href={`/dashboard/inspections/${inspection.id}/edit`}>
               <Button variant="outline" size="sm">
                 <Edit className="mr-2 h-4 w-4" />
-                Rediger
+                Edit
               </Button>
             </Link>
             <Link href={`/api/inspections/${inspection.id}/report`} target="_blank">
               <Button variant="outline" size="sm">
                 <Download className="mr-2 h-4 w-4" />
-                Last ned rapport
+                Download Report
               </Button>
             </Link>
           </div>
         </div>
       </div>
 
-      {/* Skjema hvis tilgjengelig */}
+      {/* Form if available */}
       {inspection.formTemplate && (
         <Card className="mb-6 border-primary/20">
           <CardHeader>
@@ -220,7 +215,7 @@ export default async function InspectionDetailPage({
               {inspection.formSubmission && (
                 <Badge className="bg-green-100 text-green-800">
                   <CheckCircle2 className="h-3 w-3 mr-1" />
-                  Utfylt
+                  Completed
                 </Badge>
               )}
             </div>
@@ -230,13 +225,13 @@ export default async function InspectionDetailPage({
               <div className="flex gap-3">
                 <Link href={`/dashboard/forms/${inspection.formTemplate.id}/fill?inspectionId=${id}`} className="flex-1">
                   <Button variant="outline" className="w-full">
-                    Se utfylt skjema
+                    View Completed Form
                   </Button>
                 </Link>
                 <Link href={`/api/forms/${inspection.formSubmissionId}/pdf`} target="_blank">
                   <Button variant="outline">
                     <Download className="h-4 w-4 mr-2" />
-                    Last ned PDF
+                    Download PDF
                   </Button>
                 </Link>
               </div>
@@ -244,11 +239,11 @@ export default async function InspectionDetailPage({
               <div className="space-y-3">
                 <div className="flex items-center gap-2 text-sm text-orange-600 bg-orange-50 p-3 rounded-md">
                   <AlertTriangle className="h-4 w-4" />
-                  <span>Skjema må fylles ut for å fullføre vernerunden</span>
+                  <span>Form must be filled out to complete the inspection</span>
                 </div>
                 <Link href={`/dashboard/forms/${inspection.formTemplate.id}/fill?inspectionId=${id}`}>
                   <Button className="w-full">
-                    Fyll ut skjema nå
+                    Fill Out Form Now
                   </Button>
                 </Link>
               </div>
@@ -261,15 +256,15 @@ export default async function InspectionDetailPage({
         {/* Basic Info */}
         <Card>
           <CardHeader>
-            <CardTitle>Grunnleggende informasjon</CardTitle>
+            <CardTitle>Basic Information</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="flex items-start gap-3">
               <Calendar className="h-5 w-5 text-muted-foreground mt-0.5" />
               <div className="flex-1">
-                <p className="text-sm font-medium text-muted-foreground">Planlagt dato</p>
+                <p className="text-sm font-medium text-muted-foreground">Scheduled Date</p>
                 <p className="font-medium">
-                  {format(new Date(inspection.scheduledDate), "d. MMMM yyyy", { locale: nb })}
+                  {format(new Date(inspection.scheduledDate), "MMMM d, yyyy")}
                 </p>
               </div>
             </div>
@@ -278,9 +273,9 @@ export default async function InspectionDetailPage({
               <div className="flex items-start gap-3">
                 <CheckCircle2 className="h-5 w-5 text-green-600 mt-0.5" />
                 <div className="flex-1">
-                  <p className="text-sm font-medium text-muted-foreground">Fullført</p>
+                  <p className="text-sm font-medium text-muted-foreground">Completed</p>
                   <p className="font-medium">
-                    {format(new Date(inspection.completedDate), "d. MMMM yyyy", { locale: nb })}
+                    {format(new Date(inspection.completedDate), "MMMM d, yyyy")}
                   </p>
                 </div>
               </div>
@@ -290,7 +285,7 @@ export default async function InspectionDetailPage({
               <div className="flex items-start gap-3">
                 <MapPin className="h-5 w-5 text-muted-foreground mt-0.5" />
                 <div className="flex-1">
-                  <p className="text-sm font-medium text-muted-foreground">Lokasjon</p>
+                  <p className="text-sm font-medium text-muted-foreground">Location</p>
                   <p className="font-medium">{inspection.location}</p>
                 </div>
               </div>
@@ -301,14 +296,14 @@ export default async function InspectionDetailPage({
         {/* Team */}
         <Card>
           <CardHeader>
-            <CardTitle>Gjennomført av</CardTitle>
+            <CardTitle>Conducted by</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="flex items-start gap-3">
               <User className="h-5 w-5 text-muted-foreground mt-0.5" />
               <div className="flex-1">
-                <p className="text-sm font-medium text-muted-foreground">Ansvarlig</p>
-                <p className="font-medium">{conductedByUser?.name || "Ukjent"}</p>
+                <p className="text-sm font-medium text-muted-foreground">Responsible</p>
+                <p className="font-medium">{conductedByUser?.name || "Unknown"}</p>
                 <p className="text-sm text-muted-foreground">{conductedByUser?.email}</p>
               </div>
             </div>
@@ -317,10 +312,10 @@ export default async function InspectionDetailPage({
               <div className="flex items-start gap-3">
                 <Users className="h-5 w-5 text-muted-foreground mt-0.5" />
                 <div className="flex-1">
-                  <p className="text-sm font-medium text-muted-foreground">Deltakere</p>
+                  <p className="text-sm font-medium text-muted-foreground">Participants</p>
                   {participants.map((participant) => (
                     <div key={participant.id} className="mt-1">
-                      <p className="font-medium">{participant.name || "Ukjent"}</p>
+                      <p className="font-medium">{participant.name || "Unknown"}</p>
                       <p className="text-sm text-muted-foreground">{participant.email}</p>
                     </div>
                   ))}
@@ -335,7 +330,7 @@ export default async function InspectionDetailPage({
       {inspection.description && (
         <Card>
           <CardHeader>
-            <CardTitle>Beskrivelse</CardTitle>
+            <CardTitle>Description</CardTitle>
           </CardHeader>
           <CardContent>
             <p className="text-sm whitespace-pre-wrap">{inspection.description}</p>
@@ -347,16 +342,16 @@ export default async function InspectionDetailPage({
       {findingStats.total > 0 && (
         <Card className="border-orange-200 bg-orange-50">
           <CardHeader>
-            <CardTitle className="text-orange-900">Funn fra inspeksjon</CardTitle>
+            <CardTitle className="text-orange-900">Inspection Findings</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="grid gap-4 md:grid-cols-4">
               <div>
-                <p className="text-sm font-medium text-orange-900">Kritiske</p>
+                <p className="text-sm font-medium text-orange-900">Critical</p>
                 <p className="text-3xl font-bold text-red-600">{findingStats.critical}</p>
               </div>
               <div>
-                <p className="text-sm font-medium text-orange-900">Alvorlige</p>
+                <p className="text-sm font-medium text-orange-900">High</p>
                 <p className="text-3xl font-bold text-orange-600">{findingStats.high}</p>
               </div>
               <div>
@@ -364,26 +359,26 @@ export default async function InspectionDetailPage({
                 <p className="text-3xl font-bold text-yellow-600">{findingStats.medium}</p>
               </div>
               <div>
-                <p className="text-sm font-medium text-orange-900">Lave</p>
+                <p className="text-sm font-medium text-orange-900">Low</p>
                 <p className="text-3xl font-bold text-green-600">{findingStats.low}</p>
               </div>
             </div>
             <div className="mt-4 pt-4 border-t border-orange-200">
               <div className="grid gap-4 md:grid-cols-4 text-sm">
                 <div>
-                  <p className="text-orange-900 font-medium">Åpne</p>
+                  <p className="text-orange-900 font-medium">Open</p>
                   <p className="text-2xl font-bold">{findingStats.open}</p>
                 </div>
                 <div>
-                  <p className="text-orange-900 font-medium">Pågår</p>
+                  <p className="text-orange-900 font-medium">In Progress</p>
                   <p className="text-2xl font-bold">{findingStats.inProgress}</p>
                 </div>
                 <div>
-                  <p className="text-orange-900 font-medium">Løst</p>
+                  <p className="text-orange-900 font-medium">Resolved</p>
                   <p className="text-2xl font-bold">{findingStats.resolved}</p>
                 </div>
                 <div>
-                  <p className="text-orange-900 font-medium">Lukket</p>
+                  <p className="text-orange-900 font-medium">Closed</p>
                   <p className="text-2xl font-bold">{findingStats.closed}</p>
                 </div>
               </div>
@@ -397,11 +392,11 @@ export default async function InspectionDetailPage({
         <CardHeader>
           <div className="flex items-center justify-between">
             <div>
-              <CardTitle>Funn og observasjoner</CardTitle>
+              <CardTitle>Findings and Observations</CardTitle>
               <CardDescription>
                 {findingStats.total > 0
-                  ? `${findingStats.total} funn registrert`
-                  : "Dokumenter avvik, observasjoner eller forbedringsområder"}
+                  ? `${findingStats.total} findings registered`
+                  : "Document deviations, observations, or areas for improvement"}
               </CardDescription>
             </div>
             <InspectionFindingForm inspectionId={inspection.id} users={tenantUsers} />
@@ -410,8 +405,8 @@ export default async function InspectionDetailPage({
         <CardContent>
           {inspection.findings.length === 0 ? (
             <div className="text-center py-8 text-muted-foreground">
-              <p>Ingen funn registrert ennå</p>
-              <p className="text-sm mt-1">Bruk knappen over for å legge til funn</p>
+              <p>No findings registered yet</p>
+              <p className="text-sm mt-1">Use the button above to add findings</p>
             </div>
           ) : (
             <InspectionFindingList findings={inspection.findings} />
@@ -422,16 +417,16 @@ export default async function InspectionDetailPage({
       {/* Compliance */}
       <Card className="bg-blue-50 border-blue-200">
         <CardHeader>
-          <CardTitle className="text-blue-900">📋 HMS Compliance</CardTitle>
+          <CardTitle className="text-blue-900">📋 H&S Compliance</CardTitle>
         </CardHeader>
         <CardContent className="space-y-2 text-sm text-blue-800">
           <div className="flex items-center gap-2">
             <CheckCircle2 className="h-4 w-4 text-blue-600" />
-            <span>Inspeksjon planlagt og dokumentert</span>
+            <span>Inspection planned and documented</span>
           </div>
           <div className="flex items-center gap-2">
             <CheckCircle2 className="h-4 w-4 text-blue-600" />
-            <span>Ansvarlig person utnevnt</span>
+            <span>Responsible person appointed</span>
           </div>
           <div className="flex items-center gap-2">
             {inspection.completedDate ? (
@@ -440,7 +435,7 @@ export default async function InspectionDetailPage({
               <AlertTriangle className="h-4 w-4 text-yellow-600" />
             )}
             <span>
-              Inspeksjon {inspection.completedDate ? "fullført" : "ikke fullført ennå"}
+              Inspection {inspection.completedDate ? "completed" : "not yet completed"}
             </span>
           </div>
           <div className="flex items-center gap-2">
@@ -451,8 +446,8 @@ export default async function InspectionDetailPage({
             )}
             <span>
               {findingStats.total > 0
-                ? `${findingStats.total} funn dokumentert`
-                : "Ingen funn dokumentert"}
+                ? `${findingStats.total} findings documented`
+                : "No findings documented"}
             </span>
           </div>
           <div className="flex items-center gap-2">
@@ -465,10 +460,10 @@ export default async function InspectionDetailPage({
             )}
             <span>
               {findingStats.open > 0
-                ? `${findingStats.open} åpne funn (krever oppfølging)`
+                ? `${findingStats.open} open findings (require follow-up)`
                 : findingStats.total > 0
-                ? "Alle funn er lukket"
-                : "Ingen funn"}
+                ? "All findings are closed"
+                : "No findings"}
             </span>
           </div>
         </CardContent>
@@ -476,4 +471,3 @@ export default async function InspectionDetailPage({
     </div>
   );
 }
-

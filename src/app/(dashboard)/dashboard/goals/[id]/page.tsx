@@ -37,7 +37,7 @@ export default async function GoalDetailPage({ params }: { params: Promise<{ id:
   });
 
   if (!user || user.tenants.length === 0) {
-    return <div>Du er ikke tilknyttet en tenant.</div>;
+    return <div>You are not associated with a tenant.</div>;
   }
 
   const tenantId = user.tenants[0].tenantId;
@@ -76,7 +76,7 @@ export default async function GoalDetailPage({ params }: { params: Promise<{ id:
         <Link href="/dashboard/goals">
           <Button variant="ghost" size="sm" className="mb-4">
             <ArrowLeft className="mr-2 h-4 w-4" />
-            Tilbake til mål
+            Back to Goals
           </Button>
         </Link>
         <div className="flex items-start justify-between">
@@ -87,13 +87,13 @@ export default async function GoalDetailPage({ params }: { params: Promise<{ id:
               <Badge className={statusColor}>{statusLabel}</Badge>
             </div>
             <p className="text-muted-foreground">
-              {goal.description || "Ingen beskrivelse"}
+              {goal.description || "No description"}
             </p>
           </div>
           <Link href={`/dashboard/goals/${goal.id}/edit`}>
             <Button variant="outline">
               <Edit className="mr-2 h-4 w-4" />
-              Rediger
+              Edit
             </Button>
           </Link>
         </div>
@@ -105,13 +105,13 @@ export default async function GoalDetailPage({ params }: { params: Promise<{ id:
 
         <Card>
           <CardHeader>
-            <CardTitle>Måldetaljer</CardTitle>
-            <CardDescription>Informasjon om målet</CardDescription>
+            <CardTitle>Goal Details</CardTitle>
+            <CardDescription>Information about the goal</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <p className="text-sm text-muted-foreground">Kategori</p>
+                <p className="text-sm text-muted-foreground">Category</p>
                 <Badge className={categoryColor}>{categoryLabel}</Badge>
               </div>
               <div>
@@ -123,16 +123,16 @@ export default async function GoalDetailPage({ params }: { params: Promise<{ id:
             <div>
               <p className="text-sm text-muted-foreground flex items-center gap-2">
                 <User className="h-4 w-4" />
-                Ansvarlig
+                Responsible
               </p>
-              <p className="font-medium">{owner?.name || owner?.email || "Ukjent"}</p>
+              <p className="font-medium">{owner?.name || owner?.email || "Unknown"}</p>
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <p className="text-sm text-muted-foreground flex items-center gap-2">
                   <Calendar className="h-4 w-4" />
-                  Periode
+                  Period
                 </p>
                 <p className="font-medium">
                   {goal.year}
@@ -141,9 +141,9 @@ export default async function GoalDetailPage({ params }: { params: Promise<{ id:
               </div>
               {goal.deadline && (
                 <div>
-                  <p className="text-sm text-muted-foreground">Frist</p>
+                  <p className="text-sm text-muted-foreground">Deadline</p>
                   <p className="font-medium">
-                    {new Date(goal.deadline).toLocaleDateString("nb-NO")}
+                    {new Date(goal.deadline).toLocaleDateString("en-US")}
                   </p>
                 </div>
               )}
@@ -151,9 +151,9 @@ export default async function GoalDetailPage({ params }: { params: Promise<{ id:
 
             {goal.startDate && (
               <div>
-                <p className="text-sm text-muted-foreground">Startdato</p>
+                <p className="text-sm text-muted-foreground">Start Date</p>
                 <p className="font-medium">
-                  {new Date(goal.startDate).toLocaleDateString("nb-NO")}
+                  {new Date(goal.startDate).toLocaleDateString("en-US")}
                 </p>
               </div>
             )}
@@ -168,10 +168,10 @@ export default async function GoalDetailPage({ params }: { params: Promise<{ id:
             <div>
               <CardTitle className="flex items-center gap-2">
                 <TrendingUp className="h-5 w-5" />
-                KPI-målinger
+                KPI Measurements
               </CardTitle>
               <CardDescription>
-                ISO 9001 - 9.1: Overvåking og måling
+                ISO 9001 - 9.1: Monitoring and Measurement
               </CardDescription>
             </div>
             <MeasurementForm
@@ -193,10 +193,10 @@ export default async function GoalDetailPage({ params }: { params: Promise<{ id:
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <ListTodo className="h-5 w-5" />
-              Tilknyttede tiltak
+              Linked Actions
             </CardTitle>
             <CardDescription>
-              Tiltak som er koblet til dette målet
+              Actions linked to this goal
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -225,4 +225,3 @@ export default async function GoalDetailPage({ params }: { params: Promise<{ id:
     </div>
   );
 }
-

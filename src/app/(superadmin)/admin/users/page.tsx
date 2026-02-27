@@ -20,7 +20,7 @@ export default async function AdminUsersPage({
   const session = await getServerSession(authOptions);
   const user = session?.user as SessionUser;
 
-  // Kun superadmin har tilgang
+  // Only superadmin has access
   if (!user?.isSuperAdmin) {
     redirect("/admin");
   }
@@ -29,7 +29,7 @@ export default async function AdminUsersPage({
   const currentPage = Number(params.page) || 1;
   const searchTerm = params.search || "";
 
-  // Bygg søkefilter (MySQL bruker contains uten mode parameter)
+  // Build search filter (MySQL uses contains without mode parameter)
   const searchFilter = searchTerm
     ? {
         OR: [
@@ -48,12 +48,12 @@ export default async function AdminUsersPage({
       }
     : {};
 
-  // Tell totalt antall brukere (med filter)
+  // Count total users (with filter)
   const totalUsers = await prisma.user.count({
     where: searchFilter,
   });
 
-  // Hent brukere med paginering (og filter)
+  // Fetch users with pagination (and filter)
   const users = await prisma.user.findMany({
     where: searchFilter,
     include: {
@@ -81,15 +81,15 @@ export default async function AdminUsersPage({
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold">Brukere</h1>
+          <h1 className="text-3xl font-bold">Users</h1>
           <p className="text-muted-foreground">
-            Administrer alle brukere på tvers av bedrifter
+            Manage all users across companies
           </p>
         </div>
         <Button asChild>
           <Link href="/admin/users/new">
             <UserPlus className="mr-2 h-4 w-4" />
-            Ny bruker
+            New user
           </Link>
         </Button>
       </div>
@@ -97,7 +97,7 @@ export default async function AdminUsersPage({
       <div className="grid gap-4 md:grid-cols-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Totalt brukere</CardTitle>
+            <CardTitle className="text-sm font-medium">Total users</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{stats.total}</div>
@@ -116,7 +116,7 @@ export default async function AdminUsersPage({
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Med tenant</CardTitle>
+            <CardTitle className="text-sm font-medium">With tenant</CardTitle>
             <Building2 className="h-4 w-4 text-green-600" />
           </CardHeader>
           <CardContent>
@@ -126,7 +126,7 @@ export default async function AdminUsersPage({
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Uten tenant</CardTitle>
+            <CardTitle className="text-sm font-medium">Without tenant</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-muted-foreground">
@@ -138,9 +138,9 @@ export default async function AdminUsersPage({
 
       <Card>
         <CardHeader>
-          <CardTitle>Alle brukere</CardTitle>
+          <CardTitle>All users</CardTitle>
           <CardDescription>
-            Oversikt over alle brukere i systemet • Side {currentPage} av {totalPages}
+            Overview of all users in the system • Page {currentPage} of {totalPages}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -154,4 +154,3 @@ export default async function AdminUsersPage({
     </div>
   );
 }
-

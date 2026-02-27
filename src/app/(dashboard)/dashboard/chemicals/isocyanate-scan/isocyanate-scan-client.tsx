@@ -29,7 +29,7 @@ export function IsocyanateScanClient() {
   const [stats, setStats] = useState<any>(null);
   const { toast } = useToast();
 
-  // Last statistikk ved innlasting
+  // Load stats on mount
   useState(() => {
     loadStats();
   });
@@ -39,7 +39,7 @@ export function IsocyanateScanClient() {
       const data = await getIsocyanateStats();
       setStats(data);
     } catch (error) {
-      console.error("Kunne ikke laste statistikk:", error);
+      console.error("Failed to load stats:", error);
     }
   }
 
@@ -53,22 +53,22 @@ export function IsocyanateScanClient() {
       
       if (result.updated > 0) {
         toast({
-          title: "Skanning fullført",
-          description: `Fant og merket ${result.foundIsocyanates} kjemikalier med diisocyanater`,
+          title: "Scan completed",
+          description: `Found and flagged ${result.foundIsocyanates} chemicals containing diisocyanates`,
         });
       } else {
         toast({
-          title: "Skanning fullført",
-          description: "Ingen nye kjemikalier med diisocyanater funnet",
+          title: "Scan completed",
+          description: "No new chemicals containing diisocyanates found",
         });
       }
 
-      // Oppdater statistikk
+      // Refresh stats
       await loadStats();
     } catch (error: any) {
       toast({
-        title: "Skanning feilet",
-        description: error.message || "Noe gikk galt",
+        title: "Scan failed",
+        description: error.message || "Something went wrong",
         variant: "destructive",
       });
     } finally {
@@ -79,45 +79,45 @@ export function IsocyanateScanClient() {
   return (
     <div className="container mx-auto py-8 space-y-6">
       <div>
-        <h1 className="text-3xl font-bold">Isocyanat-skanning</h1>
+        <h1 className="text-3xl font-bold">Isocyanate Scan</h1>
         <p className="text-muted-foreground mt-2">
-          Skann stoffkartoteket for å identifisere kjemikalier med diisocyanater
+          Scan the chemical registry to identify chemicals containing diisocyanates
         </p>
       </div>
 
-      {/* Informasjon om isocyanater */}
+      {/* Information about isocyanates */}
       <Alert>
         <Info className="h-4 w-4" />
-        <AlertTitle>Hvorfor er dette viktig?</AlertTitle>
+        <AlertTitle>Why is this important?</AlertTitle>
         <AlertDescription>
-          <strong>EU-forordning 2020/1149</strong> krever at alle arbeidstakere som håndterer
-          produkter med &gt;0.1% diisocyanater må ha gjennomført obligatorisk kurs.
+          <strong>EU Regulation 2020/1149</strong> requires that all workers handling
+          products with &gt;0.1% diisocyanates must have completed mandatory training.
           <br />
-          Vanlige diisocyanater: MDI, TDI, HDI, IPDI (brukes i lakk, lim, skum, isolasjon).
+          Common diisocyanates: MDI, TDI, HDI, IPDI (used in paint, adhesives, foam, insulation).
         </AlertDescription>
       </Alert>
 
-      {/* Statistikk */}
+      {/* Statistics */}
       {stats && (
         <div className="grid gap-4 md:grid-cols-3">
           <Card>
             <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-medium">Totalt</CardTitle>
+              <CardTitle className="text-sm font-medium">Total</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{stats.total}</div>
-              <p className="text-xs text-muted-foreground">Kjemikalier i stoffkartotek</p>
+              <p className="text-xs text-muted-foreground">Chemicals in registry</p>
             </CardContent>
           </Card>
 
           <Card>
             <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-medium">Med isocyanater</CardTitle>
+              <CardTitle className="text-sm font-medium">With isocyanates</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold text-orange-600">{stats.withIsocyanates}</div>
               <p className="text-xs text-muted-foreground">
-                {stats.percentage}% av stoffkartoteket
+                {stats.percentage}% of the chemical registry
               </p>
             </CardContent>
           </Card>
@@ -130,12 +130,12 @@ export function IsocyanateScanClient() {
               {stats.withIsocyanates > 0 ? (
                 <Badge variant="outline" className="text-orange-600">
                   <AlertTriangle className="mr-1 h-3 w-3" />
-                  Krever oppfølging
+                  Requires follow-up
                 </Badge>
               ) : (
                 <Badge variant="outline" className="text-green-600">
                   <CheckCircle2 className="mr-1 h-3 w-3" />
-                  Ingen funnet
+                  None found
                 </Badge>
               )}
             </CardContent>
@@ -143,14 +143,14 @@ export function IsocyanateScanClient() {
         </div>
       )}
 
-      {/* Skann-knapp */}
+      {/* Scan button */}
       <Card>
         <CardHeader>
-          <CardTitle>Skann stoffkartotek</CardTitle>
+          <CardTitle>Scan Chemical Registry</CardTitle>
           <CardDescription>
-            Systemet vil automatisk søke gjennom alle registrerte kjemikalier og
-            identifisere produkter som inneholder diisocyanater basert på produktnavn,
-            CAS-nummer og innhold.
+            The system will automatically search through all registered chemicals and
+            identify products containing diisocyanates based on product name,
+            CAS number, and contents.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -162,57 +162,57 @@ export function IsocyanateScanClient() {
             {isScanning ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Skanner...
+                Scanning...
               </>
             ) : (
               <>
                 <Search className="mr-2 h-4 w-4" />
-                Start skanning
+                Start Scan
               </>
             )}
           </Button>
         </CardContent>
       </Card>
 
-      {/* Resultater */}
+      {/* Results */}
       {scanResult && (
         <Card>
           <CardHeader>
-            <CardTitle>Skanneresultater</CardTitle>
+            <CardTitle>Scan Results</CardTitle>
             <CardDescription>
-              {scanResult.success ? "Skanning fullført" : "Skanning feilet"}
+              {scanResult.success ? "Scan completed" : "Scan failed"}
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            {/* Sammendrag */}
+            {/* Summary */}
             <div className="grid gap-4 md:grid-cols-3">
               <div className="space-y-1">
-                <p className="text-sm font-medium text-muted-foreground">Skannet</p>
+                <p className="text-sm font-medium text-muted-foreground">Scanned</p>
                 <p className="text-2xl font-bold">{scanResult.totalScanned}</p>
               </div>
               <div className="space-y-1">
-                <p className="text-sm font-medium text-muted-foreground">Funnet</p>
+                <p className="text-sm font-medium text-muted-foreground">Found</p>
                 <p className="text-2xl font-bold text-orange-600">
                   {scanResult.foundIsocyanates}
                 </p>
               </div>
               <div className="space-y-1">
-                <p className="text-sm font-medium text-muted-foreground">Oppdatert</p>
+                <p className="text-sm font-medium text-muted-foreground">Updated</p>
                 <p className="text-2xl font-bold text-green-600">
                   {scanResult.updated}
                 </p>
               </div>
             </div>
 
-            {/* Liste over funnet kjemikalier */}
+            {/* List of found chemicals */}
             {scanResult.chemicals.length > 0 && (
               <div className="space-y-2">
                 <div>
                   <h3 className="text-sm font-medium">
-                    Kjemikalier med diisocyanater ({scanResult.chemicals.length})
+                    Chemicals with diisocyanates ({scanResult.chemicals.length})
                   </h3>
                   <p className="text-xs text-muted-foreground mt-1">
-                    Klikk på stoffnavn eller «Åpne» for å åpne i ny fane – rediger, ta risikovurdering eller skriv notater til ansatte.
+                    Click the product name or "Open" to open in a new tab – edit, perform a risk assessment, or add notes for employees.
                   </p>
                 </div>
                 <div className="border rounded-lg divide-y">
@@ -236,13 +236,13 @@ export function IsocyanateScanClient() {
                             {chemical.wasUpdated && (
                               <Badge variant="outline" className="text-green-600">
                                 <CheckCircle2 className="mr-1 h-3 w-3" />
-                                Oppdatert
+                                Updated
                               </Badge>
                             )}
                           </div>
                           {chemical.supplier && (
                             <p className="text-sm text-muted-foreground">
-                              Leverandør: {chemical.supplier}
+                              Supplier: {chemical.supplier}
                             </p>
                           )}
                           {chemical.casNumber && (
@@ -266,7 +266,7 @@ export function IsocyanateScanClient() {
                           >
                             <Button variant="outline" size="sm">
                               <ExternalLink className="mr-1.5 h-3.5 w-3.5" />
-                              Åpne
+                              Open
                             </Button>
                           </Link>
                           <Link
@@ -276,7 +276,7 @@ export function IsocyanateScanClient() {
                           >
                             <Button variant="ghost" size="sm" className="text-muted-foreground">
                               <Edit className="mr-1.5 h-3.5 w-3.5" />
-                              Rediger
+                              Edit
                             </Button>
                           </Link>
                         </div>
@@ -290,9 +290,9 @@ export function IsocyanateScanClient() {
             {scanResult.foundIsocyanates === 0 && (
               <Alert>
                 <CheckCircle2 className="h-4 w-4" />
-                <AlertTitle>Ingen isocyanater funnet</AlertTitle>
+                <AlertTitle>No isocyanates found</AlertTitle>
                 <AlertDescription>
-                  Stoffkartoteket inneholder ingen kjemikalier med diisocyanater.
+                  The chemical registry contains no chemicals with diisocyanates.
                 </AlertDescription>
               </Alert>
             )}
@@ -300,13 +300,13 @@ export function IsocyanateScanClient() {
         </Card>
       )}
 
-      {/* Liste over eksisterende kjemikalier med isocyanater */}
+      {/* List of existing chemicals with isocyanates */}
       {stats?.chemicals && stats.chemicals.length > 0 && (
         <Card>
           <CardHeader>
-            <CardTitle>Registrerte kjemikalier med diisocyanater</CardTitle>
+            <CardTitle>Registered chemicals with diisocyanates</CardTitle>
             <CardDescription>
-              Kjemikalier som allerede er merket som inneholder diisocyanater. Åpne i ny fane for å redigere, ta risikovurdering eller skrive notater til ansatte.
+              Chemicals already flagged as containing diisocyanates. Open in a new tab to edit, perform a risk assessment, or add notes for employees.
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -330,10 +330,10 @@ export function IsocyanateScanClient() {
                         </Link>
                       </div>
                       <div className="flex gap-4 text-sm text-muted-foreground flex-wrap">
-                        {chemical.supplier && <span>Leverandør: {chemical.supplier}</span>}
+                        {chemical.supplier && <span>Supplier: {chemical.supplier}</span>}
                         {chemical.casNumber && <span>CAS: {chemical.casNumber}</span>}
-                        {chemical.quantity && <span>Mengde: {chemical.quantity}</span>}
-                        {chemical.location && <span>Lokasjon: {chemical.location}</span>}
+                        {chemical.quantity && <span>Quantity: {chemical.quantity}</span>}
+                        {chemical.location && <span>Location: {chemical.location}</span>}
                       </div>
                     </div>
                     <div className="flex flex-col gap-1 shrink-0">
@@ -344,7 +344,7 @@ export function IsocyanateScanClient() {
                       >
                         <Button variant="outline" size="sm">
                           <ExternalLink className="mr-1.5 h-3.5 w-3.5" />
-                          Åpne
+                          Open
                         </Button>
                       </Link>
                       <Link
@@ -354,7 +354,7 @@ export function IsocyanateScanClient() {
                       >
                         <Button variant="ghost" size="sm" className="text-muted-foreground">
                           <Edit className="mr-1.5 h-3.5 w-3.5" />
-                          Rediger
+                          Edit
                         </Button>
                       </Link>
                     </div>

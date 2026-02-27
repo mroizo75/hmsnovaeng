@@ -36,7 +36,7 @@ export function SecurityAssetList({ assets }: SecurityAssetListProps) {
   if (assets.length === 0) {
     return (
       <div className="rounded-lg border border-dashed p-6 text-center text-sm text-muted-foreground">
-        Ingen sikkerhetsobjekter registrert ennå.
+        No security assets registered yet.
       </div>
     );
   }
@@ -46,11 +46,11 @@ export function SecurityAssetList({ assets }: SecurityAssetListProps) {
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>Objekt</TableHead>
+            <TableHead>Asset</TableHead>
             <TableHead>Type</TableHead>
             <TableHead>C · I · A</TableHead>
-            <TableHead>Ansvarlig</TableHead>
-            <TableHead>Kontroller</TableHead>
+            <TableHead>Owner</TableHead>
+            <TableHead>Controls</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -71,7 +71,7 @@ export function SecurityAssetList({ assets }: SecurityAssetListProps) {
                 <span className={cn("rounded px-2 py-0.5", ciaColor[asset.availability])}>A {asset.availability}</span>
               </TableCell>
               <TableCell className="text-sm">
-                {asset.owner ? asset.owner.name || asset.owner.email : <span className="text-muted-foreground">Ikke satt</span>}
+                {asset.owner ? asset.owner.name || asset.owner.email : <span className="text-muted-foreground">Not set</span>}
               </TableCell>
               <TableCell className="text-sm">
                 <span className={badgeVariants({ variant: "secondary" })}>{asset.controls.length}</span>

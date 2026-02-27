@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Facebook, Linkedin, Mail, Phone } from "lucide-react";
+import { Facebook, Linkedin, Mail, Phone, Shield } from "lucide-react";
 import Image from "next/image";
 
 export function PublicFooter() {
@@ -7,168 +7,167 @@ export function PublicFooter() {
     <footer className="bg-muted/30 border-t mt-20">
       <div className="container mx-auto px-4 py-12">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-          {/* Brand */}
           <div className="space-y-4">
             <div className="flex items-center space-x-2">
-                <Image src="/logo-nova.png" alt="HMS Nova" width={155} height={150} />
+              <Image src="/logo-eng.png" alt="HMS Nova EHS Platform" width={155} height={150} />
             </div>
             <p className="text-sm text-muted-foreground">
-            HMS Nova er utviklet av <strong>HMS Nova AS</strong> – moderne HMS-system og kurs for norske bedrifter.
+              HMS Nova is developed by <strong>HMS Nova AS</strong> — a modern EHS management platform built for OSHA compliance and ISO 45001 certification.
             </p>
+            <div className="flex items-center gap-2 text-xs text-muted-foreground bg-muted/50 rounded-md px-3 py-2 w-fit">
+              <Shield className="h-3.5 w-3.5 text-primary flex-shrink-0" />
+              <span>OSHA · ISO 45001 · ISO 9001 · ISO 14001</span>
+            </div>
             <div className="flex space-x-3">
-              <a 
-                href="https://facebook.com" 
-                target="_blank" 
-                rel="noopener noreferrer" 
+              <a
+                href="https://facebook.com"
+                target="_blank"
+                rel="noopener noreferrer"
                 className="text-muted-foreground hover:text-primary transition-colors"
-                aria-label="Besøk HMS Nova på Facebook"
+                aria-label="Visit HMS Nova on Facebook"
               >
                 <Facebook className="h-5 w-5" />
               </a>
-              <a 
-                href="https://linkedin.com" 
-                target="_blank" 
-                rel="noopener noreferrer" 
+              <a
+                href="https://linkedin.com"
+                target="_blank"
+                rel="noopener noreferrer"
                 className="text-muted-foreground hover:text-primary transition-colors"
-                aria-label="Besøk HMS Nova på LinkedIn"
+                aria-label="Visit HMS Nova on LinkedIn"
               >
                 <Linkedin className="h-5 w-5" />
               </a>
-              <a 
-                href="mailto:post@hmsnova.com" 
+              <a
+                href="mailto:us@hmsnova.com"
                 className="text-muted-foreground hover:text-primary transition-colors"
-                aria-label="Send e-post til HMS Nova"
+                aria-label="Email HMS Nova"
               >
                 <Mail className="h-5 w-5" />
               </a>
             </div>
           </div>
 
-          {/* Produkt */}
           <div>
-            <h3 className="font-semibold mb-4">Produkt</h3>
+            <h3 className="font-semibold mb-4">Product</h3>
             <ul className="space-y-2 text-sm">
               <li>
-                <Link href="/#funksjoner" className="text-muted-foreground hover:text-foreground transition-colors">
-                  Funksjoner
+                <Link href="/features" className="text-muted-foreground hover:text-foreground transition-colors">
+                  Features
                 </Link>
               </li>
               <li>
-                <Link href="/priser" className="text-muted-foreground hover:text-foreground transition-colors">
-                  Priser
+                <Link href="/pricing" className="text-muted-foreground hover:text-foreground transition-colors">
+                  Pricing
                 </Link>
               </li>
               <li>
-                <Link href="/bedriftshelsetjeneste" className="text-muted-foreground hover:text-foreground transition-colors">
-                  Bedriftshelsetjeneste (BHT)
+                <Link href="/compliance" className="text-muted-foreground hover:text-foreground transition-colors">
+                  OSHA Compliance
                 </Link>
               </li>
               <li>
-                <Link href="/hms-kurs" className="text-muted-foreground hover:text-foreground transition-colors">
-                  HMS-kurs
+                <Link href="/about" className="text-muted-foreground hover:text-foreground transition-colors">
+                  About HMS Nova
                 </Link>
               </li>
               <li>
-                <Link href="/registrer-bedrift" className="text-muted-foreground hover:text-foreground transition-colors">
-                  Registrer bedrift
-                </Link>
-              </li>
-              <li>
-                <Link href="/hva-er-hms-nova" className="text-muted-foreground hover:text-foreground transition-colors">
-                  Om HMS Nova
-                </Link>
-              </li>
-              <li>
-                <Link href="/anmeldelser" className="text-muted-foreground hover:text-foreground transition-colors">
-                  Kundeomtaler
+                <Link href="/reviews" className="text-muted-foreground hover:text-foreground transition-colors">
+                  Customer Reviews
                 </Link>
               </li>
               <li>
                 <Link href="/team" className="text-muted-foreground hover:text-foreground transition-colors">
-                  Vårt team
+                  Our Team
                 </Link>
               </li>
               <li>
                 <Link href="/login" className="text-muted-foreground hover:text-foreground transition-colors">
-                  Logg inn
+                  Log In
                 </Link>
               </li>
             </ul>
           </div>
 
-          {/* Ressurser */}
           <div>
-            <h3 className="font-semibold mb-4">Ressurser</h3>
+            <h3 className="font-semibold mb-4">Resources</h3>
             <ul className="space-y-2 text-sm">
               <li>
-                <Link href="/blogg" className="text-muted-foreground hover:text-foreground transition-colors">
-                  HMS-blogg
+                <Link href="/ehs-blog" className="text-muted-foreground hover:text-foreground transition-colors">
+                  EHS Blog
                 </Link>
               </li>
               <li>
-                <Link href="/hms-handbok" className="text-muted-foreground hover:text-foreground transition-colors">
-                  Gratis HMS-håndbok
+                <Link href="/ehs-handbook" className="text-muted-foreground hover:text-foreground transition-colors">
+                  Free EHS Handbook
                 </Link>
               </li>
               <li>
-                <Link href="/risikovurdering-mal" className="text-muted-foreground hover:text-foreground transition-colors">
-                  Risikovurdering mal
+                <Link href="/risk-assessment-template" className="text-muted-foreground hover:text-foreground transition-colors">
+                  Risk Assessment Template
                 </Link>
               </li>
               <li>
-                <Link href="/vernerunde-guide" className="text-muted-foreground hover:text-foreground transition-colors">
-                  Vernerunde guide
+                <Link href="/osha-300-log-guide" className="text-muted-foreground hover:text-foreground transition-colors">
+                  OSHA 300 Log Guide
                 </Link>
               </li>
               <li>
-                <Link href="/iso-9001-sjekkliste" className="text-muted-foreground hover:text-foreground transition-colors">
-                  ISO 9001 sjekkliste
+                <Link href="/iso-45001-checklist" className="text-muted-foreground hover:text-foreground transition-colors">
+                  ISO 45001 Checklist
                 </Link>
               </li>
               <li>
-                <Link href="/hms-lover-regler" className="text-muted-foreground hover:text-foreground transition-colors">
-                  HMS lover og regler
+                <Link href="/us-ehs-laws" className="text-muted-foreground hover:text-foreground transition-colors">
+                  US EHS Laws & Regulations
                 </Link>
               </li>
             </ul>
           </div>
 
-          {/* Kontakt */}
           <div>
-            <h3 className="font-semibold mb-4">Kontakt</h3>
+            <h3 className="font-semibold mb-4">Contact</h3>
             <ul className="space-y-3 text-sm">
               <li className="flex items-start gap-2">
                 <Mail className="h-4 w-4 mt-0.5 text-muted-foreground flex-shrink-0" aria-hidden="true" />
-                <a href="mailto:post@hmsnova.no" className="text-muted-foreground hover:text-foreground transition-colors">
-                  post@hmsnova.no
+                <a href="mailto:us@hmsnova.com" className="text-muted-foreground hover:text-foreground transition-colors">
+                  us@hmsnova.com
                 </a>
               </li>
               <li className="flex items-start gap-2">
                 <Phone className="h-4 w-4 mt-0.5 text-muted-foreground flex-shrink-0" aria-hidden="true" />
                 <div className="text-muted-foreground">
-                  Kurs: <a href="tel:+4791540824" className="hover:text-foreground transition-colors" aria-label="Ring oss for HMS-kurs: +47 91 54 08 24">+47 91 54 08 24</a><br/>
-                  Software: <a href="tel:+4799112916" className="hover:text-foreground transition-colors" aria-label="Ring oss for HMS Nova software: +47 99 11 29 16">+47 99 11 29 16</a>
+                  <a href="tel:+4799112916" className="hover:text-foreground transition-colors" aria-label="Call HMS Nova">
+                    +47 99 11 29 16
+                  </a>
                 </div>
               </li>
               <li className="text-muted-foreground">
                 <strong>HMS Nova AS</strong>
               </li>
+              <li className="text-xs text-muted-foreground/70 mt-2 leading-relaxed">
+                Serving US businesses with enterprise-grade EHS software — OSHA-ready, ISO 45001-aligned.
+              </li>
             </ul>
           </div>
         </div>
 
-        {/* Bottom */}
         <div className="border-t mt-12 pt-8 flex flex-col md:flex-row justify-between items-center text-sm text-muted-foreground">
-          <p>© {new Date().getFullYear()} <a href="https://hmsnova.no" target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors">HMS Nova AS</a>. Alle rettigheter reservert.</p>
+          <p>
+            © {new Date().getFullYear()}{" "}
+            <a href="https://hmsnova.com" target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors">
+              HMS Nova AS
+            </a>
+            . All rights reserved.
+          </p>
           <div className="flex gap-6 mt-4 md:mt-0">
-            <Link href="/personvern" className="hover:text-foreground transition-colors">
-              Personvern
+            <Link href="/privacy" className="hover:text-foreground transition-colors">
+              Privacy Policy
             </Link>
-            <Link href="/vilkar" className="hover:text-foreground transition-colors">
-              Vilkår
+            <Link href="/terms" className="hover:text-foreground transition-colors">
+              Terms of Service
             </Link>
             <Link href="/cookies" className="hover:text-foreground transition-colors">
-              Cookies
+              Cookie Policy
             </Link>
           </div>
         </div>

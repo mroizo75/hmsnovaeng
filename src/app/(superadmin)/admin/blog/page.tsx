@@ -183,7 +183,7 @@ export default function AdminBlogPage() {
               </div>
 
               <div>
-                <Label htmlFor="tags">Nøkkelord / Tags (for SEO)</Label>
+                <Label htmlFor="tags">Keywords / Tags (for SEO)</Label>
                 <div className="space-y-2">
                   <div className="flex gap-2">
                     <Input
@@ -200,7 +200,7 @@ export default function AdminBlogPage() {
                           }
                         }
                       }}
-                      placeholder="Skriv inn nøkkelord og trykk Enter"
+                      placeholder="Enter keyword and press Enter"
                       disabled={submitting}
                     />
                     <Button
@@ -244,8 +244,8 @@ export default function AdminBlogPage() {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="DRAFT">Utkast</SelectItem>
-                    <SelectItem value="PUBLISHED">Publisert</SelectItem>
+                    <SelectItem value="DRAFT">Draft</SelectItem>
+                    <SelectItem value="PUBLISHED">Published</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -254,10 +254,10 @@ export default function AdminBlogPage() {
 
               <div className="flex justify-end gap-4">
                 <Button type="button" variant="outline" onClick={() => setDialogOpen(false)} disabled={submitting}>
-                  Avbryt
+                  Cancel
                 </Button>
                 <Button type="submit" disabled={submitting}>
-                  {submitting ? "Lagrer..." : "Lagre"}
+                  {submitting ? "Saving..." : "Save"}
                 </Button>
               </div>
             </form>
@@ -267,24 +267,24 @@ export default function AdminBlogPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Alle artikler ({posts.length})</CardTitle>
+          <CardTitle>All articles ({posts.length})</CardTitle>
         </CardHeader>
         <CardContent>
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Tittel</TableHead>
+                <TableHead>Title</TableHead>
                 <TableHead>Status</TableHead>
-                <TableHead>Publisert</TableHead>
-                <TableHead>Visninger</TableHead>
-                <TableHead className="text-right">Handlinger</TableHead>
+                <TableHead>Published</TableHead>
+                <TableHead>Views</TableHead>
+                <TableHead className="text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {posts.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={5} className="text-center text-muted-foreground">
-                    Ingen artikler ennå
+                    No articles yet
                   </TableCell>
                 </TableRow>
               ) : (
@@ -293,12 +293,12 @@ export default function AdminBlogPage() {
                     <TableCell className="font-medium">{post.title}</TableCell>
                     <TableCell>
                       <Badge variant={post.status === "PUBLISHED" ? "default" : "secondary"}>
-                        {post.status === "PUBLISHED" ? "Publisert" : "Utkast"}
+                        {post.status === "PUBLISHED" ? "Published" : "Draft"}
                       </Badge>
                     </TableCell>
                     <TableCell>
                       {post.publishedAt
-                        ? new Date(post.publishedAt).toLocaleDateString("nb-NO")
+                        ? new Date(post.publishedAt).toLocaleDateString("en-US")
                         : "-"}
                     </TableCell>
                     <TableCell>{post.viewCount}</TableCell>

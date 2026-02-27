@@ -29,12 +29,11 @@ export default async function GoalsPage() {
   });
 
   if (!user || user.tenants.length === 0) {
-    return <div>Du er ikke tilknyttet en tenant.</div>;
+    return <div>You are not associated with a tenant.</div>;
   }
 
   const tenantId = user.tenants[0].tenantId;
 
-  // Hent alle mål
   const goals = await prisma.goal.findMany({
     where: { tenantId },
     include: {
@@ -46,7 +45,6 @@ export default async function GoalsPage() {
     orderBy: { createdAt: "desc" },
   });
 
-  // Statistikk
   const stats = {
     total: goals.length,
     active: goals.filter((g) => g.status === "ACTIVE").length,
@@ -61,9 +59,9 @@ export default async function GoalsPage() {
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div>
-            <h1 className="text-3xl font-bold">Mål og KPIer</h1>
+            <h1 className="text-3xl font-bold">Goals and KPIs</h1>
             <p className="text-muted-foreground">
-              ISO 9001 - 6.2 Kvalitetsmål og planlegging
+              ISO 9001 - 6.2 Quality Goals and Planning
             </p>
           </div>
           <PageHelpDialog content={helpContent.goals} />
@@ -71,7 +69,7 @@ export default async function GoalsPage() {
         <Link href="/dashboard/goals/new">
           <Button>
             <Plus className="mr-2 h-4 w-4" />
-            Nytt mål
+            New Goal
           </Button>
         </Link>
       </div>
@@ -83,13 +81,13 @@ export default async function GoalsPage() {
             <Target className="h-5 w-5 text-blue-600 mt-0.5" />
             <div>
               <p className="font-medium text-blue-900 mb-2">
-                ISO 9001 - 6.2 Kvalitetsmål
+                ISO 9001 - 6.2 Quality Goals
               </p>
               <ul className="text-sm text-blue-800 space-y-1 list-disc list-inside">
-                <li>Organisasjonen skal etablere kvalitetsmål på relevante nivåer</li>
-                <li>Målene skal være målbare og overvåkbare</li>
-                <li>Målene skal være i samsvar med kvalitetspolitikken</li>
-                <li>Fremgang mot mål skal dokumenteres og kommuniseres</li>
+                <li>The organization shall establish quality goals at relevant levels</li>
+                <li>Goals shall be measurable and monitorable</li>
+                <li>Goals shall be consistent with the quality policy</li>
+                <li>Progress toward goals shall be documented and communicated</li>
               </ul>
             </div>
           </div>
@@ -100,56 +98,56 @@ export default async function GoalsPage() {
       <div className="grid gap-4 md:grid-cols-5">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Totalt</CardTitle>
+            <CardTitle className="text-sm font-medium">Total</CardTitle>
             <Target className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{stats.total}</div>
-            <p className="text-xs text-muted-foreground">mål</p>
+            <p className="text-xs text-muted-foreground">goals</p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Aktive</CardTitle>
+            <CardTitle className="text-sm font-medium">Active</CardTitle>
             <TrendingUp className="h-4 w-4 text-blue-600" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-blue-600">{stats.active}</div>
-            <p className="text-xs text-muted-foreground">pågående</p>
+            <p className="text-xs text-muted-foreground">ongoing</p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Oppnådd</CardTitle>
+            <CardTitle className="text-sm font-medium">Achieved</CardTitle>
             <CheckCircle className="h-4 w-4 text-green-600" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-green-600">{stats.achieved}</div>
-            <p className="text-xs text-muted-foreground">fullført</p>
+            <p className="text-xs text-muted-foreground">completed</p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">I risiko</CardTitle>
+            <CardTitle className="text-sm font-medium">At Risk</CardTitle>
             <AlertTriangle className="h-4 w-4 text-yellow-600" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-yellow-600">{stats.atRisk}</div>
-            <p className="text-xs text-muted-foreground">krever handling</p>
+            <p className="text-xs text-muted-foreground">requires action</p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Ikke oppnådd</CardTitle>
+            <CardTitle className="text-sm font-medium">Not Achieved</CardTitle>
             <TrendingDown className="h-4 w-4 text-red-600" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-red-600">{stats.failed}</div>
-            <p className="text-xs text-muted-foreground">avsluttet</p>
+            <p className="text-xs text-muted-foreground">closed</p>
           </CardContent>
         </Card>
       </div>
@@ -157,8 +155,8 @@ export default async function GoalsPage() {
       {/* Goals List */}
       <Card>
         <CardHeader>
-          <CardTitle>Alle mål</CardTitle>
-          <CardDescription>Oversikt over kvalitetsmål og KPIer</CardDescription>
+          <CardTitle>All Goals</CardTitle>
+          <CardDescription>Overview of quality goals and KPIs</CardDescription>
         </CardHeader>
         <CardContent>
           <GoalList goals={goals} />

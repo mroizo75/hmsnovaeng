@@ -31,24 +31,24 @@ interface SecurityControlFormProps {
 }
 
 const statusOptions: Array<{ value: SecurityControlStatus; label: string }> = [
-  { value: "PLANNED", label: "Planlagt" },
-  { value: "IN_PROGRESS", label: "Under implementering" },
-  { value: "IMPLEMENTED", label: "Implementert" },
-  { value: "LIVE", label: "I drift" },
+  { value: "PLANNED", label: "Planned" },
+  { value: "IN_PROGRESS", label: "In Implementation" },
+  { value: "IMPLEMENTED", label: "Implemented" },
+  { value: "LIVE", label: "Live" },
 ];
 
 const maturityOptions: Array<{ value: SecurityControlMaturity; label: string }> = [
   { value: "INITIAL", label: "Initial" },
-  { value: "MANAGED", label: "Styrt" },
-  { value: "DEFINED", label: "Definert" },
-  { value: "OPTIMIZED", label: "Optimalisert" },
+  { value: "MANAGED", label: "Managed" },
+  { value: "DEFINED", label: "Defined" },
+  { value: "OPTIMIZED", label: "Optimized" },
 ];
 
 const categoryOptions: Array<{ value: SecurityControlCategory; label: string }> = [
-  { value: "ORGANIZATIONAL", label: "Organisatorisk" },
-  { value: "PEOPLE", label: "Mennesker" },
-  { value: "PHYSICAL", label: "Fysisk" },
-  { value: "TECHNICAL", label: "Teknisk" },
+  { value: "ORGANIZATIONAL", label: "Organizational" },
+  { value: "PEOPLE", label: "People" },
+  { value: "PHYSICAL", label: "Physical" },
+  { value: "TECHNICAL", label: "Technical" },
 ];
 
 const NO_CONTROL_OWNER_VALUE = "__none_security_control_owner__";
@@ -97,13 +97,13 @@ export function SecurityControlForm({ users, assets, risks, documents }: Securit
       });
 
       if (result.success) {
-        toast({ title: "Kontroll registrert" });
+        toast({ title: "Control registered" });
         setOpen(false);
       } else {
         toast({
           variant: "destructive",
-          title: "Feil",
-          description: result.error || "Kunne ikke registrere kontroll",
+          title: "Error",
+          description: result.error || "Could not register control",
         });
       }
     });
@@ -114,12 +114,12 @@ export function SecurityControlForm({ users, assets, risks, documents }: Securit
       <DialogTrigger asChild>
         <Button size="sm">
           <Plus className="mr-2 h-4 w-4" />
-          Ny kontroll
+          New Control
         </Button>
       </DialogTrigger>
       <DialogContent className="max-w-3xl p-0">
         <DialogHeader>
-          <DialogTitle className="px-6 pt-6">Registrer sikkerhetskontroll</DialogTitle>
+          <DialogTitle className="px-6 pt-6">Register Security Control</DialogTitle>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
@@ -128,33 +128,33 @@ export function SecurityControlForm({ users, assets, risks, documents }: Securit
               <section className="space-y-4">
                 <div className="grid gap-4 md:grid-cols-2">
                   <div className="space-y-2">
-                    <Label htmlFor="code">Kode (Annex A)</Label>
-                    <Input id="code" name="code" placeholder="F.eks. A.5.7" required disabled={isPending} />
+                    <Label htmlFor="code">Code (Annex A)</Label>
+                    <Input id="code" name="code" placeholder="e.g. A.5.7" required disabled={isPending} />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="annexReference">Referanse</Label>
+                    <Label htmlFor="annexReference">Reference</Label>
                     <Input id="annexReference" name="annexReference" placeholder="Annex A 5.7" disabled={isPending} />
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="title">Tittel *</Label>
+                  <Label htmlFor="title">Title *</Label>
                   <Input
                     id="title"
                     name="title"
                     required
                     disabled={isPending}
-                    placeholder="F.eks. Informasjonssikkerhet i prosjekter"
+                    placeholder="e.g. Information security in projects"
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="requirement">Krav / beskrivelse</Label>
+                  <Label htmlFor="requirement">Requirement / Description</Label>
                   <Textarea id="requirement" name="requirement" rows={3} disabled={isPending} />
                 </div>
               </section>
 
               <section className="grid gap-4 md:grid-cols-3">
                 <div className="space-y-2">
-                  <Label>Kategori</Label>
+                  <Label>Category</Label>
                   <Select name="category" defaultValue="ORGANIZATIONAL" disabled={isPending}>
                     <SelectTrigger>
                       <SelectValue />
@@ -184,7 +184,7 @@ export function SecurityControlForm({ users, assets, risks, documents }: Securit
                   </Select>
                 </div>
                 <div className="space-y-2">
-                  <Label>Modenhet</Label>
+                  <Label>Maturity</Label>
                   <Select name="maturity" defaultValue="INITIAL" disabled={isPending}>
                     <SelectTrigger>
                       <SelectValue />
@@ -202,13 +202,13 @@ export function SecurityControlForm({ users, assets, risks, documents }: Securit
 
               <section className="grid gap-4 md:grid-cols-2">
                 <div className="space-y-2">
-                  <Label>Kontrolleier</Label>
+                  <Label>Control Owner</Label>
                   <Select name="ownerId" disabled={isPending}>
                     <SelectTrigger>
-                      <SelectValue placeholder="Velg ansvarlig (valgfritt)" />
+                      <SelectValue placeholder="Select responsible (optional)" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value={NO_CONTROL_OWNER_VALUE}>Ingen</SelectItem>
+                      <SelectItem value={NO_CONTROL_OWNER_VALUE}>None</SelectItem>
                       {users.map((user) => (
                         <SelectItem key={user.id} value={user.id}>
                           {user.name || user.email}
@@ -218,13 +218,13 @@ export function SecurityControlForm({ users, assets, risks, documents }: Securit
                   </Select>
                 </div>
                 <div className="space-y-2">
-                  <Label>Dokumentasjon</Label>
+                  <Label>Documentation</Label>
                   <Select name="documentId" disabled={isPending || documents.length === 0}>
                     <SelectTrigger>
-                      <SelectValue placeholder={documents.length ? "Velg dokument (valgfritt)" : "Ingen dokumenter"} />
+                      <SelectValue placeholder={documents.length ? "Select document (optional)" : "No documents"} />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value={NO_CONTROL_DOCUMENT_VALUE}>Ingen</SelectItem>
+                      <SelectItem value={NO_CONTROL_DOCUMENT_VALUE}>None</SelectItem>
                       {documents.map((doc) => (
                         <SelectItem key={doc.id} value={doc.id}>
                           {doc.title}
@@ -237,13 +237,13 @@ export function SecurityControlForm({ users, assets, risks, documents }: Securit
 
               <section className="grid gap-4 md:grid-cols-2">
                 <div className="space-y-2">
-                  <Label>Koblet sikkerhetsobjekt</Label>
+                  <Label>Linked Security Asset</Label>
                   <Select name="linkedAssetId" disabled={isPending || assets.length === 0}>
                     <SelectTrigger>
-                      <SelectValue placeholder={assets.length ? "Velg objekt" : "Ingen objekt"} />
+                      <SelectValue placeholder={assets.length ? "Select asset" : "No assets"} />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value={NO_CONTROL_ASSET_VALUE}>Ingen</SelectItem>
+                      <SelectItem value={NO_CONTROL_ASSET_VALUE}>None</SelectItem>
                       {assets.map((asset) => (
                         <SelectItem key={asset.id} value={asset.id}>
                           {asset.name}
@@ -253,13 +253,13 @@ export function SecurityControlForm({ users, assets, risks, documents }: Securit
                   </Select>
                 </div>
                 <div className="space-y-2">
-                  <Label>Koblet risiko</Label>
+                  <Label>Linked Risk</Label>
                   <Select name="linkedRiskId" disabled={isPending || risks.length === 0}>
                     <SelectTrigger>
-                      <SelectValue placeholder={risks.length ? "Velg risiko" : "Ingen risiko"} />
+                      <SelectValue placeholder={risks.length ? "Select risk" : "No risks"} />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value={NO_CONTROL_RISK_VALUE}>Ingen</SelectItem>
+                      <SelectItem value={NO_CONTROL_RISK_VALUE}>None</SelectItem>
                       {risks.map((risk) => (
                         <SelectItem key={risk.id} value={risk.id}>
                           {risk.title}
@@ -272,22 +272,22 @@ export function SecurityControlForm({ users, assets, risks, documents }: Securit
 
               <section className="grid gap-4 md:grid-cols-2">
                 <div className="space-y-2">
-                  <Label htmlFor="nextReviewDate">Neste gjennomgang</Label>
+                  <Label htmlFor="nextReviewDate">Next Review Date</Label>
                   <Input id="nextReviewDate" name="nextReviewDate" type="date" disabled={isPending} />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="lastTestDate">Sist testet</Label>
+                  <Label htmlFor="lastTestDate">Last Test Date</Label>
                   <Input id="lastTestDate" name="lastTestDate" type="date" disabled={isPending} />
                 </div>
               </section>
 
               <section className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="implementationNote">Implementering</Label>
+                  <Label htmlFor="implementationNote">Implementation Notes</Label>
                   <Textarea id="implementationNote" name="implementationNote" rows={3} disabled={isPending} />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="monitoring">Overvåking/Test</Label>
+                  <Label htmlFor="monitoring">Monitoring / Testing</Label>
                   <Textarea id="monitoring" name="monitoring" rows={3} disabled={isPending} />
                 </div>
               </section>
@@ -296,10 +296,10 @@ export function SecurityControlForm({ users, assets, risks, documents }: Securit
 
           <div className="flex justify-end gap-2 border-t px-6 pb-6 pt-4">
             <Button type="button" variant="outline" onClick={() => setOpen(false)} disabled={isPending}>
-              Avbryt
+              Cancel
             </Button>
             <Button type="submit" disabled={isPending}>
-              {isPending ? "Lagrer..." : "Lagre kontroll"}
+              {isPending ? "Saving..." : "Save Control"}
             </Button>
           </div>
         </form>
@@ -307,4 +307,3 @@ export function SecurityControlForm({ users, assets, risks, documents }: Securit
     </Dialog>
   );
 }
-

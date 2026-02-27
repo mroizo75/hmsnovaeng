@@ -37,9 +37,9 @@ export function GoalProgressCard({ goal }: GoalProgressCardProps) {
           <div>
             <CardTitle className="flex items-center gap-2">
               <Target className="h-5 w-5" />
-              Fremgang
+              Progress
             </CardTitle>
-            <CardDescription>Måling av måloppnåelse</CardDescription>
+            <CardDescription>Measuring goal achievement</CardDescription>
           </div>
           <Badge className={statusColor}>{statusLabel}</Badge>
         </div>
@@ -48,7 +48,7 @@ export function GoalProgressCard({ goal }: GoalProgressCardProps) {
         {/* Progress bar */}
         <div className="space-y-2">
           <div className="flex items-center justify-between">
-            <span className="text-sm font-medium">Fremgang</span>
+            <span className="text-sm font-medium">Progress</span>
             <span className="text-2xl font-bold">{progress}%</span>
           </div>
           <Progress value={Math.min(progress, 100)} className="h-3" />
@@ -66,7 +66,7 @@ export function GoalProgressCard({ goal }: GoalProgressCardProps) {
           )}
 
           <div>
-            <p className="text-sm text-muted-foreground">Nåværende</p>
+            <p className="text-sm text-muted-foreground">Current</p>
             <div className="flex items-center gap-2">
               <p className="text-lg font-semibold text-primary">
                 {goal.currentValue?.toFixed(1) || 0} {goal.unit || ""}
@@ -82,7 +82,7 @@ export function GoalProgressCard({ goal }: GoalProgressCardProps) {
           </div>
 
           <div>
-            <p className="text-sm text-muted-foreground">Mål</p>
+            <p className="text-sm text-muted-foreground">Target</p>
             <p className="text-lg font-semibold">
               {goal.targetValue?.toFixed(1) || 0} {goal.unit || ""}
             </p>
@@ -93,9 +93,9 @@ export function GoalProgressCard({ goal }: GoalProgressCardProps) {
         {goal.deadline && (
           <div className="flex items-center gap-2 text-sm">
             <Calendar className="h-4 w-4 text-muted-foreground" />
-            <span className="text-muted-foreground">Frist:</span>
+            <span className="text-muted-foreground">Deadline:</span>
             <span className="font-medium">
-              {new Date(goal.deadline).toLocaleDateString("nb-NO")}
+              {new Date(goal.deadline).toLocaleDateString("en-US")}
             </span>
             {daysToDeadline !== null && (
               <Badge
@@ -103,8 +103,8 @@ export function GoalProgressCard({ goal }: GoalProgressCardProps) {
                 className="ml-2"
               >
                 {daysToDeadline > 0
-                  ? `${daysToDeadline} dager igjen`
-                  : `${Math.abs(daysToDeadline)} dager over frist`}
+                  ? `${daysToDeadline} days remaining`
+                  : `${Math.abs(daysToDeadline)} days overdue`}
               </Badge>
             )}
           </div>
@@ -115,25 +115,25 @@ export function GoalProgressCard({ goal }: GoalProgressCardProps) {
           {goal.status === "ACHIEVED" && (
             <div className="flex items-center gap-2 text-sm text-green-600">
               <TrendingUp className="h-4 w-4" />
-              <span className="font-medium">Målet er oppnådd! 🎉</span>
+              <span className="font-medium">Goal achieved! 🎉</span>
             </div>
           )}
           {goal.status === "AT_RISK" && (
             <div className="flex items-center gap-2 text-sm text-yellow-600">
               <TrendingDown className="h-4 w-4" />
-              <span className="font-medium">Målet er i risiko - handling kreves</span>
+              <span className="font-medium">Goal is at risk – action required</span>
             </div>
           )}
           {goal.status === "FAILED" && (
             <div className="flex items-center gap-2 text-sm text-red-600">
               <TrendingDown className="h-4 w-4" />
-              <span className="font-medium">Målet ble ikke oppnådd</span>
+              <span className="font-medium">Goal was not achieved</span>
             </div>
           )}
           {goal.status === "ACTIVE" && progress >= 75 && (
             <div className="flex items-center gap-2 text-sm text-blue-600">
               <TrendingUp className="h-4 w-4" />
-              <span className="font-medium">På god vei mot målet!</span>
+              <span className="font-medium">On track toward the goal!</span>
             </div>
           )}
         </div>

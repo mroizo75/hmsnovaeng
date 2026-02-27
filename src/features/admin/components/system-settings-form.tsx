@@ -107,7 +107,7 @@ export function SystemSettingsForm() {
         <div className="space-y-0.5">
           <Label>Selvregistrering</Label>
           <p className="text-sm text-muted-foreground">
-            Tillat nye bedrifter å registrere seg selv
+            Allow new companies to register themselves
           </p>
         </div>
         <Button

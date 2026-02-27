@@ -14,7 +14,7 @@ export default async function AnsattSkjemaer() {
     redirect("/login");
   }
 
-  // Hent brukerens rolle
+  // Fetch user role
   const userTenant = await prisma.userTenant.findUnique({
     where: {
       userId_tenantId: {
@@ -30,7 +30,7 @@ export default async function AnsattSkjemaer() {
   const userRole = userTenant?.role || "ANSATT";
   const userId = session.user.id;
 
-  // Hent alle aktive skjemaer (inkl. globale)
+  // Fetch all active forms (including global ones)
   const allForms = await prisma.formTemplate.findMany({
     where: {
       OR: [
@@ -51,7 +51,7 @@ export default async function AnsattSkjemaer() {
     },
   });
 
-  // Filtrer basert på tilgangskontroll
+  // Filter based on access control
   const forms = allForms.filter((form) => {
     if (form.accessType === "ALL") {
       return true;
@@ -94,21 +94,21 @@ export default async function AnsattSkjemaer() {
       <div>
         <h1 className="text-2xl font-bold mb-2 flex items-center gap-2">
           <ClipboardList className="h-7 w-7 text-green-600" />
-          Digitale skjemaer
+          Digital Forms
         </h1>
         <p className="text-muted-foreground">
-          Fyll ut og signer skjemaer digitalt
+          Fill out and sign forms digitally
         </p>
       </div>
 
-      {/* Skjemaliste */}
+      {/* Form list */}
       <div className="space-y-3">
         {forms.length === 0 ? (
           <Card>
             <CardContent className="text-center py-12">
               <ClipboardList className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
               <p className="text-muted-foreground">
-                Ingen skjemaer tilgjengelig for øyeblikket
+                No forms available at this time
               </p>
             </CardContent>
           </Card>
@@ -139,18 +139,18 @@ export default async function AnsattSkjemaer() {
                         </Badge>
                         
                         <span className="flex items-center gap-1">
-                          {form._count.fields} felt
+                          {form._count.fields} fields
                         </span>
 
                         {form.requiresSignature && (
                           <Badge variant="secondary" className="text-xs">
-                            ✍️ Krever signatur
+                            ✍️ Requires signature
                           </Badge>
                         )}
 
                         {form.requiresApproval && (
                           <Badge variant="secondary" className="text-xs">
-                            ✅ Krever godkjenning
+                            ✅ Requires approval
                           </Badge>
                         )}
                       </div>
@@ -167,8 +167,8 @@ export default async function AnsattSkjemaer() {
       <Card className="border-l-4 border-l-green-500 bg-green-50">
         <CardContent className="p-4">
           <p className="text-sm text-green-900">
-            <strong>💡 Tips:</strong> Trykk på et skjema for å fylle det ut. 
-            Hvis skjemaet krever signatur, vil du kunne signere digitalt på slutten.
+            <strong>💡 Tips:</strong> Tap a form to fill it out.
+            If the form requires a signature, you will be able to sign digitally at the end.
           </p>
         </CardContent>
       </Card>
@@ -178,16 +178,15 @@ export default async function AnsattSkjemaer() {
 
 function getCategoryLabel(category: string): string {
   const labels: Record<string, string> = {
-    CUSTOM: "Egendefinert",
-    MEETING: "Møtereferat",
-    INSPECTION: "Inspeksjon",
-    INCIDENT: "Hendelsesrapport",
-    RISK: "Risikovurdering",
-    TRAINING: "Opplæring",
-    CHECKLIST: "Sjekkliste",
-    TIMESHEET: "Timeliste",
-    WELLBEING: "Psykososialt arbeidsmiljø",
+    CUSTOM: "Custom",
+    MEETING: "Meeting minutes",
+    INSPECTION: "Inspection",
+    INCIDENT: "Incident report",
+    RISK: "Risk assessment",
+    TRAINING: "Training",
+    CHECKLIST: "Checklist",
+    TIMESHEET: "Timesheet",
+    WELLBEING: "Psychosocial work environment",
   };
   return labels[category] || category;
 }
-

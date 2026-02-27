@@ -20,7 +20,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { ClipboardCheck, Trash2, Eye, Search, Filter, AlertTriangle } from "lucide-react";
+import { ClipboardCheck, Trash2, Eye, Search, Filter } from "lucide-react";
 import Link from "next/link";
 import { deleteAudit } from "@/server/actions/audit.actions";
 import { useToast } from "@/hooks/use-toast";
@@ -45,7 +45,7 @@ export function AuditList({ audits }: AuditListProps) {
   const [typeFilter, setTypeFilter] = useState<string>("all");
 
   const handleDelete = async (id: string, title: string) => {
-    if (!confirm(`Er du sikker på at du vil slette revisjonen "${title}"?\n\nDette kan ikke angres.`)) {
+    if (!confirm(`Are you sure you want to delete "${title}"?\n\nThis cannot be undone.`)) {
       return;
     }
 
@@ -53,21 +53,20 @@ export function AuditList({ audits }: AuditListProps) {
     const result = await deleteAudit(id);
     if (result.success) {
       toast({
-        title: "🗑️ Revisjon slettet",
-        description: `"${title}" er permanent fjernet`,
+        title: "🗑️ Audit deleted",
+        description: `"${title}" has been permanently removed`,
       });
       router.refresh();
     } else {
       toast({
         variant: "destructive",
-        title: "Sletting feilet",
-        description: result.error || "Kunne ikke slette revisjon",
+        title: "Delete failed",
+        description: result.error || "Could not delete audit",
       });
     }
     setLoading(null);
   };
 
-  // Filtering
   const filteredAudits = audits.filter((audit) => {
     const matchesSearch =
       audit.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -86,14 +85,14 @@ export function AuditList({ audits }: AuditListProps) {
     return (
       <div className="flex flex-col items-center justify-center rounded-lg border border-dashed p-12 text-center">
         <ClipboardCheck className="mb-4 h-12 w-12 text-muted-foreground" />
-        <h3 className="text-xl font-semibold">Ingen revisjoner funnet</h3>
+        <h3 className="text-xl font-semibold">No audits found</h3>
         <p className="mb-4 text-muted-foreground">
-          Start med å planlegge din første internrevisjon.
+          Start by planning your first internal audit.
         </p>
         <Link href="/dashboard/audits/new">
           <Button>
             <ClipboardCheck className="mr-2 h-4 w-4" />
-            Planlegg revisjon
+            Plan audit
           </Button>
         </Link>
       </div>
@@ -102,12 +101,11 @@ export function AuditList({ audits }: AuditListProps) {
 
   return (
     <div className="space-y-4">
-      {/* Filters */}
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div className="relative flex-1 max-w-sm">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input
-            placeholder="Søk etter tittel, område eller avdeling..."
+            placeholder="Search by title, area or department..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="pl-10"
@@ -121,11 +119,11 @@ export function AuditList({ audits }: AuditListProps) {
               <SelectValue placeholder="Status" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">Alle statuser</SelectItem>
-              <SelectItem value="PLANNED">Planlagt</SelectItem>
-              <SelectItem value="IN_PROGRESS">Pågår</SelectItem>
-              <SelectItem value="COMPLETED">Fullført</SelectItem>
-              <SelectItem value="CANCELLED">Avbrutt</SelectItem>
+              <SelectItem value="all">All statuses</SelectItem>
+              <SelectItem value="PLANNED">Planned</SelectItem>
+              <SelectItem value="IN_PROGRESS">In Progress</SelectItem>
+              <SelectItem value="COMPLETED">Completed</SelectItem>
+              <SelectItem value="CANCELLED">Cancelled</SelectItem>
             </SelectContent>
           </Select>
 
@@ -134,39 +132,37 @@ export function AuditList({ audits }: AuditListProps) {
               <SelectValue placeholder="Type" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">Alle typer</SelectItem>
-              <SelectItem value="INTERNAL">Internrevisjon</SelectItem>
-              <SelectItem value="EXTERNAL">Ekstern revisjon</SelectItem>
-              <SelectItem value="SUPPLIER">Leverandørrevisjon</SelectItem>
-              <SelectItem value="CERTIFICATION">Sertifiseringsrevisjon</SelectItem>
+              <SelectItem value="all">All types</SelectItem>
+              <SelectItem value="INTERNAL">Internal Audit</SelectItem>
+              <SelectItem value="EXTERNAL">External Audit</SelectItem>
+              <SelectItem value="SUPPLIER">Supplier Audit</SelectItem>
+              <SelectItem value="CERTIFICATION">Certification Audit</SelectItem>
             </SelectContent>
           </Select>
         </div>
       </div>
 
-      {/* Results count */}
       <div className="text-sm text-muted-foreground">
-        Viser {filteredAudits.length} av {audits.length} revisjoner
+        Showing {filteredAudits.length} of {audits.length} audits
       </div>
 
-      {/* Table */}
       <div className="rounded-md border">
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Tittel</TableHead>
+              <TableHead>Title</TableHead>
               <TableHead>Type</TableHead>
-              <TableHead>Planlagt</TableHead>
+              <TableHead>Scheduled</TableHead>
               <TableHead>Status</TableHead>
-              <TableHead className="text-center">Funn</TableHead>
-              <TableHead className="text-right">Handlinger</TableHead>
+              <TableHead className="text-center">Findings</TableHead>
+              <TableHead className="text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {filteredAudits.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={6} className="text-center text-muted-foreground">
-                  Ingen revisjoner funnet
+                  No audits found
                 </TableCell>
               </TableRow>
             ) : (
@@ -195,7 +191,7 @@ export function AuditList({ audits }: AuditListProps) {
                       <Badge className={typeColor}>{typeLabel}</Badge>
                     </TableCell>
                     <TableCell>
-                      {new Date(audit.scheduledDate).toLocaleDateString("nb-NO")}
+                      {new Date(audit.scheduledDate).toLocaleDateString("en-US")}
                     </TableCell>
                     <TableCell>
                       <Badge className={statusColor}>{statusLabel}</Badge>
@@ -208,12 +204,12 @@ export function AuditList({ audits }: AuditListProps) {
                             <div className="flex gap-1 text-xs">
                               {majorNCs > 0 && (
                                 <Badge variant="destructive" className="text-xs px-1 py-0">
-                                  {majorNCs} større
+                                  {majorNCs} major
                                 </Badge>
                               )}
                               {minorNCs > 0 && (
                                 <Badge className="bg-orange-100 text-orange-800 border-orange-300 text-xs px-1 py-0">
-                                  {minorNCs} mindre
+                                  {minorNCs} minor
                                 </Badge>
                               )}
                             </div>
@@ -248,4 +244,3 @@ export function AuditList({ audits }: AuditListProps) {
     </div>
   );
 }
-

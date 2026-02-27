@@ -28,10 +28,10 @@ import { format } from "date-fns";
 import { nb } from "date-fns/locale";
 
 const relationLabels: Record<RiskAuditRelation, string> = {
-  CONTROL_TEST: "Kontrolltest",
-  FOLLOW_UP: "Oppfølging",
-  OBSERVATION: "Observasjon",
-  OTHER: "Annet",
+  CONTROL_TEST: "Control Test",
+  FOLLOW_UP: "Follow-up",
+  OBSERVATION: "Observation",
+  OTHER: "Other",
 };
 
 interface RiskAuditLinksProps {
@@ -66,13 +66,13 @@ export function RiskAuditLinks({ riskId, audits, links }: RiskAuditLinksProps) {
       if (!result.success) {
         toast({
           variant: "destructive",
-          title: "Feil",
-          description: result.error || "Kunne ikke koble revisjon",
+          title: "Error",
+          description: result.error || "Could not link audit",
         });
       } else {
         toast({
-          title: "Revisjon koblet",
-          description: "Revisjonen er nå knyttet til risikoregisteret",
+          title: "Audit linked",
+          description: "The audit is now linked to the risk register",
         });
         setSummary("");
       }
@@ -85,13 +85,13 @@ export function RiskAuditLinks({ riskId, audits, links }: RiskAuditLinksProps) {
       if (!result.success) {
         toast({
           variant: "destructive",
-          title: "Feil",
-          description: result.error || "Kunne ikke fjerne kobling",
+          title: "Error",
+          description: result.error || "Could not remove link",
         });
       } else {
         toast({
-          title: "Kobling fjernet",
-          description: "Revisjonen er fjernet fra denne risikoen",
+          title: "Link removed",
+          description: "The audit has been removed from this risk",
         });
       }
     });
@@ -101,14 +101,14 @@ export function RiskAuditLinks({ riskId, audits, links }: RiskAuditLinksProps) {
     <div className="space-y-4">
       <form onSubmit={handleAdd} className="grid gap-4 md:grid-cols-3">
         <div className="space-y-2">
-          <Label>Revisjon</Label>
+          <Label>Audit</Label>
           <Select
             value={selectedAudit}
             onValueChange={setSelectedAudit}
             disabled={isPending || audits.length === 0}
           >
             <SelectTrigger>
-              <SelectValue placeholder={audits.length ? "Velg revisjon" : "Ingen revisjoner"} />
+              <SelectValue placeholder={audits.length ? "Select audit" : "No audits available"} />
             </SelectTrigger>
             <SelectContent>
               {audits.map((audit) => (
@@ -120,7 +120,7 @@ export function RiskAuditLinks({ riskId, audits, links }: RiskAuditLinksProps) {
           </Select>
         </div>
         <div className="space-y-2">
-          <Label>Relasjon</Label>
+          <Label>Relation</Label>
           <Select value={relation} onValueChange={(value: RiskAuditRelation) => setRelation(value)} disabled={isPending}>
             <SelectTrigger>
               <SelectValue />
@@ -135,32 +135,32 @@ export function RiskAuditLinks({ riskId, audits, links }: RiskAuditLinksProps) {
           </Select>
         </div>
         <div className="space-y-2">
-          <Label>Oppsummering</Label>
+          <Label>Summary</Label>
           <Input
             value={summary}
             onChange={(event) => setSummary(event.target.value)}
-            placeholder="Kort funn/observasjon"
+            placeholder="Brief finding/observation"
             disabled={isPending}
           />
         </div>
         <div className="md:col-span-3 flex justify-end">
           <Button type="submit" disabled={isPending || !selectedAudit}>
-            {isPending ? "Kobler..." : "Koble revisjon"}
+            {isPending ? "Linking..." : "Link audit"}
           </Button>
         </div>
       </form>
 
       {links.length === 0 ? (
-        <p className="text-sm text-muted-foreground">Ingen revisjoner er koblet til denne risikoen.</p>
+        <p className="text-sm text-muted-foreground">No audits are linked to this risk.</p>
       ) : (
         <div className="rounded-lg border">
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Revisjon</TableHead>
-                <TableHead>Relasjon</TableHead>
-                <TableHead>Oppsummering</TableHead>
-                <TableHead className="text-right">Handling</TableHead>
+                <TableHead>Audit</TableHead>
+                <TableHead>Relation</TableHead>
+                <TableHead>Summary</TableHead>
+                <TableHead className="text-right">Action</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -181,7 +181,7 @@ export function RiskAuditLinks({ riskId, audits, links }: RiskAuditLinksProps) {
                     <Badge variant="outline">{relationLabels[link.relation]}</Badge>
                   </TableCell>
                   <TableCell className="text-sm text-muted-foreground">
-                    {link.summary ? link.summary : <span className="text-xs text-muted-foreground">Ingen</span>}
+                    {link.summary ? link.summary : <span className="text-xs text-muted-foreground">None</span>}
                   </TableCell>
                   <TableCell className="text-right">
                     <Button
@@ -202,4 +202,3 @@ export function RiskAuditLinks({ riskId, audits, links }: RiskAuditLinksProps) {
     </div>
   );
 }
-

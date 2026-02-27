@@ -23,7 +23,7 @@ export default async function ActionsPage() {
   });
 
   if (!user || user.tenants.length === 0) {
-    return <div>Ingen tilgang til tenant</div>;
+    return <div>No tenant access</div>;
   }
 
   const tenantId = user.tenants[0].tenantId;
@@ -66,9 +66,9 @@ export default async function ActionsPage() {
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div>
-            <h1 className="text-3xl font-bold">Tiltak</h1>
+            <h1 className="text-3xl font-bold">Actions</h1>
             <p className="text-muted-foreground">
-              ISO 9001: Planlagte tiltak med ansvarlige og tidsplaner
+              ISO 9001: Planned actions with responsible parties and timelines
             </p>
           </div>
           <PageHelpDialog content={helpContent.actions} />
@@ -79,18 +79,18 @@ export default async function ActionsPage() {
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Totalt</CardTitle>
+            <CardTitle className="text-sm font-medium">Total</CardTitle>
             <ListTodo className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{stats.total}</div>
-            <p className="text-xs text-muted-foreground">Registrerte tiltak</p>
+            <p className="text-xs text-muted-foreground">Registered actions</p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Pågående</CardTitle>
+            <CardTitle className="text-sm font-medium">In Progress</CardTitle>
             <Clock className="h-4 w-4 text-blue-600" />
           </CardHeader>
           <CardContent>
@@ -98,37 +98,37 @@ export default async function ActionsPage() {
               {stats.pending + stats.inProgress}
             </div>
             <p className="text-xs text-muted-foreground">
-              {stats.pending} ikke startet, {stats.inProgress} pågår
+              {stats.pending} not started, {stats.inProgress} in progress
             </p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Fullført</CardTitle>
+            <CardTitle className="text-sm font-medium">Completed</CardTitle>
             <CheckCircle className="h-4 w-4 text-green-600" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-green-600">{stats.done}</div>
-            <p className="text-xs text-muted-foreground">Gjennomførte tiltak</p>
+            <p className="text-xs text-muted-foreground">Completed actions</p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Forfalte</CardTitle>
+            <CardTitle className="text-sm font-medium">Overdue</CardTitle>
             <AlertTriangle className="h-4 w-4 text-red-600" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-red-600">{stats.overdue}</div>
-            <p className="text-xs text-muted-foreground">Krever oppfølging</p>
+            <p className="text-xs text-muted-foreground">Requires follow-up</p>
           </CardContent>
         </Card>
       </div>
 
       <Card>
         <CardHeader>
-          <CardTitle>Alle tiltak</CardTitle>
+          <CardTitle>All Actions</CardTitle>
         </CardHeader>
         <CardContent>
           <MeasureList measures={measures} />
@@ -136,24 +136,24 @@ export default async function ActionsPage() {
       </Card>
 
       <div className="rounded-lg bg-blue-50 border border-blue-200 p-6">
-        <h3 className="font-semibold text-blue-900 mb-3">📋 ISO 9001 Krav til tiltak</h3>
+        <h3 className="font-semibold text-blue-900 mb-3">📋 ISO 9001 Requirements for Actions</h3>
         <div className="grid md:grid-cols-2 gap-4 text-sm text-blue-800">
           <div>
-            <h4 className="font-medium mb-2">Planlegging:</h4>
+            <h4 className="font-medium mb-2">Planning:</h4>
             <ul className="space-y-1 list-disc list-inside">
-              <li>Alle risikoer skal ha planlagte tiltak</li>
-              <li>Tiltak må ha tydelig beskrivelse</li>
-              <li>Ansvarlig person må være definert</li>
-              <li>Tidsplan/frist må være realistisk</li>
+              <li>All risks must have planned actions</li>
+              <li>Actions must have a clear description</li>
+              <li>Responsible person must be defined</li>
+              <li>Timeline/deadline must be realistic</li>
             </ul>
           </div>
           <div>
-            <h4 className="font-medium mb-2">Oppfølging:</h4>
+            <h4 className="font-medium mb-2">Follow-up:</h4>
             <ul className="space-y-1 list-disc list-inside">
-              <li>Tiltak må følges opp jevnlig</li>
-              <li>Status må oppdateres underveis</li>
-              <li>Tiltak må evalueres når fullført</li>
-              <li>Dokumentasjon må oppbevares</li>
+              <li>Actions must be followed up regularly</li>
+              <li>Status must be updated continuously</li>
+              <li>Actions must be evaluated when completed</li>
+              <li>Documentation must be retained</li>
             </ul>
           </div>
         </div>

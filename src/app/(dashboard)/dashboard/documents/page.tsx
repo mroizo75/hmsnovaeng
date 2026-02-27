@@ -1,7 +1,7 @@
 import { getCurrentUser } from "@/lib/server-action";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/db";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { DocumentList } from "@/features/documents/components/document-list";
 import Link from "next/link";
@@ -16,10 +16,9 @@ export default async function DocumentsPage() {
     redirect("/login");
   }
 
-  // Hent første tenant (senere: la bruker velge)
   const userTenant = user.tenants[0];
   if (!userTenant) {
-    return <div>Ingen tilgang til tenant</div>;
+    return <div>No tenant access</div>;
   }
 
   const documents = await prisma.document.findMany({
@@ -47,9 +46,9 @@ export default async function DocumentsPage() {
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div>
-            <h1 className="text-3xl font-bold">Dokumenter</h1>
+            <h1 className="text-3xl font-bold">Documents</h1>
             <p className="text-muted-foreground">
-              Administrer lover, prosedyrer, sjekklister og mer
+              Manage policies, procedures, checklists, and more
             </p>
           </div>
           <PageHelpDialog content={helpContent.documents} />
@@ -57,7 +56,7 @@ export default async function DocumentsPage() {
         <Button asChild>
           <Link href="/dashboard/documents/new">
             <Plus className="mr-2 h-4 w-4" />
-            Nytt dokument
+            New Document
           </Link>
         </Button>
       </div>
@@ -65,7 +64,7 @@ export default async function DocumentsPage() {
       <div className="grid gap-4 md:grid-cols-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Totalt</CardTitle>
+            <CardTitle className="text-sm font-medium">Total</CardTitle>
             <FileText className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -74,7 +73,7 @@ export default async function DocumentsPage() {
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Utkast</CardTitle>
+            <CardTitle className="text-sm font-medium">Draft</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{stats.draft}</div>
@@ -82,7 +81,7 @@ export default async function DocumentsPage() {
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Godkjent</CardTitle>
+            <CardTitle className="text-sm font-medium">Approved</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-green-600">{stats.approved}</div>
@@ -90,7 +89,7 @@ export default async function DocumentsPage() {
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Arkivert</CardTitle>
+            <CardTitle className="text-sm font-medium">Archived</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{stats.archived}</div>
@@ -98,7 +97,7 @@ export default async function DocumentsPage() {
         </Card>
       </div>
 
-      <DocumentList documents={documents} tenantId={userTenant.tenantId} currentUserId={user.id} />
+      <DocumentList documents={documents} currentUserRole={userTenant.role} currentUserId={user.id} />
     </div>
   );
 }

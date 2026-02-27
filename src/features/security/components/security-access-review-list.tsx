@@ -19,7 +19,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useTransition } from "react";
 import type { AccessDecision, AccessReviewStatus } from "@prisma/client";
 import { format } from "date-fns";
-import { nb } from "date-fns/locale";
+import { enUS } from "date-fns/locale";
 
 interface AccessReviewListProps {
   reviews: Array<{
@@ -40,9 +40,9 @@ interface AccessReviewListProps {
 }
 
 const decisionLabels: Record<AccessDecision, string> = {
-  REVIEW: "Til vurdering",
-  APPROVED: "Ok",
-  REVOKED: "Fjernes",
+  REVIEW: "Under Review",
+  APPROVED: "Approved",
+  REVOKED: "Revoked",
 };
 
 const statusVariant: Record<AccessReviewStatus, string> = {
@@ -69,11 +69,11 @@ export function SecurityAccessReviewList({ reviews }: AccessReviewListProps) {
       if (!result.success) {
         toast({
           variant: "destructive",
-          title: "Feil",
-          description: result.error || "Kunne ikke lagre vurdering",
+          title: "Error",
+          description: result.error || "Could not save review",
         });
       } else {
-        toast({ title: "Vurdering lagret" });
+        toast({ title: "Review saved" });
       }
     });
   };
@@ -84,11 +84,11 @@ export function SecurityAccessReviewList({ reviews }: AccessReviewListProps) {
       if (!result.success) {
         toast({
           variant: "destructive",
-          title: "Feil",
-          description: result.error || "Kunne ikke fullføre gjennomgangen",
+          title: "Error",
+          description: result.error || "Could not complete the review",
         });
       } else {
-        toast({ title: "Tilgangsgjennomgang fullført" });
+        toast({ title: "Access review completed" });
       }
     });
   };
@@ -96,7 +96,7 @@ export function SecurityAccessReviewList({ reviews }: AccessReviewListProps) {
   if (reviews.length === 0) {
     return (
       <div className="rounded-lg border border-dashed p-6 text-center text-sm text-muted-foreground">
-        Ingen tilgangsgjennomganger opprettet.
+        No access reviews created.
       </div>
     );
   }
@@ -109,19 +109,19 @@ export function SecurityAccessReviewList({ reviews }: AccessReviewListProps) {
             <div>
               <p className="text-lg font-semibold">{review.title}</p>
               <p className="text-sm text-muted-foreground">
-                {review.systemName} • Eier: {review.owner?.name || review.owner?.email || "Ikke satt"}
+                {review.systemName} • Owner: {review.owner?.name || review.owner?.email || "Not set"}
               </p>
             </div>
             <div className="flex items-center gap-3">
               {review.dueDate && (
                 <p className="text-sm text-muted-foreground">
-                  Frist {format(review.dueDate, "dd. MMM yyyy", { locale: nb })}
+                  Due {format(review.dueDate, "MMM d, yyyy", { locale: enUS })}
                 </p>
               )}
               <Badge className={statusVariant[review.status]}>{review.status}</Badge>
               {review.status !== "COMPLETED" && (
                 <Button variant="outline" size="sm" onClick={() => handleComplete(review.id)} disabled={isPending}>
-                  Marker som fullført
+                  Mark as Complete
                 </Button>
               )}
             </div>
@@ -130,9 +130,9 @@ export function SecurityAccessReviewList({ reviews }: AccessReviewListProps) {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Bruker</TableHead>
-                <TableHead>Rolle</TableHead>
-                <TableHead>Beslutning</TableHead>
+                <TableHead>User</TableHead>
+                <TableHead>Role</TableHead>
+                <TableHead>Decision</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -161,11 +161,11 @@ export function SecurityAccessReviewList({ reviews }: AccessReviewListProps) {
               }}
             >
               <div className="space-y-2">
-                <Label htmlFor={`userName-${review.id}`}>Navn *</Label>
+                <Label htmlFor={`userName-${review.id}`}>Name *</Label>
                 <Input id={`userName-${review.id}`} name="userName" required disabled={isPending} />
               </div>
               <div className="space-y-2">
-                <Label htmlFor={`userEmail-${review.id}`}>E-post *</Label>
+                <Label htmlFor={`userEmail-${review.id}`}>Email *</Label>
                 <Input
                   id={`userEmail-${review.id}`}
                   name="userEmail"
@@ -175,29 +175,29 @@ export function SecurityAccessReviewList({ reviews }: AccessReviewListProps) {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor={`role-${review.id}`}>Rolle</Label>
+                <Label htmlFor={`role-${review.id}`}>Role</Label>
                 <Input id={`role-${review.id}`} name="role" disabled={isPending} />
               </div>
               <div className="space-y-2">
-                <Label>Beslutning</Label>
+                <Label>Decision</Label>
                 <Select name="decision" defaultValue="REVIEW" disabled={isPending}>
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="REVIEW">Til vurdering</SelectItem>
-                    <SelectItem value="APPROVED">Godkjent</SelectItem>
-                    <SelectItem value="REVOKED">Fjernes</SelectItem>
+                    <SelectItem value="REVIEW">Under Review</SelectItem>
+                    <SelectItem value="APPROVED">Approved</SelectItem>
+                    <SelectItem value="REVOKED">Revoked</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
               <div className="md:col-span-2 space-y-2">
-                <Label htmlFor={`comment-${review.id}`}>Kommentar</Label>
+                <Label htmlFor={`comment-${review.id}`}>Comment</Label>
                 <Textarea id={`comment-${review.id}`} name="comment" rows={2} disabled={isPending} />
               </div>
               <div className="md:col-span-2 flex justify-end">
                 <Button type="submit" disabled={isPending}>
-                  {isPending ? "Lagrer..." : "Legg til vurdering"}
+                  {isPending ? "Saving..." : "Add Review"}
                 </Button>
               </div>
             </form>
@@ -207,4 +207,3 @@ export function SecurityAccessReviewList({ reviews }: AccessReviewListProps) {
     </div>
   );
 }
-

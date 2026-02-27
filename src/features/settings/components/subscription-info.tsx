@@ -24,13 +24,13 @@ export function SubscriptionInfo({ tenant }: SubscriptionInfoProps) {
   const getStatusBadge = (status: string) => {
     switch (status) {
       case "ACTIVE":
-        return <Badge className="bg-green-100 text-green-800 border-green-200">Aktiv</Badge>;
+        return <Badge className="bg-green-100 text-green-800 border-green-200">Active</Badge>;
       case "TRIAL":
-        return <Badge className="bg-blue-100 text-blue-800 border-blue-200">Prøveperiode</Badge>;
+        return <Badge className="bg-blue-100 text-blue-800 border-blue-200">Trial</Badge>;
       case "CANCELLED":
-        return <Badge className="bg-red-100 text-red-800 border-red-200">Kansellert</Badge>;
+        return <Badge className="bg-red-100 text-red-800 border-red-200">Cancelled</Badge>;
       case "SUSPENDED":
-        return <Badge className="bg-yellow-100 text-yellow-800 border-yellow-200">Suspendert</Badge>;
+        return <Badge className="bg-yellow-100 text-yellow-800 border-yellow-200">Suspended</Badge>;
       default:
         return <Badge variant="outline">{status}</Badge>;
     }
@@ -39,14 +39,14 @@ export function SubscriptionInfo({ tenant }: SubscriptionInfoProps) {
   const getPlanLabel = (plan: string) => {
     switch (plan) {
       case "STARTER":
-        return "Små bedrifter (1-20 ansatte)";
+        return "Small companies (1-20 employees)";
       case "PROFESSIONAL":
-        return "Mellomstore bedrifter (21-50 ansatte)";
+        return "Medium companies (21-50 employees)";
       case "ENTERPRISE":
-        return "Store bedrifter (51+ ansatte)";
+        return "Large companies (51+ employees)";
       // Legacy mappings
       case "BASIC":
-        return "Små bedrifter";
+        return "Small companies";
       default:
         return plan;
     }
@@ -55,13 +55,13 @@ export function SubscriptionInfo({ tenant }: SubscriptionInfoProps) {
   const getInvoiceStatusBadge = (status: string) => {
     switch (status) {
       case "PAID":
-        return <Badge className="bg-green-100 text-green-800 border-green-200">Betalt</Badge>;
+        return <Badge className="bg-green-100 text-green-800 border-green-200">Paid</Badge>;
       case "SENT":
-        return <Badge className="bg-blue-100 text-blue-800 border-blue-200">Sendt</Badge>;
+        return <Badge className="bg-blue-100 text-blue-800 border-blue-200">Sent</Badge>;
       case "OVERDUE":
-        return <Badge className="bg-red-100 text-red-800 border-red-200">Forfalt</Badge>;
+        return <Badge className="bg-red-100 text-red-800 border-red-200">Overdue</Badge>;
       case "DRAFT":
-        return <Badge className="bg-gray-100 text-gray-800 border-gray-200">Utkast</Badge>;
+        return <Badge className="bg-gray-100 text-gray-800 border-gray-200">Draft</Badge>;
       default:
         return <Badge variant="outline">{status}</Badge>;
     }
@@ -74,10 +74,10 @@ export function SubscriptionInfo({ tenant }: SubscriptionInfoProps) {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <CreditCard className="h-5 w-5" />
-            Abonnement
+            Subscription
           </CardTitle>
           <CardDescription>
-            Din nåværende abonnementsplan
+            Your current subscription plan
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -99,10 +99,10 @@ export function SubscriptionInfo({ tenant }: SubscriptionInfoProps) {
                 </div>
 
                 <div>
-                  <p className="text-sm text-muted-foreground">Pris</p>
+                  <p className="text-sm text-muted-foreground">Price</p>
                   <p className="text-lg font-semibold">
                     {tenant.subscription.price} kr/
-                    {tenant.subscription.billingInterval === "MONTHLY" ? "mnd" : "år"}
+                    {tenant.subscription.billingInterval === "MONTHLY" ? "mo" : "yr"}
                   </p>
                 </div>
               </div>
@@ -111,20 +111,20 @@ export function SubscriptionInfo({ tenant }: SubscriptionInfoProps) {
                 <div>
                   <p className="text-sm text-muted-foreground flex items-center gap-2">
                     <Calendar className="h-4 w-4" />
-                    Periode starter
+                    Period start
                   </p>
                   <p className="font-medium">
-                    {new Date(tenant.subscription.currentPeriodStart).toLocaleDateString("nb-NO")}
+                    {new Date(tenant.subscription.currentPeriodStart).toLocaleDateString("en-US")}
                   </p>
                 </div>
 
                 <div>
                   <p className="text-sm text-muted-foreground flex items-center gap-2">
                     <Calendar className="h-4 w-4" />
-                    Periode slutter
+                    Period end
                   </p>
                   <p className="font-medium">
-                    {new Date(tenant.subscription.currentPeriodEnd).toLocaleDateString("nb-NO")}
+                    {new Date(tenant.subscription.currentPeriodEnd).toLocaleDateString("en-US")}
                   </p>
                 </div>
               </div>
@@ -133,8 +133,8 @@ export function SubscriptionInfo({ tenant }: SubscriptionInfoProps) {
                 <Card className="bg-blue-50 border-blue-200">
                   <CardContent className="pt-4">
                     <p className="text-sm text-blue-900">
-                      ℹ️ Prøveperiode utløper{" "}
-                      {new Date(tenant.trialEndsAt).toLocaleDateString("nb-NO")}
+                      ℹ️ Trial expires{" "}
+                      {new Date(tenant.trialEndsAt).toLocaleDateString("en-US")}
                     </p>
                   </CardContent>
                 </Card>
@@ -142,7 +142,7 @@ export function SubscriptionInfo({ tenant }: SubscriptionInfoProps) {
             </div>
           ) : (
             <div className="text-center text-muted-foreground py-8">
-              Ingen abonnement funnet
+              No subscription found
             </div>
           )}
         </CardContent>
@@ -153,26 +153,26 @@ export function SubscriptionInfo({ tenant }: SubscriptionInfoProps) {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <FileText className="h-5 w-5" />
-            Fakturaer
+            Invoices
           </CardTitle>
           <CardDescription>
-            Oversikt over dine fakturaer
+            Overview of your invoices
           </CardDescription>
         </CardHeader>
         <CardContent>
           {tenant.invoices.length === 0 ? (
             <div className="text-center text-muted-foreground py-8">
-              Ingen fakturaer funnet
+              No invoices found
             </div>
           ) : (
             <div className="rounded-md border">
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Periode</TableHead>
-                    <TableHead>Beskrivelse</TableHead>
-                    <TableHead>Beløp</TableHead>
-                    <TableHead>Forfallsdato</TableHead>
+                    <TableHead>Period</TableHead>
+                    <TableHead>Description</TableHead>
+                    <TableHead>Amount</TableHead>
+                    <TableHead>Due date</TableHead>
                     <TableHead>Status</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -188,7 +188,7 @@ export function SubscriptionInfo({ tenant }: SubscriptionInfoProps) {
                         </span>
                       </TableCell>
                       <TableCell>
-                        {new Date(invoice.dueDate).toLocaleDateString("nb-NO")}
+                        {new Date(invoice.dueDate).toLocaleDateString("en-US")}
                       </TableCell>
                       <TableCell>{getInvoiceStatusBadge(invoice.status)}</TableCell>
                     </TableRow>

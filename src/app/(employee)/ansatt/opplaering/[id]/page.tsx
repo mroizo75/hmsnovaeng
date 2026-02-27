@@ -21,7 +21,7 @@ export default async function AnsattTrainingDetailPage({ params }: { params: Pro
     where: {
       id,
       tenantId: session.user.tenantId,
-      userId: session.user.id, // Ansatte kan kun se sine egne opplæringer
+      userId: session.user.id, // Employees can only see their own training
     },
   });
 
@@ -29,11 +29,11 @@ export default async function AnsattTrainingDetailPage({ params }: { params: Pro
     notFound();
   }
 
-  // Generer nedlastingslenke for bevis hvis det finnes
+  // Generate download link for proof if available
   let downloadUrl: string | null = null;
   if (training.proofDocKey) {
     const storage = getStorage();
-    downloadUrl = await storage.getUrl(training.proofDocKey, 3600); // 1 time
+    downloadUrl = await storage.getUrl(training.proofDocKey, 3600); // 1 hour
   }
 
   const isExpired = training.validUntil && new Date(training.validUntil) < new Date();
@@ -51,7 +51,7 @@ export default async function AnsattTrainingDetailPage({ params }: { params: Pro
         <Link href="/ansatt/opplaering">
           <Button variant="ghost" size="sm" className="mb-4">
             <ArrowLeft className="mr-2 h-4 w-4" />
-            Tilbake til opplæring
+            Back to Training
           </Button>
         </Link>
         <div className="flex items-center gap-3 mb-2">
@@ -65,36 +65,36 @@ export default async function AnsattTrainingDetailPage({ params }: { params: Pro
         </div>
         <div className="flex flex-wrap gap-2 mt-3">
           {training.isRequired && (
-            <Badge variant="destructive">Påkrevd kurs</Badge>
+            <Badge variant="destructive">Required course</Badge>
           )}
           {training.effectiveness !== null ? (
             <Badge className="bg-green-100 text-green-700 border-green-200">
               <CheckCircle className="h-3 w-3 mr-1" />
-              Godkjent
+              Approved
             </Badge>
           ) : (
             <Badge variant="outline" className="bg-yellow-50 text-yellow-700 border-yellow-300">
               <AlertCircle className="h-3 w-3 mr-1" />
-              Venter på godkjenning
+              Awaiting approval
             </Badge>
           )}
           {isExpired && (
-            <Badge variant="destructive">Utløpt</Badge>
+            <Badge variant="destructive">Expired</Badge>
           )}
           {isExpiringSoon && (
             <Badge variant="outline" className="bg-orange-50 text-orange-700 border-orange-300">
-              Utløper snart
+              Expiring soon
             </Badge>
           )}
         </div>
       </div>
 
-      {/* Varsler */}
+      {/* Alerts */}
       {training.effectiveness === null && (
         <Card className="border-l-4 border-l-yellow-500 bg-yellow-50">
           <CardContent className="p-4">
             <p className="text-sm text-yellow-900">
-              <strong>⏳ Venter på godkjenning:</strong> Din leder vil gjennomgå og godkjenne opplæringen din.
+              <strong>⏳ Awaiting approval:</strong> Your manager will review and approve your training.
             </p>
           </CardContent>
         </Card>
@@ -104,7 +104,7 @@ export default async function AnsattTrainingDetailPage({ params }: { params: Pro
         <Card className="border-l-4 border-l-red-500 bg-red-50">
           <CardContent className="p-4">
             <p className="text-sm text-red-900">
-              <strong>⚠️ Kurset er utløpt:</strong> Dette kurset må fornyes. Ta kontakt med din leder.
+              <strong>⚠️ Course has expired:</strong> This course must be renewed. Contact your manager.
             </p>
           </CardContent>
         </Card>
@@ -114,45 +114,45 @@ export default async function AnsattTrainingDetailPage({ params }: { params: Pro
         <Card className="border-l-4 border-l-orange-500 bg-orange-50">
           <CardContent className="p-4">
             <p className="text-sm text-orange-900">
-              <strong>🔔 Kurset utløper snart:</strong> Dette kurset må snart fornyes. Planlegg fornyelse i god tid.
+              <strong>🔔 Course expiring soon:</strong> This course must be renewed soon. Plan renewal in advance.
             </p>
           </CardContent>
         </Card>
       )}
 
-      {/* Last ned bevis */}
+      {/* Download proof */}
       {downloadUrl && (
         <Card className="border-2 border-blue-200 bg-blue-50">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Download className="h-5 w-5 text-blue-600" />
-              Dokumentasjon
+              Documentation
             </CardTitle>
-            <CardDescription>Ditt opplastede bevis</CardDescription>
+            <CardDescription>Your uploaded proof</CardDescription>
           </CardHeader>
           <CardContent>
             <Link href={downloadUrl} target="_blank">
               <Button size="lg" className="w-full md:w-auto">
                 <Download className="mr-2 h-5 w-5" />
-                Last ned bevis/diplom
+                Download certificate/diploma
               </Button>
             </Link>
           </CardContent>
         </Card>
       )}
 
-      {/* Opplæringsinformasjon */}
+      {/* Training information */}
       <Card>
         <CardHeader>
-          <CardTitle>Opplæringsinformasjon</CardTitle>
-          <CardDescription>Detaljer om gjennomført opplæring</CardDescription>
+          <CardTitle>Training Information</CardTitle>
+          <CardDescription>Details about completed training</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid gap-4 md:grid-cols-2">
             <div>
               <p className="text-sm text-muted-foreground flex items-center gap-2">
                 <User className="h-4 w-4" />
-                Kursleverandør
+                Course provider
               </p>
               <p className="font-medium">{training.provider}</p>
             </div>
@@ -161,10 +161,10 @@ export default async function AnsattTrainingDetailPage({ params }: { params: Pro
               <div>
                 <p className="text-sm text-muted-foreground flex items-center gap-2">
                   <Calendar className="h-4 w-4" />
-                  Gjennomført
+                  Completed
                 </p>
                 <p className="font-medium">
-                  {new Date(training.completedAt).toLocaleDateString("nb-NO")}
+                  {new Date(training.completedAt).toLocaleDateString("en-US")}
                 </p>
               </div>
             )}
@@ -173,22 +173,22 @@ export default async function AnsattTrainingDetailPage({ params }: { params: Pro
               <div>
                 <p className="text-sm text-muted-foreground flex items-center gap-2">
                   <Clock className="h-4 w-4" />
-                  Gyldig til
+                  Valid until
                 </p>
                 <p className={`font-medium ${isExpired ? "text-red-600" : isExpiringSoon ? "text-orange-600" : ""}`}>
-                  {new Date(training.validUntil).toLocaleDateString("nb-NO")}
-                  {isExpired && " (Utløpt)"}
-                  {isExpiringSoon && " (Utløper snart)"}
+                  {new Date(training.validUntil).toLocaleDateString("en-US")}
+                  {isExpired && " (Expired)"}
+                  {isExpiringSoon && " (Expiring soon)"}
                 </p>
               </div>
             )}
 
             <div>
               <p className="text-sm text-muted-foreground">
-                Registrert
+                Registered
               </p>
               <p className="font-medium">
-                {new Date(training.createdAt).toLocaleDateString("nb-NO")}
+                {new Date(training.createdAt).toLocaleDateString("en-US")}
               </p>
             </div>
 
@@ -196,7 +196,7 @@ export default async function AnsattTrainingDetailPage({ params }: { params: Pro
               <div>
                 <p className="text-sm text-muted-foreground flex items-center gap-2">
                   <CheckCircle className="h-4 w-4 text-green-600" />
-                  Godkjent av
+                  Approved by
                 </p>
                 <p className="font-medium">{training.evaluatedBy}</p>
               </div>
@@ -205,10 +205,10 @@ export default async function AnsattTrainingDetailPage({ params }: { params: Pro
             {training.evaluatedAt && (
               <div>
                 <p className="text-sm text-muted-foreground">
-                  Godkjent dato
+                  Approval date
                 </p>
                 <p className="font-medium">
-                  {new Date(training.evaluatedAt).toLocaleDateString("nb-NO")}
+                  {new Date(training.evaluatedAt).toLocaleDateString("en-US")}
                 </p>
               </div>
             )}
@@ -216,14 +216,14 @@ export default async function AnsattTrainingDetailPage({ params }: { params: Pro
 
           {training.description && (
             <div className="pt-4 border-t">
-              <p className="text-sm text-muted-foreground mb-2">Beskrivelse</p>
+              <p className="text-sm text-muted-foreground mb-2">Description</p>
               <p className="text-sm">{training.description}</p>
             </div>
           )}
 
           {training.effectiveness && (
             <div className="pt-4 border-t">
-              <p className="text-sm text-muted-foreground mb-2">Effektivitetsvurdering</p>
+              <p className="text-sm text-muted-foreground mb-2">Effectiveness evaluation</p>
               <div className="bg-green-50 border border-green-200 rounded-lg p-3">
                 <p className="text-sm text-green-900">{training.effectiveness}</p>
               </div>
@@ -236,12 +236,11 @@ export default async function AnsattTrainingDetailPage({ params }: { params: Pro
       <Card className="bg-blue-50 border-blue-200">
         <CardContent className="p-4">
           <p className="text-sm text-blue-900">
-            <strong>💡 Tips:</strong> Hvis du har spørsmål om opplæringen eller trenger å fornye kurset, 
-            ta kontakt med din leder eller HMS-ansvarlig.
+            <strong>💡 Tips:</strong> If you have questions about the training or need to renew the course,
+            contact your manager or EHS coordinator.
           </p>
         </CardContent>
       </Card>
     </div>
   );
 }
-

@@ -141,7 +141,7 @@ export default async function EmployeeLayout({
             className="flex flex-col items-center justify-center flex-1 h-full hover:bg-gray-50 transition-colors"
           >
             <GraduationCap className="h-5 w-5 text-gray-600" />
-            <span className="text-xs mt-1 text-gray-600">Opplæring</span>
+            <span className="text-xs mt-1 text-gray-600">Training</span>
           </Link>
           {tenant?.timeRegistrationEnabled && (
             <Link

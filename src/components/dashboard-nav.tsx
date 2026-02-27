@@ -46,7 +46,7 @@ import { useSimpleMenuConfig } from "@/hooks/use-simple-menu-config";
 import { TenantSwitcher } from "@/components/auth/tenant-switcher";
 
 const navItems = [
-  // === GRUNNLEGGENDE HMS (vises alltid) ===
+  // === CORE EHS (always visible) ===
   { href: "/dashboard", label: "nav.dashboard", icon: LayoutDashboard, permission: "dashboard" as const, simple: true },
   { href: "/dashboard/documents", label: "nav.documents", icon: FileText, permission: "documents" as const, simple: true },
   { href: "/dashboard/juridisk-register", label: "nav.legalRegister", icon: Scale, permission: "legalRegister" as const, simple: true },
@@ -56,12 +56,12 @@ const navItems = [
   { href: "/dashboard/actions", label: "nav.actions", icon: ListTodo, permission: "actions" as const, simple: true },
   { href: "/dashboard/chemicals", label: "nav.chemicals", icon: Beaker, permission: "chemicals" as const, simple: true },
   
-  // === AVANSERT (kun i avansert modus) ===
+  // === ADVANCED (only in advanced mode) ===
   { href: "/dashboard/forms", label: "nav.forms", icon: ClipboardList, permission: "forms" as const, simple: false },
   { href: "/dashboard/risks", label: "nav.risks", icon: AlertTriangle, permission: "risks" as const, simple: false },
   { href: "/dashboard/risk-register", label: "nav.riskRegister", icon: Layers, permission: "risks" as const, simple: false },
   { href: "/dashboard/security", label: "nav.security", icon: Shield, permission: "security" as const, simple: false },
-  { href: "/dashboard/wellbeing", label: "nav.wellbeing", icon: HeartPulse, permission: "forms" as const, simple: true }, // Psykososial = lovpålagt for alle
+  { href: "/dashboard/wellbeing", label: "nav.wellbeing", icon: HeartPulse, permission: "forms" as const, simple: true }, // Psychosocial = mandatory for all
   { href: "/dashboard/complaints", label: "nav.complaints", icon: MessageSquare, permission: "incidents" as const, simple: false },
   { href: "/dashboard/feedback", label: "nav.feedback", icon: ThumbsUp, permission: "feedback" as const, simple: false },
   { href: "/dashboard/environment", label: "nav.environment", icon: Leaf, permission: "environment" as const, simple: false },
@@ -74,7 +74,7 @@ const navItems = [
   { href: "/dashboard/whistleblowing", label: "nav.whistleblowing", icon: Shield, permission: "whistleblowing" as const, simple: false },
   { href: "/dashboard/goals", label: "nav.goals", icon: Target, permission: "goals" as const, simple: false },
   
-  // === INNSTILLINGER (vises alltid) ===
+  // === SETTINGS (always visible) ===
   { href: "/dashboard/settings", label: "nav.settings", icon: Settings, permission: "settings" as const, simple: true },
 ];
 
@@ -86,11 +86,11 @@ export function DashboardNav() {
   const { isSimpleMode, toggleMode } = useSimpleMode();
   const { simpleMenuItems } = useSimpleMenuConfig();
 
-  // Filtrer navigasjon basert på tilganger OG enkel/avansert modus
+  // Filter navigation based on permissions AND simple/advanced mode
   const allowedNavItems = navItems.filter((item) => {
     if (!visibleNavItems[item.permission]) return false;
     if (!isSimpleMode) return true;
-    // I enkel modus: bruk tenant-valg hvis satt, ellers standard (item.simple)
+    // In simple mode: use tenant config if set, otherwise default (item.simple)
     if (simpleMenuItems !== null && Array.isArray(simpleMenuItems)) {
       return simpleMenuItems.includes(item.href);
     }
@@ -104,7 +104,7 @@ export function DashboardNav() {
       <div className="flex h-full flex-col">
         <div className="border-b p-6">
           <div className="flex items-start justify-between mb-2">
-            <Image src="/logo-nova.png" alt="HMS Nova" width={155} height={100} />
+            <Image src="/logo-eng.png" alt="HMS Nova" width={155} height={100} />
             <NotificationBell />
           </div>
           {tenantName && (
@@ -118,13 +118,13 @@ export function DashboardNav() {
             </Badge>
           )}
           
-          {/* Tenant Switcher (kun hvis brukeren har flere tenants) */}
+          {/* Tenant Switcher (only if user has multiple tenants) */}
           <div className="mt-3">
             <TenantSwitcher />
           </div>
         </div>
 
-        {/* Enkel/Avansert toggle */}
+        {/* Simple/Advanced toggle */}
         <div className="border-b px-4 py-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
@@ -134,7 +134,7 @@ export function DashboardNav() {
                 <Sparkles className="h-4 w-4 text-purple-500" />
               )}
               <span className="text-xs font-medium">
-                {isSimpleMode ? "Enkel" : "Avansert"}
+                {isSimpleMode ? "Simple" : "Advanced"}
               </span>
             </div>
             <Switch
@@ -144,9 +144,9 @@ export function DashboardNav() {
             />
           </div>
           <p className="text-[10px] text-muted-foreground mt-1">
-            {isSimpleMode 
-              ? "Grunnleggende HMS-funksjoner" 
-              : "Alle funksjoner inkl. ISO"}
+            {isSimpleMode
+              ? "Core H&S features"
+              : "All features incl. ISO"}
           </p>
         </div>
 

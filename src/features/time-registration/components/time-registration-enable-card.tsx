@@ -28,7 +28,7 @@ export function TimeRegistrationEnableCard({
         timeRegistrationEnabled: enabled,
       });
       if (!res.success) throw new Error(res.error);
-      toast({ title: enabled ? "Timeregistrering aktivert" : "Timeregistrering deaktivert" });
+      toast({ title: enabled ? "Time tracking enabled" : "Time tracking disabled" });
       window.location.reload();
     } catch (err) {
       toast({ variant: "destructive", title: (err as Error).message });
@@ -40,10 +40,10 @@ export function TimeRegistrationEnableCard({
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Aktiver modul</CardTitle>
+        <CardTitle>Enable Module</CardTitle>
         <CardDescription>
-          Timeregistrering lar ansatte registrere timer og kjøring per prosjekt.
-          Administrer prosjekter, få oversikt og eksporter til Excel/PDF for regnskap.
+          Time tracking lets employees register hours and mileage per project.
+          Manage projects, get an overview and export to Excel/PDF for accounting.
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -55,12 +55,12 @@ export function TimeRegistrationEnableCard({
               onCheckedChange={handleEnable}
             />
             <Label htmlFor="enable">
-              Aktiver timeregistrering for denne virksomheten
+              Enable time tracking for this organization
             </Label>
           </div>
         ) : (
           <p className="text-sm text-muted-foreground">
-            Be administratoren aktivere timeregistrering i innstillinger.
+            Ask the administrator to enable time tracking in settings.
           </p>
         )}
       </CardContent>

@@ -81,10 +81,10 @@ export default function NewManagementReviewPage() {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || "Kunne ikke hente data");
+        throw new Error(data.error || "Could not fetch data");
       }
 
-      // Oppdater form med forhåndsutfylt data
+      // Update form with pre-filled data
       setFormData((prev) => ({
         ...prev,
         hmsGoalsReview: data.data.hmsGoalsReview || prev.hmsGoalsReview,
@@ -95,12 +95,12 @@ export default function NewManagementReviewPage() {
       }));
 
       toast({
-        title: "Data hentet",
-        description: "Feltene er forhåndsutfylt med data fra systemet. Du kan redigere og justere etter behov.",
+        title: "Data fetched",
+        description: "Fields are pre-filled with data from the system. You can edit and adjust as needed.",
       });
     } catch (error: any) {
       toast({
-        title: "Feil",
+        title: "Error",
         description: error.message,
         variant: "destructive",
       });
@@ -126,18 +126,18 @@ export default function NewManagementReviewPage() {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || "Kunne ikke opprette gjennomgang");
+        throw new Error(data.error || "Could not create review");
       }
 
       toast({
-        title: "Gjennomgang opprettet",
-        description: "Ledelsens gjennomgang er opprettet",
+        title: "Review created",
+        description: "Management review has been created",
       });
 
       router.push(`/dashboard/management-reviews/${data.data.id}`);
     } catch (error: any) {
       toast({
-        title: "Feil",
+        title: "Error",
         description: error.message,
         variant: "destructive",
       });
@@ -155,27 +155,27 @@ export default function NewManagementReviewPage() {
           </Button>
         </Link>
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Ny ledelsens gjennomgang</h1>
+          <h1 className="text-3xl font-bold tracking-tight">New Management Review</h1>
           <p className="text-muted-foreground">
-            Opprett en ny periodisk gjennomgang av HMS-systemet
+            Create a new periodic review of the EHS system
           </p>
         </div>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
-        {/* Grunnleggende informasjon */}
+        {/* Basic information */}
         <Card>
           <CardHeader>
-            <CardTitle>Grunnleggende informasjon</CardTitle>
+            <CardTitle>Basic Information</CardTitle>
             <CardDescription>
-              Fyll inn grunnleggende detaljer om gjennomgangen
+              Fill in basic details about the review
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="grid gap-4 md:grid-cols-2">
               <div className="space-y-2">
                 <Label htmlFor="title">
-                  Tittel <span className="text-destructive">*</span>
+                  Title <span className="text-destructive">*</span>
                 </Label>
                 <Input
                   id="title"
@@ -183,14 +183,14 @@ export default function NewManagementReviewPage() {
                   onChange={(e) =>
                     setFormData({ ...formData, title: e.target.value })
                   }
-                  placeholder="F.eks. Ledelsens gjennomgang Q4 2024"
+                  placeholder="e.g. Management Review Q4 2024"
                   required
                 />
               </div>
 
               <div className="space-y-2">
                 <Label htmlFor="period">
-                  Periode <span className="text-destructive">*</span>
+                  Period <span className="text-destructive">*</span>
                 </Label>
                 <Input
                   id="period"
@@ -198,14 +198,14 @@ export default function NewManagementReviewPage() {
                   onChange={(e) =>
                     setFormData({ ...formData, period: e.target.value })
                   }
-                  placeholder="F.eks. Q4 2024, H2 2024, eller 2024"
+                  placeholder="e.g. Q4 2024, H2 2024, or 2024"
                   required
                 />
               </div>
 
               <div className="space-y-2">
                 <Label htmlFor="reviewDate">
-                  Gjennomgangsdato <span className="text-destructive">*</span>
+                  Review Date <span className="text-destructive">*</span>
                 </Label>
                 <Input
                   id="reviewDate"
@@ -220,7 +220,7 @@ export default function NewManagementReviewPage() {
 
               <div className="space-y-2">
                 <Label htmlFor="conductedBy">
-                  Gjennomført av <span className="text-destructive">*</span>
+                  Conducted by <span className="text-destructive">*</span>
                 </Label>
                 <Select
                   value={formData.conductedBy}
@@ -230,7 +230,7 @@ export default function NewManagementReviewPage() {
                   disabled={loadingUsers}
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder={loadingUsers ? "Laster brukere..." : "Velg bruker"} />
+                    <SelectValue placeholder={loadingUsers ? "Loading users..." : "Select user"} />
                   </SelectTrigger>
                   <SelectContent>
                     {users.map((u) => (
@@ -245,14 +245,14 @@ export default function NewManagementReviewPage() {
           </CardContent>
         </Card>
 
-        {/* Input data - HMS gjennomgang */}
+        {/* Input data - EHS review */}
         <Card>
           <CardHeader>
             <div className="flex items-center justify-between">
               <div>
-                <CardTitle>Gjennomgang av HMS-systemet</CardTitle>
+                <CardTitle>EHS System Review</CardTitle>
                 <CardDescription>
-                  Fyll inn status og resultater fra ulike HMS-områder
+                  Fill in status and results from various EHS areas
                 </CardDescription>
               </div>
               <Button
@@ -264,12 +264,12 @@ export default function NewManagementReviewPage() {
                 {loadingPrefill ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Henter data...
+                    Fetching data...
                   </>
                 ) : (
                   <>
                     <Sparkles className="mr-2 h-4 w-4" />
-                    Forhåndsutfyll fra systemet
+                    Prefill from system
                   </>
                 )}
               </Button>
@@ -278,137 +278,137 @@ export default function NewManagementReviewPage() {
               <Alert className="mt-4">
                 <Sparkles className="h-4 w-4" />
                 <AlertDescription>
-                  Klikk på knappen over for å automatisk hente data fra siste 3 måneder. 
-                  Du kan redigere teksten etterpå.
+                  Click the button above to automatically fetch data from the last 3 months. 
+                  You can edit the text afterwards.
                 </AlertDescription>
               </Alert>
             )}
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="hmsGoalsReview">HMS-mål og resultater</Label>
+              <Label htmlFor="hmsGoalsReview">EHS Goals and Results</Label>
               <Textarea
                 id="hmsGoalsReview"
                 value={formData.hmsGoalsReview}
                 onChange={(e) =>
                   setFormData({ ...formData, hmsGoalsReview: e.target.value })
                 }
-                placeholder="Gjennomgang av HMS-mål, måloppnåelse og avvik..."
+                placeholder="Review of EHS goals, target achievement and deviations..."
                 rows={4}
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="incidentStatistics">Avvik og hendelser</Label>
+              <Label htmlFor="incidentStatistics">Incidents and Deviations</Label>
               <Textarea
                 id="incidentStatistics"
                 value={formData.incidentStatistics}
                 onChange={(e) =>
                   setFormData({ ...formData, incidentStatistics: e.target.value })
                 }
-                placeholder="Statistikk over avvik, hendelser og trender..."
+                placeholder="Statistics on deviations, incidents and trends..."
                 rows={4}
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="riskReview">Risikovurderinger</Label>
+              <Label htmlFor="riskReview">Risk assessments</Label>
               <Textarea
                 id="riskReview"
                 value={formData.riskReview}
                 onChange={(e) =>
                   setFormData({ ...formData, riskReview: e.target.value })
                 }
-                placeholder="Status på risikovurderinger og risikonivå..."
+                placeholder="Status of risk assessments and risk level..."
                 rows={4}
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="auditResults">Revisjoner og inspeksjoner</Label>
+              <Label htmlFor="auditResults">Audits and inspections</Label>
               <Textarea
                 id="auditResults"
                 value={formData.auditResults}
                 onChange={(e) =>
                   setFormData({ ...formData, auditResults: e.target.value })
                 }
-                placeholder="Resultater fra revisjoner og vernerunder..."
+                placeholder="Results from audits and safety walks..."
                 rows={4}
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="trainingStatus">Opplæring og kompetanse</Label>
+              <Label htmlFor="trainingStatus">Training and competence</Label>
               <Textarea
                 id="trainingStatus"
                 value={formData.trainingStatus}
                 onChange={(e) =>
                   setFormData({ ...formData, trainingStatus: e.target.value })
                 }
-                placeholder="Status på opplæring, manglende kompetanse..."
+                placeholder="Status of training, competence gaps..."
                 rows={4}
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="resourcesReview">Ressurser og budsjett</Label>
+              <Label htmlFor="resourcesReview">Resources and budget</Label>
               <Textarea
                 id="resourcesReview"
                 value={formData.resourcesReview}
                 onChange={(e) =>
                   setFormData({ ...formData, resourcesReview: e.target.value })
                 }
-                placeholder="Vurdering av ressurser, budsjett og behov..."
+                placeholder="Assessment of resources, budget and needs..."
                 rows={4}
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="externalChanges">Eksterne endringer</Label>
+              <Label htmlFor="externalChanges">External changes</Label>
               <Textarea
                 id="externalChanges"
                 value={formData.externalChanges}
                 onChange={(e) =>
                   setFormData({ ...formData, externalChanges: e.target.value })
                 }
-                placeholder="Endringer i lover, forskrifter, standarder..."
+                placeholder="Changes in laws, regulations, standards..."
                 rows={4}
               />
             </div>
           </CardContent>
         </Card>
 
-        {/* Output data - Konklusjoner */}
+        {/* Output data - Conclusions */}
         <Card>
           <CardHeader>
-            <CardTitle>Konklusjoner og oppfølging</CardTitle>
+            <CardTitle>Conclusions and Follow-up</CardTitle>
             <CardDescription>
-              Oppsummer konklusjoner og nødvendige tiltak
+              Summarize conclusions and required actions
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="conclusions">Konklusjoner</Label>
+              <Label htmlFor="conclusions">Conclusions</Label>
               <Textarea
                 id="conclusions"
                 value={formData.conclusions}
                 onChange={(e) =>
                   setFormData({ ...formData, conclusions: e.target.value })
                 }
-                placeholder="Overordnede konklusjoner fra gjennomgangen..."
+                placeholder="Overall conclusions from the review..."
                 rows={6}
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="notes">Notater</Label>
+              <Label htmlFor="notes">Notes</Label>
               <Textarea
                 id="notes"
                 value={formData.notes}
                 onChange={(e) =>
                   setFormData({ ...formData, notes: e.target.value })
                 }
-                placeholder="Øvrige notater..."
+                placeholder="Other notes..."
                 rows={4}
               />
             </div>
@@ -418,12 +418,12 @@ export default function NewManagementReviewPage() {
         <div className="flex justify-end gap-4">
           <Link href="/dashboard/management-reviews">
             <Button type="button" variant="outline">
-              Avbryt
+              Cancel
             </Button>
           </Link>
           <Button type="submit" disabled={loading}>
             <Save className="mr-2 h-4 w-4" />
-            {loading ? "Oppretter..." : "Opprett gjennomgang"}
+            {loading ? "Creating..." : "Create Review"}
           </Button>
         </div>
       </form>

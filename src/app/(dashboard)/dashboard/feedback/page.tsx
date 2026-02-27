@@ -61,15 +61,15 @@ export default async function FeedbackPage() {
       <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
         <div className="flex items-center gap-3">
           <div>
-            <h1 className="text-3xl font-bold">Kundetilbakemeldinger</h1>
+            <h1 className="text-3xl font-bold">Customer Feedback</h1>
             <p className="text-muted-foreground">
-              ISO 9001 – dokumenter og del positive erfaringer fra kunder (9.1.2 Kundetilfredshet)
+              ISO 9001 – document and share positive customer experiences (9.1.2 Customer Satisfaction)
             </p>
           </div>
           <PageHelpDialog content={helpContent.feedback} />
         </div>
         <Button asChild>
-          <Link href="/dashboard/feedback/new">Ny tilbakemelding</Link>
+          <Link href="/dashboard/feedback/new">New Feedback</Link>
         </Button>
       </div>
 

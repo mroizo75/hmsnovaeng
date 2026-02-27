@@ -11,7 +11,7 @@ import { HMSScoreChart } from "@/features/dashboard/components/hms-score-chart";
 import { TaskCenter } from "@/features/dashboard/components/task-center";
 import { getPermissions } from "@/lib/permissions";
 import { subMonths, format } from "date-fns";
-import { nb } from "date-fns/locale";
+import { enUS } from "date-fns/locale";
 
 export default async function DashboardPage() {
   const session = await getServerSession(authOptions);
@@ -32,14 +32,14 @@ export default async function DashboardPage() {
   });
 
   if (!user || user.tenants.length === 0) {
-    return <div>Du er ikke tilknyttet en tenant.</div>;
+    return <div>You are not linked to a tenant.</div>;
   }
 
   const tenantId = user.tenants[0].tenantId;
   const userRole = user.tenants[0].role;
   const permissions = getPermissions(userRole);
 
-  // Sikre at eldre avvik har gyldig status etter enum-endringer
+  // Ensure older incidents have valid status after enum changes
   await prisma.$executeRawUnsafe(`
     UPDATE Incident
     SET status = 'OPEN'
@@ -48,7 +48,7 @@ export default async function DashboardPage() {
        OR status = ''
   `);
 
-  // Hent statistikk fra moduler brukeren har tilgang til
+  // Fetch stats from modules the user has access to
   const [
     documents,
     risks,
@@ -68,7 +68,7 @@ export default async function DashboardPage() {
       ? prisma.incident.findMany({
           where: {
             tenantId,
-            // Ansatt ser kun egne hendelser
+            // Employee sees only their own incidents
             ...(userRole === "ANSATT" && { reportedById: user.id }),
           },
         })
@@ -77,7 +77,7 @@ export default async function DashboardPage() {
       ? prisma.measure.findMany({
           where: {
             tenantId,
-            // Ansatt ser kun egne tiltak
+            // Employee sees only their own actions
             ...(userRole === "ANSATT" && { assignedToId: user.id }),
           },
         })
@@ -89,7 +89,7 @@ export default async function DashboardPage() {
       ? prisma.training.findMany({
           where: {
             tenantId,
-            // Vis kun egen opplæring hvis ikke tilgang til all
+            // Show only own training if no access to all
             ...(!permissions.canReadAllTraining && { userId: user.id }),
           },
         })
@@ -99,7 +99,7 @@ export default async function DashboardPage() {
       : [],
   ]);
 
-  // Beregn kritisk statistikk
+  // Calculate critical statistics
   const now = new Date();
   const sevenDaysFromNow = new Date();
   sevenDaysFromNow.setDate(sevenDaysFromNow.getDate() + 7);
@@ -117,7 +117,7 @@ export default async function DashboardPage() {
   );
   const openIncidents = incidents.filter((i) => i.status === "OPEN" || i.status === "INVESTIGATING");
 
-  // Bygg kritiske varsler
+  // Build critical alerts
   const alerts: Array<{
     id: string;
     title: string;
@@ -127,7 +127,7 @@ export default async function DashboardPage() {
     category: string;
   }> = [];
 
-  // Forfalte tiltak
+  // Overdue actions
   measures
     .filter((m) => m.status !== "DONE" && new Date(m.dueAt) < now)
     .slice(0, 3)
@@ -138,22 +138,22 @@ export default async function DashboardPage() {
         type: "overdue" as const,
         link: `/dashboard/actions`,
         date: m.dueAt,
-        category: "Tiltak",
+        category: "Action",
       });
     });
 
-  // Kritiske risikoer
+  // Critical risks
   criticalRisks.slice(0, 2).forEach((r) => {
     alerts.push({
       id: r.id,
       title: r.title,
       type: "critical" as const,
       link: `/dashboard/risks/${r.id}`,
-      category: "Risiko",
+      category: "Risk",
     });
   });
 
-  // Utgått opplæring
+  // Expired training
   trainings
     .filter((t) => t.validUntil && new Date(t.validUntil) < now && !t.completedAt)
     .slice(0, 2)
@@ -164,11 +164,11 @@ export default async function DashboardPage() {
         type: "overdue" as const,
         link: `/dashboard/training/${t.id}`,
         date: t.validUntil!,
-        category: "Opplæring",
+        category: "Training",
       });
     });
 
-  // Kommende revisjoner (neste 7 dager)
+  // Upcoming audits (next 7 days)
   audits
     .filter(
       (a) =>
@@ -184,17 +184,17 @@ export default async function DashboardPage() {
         type: "upcoming" as const,
         link: `/dashboard/audits/${a.id}`,
         date: a.scheduledDate,
-        category: "Revisjon",
+        category: "Audit",
       });
     });
 
-  // Sorter: Kritiske først, så forfalte, så kommende
+  // Sort: critical first, then overdue, then upcoming
   const sortedAlerts = alerts.sort((a, b) => {
     const priority = { critical: 0, overdue: 1, upcoming: 2 };
     return priority[a.type] - priority[b.type];
   });
 
-  // Bygg aktivitetsfeed (siste 5)
+  // Build activity feed (last 5)
   const activities = [
     ...documents.map((d) => ({
       id: d.id,
@@ -257,7 +257,7 @@ export default async function DashboardPage() {
     .slice(0, 5);
 
 
-  // Bygg mine oppgaver (maks 6 viktigste)
+  // Build my tasks (max 6 most important)
   const myTasks: Array<{
     id: string;
     title: string;
@@ -267,7 +267,7 @@ export default async function DashboardPage() {
     link: string;
   }> = [];
 
-  // Mine forfalte tiltak
+  // My overdue actions
   myOverdueTasks.forEach((m) => {
     myTasks.push({
       id: m.id,
@@ -279,7 +279,7 @@ export default async function DashboardPage() {
     });
   });
 
-  // Mine tiltak denne uken
+  // My actions this week
   myTasksThisWeek.slice(0, 3).forEach((m) => {
     myTasks.push({
       id: m.id,
@@ -291,7 +291,7 @@ export default async function DashboardPage() {
     });
   });
 
-  // Min ventende opplæring
+  // My pending training
   trainings
     .filter((t) => t.userId === user.id && !t.completedAt)
     .slice(0, 2)
@@ -309,53 +309,53 @@ export default async function DashboardPage() {
 
   const sortedTasks = myTasks.slice(0, 6);
 
-  // Bygg Hero Stats
+  // Build Hero Stats
   const heroStats = [];
 
-  // Kritiske risikoer (alltid vis hvis tilgang)
+  // Critical risks (always show if access)
   if (permissions.canReadRisks && criticalRisks.length > 0) {
     heroStats.push({
-      title: "Kritiske risikoer",
+      title: "Critical Risks",
       value: criticalRisks.length,
-      subtitle: `Av ${risks.length} risikoer totalt`,
+      subtitle: `Of ${risks.length} risks total`,
       variant: "danger" as const,
       icon: "risk" as const,
     });
   }
 
-  // Mine forfalte oppgaver
+  // My overdue tasks
   if (myOverdueTasks.length > 0) {
     heroStats.push({
-      title: "Forfalte oppgaver",
+      title: "Overdue Tasks",
       value: myOverdueTasks.length,
-      subtitle: "Krever handling nå",
+      subtitle: "Requires immediate action",
       variant: "danger" as const,
       icon: "todo" as const,
     });
   }
 
-  // Mine oppgaver denne uken
+  // My tasks this week
   const weekTaskVariant: "danger" | "warning" | "success" | "info" = myTasksThisWeek.length > 5 ? "warning" : "success";
   heroStats.push({
-    title: "Oppgaver denne uken",
+    title: "Tasks This Week",
     value: myTasksThisWeek.length,
-    subtitle: "Planlagt 7 dager frem",
+    subtitle: "Planned next 7 days",
     variant: weekTaskVariant,
     icon: "check" as const,
   });
 
-  // Åpne hendelser (hvis tilgang)
+  // Open incidents (if access)
   if (permissions.canReadIncidents && openIncidents.length > 0) {
     heroStats.push({
-      title: "Åpne hendelser",
+      title: "Open Incidents",
       value: openIncidents.length,
-      subtitle: "Må utredes",
+      subtitle: "Pending investigation",
       variant: "warning" as const,
       icon: "trend" as const,
     });
   }
 
-  // Hvis vi har mindre enn 3 stats, legg til HMS compliance eller annen relevant stat
+  // If fewer than 3 stats, add EHS compliance or another relevant stat
   if (heroStats.length < 3 && permissions.canViewAnalytics) {
     const completedMeasures = measures.filter((m) => m.status === "DONE").length;
     const totalMeasures = measures.length;
@@ -364,26 +364,26 @@ export default async function DashboardPage() {
       complianceRate >= 80 ? "success" : complianceRate >= 60 ? "warning" : "danger";
 
     heroStats.push({
-      title: "Tiltaksgjennomføring",
+      title: "Action Completion",
       value: complianceRate,
-      subtitle: `${completedMeasures} av ${totalMeasures} fullført`,
+      subtitle: `${completedMeasures} of ${totalMeasures} completed`,
       variant: complianceVariant,
       icon: "trend" as const,
     });
   }
 
-  // Generer HMS-score data for siste 6 måneder
+  // Generate EHS score data for the last 6 months
   const hmsScoreData = [];
   for (let i = 5; i >= 0; i--) {
     const monthDate = subMonths(new Date(), i);
     const monthStart = new Date(monthDate.getFullYear(), monthDate.getMonth(), 1);
     const monthEnd = new Date(monthDate.getFullYear(), monthDate.getMonth() + 1, 0);
 
-    // Beregn score basert på:
-    // - Risikoer lukket (30%)
-    // - Hendelser håndtert (25%)
-    // - Tiltak fullført (25%)
-    // - Dokumenter oppdatert (20%)
+    // Calculate score based on:
+    // - Risks closed (30%)
+    // - Incidents handled (25%)
+    // - Actions completed (25%)
+    // - Documents updated (20%)
     
     const monthRisks = risks.filter((r) => 
       r.createdAt <= monthEnd
@@ -411,17 +411,17 @@ export default async function DashboardPage() {
     const totalScore = Math.round(riskScore + incidentScore + measureScore + documentScore);
 
     hmsScoreData.push({
-      month: format(monthDate, 'MMM', { locale: nb }),
+      month: format(monthDate, 'MMM', { locale: enUS }),
       score: Math.min(totalScore, 100),
     });
   }
 
   const tenantName = session.user.tenantName;
   const summaryParts: string[] = [];
-  if (criticalRisks.length > 0) summaryParts.push(`${criticalRisks.length} kritiske risikoer`);
-  if (myOverdueTasks.length > 0) summaryParts.push(`${myOverdueTasks.length} forfalte oppgaver`);
-  if (myTasksThisWeek.length > 0) summaryParts.push(`${myTasksThisWeek.length} oppgaver denne uken`);
-  if (openIncidents.length > 0) summaryParts.push(`${openIncidents.length} åpne hendelser`);
+  if (criticalRisks.length > 0) summaryParts.push(`${criticalRisks.length} critical risks`);
+  if (myOverdueTasks.length > 0) summaryParts.push(`${myOverdueTasks.length} overdue tasks`);
+  if (myTasksThisWeek.length > 0) summaryParts.push(`${myTasksThisWeek.length} tasks this week`);
+  if (openIncidents.length > 0) summaryParts.push(`${openIncidents.length} open incidents`);
   const summaryLine = summaryParts.length > 0 ? summaryParts.join(" · ") : null;
 
   return (
@@ -429,10 +429,10 @@ export default async function DashboardPage() {
       {/* Header */}
       <div>
         <h1 className="text-3xl font-bold tracking-tight">
-          Velkommen, {user.name || user.email}
+          Welcome, {user.name || user.email}
         </h1>
         <p className="text-muted-foreground">
-          {summaryLine ?? "Din HMS-oversikt for i dag"}
+          {summaryLine ?? "Your H&S overview for today"}
         </p>
         {tenantName && (
           <div className="mt-2 lg:hidden">
@@ -449,10 +449,10 @@ export default async function DashboardPage() {
       {/* Critical Alerts */}
       {sortedAlerts.length > 0 && <CriticalAlerts alerts={sortedAlerts} />}
 
-      {/* Quick Actions - kompakt rad */}
+      {/* Quick Actions - compact row */}
       <QuickActions permissions={permissions} userRole={userRole} />
 
-      {/* Oppgavesenter + hovedinnhold: oppgaver og aktivitet side om side med graf */}
+      {/* Task center + main content: tasks and activity side by side with chart */}
       <div className="grid gap-6 lg:grid-cols-5">
         <div className="lg:col-span-3 space-y-6">
           <TaskCenter tenantId={tenantId} userId={user.id} />

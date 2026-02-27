@@ -60,7 +60,7 @@ export function MileageEntryEditDialog({
     const km = parseFloat(kilometers.replace(",", "."));
     const rate = parseFloat(ratePerKm.replace(",", "."));
     if (isNaN(km) || km <= 0) {
-      toast({ variant: "destructive", title: "Km må være over 0" });
+      toast({ variant: "destructive", title: "Miles must be greater than 0" });
       return;
     }
     setLoading(true);
@@ -72,7 +72,7 @@ export function MileageEntryEditDialog({
         comment: comment.trim() || undefined,
       });
       if (!res.success) throw new Error(res.error);
-      toast({ title: "Km-registrering rettet" });
+      toast({ title: "Mileage entry updated" });
       onOpenChange(false);
       onSuccess();
     } catch (err) {
@@ -86,14 +86,14 @@ export function MileageEntryEditDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Retting av km-registrering</DialogTitle>
+          <DialogTitle>Edit Mileage Entry</DialogTitle>
           <DialogDescription>
-            Admin kan rette km godtgjørelse for ansatte. Endringer logges.
+            Admin can correct mileage reimbursement for employees. Changes are logged.
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <Label className="text-xs">Dato</Label>
+            <Label className="text-xs">Date</Label>
             <Input
               type="date"
               value={date}
@@ -102,7 +102,7 @@ export function MileageEntryEditDialog({
             />
           </div>
           <div className="space-y-2">
-            <Label className="text-xs">Kilometer</Label>
+            <Label className="text-xs">Miles</Label>
             <Input
               type="text"
               value={kilometers}
@@ -112,7 +112,7 @@ export function MileageEntryEditDialog({
             />
           </div>
           <div className="space-y-2">
-            <Label className="text-xs">Kr/km</Label>
+            <Label className="text-xs">$/mile</Label>
             <Input
               type="text"
               value={ratePerKm}
@@ -121,11 +121,11 @@ export function MileageEntryEditDialog({
             />
           </div>
           <div className="space-y-2">
-            <Label className="text-xs">Kommentar</Label>
+            <Label className="text-xs">Comment</Label>
             <Input
               value={comment}
               onChange={(e) => setComment(e.target.value)}
-              placeholder="Valgfritt"
+              placeholder="Optional"
             />
           </div>
           <DialogFooter>
@@ -134,10 +134,10 @@ export function MileageEntryEditDialog({
               variant="outline"
               onClick={() => onOpenChange(false)}
             >
-              Avbryt
+              Cancel
             </Button>
             <Button type="submit" disabled={loading}>
-              {loading ? "..." : "Lagre"}
+              {loading ? "..." : "Save"}
             </Button>
           </DialogFooter>
         </form>

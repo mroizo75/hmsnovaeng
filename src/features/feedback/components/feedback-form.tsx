@@ -28,18 +28,18 @@ const NO_GOAL = "__none_goal__";
 const NO_RATING = "__no_rating__";
 
 const sourceOptions: Array<{ value: FeedbackSource; label: string }> = [
-  { value: "EMAIL", label: "E-post" },
-  { value: "PHONE", label: "Telefon" },
-  { value: "MEETING", label: "Møte" },
-  { value: "SURVEY", label: "Spørreundersøkelse" },
-  { value: "SOCIAL", label: "Sosiale medier" },
-  { value: "OTHER", label: "Annet" },
+  { value: "EMAIL", label: "Email" },
+  { value: "PHONE", label: "Phone" },
+  { value: "MEETING", label: "Meeting" },
+  { value: "SURVEY", label: "Survey" },
+  { value: "SOCIAL", label: "Social Media" },
+  { value: "OTHER", label: "Other" },
 ];
 
 const sentimentOptions: Array<{ value: FeedbackSentiment; label: string }> = [
-  { value: "POSITIVE", label: "Positiv" },
-  { value: "NEUTRAL", label: "Nøytral" },
-  { value: "NEGATIVE", label: "Negativ" },
+  { value: "POSITIVE", label: "Positive" },
+  { value: "NEUTRAL", label: "Neutral" },
+  { value: "NEGATIVE", label: "Negative" },
 ];
 
 export function FeedbackForm({ users, goals }: FeedbackFormProps) {
@@ -56,8 +56,8 @@ export function FeedbackForm({ users, goals }: FeedbackFormProps) {
       const result = await createCustomerFeedback(formData);
       if (result.success) {
         toast({
-          title: "✅ Tilbakemelding registrert",
-          description: "Positive kundeinnspill er lagret og kan følges opp.",
+          title: "✅ Feedback registered",
+          description: "Customer feedback has been saved and can be followed up.",
           className: "bg-green-50 border-green-200",
         });
         router.push("/dashboard/feedback");
@@ -65,8 +65,8 @@ export function FeedbackForm({ users, goals }: FeedbackFormProps) {
       } else {
         toast({
           variant: "destructive",
-          title: "Kunne ikke lagre",
-          description: result.error || "Prøv igjen senere",
+          title: "Could not save",
+          description: result.error || "Please try again later",
         });
       }
     });
@@ -76,38 +76,38 @@ export function FeedbackForm({ users, goals }: FeedbackFormProps) {
     <form onSubmit={handleSubmit} className="space-y-6">
       <Card>
         <CardHeader>
-          <CardTitle>Kundetilbakemelding</CardTitle>
-          <CardDescription>Registrer positive tilbakemeldinger fra kunder (ISO 9001: 9.1.2)</CardDescription>
+          <CardTitle>Customer Feedback</CardTitle>
+          <CardDescription>Register customer feedback (ISO 9001: 9.1.2)</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid gap-4 md:grid-cols-2">
             <div className="space-y-2">
-              <Label htmlFor="customerName">Kontaktperson</Label>
-              <Input id="customerName" name="customerName" placeholder="Navn på kunde" disabled={isPending} />
+              <Label htmlFor="customerName">Contact Person</Label>
+              <Input id="customerName" name="customerName" placeholder="Customer name" disabled={isPending} />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="customerCompany">Kunde / organisasjon</Label>
-              <Input id="customerCompany" name="customerCompany" placeholder="Firma eller prosjekt" disabled={isPending} />
+              <Label htmlFor="customerCompany">Customer / Organization</Label>
+              <Input id="customerCompany" name="customerCompany" placeholder="Company or project" disabled={isPending} />
             </div>
           </div>
 
           <div className="grid gap-4 md:grid-cols-2">
             <div className="space-y-2">
-              <Label htmlFor="contactEmail">E-post</Label>
-              <Input id="contactEmail" name="contactEmail" type="email" placeholder="kunde@firma.no" disabled={isPending} />
+              <Label htmlFor="contactEmail">Email</Label>
+              <Input id="contactEmail" name="contactEmail" type="email" placeholder="customer@company.com" disabled={isPending} />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="contactPhone">Telefon</Label>
-              <Input id="contactPhone" name="contactPhone" placeholder="+47 ..." disabled={isPending} />
+              <Label htmlFor="contactPhone">Phone</Label>
+              <Input id="contactPhone" name="contactPhone" placeholder="+1 ..." disabled={isPending} />
             </div>
           </div>
 
           <div className="grid gap-4 md:grid-cols-3">
             <div className="space-y-2">
-              <Label>Kanal / kilde</Label>
+              <Label>Channel / Source</Label>
               <Select name="source" defaultValue="EMAIL" disabled={isPending}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Velg kanal" />
+                  <SelectValue placeholder="Select channel" />
                 </SelectTrigger>
                 <SelectContent>
                   {sourceOptions.map((option) => (
@@ -119,7 +119,7 @@ export function FeedbackForm({ users, goals }: FeedbackFormProps) {
               </Select>
             </div>
             <div className="space-y-2">
-              <Label>Stemning</Label>
+              <Label>Sentiment</Label>
               <Select
                 name="sentiment"
                 value={sentiment}
@@ -127,7 +127,7 @@ export function FeedbackForm({ users, goals }: FeedbackFormProps) {
                 disabled={isPending}
               >
                 <SelectTrigger>
-                  <SelectValue placeholder="Velg stemning" />
+                  <SelectValue placeholder="Select sentiment" />
                 </SelectTrigger>
                 <SelectContent>
                   {sentimentOptions.map((option) => (
@@ -139,13 +139,13 @@ export function FeedbackForm({ users, goals }: FeedbackFormProps) {
               </Select>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="rating">Vurdering (1-5)</Label>
+              <Label htmlFor="rating">Rating (1-5)</Label>
               <Select name="rating" defaultValue={NO_RATING} disabled={isPending}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Velg (valgfritt)" />
+                  <SelectValue placeholder="Select (optional)" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value={NO_RATING}>Ingen vurdering</SelectItem>
+                  <SelectItem value={NO_RATING}>No rating</SelectItem>
                   {[1, 2, 3, 4, 5].map((value) => (
                     <SelectItem key={value} value={value.toString()}>
                       {value}
@@ -157,47 +157,47 @@ export function FeedbackForm({ users, goals }: FeedbackFormProps) {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="summary">Oppsummering *</Label>
+            <Label htmlFor="summary">Summary *</Label>
             <Input
               id="summary"
               name="summary"
               required
               disabled={isPending}
-              placeholder="F.eks. 'Kunde roser responstid og oppfølging'"
+              placeholder="e.g. 'Customer praises response time and follow-up'"
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="details">Detaljer</Label>
+            <Label htmlFor="details">Details</Label>
             <Textarea
               id="details"
               name="details"
               rows={4}
               disabled={isPending}
-              placeholder="Beskriv tilbakemeldingen i egne ord"
+              placeholder="Describe the feedback in your own words"
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="highlights">Hva skal deles internt?</Label>
+            <Label htmlFor="highlights">What should be shared internally?</Label>
             <Textarea
               id="highlights"
               name="highlights"
               rows={3}
               disabled={isPending}
-              placeholder="Nøkkelpunkt som bør løftes i ledelsens gjennomgang, nyhetsbrev osv."
+              placeholder="Key points to highlight in management reviews, newsletters, etc."
             />
           </div>
 
           <div className="grid gap-4 md:grid-cols-2">
             <div className="space-y-2">
-              <Label>Ansvarlig for videre oppfølging</Label>
+              <Label>Responsible for follow-up</Label>
               <Select name="followUpOwnerId" defaultValue={NO_OWNER} disabled={isPending}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Velg person (valgfritt)" />
+                  <SelectValue placeholder="Select person (optional)" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value={NO_OWNER}>Ingen</SelectItem>
+                  <SelectItem value={NO_OWNER}>None</SelectItem>
                   {users.map((user) => (
                     <SelectItem key={user.id} value={user.id}>
                       {user.name || user.email}
@@ -207,13 +207,13 @@ export function FeedbackForm({ users, goals }: FeedbackFormProps) {
               </Select>
             </div>
             <div className="space-y-2">
-              <Label>Knytt til mål (valgfritt)</Label>
+              <Label>Link to goal (optional)</Label>
               <Select name="linkedGoalId" defaultValue={NO_GOAL} disabled={isPending || goals.length === 0}>
                 <SelectTrigger>
-                  <SelectValue placeholder={goals.length ? "Velg mål" : "Ingen mål tilgjengelig"} />
+                  <SelectValue placeholder={goals.length ? "Select goal" : "No goals available"} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value={NO_GOAL}>Ingen</SelectItem>
+                  <SelectItem value={NO_GOAL}>None</SelectItem>
                   {goals.map((goal) => (
                     <SelectItem key={goal.id} value={goal.id}>
                       {goal.title}
@@ -226,7 +226,7 @@ export function FeedbackForm({ users, goals }: FeedbackFormProps) {
 
           <div className="flex justify-end gap-3 pt-4 border-t">
             <Button type="submit" disabled={isPending}>
-              {isPending ? "Lagrer..." : "Lagre tilbakemelding"}
+              {isPending ? "Saving..." : "Save Feedback"}
             </Button>
           </div>
         </CardContent>
@@ -234,4 +234,3 @@ export function FeedbackForm({ users, goals }: FeedbackFormProps) {
     </form>
   );
 }
-

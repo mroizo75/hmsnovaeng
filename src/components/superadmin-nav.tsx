@@ -22,16 +22,16 @@ import {
 import { Badge } from "./ui/badge";
 
 const allNavItems = [
-  { href: "/admin", label: "Oversikt", icon: LayoutDashboard, supportAccess: true },
-  { href: "/admin/registrations", label: "Nye registreringer", icon: UserPlus, supportAccess: true },
-  { href: "/admin/tenants", label: "Bedrifter", icon: Building2, supportAccess: true },
-  { href: "/admin/bht", label: "BHT-kunder", icon: Stethoscope, supportAccess: true },
-  { href: "/admin/invoices", label: "Fakturaer", icon: FileText, supportAccess: true },
-  { href: "/admin/legal-references", label: "Juridisk register", icon: Scale, supportAccess: true },
-  { href: "/admin/blog", label: "Blogg & SEO", icon: Newspaper, supportAccess: false },
-  { href: "/admin/newsletter", label: "Nyhetsbrev", icon: FileText, supportAccess: false },
-  { href: "/admin/users", label: "Brukere", icon: Users, supportAccess: false },
-  { href: "/admin/settings", label: "Innstillinger", icon: Settings, supportAccess: false },
+  { href: "/admin", label: "Overview", icon: LayoutDashboard, supportAccess: true },
+  { href: "/admin/registrations", label: "New registrations", icon: UserPlus, supportAccess: true },
+  { href: "/admin/tenants", label: "Companies", icon: Building2, supportAccess: true },
+  { href: "/admin/bht", label: "OHS clients", icon: Stethoscope, supportAccess: true },
+  { href: "/admin/invoices", label: "Invoices", icon: FileText, supportAccess: true },
+  { href: "/admin/legal-references", label: "Legal register", icon: Scale, supportAccess: true },
+  { href: "/admin/blog", label: "Blog & SEO", icon: Newspaper, supportAccess: false },
+  { href: "/admin/newsletter", label: "Newsletter", icon: FileText, supportAccess: false },
+  { href: "/admin/users", label: "Users", icon: Users, supportAccess: false },
+  { href: "/admin/settings", label: "Settings", icon: Settings, supportAccess: false },
 ];
 
 interface SuperAdminNavProps {
@@ -42,7 +42,7 @@ interface SuperAdminNavProps {
 export function SuperAdminNav({ isSuperAdmin, isSupport }: SuperAdminNavProps) {
   const pathname = usePathname();
   
-  // Filtrer navigasjon basert på rolle
+  // Filter navigation based on role
   const navItems = isSuperAdmin 
     ? allNavItems 
     : allNavItems.filter(item => item.supportAccess);
@@ -58,7 +58,7 @@ export function SuperAdminNav({ isSuperAdmin, isSupport }: SuperAdminNavProps) {
               <Headphones className="h-6 w-6 text-blue-600" />
             )}
             <div>
-              <h2 className="text-lg font-bold">HMS Nova</h2>
+              <h2 className="text-lg font-bold">EHS Nova</h2>
               <Badge 
                 variant="secondary" 
                 className={cn(
@@ -101,7 +101,7 @@ export function SuperAdminNav({ isSuperAdmin, isSupport }: SuperAdminNavProps) {
           >
             <Link href="/dashboard">
               <LayoutDashboard className="mr-3 h-4 w-4" />
-              Til kundedashboard
+              Go to customer dashboard
             </Link>
           </Button>
           <Button
@@ -110,11 +110,10 @@ export function SuperAdminNav({ isSuperAdmin, isSupport }: SuperAdminNavProps) {
             onClick={() => signOut({ callbackUrl: "/login" })}
           >
             <LogOut className="mr-3 h-4 w-4" />
-            Logg ut
+            Sign out
           </Button>
         </div>
       </div>
     </aside>
   );
 }
-

@@ -15,8 +15,8 @@ export default async function AnsattOpplaering() {
     redirect("/login");
   }
 
-  // Hent alle påkrevde kurs for denne tenanten
-  // (Vi viser unique kurs basert på courseKey)
+  // Fetch all required courses for this tenant
+  // (Show unique courses based on courseKey)
   const allTrainings = await prisma.training.findMany({
     where: {
       tenantId: session.user.tenantId,
@@ -27,13 +27,13 @@ export default async function AnsattOpplaering() {
     },
   });
 
-  // Finn unike kurs basert på courseKey
+  // Find unique courses based on courseKey
   const availableTrainings = allTrainings.filter(
     (training, index, self) =>
       index === self.findIndex((t) => t.courseKey === training.courseKey)
   );
 
-  // Hent ansattes egne opplæringer (registrerte av ansatt selv)
+  // Fetch employee's own training records
   const myTrainings = await prisma.training.findMany({
     where: {
       tenantId: session.user.tenantId,
@@ -51,42 +51,42 @@ export default async function AnsattOpplaering() {
         <div>
           <h1 className="text-2xl font-bold mb-2 flex items-center gap-2">
             <GraduationCap className="h-7 w-7 text-blue-600" />
-            Min opplæring
+            My Training
           </h1>
           <p className="text-muted-foreground">
-            Oversikt over påkrevd og gjennomført opplæring
+            Overview of required and completed training
           </p>
         </div>
         <Link href="/ansatt/opplaering/ny">
           <Button>
             <GraduationCap className="h-4 w-4 mr-2" />
-            Legg til egen kompetanse
+            Add own competence
           </Button>
         </Link>
       </div>
 
-      {/* Info om godkjenning */}
+      {/* Approval info */}
       <Card className="border-l-4 border-l-blue-500 bg-blue-50">
         <CardContent className="p-4">
           <p className="text-sm text-blue-900">
-            <strong>💡 Viktig:</strong> Når du registrerer gjennomført opplæring, må den godkjennes 
-            av din leder før den blir aktiv i systemet.
+            <strong>💡 Important:</strong> When you register completed training, it must be approved
+            by your manager before it becomes active in the system.
           </p>
         </CardContent>
       </Card>
 
-      {/* Påkrevd opplæring */}
+      {/* Required training */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center justify-between">
-            <span>Påkrevd opplæring</span>
-            <Badge variant="destructive">{availableTrainings.length} kurs</Badge>
+            <span>Required Training</span>
+            <Badge variant="destructive">{availableTrainings.length} courses</Badge>
           </CardTitle>
         </CardHeader>
         <CardContent>
           {availableTrainings.length === 0 ? (
             <div className="text-center py-8 text-muted-foreground">
-              Ingen påkrevd opplæring for øyeblikket
+              No required training at this time
             </div>
           ) : (
             <div className="space-y-3">
@@ -114,12 +114,12 @@ export default async function AnsattOpplaering() {
                     
                     {hasCompleted ? (
                       <Badge variant="secondary" className="bg-green-100 text-green-700">
-                        ✓ Gjennomført
+                        ✓ Completed
                       </Badge>
                     ) : (
                       <Link href={`/ansatt/opplaering/registrer/${training.id}`}>
                         <Button size="sm" variant="outline">
-                          Registrer
+                          Register
                         </Button>
                       </Link>
                     )}
@@ -131,15 +131,15 @@ export default async function AnsattOpplaering() {
         </CardContent>
       </Card>
 
-      {/* Mine registrerte opplæringer */}
+      {/* My registered training */}
       <Card>
         <CardHeader>
-          <CardTitle>Mine registreringer</CardTitle>
+          <CardTitle>My Registrations</CardTitle>
         </CardHeader>
         <CardContent>
           {myTrainings.length === 0 ? (
             <div className="text-center py-8 text-muted-foreground">
-              Du har ikke registrert noen opplæring ennå
+              You have not registered any training yet
             </div>
           ) : (
             <div className="space-y-3">
@@ -157,7 +157,7 @@ export default async function AnsattOpplaering() {
                         {training.completedAt && (
                           <span className="flex items-center gap-1">
                             <Clock className="h-3 w-3" />
-                            Gjennomført: {new Date(training.completedAt).toLocaleDateString("nb-NO")}
+                            Completed: {new Date(training.completedAt).toLocaleDateString("en-US")}
                           </span>
                         )}
                       </div>
@@ -166,17 +166,17 @@ export default async function AnsattOpplaering() {
                       {training.effectiveness === null ? (
                         <Badge variant="outline" className="bg-yellow-50 text-yellow-700 border-yellow-300">
                           <AlertCircle className="h-3 w-3 mr-1" />
-                          Venter på godkjenning
+                          Awaiting approval
                         </Badge>
                       ) : (
                         <div className="flex flex-col gap-1">
                           <Badge variant="secondary" className="bg-green-100 text-green-700 w-fit">
                             <CheckCircle className="h-3 w-3 mr-1" />
-                            Godkjent
+                            Approved
                           </Badge>
                           {training.evaluatedBy && (
                             <span className="text-xs text-muted-foreground">
-                              Godkjent av: {training.evaluatedBy}
+                              Approved by: {training.evaluatedBy}
                             </span>
                           )}
                         </div>
@@ -190,27 +190,26 @@ export default async function AnsattOpplaering() {
         </CardContent>
       </Card>
 
-      {/* Hjelp */}
+      {/* Help */}
       <Card className="border-l-4 border-l-blue-500 bg-blue-50">
         <CardHeader className="pb-3">
-          <CardTitle className="text-lg">📚 Hvordan fungerer det?</CardTitle>
+          <CardTitle className="text-lg">📚 How does it work?</CardTitle>
         </CardHeader>
         <CardContent className="space-y-2 text-sm text-blue-900">
           <p>
-            <strong>1. Gjennomfør opplæring:</strong> Delta på kurs eller les gjennom materiell.
+            <strong>1. Complete training:</strong> Attend a course or review the material.
           </p>
           <p>
-            <strong>2. Registrer:</strong> Klikk "Registrer" og last opp bevis (sertifikat, signert liste, etc.).
+            <strong>2. Register:</strong> Click &quot;Register&quot; and upload proof (certificate, signed list, etc.).
           </p>
           <p>
-            <strong>3. Venter godkjenning:</strong> Din leder vil gjennomgå og godkjenne opplæringen.
+            <strong>3. Awaiting approval:</strong> Your manager will review and approve the training.
           </p>
           <p>
-            <strong>4. Godkjent:</strong> Opplæringen er nå registrert i ditt HMS-profil.
+            <strong>4. Approved:</strong> The training is now registered in your EHS profile.
           </p>
         </CardContent>
       </Card>
     </div>
   );
 }
-

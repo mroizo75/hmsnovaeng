@@ -89,21 +89,21 @@ export function FormFiller({ form, userId, tenantId, returnUrl = "/dashboard/for
       const requiredFields = form.fields.filter((f) => f.isRequired);
       for (const field of requiredFields) {
         if (!formValues[field.id]) {
-          toast({
-            title: "❌ Manglende felt",
-            description: `"${field.label}" er påkrevd`,
-            variant: "destructive",
-          });
+      toast({
+        title: "❌ Missing field",
+        description: `"${field.label}" is required`,
+        variant: "destructive",
+      });
           return;
         }
       }
 
       if (form.requiresSignature && !signature) {
-        toast({
-          title: "❌ Manglende signatur",
-          description: "Du må signere skjemaet før innsending",
-          variant: "destructive",
-        });
+      toast({
+        title: "❌ Missing signature",
+        description: "You must sign the form before submitting",
+        variant: "destructive",
+      });
         return;
       }
     }
@@ -111,7 +111,7 @@ export function FormFiller({ form, userId, tenantId, returnUrl = "/dashboard/for
     setIsSubmitting(true);
 
     try {
-      // Lag FormData for fil-opplasting
+      // Create FormData for file upload
       const formData = new FormData();
       formData.append("formId", form.id);
       formData.append("tenantId", tenantId);
@@ -124,7 +124,7 @@ export function FormFiller({ form, userId, tenantId, returnUrl = "/dashboard/for
         formData.append("signature", signature);
       }
 
-      // Legg til filer
+      // Add files
       Object.entries(files).forEach(([fieldId, file]) => {
         formData.append(`file_${fieldId}`, file);
       });
@@ -135,24 +135,24 @@ export function FormFiller({ form, userId, tenantId, returnUrl = "/dashboard/for
       });
 
       if (!response.ok) {
-        throw new Error("Kunne ikke sende inn skjema");
+        throw new Error("Could not submit form");
       }
 
       toast({
-        title: status === "DRAFT" ? "💾 Kladd lagret" : "✅ Skjema sendt inn",
+        title: status === "DRAFT" ? "💾 Draft saved" : "✅ Form submitted",
         description: status === "DRAFT" 
-          ? "Du kan fortsette senere" 
+          ? "You can continue later" 
           : form.requiresApproval 
-            ? "Venter på godkjenning fra leder"
-            : "Takk for at du fylte ut skjemaet",
+            ? "Awaiting approval from manager"
+            : "Thank you for completing the form",
       });
 
       router.push(returnUrl);
       router.refresh();
     } catch (error) {
       toast({
-        title: "❌ Feil",
-        description: "Kunne ikke sende inn skjema. Prøv igjen.",
+        title: "❌ Error",
+        description: "Could not submit form. Please try again.",
         variant: "destructive",
       });
     } finally {
@@ -184,10 +184,10 @@ export function FormFiller({ form, userId, tenantId, returnUrl = "/dashboard/for
               <ShieldCheck className="h-5 w-5 text-green-600 shrink-0 mt-0.5" />
               <div>
                 <p className="font-medium text-green-800 dark:text-green-200">
-                  Anonym kartlegging
+                  Anonymous assessment
                 </p>
                 <p className="text-sm text-green-700 dark:text-green-300 mt-0.5">
-                  Dine svar lagres anonymt. Ingen kan se hvem som har svart. Dette sikrer trygghet og ærlige svar i tråd med arbeidsmiljøloven.
+                  Your responses are stored anonymously. No one can see who has responded. This ensures safety and honest answers in accordance with applicable law.
                 </p>
               </div>
             </div>
@@ -198,7 +198,7 @@ export function FormFiller({ form, userId, tenantId, returnUrl = "/dashboard/for
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Form fields */}
         {form.fields.map((field) => {
-          // SECTION_HEADER vises ikke som et felt, men som en overskrift
+          // SECTION_HEADER is not shown as a field, but as a heading
           if (field.type === "SECTION_HEADER") {
             return (
               <div key={field.id} className="mt-8 mb-4">
@@ -250,9 +250,9 @@ export function FormFiller({ form, userId, tenantId, returnUrl = "/dashboard/for
                       ))}
                     </RadioGroup>
                     <div className="flex justify-between text-xs text-muted-foreground px-2">
-                      <span>Svært uenig</span>
-                      <span>Nøytral</span>
-                      <span>Svært enig</span>
+                    <span>Strongly disagree</span>
+                    <span>Neutral</span>
+                    <span>Strongly agree</span>
                     </div>
                   </div>
                 )}

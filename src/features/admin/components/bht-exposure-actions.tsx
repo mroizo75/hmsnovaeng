@@ -46,10 +46,10 @@ export function BhtExposureActions({
       });
 
       if (result.success) {
-        toast({ title: "✅ Vurdering lagret" });
+        toast({ title: "✅ Assessment saved" });
         router.refresh();
       } else {
-        toast({ variant: "destructive", title: "Feil", description: result.error });
+        toast({ variant: "destructive", title: "Error", description: result.error });
       }
     } finally {
       setLoading(false);
@@ -61,10 +61,10 @@ export function BhtExposureActions({
     try {
       const result = await completeBhtExposure({ exposureId });
       if (result.success) {
-        toast({ title: "✅ Eksponeringsvurdering fullført" });
+        toast({ title: "✅ Exposure assessment completed" });
         router.refresh();
       } else {
-        toast({ variant: "destructive", title: "Feil", description: result.error });
+        toast({ variant: "destructive", title: "Error", description: result.error });
       }
     } finally {
       setLoading(false);
@@ -75,7 +75,7 @@ export function BhtExposureActions({
     return (
       <div className="flex items-center gap-2 text-green-600">
         <CheckCircle2 className="h-5 w-5" />
-        <span>Eksponeringsvurderingen er fullført</span>
+        <span>The exposure assessment is completed</span>
       </div>
     );
   }
@@ -83,7 +83,7 @@ export function BhtExposureActions({
   return (
     <div className="space-y-6">
       <div className="space-y-3">
-        <Label>BHT-konklusjon</Label>
+        <Label>OHS conclusion</Label>
         <RadioGroup
           value={conclusion}
           onValueChange={(v) => setConclusion(v as typeof conclusion)}
@@ -92,37 +92,37 @@ export function BhtExposureActions({
           <div className="flex items-center space-x-2">
             <RadioGroupItem value="SUFFICIENT" id="sufficient" />
             <Label htmlFor="sufficient" className="font-normal">
-              ✔ Tilstrekkelig vurdert - ingen videre tiltak nødvendig
+              ✔ Sufficiently assessed - no further action needed
             </Label>
           </div>
           <div className="flex items-center space-x-2">
             <RadioGroupItem value="NEEDS_FOLLOWUP" id="followup" />
             <Label htmlFor="followup" className="font-normal">
-              ⚠ Anbefaler videre kartlegging (tilleggstjeneste)
+              ⚠ Recommends further assessment (additional service)
             </Label>
           </div>
         </RadioGroup>
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="notes">Vurderingsnotat</Label>
+        <Label htmlFor="notes">Assessment note</Label>
         <Textarea
           id="notes"
           value={notes}
           onChange={(e) => setNotes(e.target.value)}
-          placeholder="Kort vurderingsnotat fra BHT..."
+          placeholder="Brief assessment note from OHS..."
           rows={3}
         />
       </div>
 
       {conclusion === "NEEDS_FOLLOWUP" && (
         <div className="space-y-2">
-          <Label htmlFor="furtherNotes">Hva anbefales?</Label>
+          <Label htmlFor="furtherNotes">What is recommended?</Label>
           <Textarea
             id="furtherNotes"
             value={furtherNotes}
             onChange={(e) => setFurtherNotes(e.target.value)}
-            placeholder="Beskriv anbefalt videre kartlegging..."
+            placeholder="Describe recommended further assessment..."
             rows={3}
           />
         </div>
@@ -131,7 +131,7 @@ export function BhtExposureActions({
       <div className="flex gap-4">
         <Button onClick={handleSave} disabled={loading}>
           {loading && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
-          Lagre vurdering
+          Save assessment
         </Button>
 
         {currentStatus === "BHT_REVIEWED" && (
@@ -141,7 +141,7 @@ export function BhtExposureActions({
             className="bg-green-600 hover:bg-green-700"
           >
             <CheckCircle2 className="h-4 w-4 mr-2" />
-            Marker som fullført
+            Mark as completed
           </Button>
         )}
       </div>

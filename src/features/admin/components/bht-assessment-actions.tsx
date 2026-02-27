@@ -34,10 +34,10 @@ export function BhtAssessmentActions({
     try {
       const result = await sendAssessmentToCustomer({ assessmentId });
       if (result.success) {
-        toast({ title: "✅ Sendt til kunde" });
+        toast({ title: "✅ Sent to customer" });
         router.refresh();
       } else {
-        toast({ variant: "destructive", title: "Feil", description: result.error });
+        toast({ variant: "destructive", title: "Error", description: result.error });
       }
     } finally {
       setLoading(null);
@@ -48,8 +48,8 @@ export function BhtAssessmentActions({
     if (!bhtComments.trim()) {
       toast({
         variant: "destructive",
-        title: "Mangler kommentar",
-        description: "Legg til en BHT-vurdering",
+        title: "Missing comment",
+        description: "Add an OHS assessment",
       });
       return;
     }
@@ -62,10 +62,10 @@ export function BhtAssessmentActions({
         bhtComments,
       });
       if (result.success) {
-        toast({ title: "✅ BHT-vurdering lagret" });
+        toast({ title: "✅ OHS assessment saved" });
         router.refresh();
       } else {
-        toast({ variant: "destructive", title: "Feil", description: result.error });
+        toast({ variant: "destructive", title: "Error", description: result.error });
       }
     } finally {
       setLoading(null);
@@ -77,10 +77,10 @@ export function BhtAssessmentActions({
     try {
       const result = await completeBhtAssessment({ assessmentId });
       if (result.success) {
-        toast({ title: "✅ Kartlegging fullført" });
+        toast({ title: "✅ Assessment completed" });
         router.refresh();
       } else {
-        toast({ variant: "destructive", title: "Feil", description: result.error });
+        toast({ variant: "destructive", title: "Error", description: result.error });
       }
     } finally {
       setLoading(null);
@@ -91,14 +91,14 @@ export function BhtAssessmentActions({
     return (
       <div className="flex items-center gap-2 text-green-600">
         <CheckCircle2 className="h-5 w-5" />
-        <span>Kartleggingen er fullført og arkivert</span>
+        <span>The assessment is completed and archived</span>
       </div>
     );
   }
 
   return (
     <div className="space-y-4">
-      {/* Send til kunde */}
+      {/* Send to customer */}
       {(currentStatus === "DRAFT" || currentStatus === "AI_ANALYZED") && (
         <div className="flex items-center gap-4">
           <Button onClick={handleSendToCustomer} disabled={loading !== null}>
@@ -107,23 +107,23 @@ export function BhtAssessmentActions({
             ) : (
               <Send className="h-4 w-4 mr-2" />
             )}
-            Send til kunde for bekreftelse
+            Send to customer for confirmation
           </Button>
           <span className="text-sm text-muted-foreground">
-            Kunden mottar kartleggingen og kan gi tilbakemelding
+            The customer receives the assessment and can provide feedback
           </span>
         </div>
       )}
 
-      {/* BHT-vurdering */}
+      {/* OHS assessment */}
       {(currentStatus === "SENT_TO_CUSTOMER" || currentStatus === "CUSTOMER_RESPONDED") && (
         <div className="space-y-3">
-          <Label htmlFor="bhtComments">BHT-vurdering og kommentarer</Label>
+          <Label htmlFor="bhtComments">OHS assessment and comments</Label>
           <Textarea
             id="bhtComments"
             value={bhtComments}
             onChange={(e) => setBhtComments(e.target.value)}
-            placeholder="Legg til din faglige vurdering av kartleggingen..."
+            placeholder="Add your professional assessment of the mapping..."
             rows={4}
           />
           <Button onClick={handleBhtReview} disabled={loading !== null}>
@@ -132,12 +132,12 @@ export function BhtAssessmentActions({
             ) : (
               <FileText className="h-4 w-4 mr-2" />
             )}
-            Lagre BHT-vurdering
+            Save OHS assessment
           </Button>
         </div>
       )}
 
-      {/* Fullfør */}
+      {/* Complete */}
       {currentStatus === "BHT_REVIEWED" && (
         <div className="flex items-center gap-4">
           <Button onClick={handleComplete} disabled={loading !== null} className="bg-green-600 hover:bg-green-700">
@@ -146,10 +146,10 @@ export function BhtAssessmentActions({
             ) : (
               <CheckCircle2 className="h-4 w-4 mr-2" />
             )}
-            Marker som fullført
+            Mark as completed
           </Button>
           <span className="text-sm text-muted-foreground">
-            Merker kartleggingen som "Faglig vurdert av BHT"
+            Marks the assessment as "Professionally reviewed by OHS"
           </span>
         </div>
       )}

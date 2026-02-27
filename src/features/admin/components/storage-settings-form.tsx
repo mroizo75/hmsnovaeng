@@ -42,8 +42,8 @@ export function StorageSettingsForm() {
     await new Promise((resolve) => setTimeout(resolve, 1000));
 
     toast({
-      title: "✅ Lagringsinnstillinger lagret",
-      description: "Lagringskonfigurasjonen er oppdatert",
+      title: "✅ Storage settings saved",
+      description: "Storage configuration has been updated",
       className: "bg-green-50 border-green-200",
     });
 
@@ -53,7 +53,7 @@ export function StorageSettingsForm() {
   return (
     <div className="space-y-6">
       <div className="space-y-2">
-        <Label htmlFor="storageType">Lagringstype</Label>
+        <Label htmlFor="storageType">Storage type</Label>
         <Select
           value={storageType}
           onValueChange={setStorageType}
@@ -66,13 +66,13 @@ export function StorageSettingsForm() {
             <SelectItem value="local">
               <div className="flex items-center gap-2">
                 <HardDrive className="h-4 w-4" />
-                Lokal lagring (kun testing)
+                Local storage (testing only)
               </div>
             </SelectItem>
             <SelectItem value="r2">
               <div className="flex items-center gap-2">
                 <Cloud className="h-4 w-4" />
-                Cloudflare R2 (anbefalt)
+                Cloudflare R2 (recommended)
               </div>
             </SelectItem>
           </SelectContent>
@@ -84,11 +84,11 @@ export function StorageSettingsForm() {
           <AlertTriangle className="h-5 w-5 text-yellow-600 mt-0.5" />
           <div className="space-y-1">
             <p className="font-medium text-yellow-900">
-              Lokal lagring er kun for testing
+              Local storage is for testing only
             </p>
             <p className="text-sm text-yellow-800">
-              I produksjon bør du bruke Cloudflare R2 eller S3-kompatibel lagring
-              for skalerbarhet og backup.
+              In production you should use Cloudflare R2 or S3-compatible storage
+              for scalability and backup.
             </p>
           </div>
         </div>
@@ -101,12 +101,12 @@ export function StorageSettingsForm() {
             {isR2Configured ? (
               <Badge className="bg-green-100 text-green-800 border-green-200">
                 <CheckCircle2 className="h-3 w-3 mr-1" />
-                Konfigurert
+                Configured
               </Badge>
             ) : (
               <Badge variant="secondary">
                 <AlertTriangle className="h-3 w-3 mr-1" />
-                Ikke konfigurert
+                Not configured
               </Badge>
             )}
           </div>
@@ -116,14 +116,14 @@ export function StorageSettingsForm() {
               <Cloud className="h-5 w-5 text-blue-600 mt-0.5" />
               <div className="space-y-1">
                 <p className="font-medium text-blue-900">
-                  Konfigurer Cloudflare R2
+                  Configure Cloudflare R2
                 </p>
                 <p className="text-sm text-blue-800">
-                  1. Opprett en R2-bucket på Cloudflare dashboard
+                  1. Create an R2 bucket on the Cloudflare dashboard
                   <br />
-                  2. Generer API-token med R2-tilgang
+                  2. Generate API token with R2 access
                   <br />
-                  3. Legg til credentials i .env-filen
+                  3. Add credentials to the .env file
                 </p>
               </div>
             </div>
@@ -139,7 +139,7 @@ export function StorageSettingsForm() {
                 placeholder="https://[account-id].r2.cloudflarestorage.com"
               />
               <p className="text-sm text-muted-foreground">
-                Endpoint URL fra Cloudflare R2 dashboard
+                Endpoint URL from Cloudflare R2 dashboard
               </p>
             </div>
 
@@ -165,21 +165,21 @@ export function StorageSettingsForm() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="r2Bucket">Bucket navn</Label>
+              <Label htmlFor="r2Bucket">Bucket name</Label>
               <Input
                 id="r2Bucket"
                 defaultValue={currentSettings.r2Bucket}
                 disabled={loading}
               />
               <p className="text-sm text-muted-foreground">
-                Navnet på R2-bucketen
+                The name of the R2 bucket
               </p>
             </div>
 
             <div className="flex items-center gap-3 pt-4 border-t">
               <Button type="submit" disabled={loading}>
                 <Save className="mr-2 h-4 w-4" />
-                {loading ? "Lagrer..." : "Lagre innstillinger"}
+                {loading ? "Saving..." : "Save settings"}
               </Button>
             </div>
           </form>
@@ -189,21 +189,21 @@ export function StorageSettingsForm() {
       {storageType === "local" && (
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="space-y-2">
-            <Label htmlFor="localPath">Lokal lagringssti</Label>
+            <Label htmlFor="localPath">Local storage path</Label>
             <Input
               id="localPath"
               defaultValue={currentSettings.localStoragePath}
               disabled={loading}
             />
             <p className="text-sm text-muted-foreground">
-              Mappe hvor filer lagres lokalt
+              Folder where files are stored locally
             </p>
           </div>
 
           <div className="flex items-center gap-3 pt-4 border-t">
             <Button type="submit" disabled={loading}>
               <Save className="mr-2 h-4 w-4" />
-              {loading ? "Lagrer..." : "Lagre innstillinger"}
+              {loading ? "Saving..." : "Save settings"}
             </Button>
           </div>
         </form>

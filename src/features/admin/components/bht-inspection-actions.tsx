@@ -30,7 +30,7 @@ export function BhtInspectionActions({
 
   async function handleSchedule() {
     if (!inspectionDate) {
-      toast({ variant: "destructive", title: "Velg dato" });
+      toast({ variant: "destructive", title: "Select date" });
       return;
     }
 
@@ -43,10 +43,10 @@ export function BhtInspectionActions({
       });
 
       if (result.success) {
-        toast({ title: "✅ Vernerunde planlagt" });
+        toast({ title: "✅ Safety walk scheduled" });
         router.refresh();
       } else {
-        toast({ variant: "destructive", title: "Feil", description: result.error });
+        toast({ variant: "destructive", title: "Error", description: result.error });
       }
     } finally {
       setLoading(false);
@@ -56,7 +56,7 @@ export function BhtInspectionActions({
   async function handleSaveFindings() {
     setLoading(true);
     try {
-      // Parse funn som JSON-array
+      // Parse findings as JSON array
       const findingsArray = findings
         .split("\n")
         .filter((f) => f.trim())
@@ -75,10 +75,10 @@ export function BhtInspectionActions({
       });
 
       if (result.success) {
-        toast({ title: "✅ Funn lagret" });
+        toast({ title: "✅ Findings saved" });
         router.refresh();
       } else {
-        toast({ variant: "destructive", title: "Feil", description: result.error });
+        toast({ variant: "destructive", title: "Error", description: result.error });
       }
     } finally {
       setLoading(false);
@@ -94,10 +94,10 @@ export function BhtInspectionActions({
       });
 
       if (result.success) {
-        toast({ title: "✅ Vernerunde fullført" });
+        toast({ title: "✅ Safety walk completed" });
         router.refresh();
       } else {
-        toast({ variant: "destructive", title: "Feil", description: result.error });
+        toast({ variant: "destructive", title: "Error", description: result.error });
       }
     } finally {
       setLoading(false);
@@ -108,17 +108,17 @@ export function BhtInspectionActions({
     return (
       <div className="flex items-center gap-2 text-green-600">
         <CheckCircle2 className="h-5 w-5" />
-        <span>Vernerunden er fullført og dokumentert</span>
+        <span>The safety walk is completed and documented</span>
       </div>
     );
   }
 
   return (
     <div className="space-y-6">
-      {/* Planlegg vernerunde */}
+      {/* Schedule safety walk */}
       {currentStatus === "PLANNED" && (
         <div className="space-y-3">
-          <Label htmlFor="inspectionDate">Planlegg dato for vernerunde</Label>
+          <Label htmlFor="inspectionDate">Schedule date for safety walk</Label>
           <div className="flex gap-4">
             <Input
               id="inspectionDate"
@@ -133,25 +133,25 @@ export function BhtInspectionActions({
               ) : (
                 <Calendar className="h-4 w-4 mr-2" />
               )}
-              Sett dato
+              Set date
             </Button>
           </div>
         </div>
       )}
 
-      {/* Registrer funn */}
+      {/* Register findings */}
       {(currentStatus === "PREPARED" || currentStatus === "CONDUCTED") && (
         <>
           <div className="space-y-3">
             <Label htmlFor="findings" className="flex items-center gap-2">
               <AlertTriangle className="h-4 w-4 text-orange-500" />
-              Registrer funn og avvik (ett per linje)
+              Register findings and deviations (one per line)
             </Label>
             <Textarea
               id="findings"
               value={findings}
               onChange={(e) => setFindings(e.target.value)}
-              placeholder="Skriv inn funn, ett per linje..."
+              placeholder="Enter findings, one per line..."
               rows={5}
             />
           </div>
@@ -159,13 +159,13 @@ export function BhtInspectionActions({
           <div className="space-y-3">
             <Label htmlFor="improvements" className="flex items-center gap-2">
               <Lightbulb className="h-4 w-4 text-green-500" />
-              Forbedringsforslag (ett per linje)
+              Improvement suggestions (one per line)
             </Label>
             <Textarea
               id="improvements"
               value={improvements}
               onChange={(e) => setImprovements(e.target.value)}
-              placeholder="Skriv inn forbedringsforslag, ett per linje..."
+              placeholder="Enter improvement suggestions, one per line..."
               rows={5}
             />
           </div>
@@ -176,12 +176,12 @@ export function BhtInspectionActions({
             ) : (
               <CheckCircle2 className="h-4 w-4 mr-2" />
             )}
-            Lagre funn og forbedringsforslag
+            Save findings and improvement suggestions
           </Button>
         </>
       )}
 
-      {/* Fullfør */}
+      {/* Complete */}
       {currentStatus === "REPORT_DONE" && (
         <Button
           onClick={handleComplete}
@@ -193,7 +193,7 @@ export function BhtInspectionActions({
           ) : (
             <CheckCircle2 className="h-4 w-4 mr-2" />
           )}
-          Marker som fullført
+          Mark as completed
         </Button>
       )}
     </div>

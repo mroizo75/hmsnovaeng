@@ -21,7 +21,7 @@ export default async function EditAuditPage({ params }: { params: Promise<{ id: 
   });
 
   if (!user || user.tenants.length === 0) {
-    return <div>Ingen tilgang til tenant</div>;
+    return <div>No tenant access</div>;
   }
 
   const tenantId = user.tenants[0].tenantId;
@@ -31,7 +31,7 @@ export default async function EditAuditPage({ params }: { params: Promise<{ id: 
   });
 
   if (!audit) {
-    return <div>Revisjon ikke funnet</div>;
+    return <div>Audit not found</div>;
   }
 
   // Hent alle brukere for tenant (for revisorer)
@@ -53,10 +53,10 @@ export default async function EditAuditPage({ params }: { params: Promise<{ id: 
       <div>
         <Button variant="ghost" asChild className="mb-4">
           <Link href={`/dashboard/audits/${audit.id}`}>
-            <ArrowLeft className="mr-2 h-4 w-4" /> Tilbake til revisjon
+            <ArrowLeft className="mr-2 h-4 w-4" /> Back to audit
           </Link>
         </Button>
-        <h1 className="text-3xl font-bold">Rediger revisjon</h1>
+        <h1 className="text-3xl font-bold">Edit Audit</h1>
         <p className="text-muted-foreground">{audit.title}</p>
       </div>
 

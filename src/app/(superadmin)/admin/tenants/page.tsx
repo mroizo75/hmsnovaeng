@@ -14,11 +14,11 @@ import Link from "next/link";
 import { Plus, ExternalLink, CheckCircle2 } from "lucide-react";
 
 export default async function TenantsPage() {
-  // Hent kun tenants som har brukere (aktive bedrifter)
+  // Fetch only tenants that have users (active companies)
   const tenants = await prisma.tenant.findMany({
     where: {
       users: {
-        some: {}, // Må ha minst én bruker
+        some: {}, // Must have at least one user
       },
     },
     include: {
@@ -47,38 +47,38 @@ export default async function TenantsPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold">Bedrifter</h1>
+          <h1 className="text-3xl font-bold">Companies</h1>
           <p className="text-muted-foreground">
-            Administrer alle registrerte bedrifter
+            Manage all registered companies
           </p>
         </div>
         <Button asChild>
           <Link href="/admin/tenants/new">
             <Plus className="mr-2 h-4 w-4" />
-            Ny bedrift
+            New company
           </Link>
         </Button>
       </div>
 
       <Card>
         <CardHeader>
-          <CardTitle>Alle bedrifter ({tenants.length})</CardTitle>
+          <CardTitle>All companies ({tenants.length})</CardTitle>
           <CardDescription>
-            Oversikt over bedrifter, status og abonnementer
+            Overview of companies, status, and subscriptions
           </CardDescription>
         </CardHeader>
         <CardContent>
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Bedrift</TableHead>
-                <TableHead>Org.nr</TableHead>
+                <TableHead>Company</TableHead>
+                <TableHead>Reg. No.</TableHead>
                 <TableHead>Status</TableHead>
-                <TableHead>Avtale</TableHead>
-                <TableHead>Abonnement</TableHead>
-                <TableHead>Brukere</TableHead>
-                <TableHead>Faktura</TableHead>
-                <TableHead className="text-right">Handlinger</TableHead>
+                <TableHead>Agreement</TableHead>
+                <TableHead>Subscription</TableHead>
+                <TableHead>Users</TableHead>
+                <TableHead>Invoice</TableHead>
+                <TableHead className="text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -119,13 +119,13 @@ export default async function TenantsPage() {
                             className="flex w-fit items-center gap-1 bg-green-600 hover:bg-green-600"
                           >
                             <CheckCircle2 className="h-3 w-3" />
-                            Avtale godkjent
+                            Agreement approved
                           </Badge>
                         );
                       }
                       if (latestOffer?.status === "SENT") {
                         return (
-                          <Badge variant="secondary">Tilbud sendt</Badge>
+                          <Badge variant="secondary">Offer sent</Badge>
                         );
                       }
                       return (
@@ -140,7 +140,7 @@ export default async function TenantsPage() {
                           {tenant.subscription.plan}
                         </p>
                         <p className="text-xs text-muted-foreground">
-                          {tenant.subscription.price} kr/{tenant.subscription.billingInterval === "MONTHLY" ? "mnd" : "år"}
+                          ${tenant.subscription.price}/{tenant.subscription.billingInterval === "MONTHLY" ? "mo" : "yr"}
                         </p>
                       </div>
                     ) : (
@@ -151,7 +151,7 @@ export default async function TenantsPage() {
                   <TableCell>
                     {tenant.invoices.length > 0 ? (
                       <Badge variant="destructive">
-                        {tenant.invoices.length} forfalt
+                        {tenant.invoices.length} overdue
                       </Badge>
                     ) : (
                       <span className="text-sm text-muted-foreground">OK</span>
@@ -173,4 +173,3 @@ export default async function TenantsPage() {
     </div>
   );
 }
-

@@ -29,24 +29,24 @@ export default async function AnsattStoffkartotek() {
       <div>
         <h1 className="text-2xl font-bold mb-2 flex items-center gap-2">
           <Beaker className="h-7 w-7 text-purple-600" />
-          Stoffkartotek
+          Chemical Registry
         </h1>
         <p className="text-muted-foreground">
-          Oversikt over farlige stoffer og kjemikalier
+          Overview of hazardous substances and chemicals
         </p>
       </div>
 
-      {/* Varsel */}
+      {/* Warning */}
       <Card className="border-l-4 border-l-orange-500 bg-orange-50">
         <CardContent className="p-4">
           <p className="text-sm text-orange-900">
-            <strong>⚠️ Viktig:</strong> Les alltid sikkerhetsdatabladet (SDS) før bruk!
-            Bruk alltid anbefalt verneutstyr.
+            <strong>⚠️ Important:</strong> Always read the Safety Data Sheet (SDS) before use!
+            Always use recommended personal protective equipment.
           </p>
         </CardContent>
       </Card>
 
-      {/* Client-komponent med søk og liste */}
+      {/* Client component with search and list */}
       <StoffkartotekClient chemicals={chemicals} />
     </div>
   );

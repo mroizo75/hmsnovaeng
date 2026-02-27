@@ -44,23 +44,23 @@ export function InvestigationForm({ incidentId, users }: InvestigationFormProps)
 
       if (result.success) {
         toast({
-          title: "✅ Årsaksanalyse fullført",
-          description: "Nå kan du planlegge korrigerende tiltak",
+          title: "✅ Root cause analysis complete",
+          description: "You can now plan corrective actions",
           className: "bg-green-50 border-green-200",
         });
         router.refresh();
       } else {
         toast({
           variant: "destructive",
-          title: "Feil",
-          description: result.error || "Kunne ikke lagre årsaksanalyse",
+          title: "Error",
+          description: result.error || "Could not save root cause analysis",
         });
       }
     } catch (error) {
       toast({
         variant: "destructive",
-        title: "Uventet feil",
-        description: "Noe gikk galt",
+        title: "Unexpected error",
+        description: "Something went wrong",
       });
     } finally {
       setLoading(false);
@@ -72,59 +72,59 @@ export function InvestigationForm({ incidentId, users }: InvestigationFormProps)
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <FileSearch className="h-5 w-5" />
-          Årsaksanalyse (Root Cause Analysis)
+          Root Cause Analysis
         </CardTitle>
         <CardDescription>
-          ISO 9001: Vurder behov for tiltak for å eliminere årsaken
+          ISO 9001: Assess the need for actions to eliminate the cause
         </CardDescription>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="rounded-lg bg-yellow-50 border border-yellow-200 p-4 mb-4">
-            <p className="text-sm font-medium text-yellow-900 mb-2">🔍 5 Hvorfor-metoden</p>
+            <p className="text-sm font-medium text-yellow-900 mb-2">🔍 The 5 Whys method</p>
             <p className="text-sm text-yellow-800">
-              Spør "hvorfor" gjentatte ganger for å finne grunnårsaken. F.eks:
+              Ask "why" repeatedly to find the root cause. Example:
             </p>
             <ul className="text-xs text-yellow-700 mt-2 space-y-1 list-disc list-inside ml-2">
-              <li>Hvorfor skjedde ulykken? → Personen falt fra stige</li>
-              <li>Hvorfor falt personen? → Stigen sto ustabilt</li>
-              <li>Hvorfor sto stigen ustabilt? → Gulvet var glatt/ujevnt</li>
-              <li>Hvorfor var gulvet glatt? → Ingen risikovurdering utført</li>
-              <li><strong>Grunnårsak: Mangelfull planlegging og risikovurdering</strong></li>
+              <li>Why did the accident happen? → The person fell from a ladder</li>
+              <li>Why did the person fall? → The ladder was unstable</li>
+              <li>Why was the ladder unstable? → The floor was slippery/uneven</li>
+              <li>Why was the floor slippery? → No risk assessment performed</li>
+              <li><strong>Root cause: Inadequate planning and risk assessment</strong></li>
             </ul>
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="rootCause">Grunnårsak (Root Cause) *</Label>
+            <Label htmlFor="rootCause">Root Cause *</Label>
             <Textarea
               id="rootCause"
               name="rootCause"
-              placeholder="Hva er den underliggende årsaken til at dette skjedde? Bruk 5 Hvorfor-metoden."
+              placeholder="What is the underlying cause of this incident? Use the 5 Whys method."
               required
               disabled={loading}
               rows={5}
             />
             <p className="text-xs text-muted-foreground">
-              Beskriv grunnårsaken, ikke bare symptomet
+              Describe the root cause, not just the symptom
             </p>
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="contributingFactors">Medvirkende faktorer</Label>
+            <Label htmlFor="contributingFactors">Contributing factors</Label>
             <Textarea
               id="contributingFactors"
               name="contributingFactors"
-              placeholder="Andre faktorer som bidro til hendelsen (f.eks. tidpress, manglende opplæring, dårlig kommunikasjon)"
+              placeholder="Other factors that contributed to the incident (e.g. time pressure, lack of training, poor communication)"
               disabled={loading}
               rows={3}
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="investigatedBy">Utredet av *</Label>
+            <Label htmlFor="investigatedBy">Investigated by *</Label>
             <Select name="investigatedBy" required disabled={loading}>
               <SelectTrigger>
-                <SelectValue placeholder="Velg ansvarlig for utredning" />
+                <SelectValue placeholder="Select responsible for investigation" />
               </SelectTrigger>
               <SelectContent>
                 {users.map((user) => (
@@ -138,7 +138,7 @@ export function InvestigationForm({ incidentId, users }: InvestigationFormProps)
 
           <div className="flex justify-end gap-4">
             <Button type="submit" disabled={loading}>
-              {loading ? "Lagrer..." : "Fullfør årsaksanalyse"}
+              {loading ? "Saving..." : "Complete root cause analysis"}
             </Button>
           </div>
         </form>
@@ -146,4 +146,3 @@ export function InvestigationForm({ incidentId, users }: InvestigationFormProps)
     </Card>
   );
 }
-

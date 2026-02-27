@@ -5,18 +5,18 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Type, AlignLeft, Hash, Calendar, Clock, CheckSquare, Circle, ChevronDown, FileUp, PenTool, BarChart3, Heading2 } from "lucide-react";
 
 const FIELD_TYPES = [
-  { id: "TEXT", label: "Kort tekst", icon: Type, description: "Enkel tekstlinje" },
-  { id: "TEXTAREA", label: "Lang tekst", icon: AlignLeft, description: "Tekstområde med flere linjer" },
-  { id: "NUMBER", label: "Tall", icon: Hash, description: "Tallverdi" },
-  { id: "DATE", label: "Dato", icon: Calendar, description: "Datovelger" },
-  { id: "DATETIME", label: "Dato og tid", icon: Clock, description: "Dato med tidspunkt" },
-  { id: "CHECKBOX", label: "Avkrysning", icon: CheckSquare, description: "Ja/Nei checkbox" },
-  { id: "RADIO", label: "Radioknapper", icon: Circle, description: "Velg ett alternativ" },
-  { id: "SELECT", label: "Rullegardin", icon: ChevronDown, description: "Dropdown-meny" },
-  { id: "LIKERT_SCALE", label: "Likert-skala", icon: BarChart3, description: "1-5 skala (Enig/Uenig)" },
-  { id: "FILE", label: "Filopplasting", icon: FileUp, description: "Last opp fil/bilde" },
-  { id: "SIGNATURE", label: "Signatur", icon: PenTool, description: "Digital signatur" },
-  { id: "SECTION_HEADER", label: "Seksjonsoverskrift", icon: Heading2, description: "Overskrift for gruppering" },
+  { id: "TEXT", label: "Short text", icon: Type, description: "Single text line" },
+  { id: "TEXTAREA", label: "Long text", icon: AlignLeft, description: "Multi-line text area" },
+  { id: "NUMBER", label: "Number", icon: Hash, description: "Numeric value" },
+  { id: "DATE", label: "Date", icon: Calendar, description: "Date picker" },
+  { id: "DATETIME", label: "Date and time", icon: Clock, description: "Date with time" },
+  { id: "CHECKBOX", label: "Checkbox", icon: CheckSquare, description: "Yes/No checkbox" },
+  { id: "RADIO", label: "Radio buttons", icon: Circle, description: "Select one option" },
+  { id: "SELECT", label: "Dropdown", icon: ChevronDown, description: "Dropdown menu" },
+  { id: "LIKERT_SCALE", label: "Likert scale", icon: BarChart3, description: "1-5 scale (Agree/Disagree)" },
+  { id: "FILE", label: "File upload", icon: FileUp, description: "Upload file/image" },
+  { id: "SIGNATURE", label: "Signature", icon: PenTool, description: "Digital signature" },
+  { id: "SECTION_HEADER", label: "Section header", icon: Heading2, description: "Header for grouping" },
 ];
 
 function DraggableField({ field }: { field: typeof FIELD_TYPES[0] }) {
@@ -54,9 +54,9 @@ export function FieldLibrary() {
   return (
     <Card className="sticky top-6">
       <CardHeader>
-        <CardTitle className="text-lg">Feltbibliotek</CardTitle>
+        <CardTitle className="text-lg">Field library</CardTitle>
         <p className="text-sm text-muted-foreground">
-          Dra felt til skjemaet
+          Drag fields to the form
         </p>
       </CardHeader>
       <CardContent className="space-y-2">

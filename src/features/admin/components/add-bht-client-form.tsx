@@ -51,8 +51,8 @@ export function AddBhtClientForm({ tenants }: AddBhtClientFormProps) {
     if (!selectedTenantId) {
       toast({
         variant: "destructive",
-        title: "Velg kunde",
-        description: "Du må velge en kunde",
+        title: "Select customer",
+        description: "You must select a customer",
       });
       return;
     }
@@ -70,14 +70,14 @@ export function AddBhtClientForm({ tenants }: AddBhtClientFormProps) {
 
       if (result.success) {
         toast({
-          title: "✅ BHT-kunde opprettet",
-          description: `${selectedTenant?.name} er nå registrert som BHT-kunde`,
+        title: "✅ BHT client created",
+        description: `${selectedTenant?.name} is now registered as BHT client`,
         });
         router.push(`/admin/bht/${result.clientId}`);
       } else {
         toast({
           variant: "destructive",
-          title: "Feil",
+          title: "Error",
           description: result.error,
         });
       }
@@ -85,8 +85,8 @@ export function AddBhtClientForm({ tenants }: AddBhtClientFormProps) {
       console.error(error);
       toast({
         variant: "destructive",
-        title: "Systemfeil",
-        description: "Kunne ikke opprette BHT-kunde",
+        title: "System error",
+        description: "Could not create BHT client",
       });
     } finally {
       setLoading(false);
@@ -96,15 +96,15 @@ export function AddBhtClientForm({ tenants }: AddBhtClientFormProps) {
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       <div className="space-y-2">
-        <Label htmlFor="tenant">Kunde *</Label>
+        <Label htmlFor="tenant">Customer *</Label>
         <Select value={selectedTenantId} onValueChange={setSelectedTenantId}>
           <SelectTrigger>
-            <SelectValue placeholder="Velg kunde..." />
+            <SelectValue placeholder="Select customer..." />
           </SelectTrigger>
           <SelectContent>
             {tenants.length === 0 ? (
               <SelectItem value="none" disabled>
-                Ingen tilgjengelige kunder
+                No available customers
               </SelectItem>
             ) : (
               tenants.map((tenant) => (
@@ -118,16 +118,16 @@ export function AddBhtClientForm({ tenants }: AddBhtClientFormProps) {
         </Select>
         {selectedTenant && (
           <div className="text-sm text-muted-foreground mt-2 p-3 bg-muted rounded-md">
-            <p><strong>Bransje:</strong> {selectedTenant.industry || "Ikke angitt"}</p>
-            <p><strong>Ansatte:</strong> {selectedTenant.employeeCount || "Ikke angitt"}</p>
-            <p><strong>Kontakt:</strong> {selectedTenant.contactPerson || "Ikke angitt"}</p>
-            <p><strong>E-post:</strong> {selectedTenant.contactEmail || "Ikke angitt"}</p>
+            <p><strong>Industry:</strong> {selectedTenant.industry || "Not specified"}</p>
+            <p><strong>Employees:</strong> {selectedTenant.employeeCount || "Not specified"}</p>
+            <p><strong>Contact:</strong> {selectedTenant.contactPerson || "Not specified"}</p>
+            <p><strong>Email:</strong> {selectedTenant.contactEmail || "Not specified"}</p>
           </div>
         )}
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="packageType">Pakketype *</Label>
+        <Label htmlFor="packageType">Package type *</Label>
         <Select
           value={packageType}
           onValueChange={(v) => setPackageType(v as "BASIC" | "EXTENDED")}
@@ -137,23 +137,23 @@ export function AddBhtClientForm({ tenants }: AddBhtClientFormProps) {
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="BASIC">
-              Grunnpakke BHT
+              Basic OHS package
             </SelectItem>
             <SelectItem value="EXTENDED">
-              Utvidet BHT-pakke
+              Extended OHS package
             </SelectItem>
           </SelectContent>
         </Select>
         <p className="text-xs text-muted-foreground">
           {packageType === "BASIC"
-            ? "Inneholder: Kartlegging, rådgivning, AMO/vernerunde, eksponering, årsrapport"
-            : "Inneholder alt i grunnpakke + individoppfølging, helsekontroller, mm."}
+            ? "Includes: Mapping, consultancy, occupational health rounds, exposure assessment, annual report"
+            : "Includes everything in basic package + individual follow-up, health checks, etc."}
         </p>
       </div>
 
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-2">
-          <Label htmlFor="startDate">Avtalestart *</Label>
+          <Label htmlFor="startDate">Contract start *</Label>
           <Input
             id="startDate"
             type="date"
@@ -163,7 +163,7 @@ export function AddBhtClientForm({ tenants }: AddBhtClientFormProps) {
           />
         </div>
         <div className="space-y-2">
-          <Label htmlFor="endDate">Avtaleslutt (valgfritt)</Label>
+          <Label htmlFor="endDate">Contract end (optional)</Label>
           <Input
             id="endDate"
             type="date"
@@ -174,12 +174,12 @@ export function AddBhtClientForm({ tenants }: AddBhtClientFormProps) {
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="notes">Notater</Label>
+        <Label htmlFor="notes">Notes</Label>
         <Textarea
           id="notes"
           value={notes}
           onChange={(e) => setNotes(e.target.value)}
-          placeholder="Eventuelle notater om avtalen..."
+          placeholder="Any notes about the agreement..."
           rows={3}
         />
       </div>
@@ -191,11 +191,11 @@ export function AddBhtClientForm({ tenants }: AddBhtClientFormProps) {
           onClick={() => router.back()}
           disabled={loading}
         >
-          Avbryt
+          Cancel
         </Button>
         <Button type="submit" disabled={loading || !selectedTenantId}>
           {loading && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
-          Opprett BHT-kunde
+          Create BHT client
         </Button>
       </div>
     </form>

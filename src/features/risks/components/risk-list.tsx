@@ -27,12 +27,12 @@ interface RiskListProps {
   })[];
 }
 
-// ISO 45001/31000-aligned status for risikovurdering
+// ISO 45001/31000-aligned status for risk assessment
 const statusLabels: Record<string, string> = {
-  OPEN: "Identifisert",
-  MITIGATING: "Tiltak iverksatt",
-  ACCEPTED: "Akseptert",
-  CLOSED: "Lukket",
+  OPEN: "Identified",
+  MITIGATING: "Actions implemented",
+  ACCEPTED: "Accepted",
+  CLOSED: "Closed",
 };
 
 const statusVariants: Record<string, "default" | "secondary" | "destructive"> = {
@@ -43,32 +43,32 @@ const statusVariants: Record<string, "default" | "secondary" | "destructive"> = 
 };
 
 const categoryLabels: Record<string, string> = {
-  OPERATIONAL: "Operasjonell",
-  SAFETY: "Sikkerhet",
-  HEALTH: "Helse",
-  ENVIRONMENTAL: "Miljø",
-  INFORMATION_SECURITY: "Info-sikkerhet",
-  LEGAL: "Juridisk",
-  STRATEGIC: "Strategisk",
-  PSYCHOSOCIAL: "Psykososialt",
-  ERGONOMIC: "Ergonomisk",
-  ORGANISATIONAL: "Organisatorisk",
-  PHYSICAL: "Fysisk",
+  OPERATIONAL: "Operational",
+  SAFETY: "Safety",
+  HEALTH: "Health",
+  ENVIRONMENTAL: "Environmental",
+  INFORMATION_SECURITY: "Info Security",
+  LEGAL: "Legal",
+  STRATEGIC: "Strategic",
+  PSYCHOSOCIAL: "Psychosocial",
+  ERGONOMIC: "Ergonomic",
+  ORGANISATIONAL: "Organizational",
+  PHYSICAL: "Physical",
 };
 
 const frequencyLabels: Record<string, string> = {
-  WEEKLY: "Ukentlig",
-  MONTHLY: "Månedlig",
-  QUARTERLY: "Kvartalsvis",
-  ANNUAL: "Årlig",
-  BIENNIAL: "Annet hvert år",
+  WEEKLY: "Weekly",
+  MONTHLY: "Monthly",
+  QUARTERLY: "Quarterly",
+  ANNUAL: "Annual",
+  BIENNIAL: "Every other year",
 };
 
 const formatDate = (value?: Date | string | null) => {
   if (!value) return "";
   const date = value instanceof Date ? value : new Date(value);
   if (Number.isNaN(date.getTime())) return "";
-  return date.toLocaleDateString("no-NO", {
+  return date.toLocaleDateString("en-US", {
     day: "2-digit",
     month: "short",
     year: "numeric",
@@ -90,7 +90,7 @@ export function RiskList({ risks }: RiskListProps) {
   const [loading, setLoading] = useState<string | null>(null);
 
   const handleDelete = async (id: string, title: string) => {
-    if (!confirm(`Er du sikker på at du vil slette "${title}"?\n\nDette kan ikke angres.`)) {
+    if (!confirm(`Are you sure you want to delete "${title}"?\n\nThis cannot be undone.`)) {
       return;
     }
 
@@ -99,15 +99,15 @@ export function RiskList({ risks }: RiskListProps) {
     
     if (result.success) {
       toast({
-        title: "🗑️ Risiko slettet",
-        description: `"${title}" er fjernet`,
+        title: "🗑️ Risk deleted",
+        description: `"${title}" has been removed`,
       });
       router.refresh();
     } else {
       toast({
         variant: "destructive",
-        title: "Sletting feilet",
-        description: result.error || "Kunne ikke slette risiko",
+        title: "Delete failed",
+        description: result.error || "Could not delete risk",
       });
     }
     setLoading(null);
@@ -117,12 +117,12 @@ export function RiskList({ risks }: RiskListProps) {
     return (
       <div className="flex flex-col items-center justify-center rounded-lg border border-dashed p-12 text-center">
         <AlertTriangle className="mb-4 h-12 w-12 text-muted-foreground" />
-        <h3 className="mb-2 text-lg font-semibold">Ingen risikoer</h3>
+        <h3 className="mb-2 text-lg font-semibold">No risks</h3>
         <p className="mb-4 text-sm text-muted-foreground">
-          Opprett din første risikovurdering for å komme i gang
+          Create your first risk assessment to get started
         </p>
         <Button asChild>
-          <Link href="/dashboard/risks/new">Opprett risikovurdering</Link>
+          <Link href="/dashboard/risks/new">Create risk assessment</Link>
         </Button>
       </div>
     );
@@ -130,20 +130,20 @@ export function RiskList({ risks }: RiskListProps) {
 
   return (
     <>
-      {/* Desktop - Tabell */}
+      {/* Desktop - Table */}
       <div className="hidden md:block rounded-lg border">
         <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>Risiko</TableHead>
-            <TableHead>Kategori</TableHead>
-            <TableHead>Eier</TableHead>
-            <TableHead className="text-center">Før tiltak</TableHead>
-            <TableHead className="text-center">Restrisiko etter tiltak</TableHead>
+            <TableHead>Risk</TableHead>
+            <TableHead>Category</TableHead>
+            <TableHead>Owner</TableHead>
+            <TableHead className="text-center">Before actions</TableHead>
+            <TableHead className="text-center">Residual risk after actions</TableHead>
             <TableHead>Status</TableHead>
-            <TableHead>Neste revisjon</TableHead>
-            <TableHead className="text-center">Tiltak</TableHead>
-            <TableHead className="text-right">Handlinger</TableHead>
+            <TableHead>Next review</TableHead>
+            <TableHead className="text-center">Actions</TableHead>
+            <TableHead className="text-right">Operations</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -158,9 +158,9 @@ export function RiskList({ risks }: RiskListProps) {
             const hasMeasures = totalMeasures > 0;
             const nextReview = formatDate(risk.nextReviewDate);
             const overdue = isPastDate(risk.nextReviewDate);
-            const ownerLabel = risk.owner?.name || risk.owner?.email || "Ikke satt";
-            const frequency = risk.controlFrequency ? frequencyLabels[risk.controlFrequency] : "Årlig";
-            const categoryLabel = risk.category ? categoryLabels[risk.category] || risk.category : "Ikke satt";
+            const ownerLabel = risk.owner?.name || risk.owner?.email || "Not assigned";
+            const frequency = risk.controlFrequency ? frequencyLabels[risk.controlFrequency] : "Annual";
+            const categoryLabel = risk.category ? categoryLabels[risk.category] || risk.category : "Not assigned";
 
             return (
               <TableRow key={risk.id}>
@@ -185,7 +185,7 @@ export function RiskList({ risks }: RiskListProps) {
                 </TableCell>
                 <TableCell className="text-center">
                   <div className="flex flex-col items-center gap-1">
-                    <span className="text-xs text-muted-foreground">S×K={risk.likelihood}×{risk.consequence}</span>
+                    <span className="text-xs text-muted-foreground">L×C={risk.likelihood}×{risk.consequence}</span>
                     <div className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-muted font-bold">
                       {risk.score}
                     </div>
@@ -196,7 +196,7 @@ export function RiskList({ risks }: RiskListProps) {
                   {residual ? (
                     <div className="flex flex-col items-center gap-1">
                       <span className="text-xs text-muted-foreground">
-                        Etter tiltak: S×K={risk.residualLikelihood}×{risk.residualConsequence}
+                        After actions: L×C={risk.residualLikelihood}×{risk.residualConsequence}
                       </span>
                       <div className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-muted font-bold">
                         {residual.score}
@@ -205,9 +205,9 @@ export function RiskList({ risks }: RiskListProps) {
                     </div>
                   ) : (
                     <div className="flex flex-col items-center gap-1">
-                      <span className="text-xs text-muted-foreground">Ikke vurdert</span>
+                      <span className="text-xs text-muted-foreground">Not assessed</span>
                       {hasMeasures && (
-                        <span className="text-xs text-amber-600">Tiltak registrert – vurder restrisiko</span>
+                        <span className="text-xs text-amber-600">Actions recorded — assess residual risk</span>
                       )}
                     </div>
                   )}
@@ -220,7 +220,7 @@ export function RiskList({ risks }: RiskListProps) {
                 <TableCell>
                   <div className="text-sm">
                     <span className={overdue ? "text-red-600 font-semibold" : ""}>
-                      {nextReview || "Ikke satt"}
+                      {nextReview || "Not set"}
                     </span>
                     {nextReview && (
                       <p className="text-xs text-muted-foreground">{frequency}</p>
@@ -237,7 +237,7 @@ export function RiskList({ risks }: RiskListProps) {
                         href={`/dashboard/risks/${risk.id}#tiltak`}
                         className="text-xs text-primary hover:underline"
                       >
-                        Legg til / rediger
+                        Add / edit
                       </Link>
                     </div>
                   ) : (
@@ -245,7 +245,7 @@ export function RiskList({ risks }: RiskListProps) {
                       href={`/dashboard/risks/${risk.id}#tiltak`}
                       className="text-sm text-primary hover:underline"
                     >
-                      Legg til tiltak
+                      Add action
                     </Link>
                   )}
                 </TableCell>
@@ -273,7 +273,7 @@ export function RiskList({ risks }: RiskListProps) {
       </Table>
       </div>
 
-      {/* Mobile - Kort */}
+      {/* Mobile - Cards */}
       <div className="md:hidden space-y-3">
         {risks.map((risk) => {
           const { level, bgColor, textColor } = calculateRiskScore(risk.likelihood, risk.consequence);
@@ -285,9 +285,9 @@ export function RiskList({ risks }: RiskListProps) {
           const totalMeasures = risk.measures.length;
           const nextReview = formatDate(risk.nextReviewDate);
           const overdue = isPastDate(risk.nextReviewDate);
-          const ownerLabel = risk.owner?.name || risk.owner?.email || "Ikke satt";
-          const frequency = risk.controlFrequency ? frequencyLabels[risk.controlFrequency] : "Årlig";
-          const categoryLabel = risk.category ? categoryLabels[risk.category] || risk.category : "Ikke satt";
+          const ownerLabel = risk.owner?.name || risk.owner?.email || "Not assigned";
+          const frequency = risk.controlFrequency ? frequencyLabels[risk.controlFrequency] : "Annual";
+          const categoryLabel = risk.category ? categoryLabels[risk.category] || risk.category : "Not assigned";
 
           return (
             <Card key={risk.id}>
@@ -314,32 +314,32 @@ export function RiskList({ risks }: RiskListProps) {
                     <Badge variant="secondary">
                       {categoryLabel}
                     </Badge>
-                    <Badge className={`${bgColor} ${textColor}`}>Før: {level}</Badge>
+                    <Badge className={`${bgColor} ${textColor}`}>Before: {level}</Badge>
                     {residual ? (
-                      <Badge className={`${residual.bgColor} ${residual.textColor}`}>Etter: {residual.level}</Badge>
+                      <Badge className={`${residual.bgColor} ${residual.textColor}`}>After: {residual.level}</Badge>
                     ) : totalMeasures > 0 ? (
-                      <span className="text-xs text-amber-600">Vurder restrisiko</span>
+                      <span className="text-xs text-amber-600">Assess residual risk</span>
                     ) : null}
                     <Badge variant={statusVariants[risk.status]}>
                       {statusLabels[risk.status]}
                     </Badge>
                     <div className="text-xs text-muted-foreground">
-                      S:{risk.likelihood} · K:{risk.consequence}
+                      L:{risk.likelihood} · C:{risk.consequence}
                     </div>
                   </div>
 
                   {totalMeasures > 0 ? (
                     <div className="flex flex-col gap-1">
                       <div className="text-sm text-muted-foreground">
-                        Tiltak: {completedMeasures}/{totalMeasures} fullført
+                        Actions: {completedMeasures}/{totalMeasures} completed
                       </div>
                       <Link href={`/dashboard/risks/${risk.id}#tiltak`} className="text-sm text-primary hover:underline">
-                        Legg til / rediger tiltak
+                        Add / edit actions
                       </Link>
                     </div>
                   ) : (
                     <Link href={`/dashboard/risks/${risk.id}#tiltak`} className="text-sm text-primary hover:underline">
-                      Legg til tiltak
+                      Add action
                     </Link>
                   )}
 
@@ -350,7 +350,7 @@ export function RiskList({ risks }: RiskListProps) {
 
                   <div className="text-sm">
                     <p className={overdue ? "text-red-600 font-semibold" : "font-medium"}>
-                      Neste revisjon: {nextReview || "Ikke satt"}
+                      Next review: {nextReview || "Not set"}
                     </p>
                   </div>
 
@@ -358,7 +358,7 @@ export function RiskList({ risks }: RiskListProps) {
                     <Button variant="outline" size="sm" className="flex-1" asChild>
                       <Link href={`/dashboard/risks/${risk.id}`}>
                         <Edit className="h-4 w-4 mr-2" />
-                        Rediger
+                        Edit
                       </Link>
                     </Button>
                     <Button
@@ -379,4 +379,3 @@ export function RiskList({ risks }: RiskListProps) {
     </>
   );
 }
-

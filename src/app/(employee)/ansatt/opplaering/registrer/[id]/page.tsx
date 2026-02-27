@@ -45,7 +45,7 @@ export default function RegistrerOpplaeringPage() {
         setProvider(data.provider || "");
       }
     } catch (error) {
-      console.error("Feil ved henting av opplæring:", error);
+      console.error("Error fetching training:", error);
     } finally {
       setLoading(false);
     }
@@ -54,15 +54,15 @@ export default function RegistrerOpplaeringPage() {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       setFile(e.target.files[0]);
-      setUploadedKey(null); // Reset uploaded key hvis ny fil velges
+      setUploadedKey(null); // Reset uploaded key if new file is selected
     }
   };
 
   const handleUpload = async () => {
     if (!file) {
       toast({
-        title: "Ingen fil valgt",
-        description: "Vennligst velg en fil å laste opp",
+        title: "No file selected",
+        description: "Please select a file to upload",
         variant: "destructive",
       });
       return;
@@ -80,20 +80,20 @@ export default function RegistrerOpplaeringPage() {
 
       if (!response.ok) {
         const error = await response.json();
-        throw new Error(error.error || "Opplasting feilet");
+        throw new Error(error.error || "Upload failed");
       }
 
       const { key } = await response.json();
       setUploadedKey(key);
 
       toast({
-        title: "✅ Fil lastet opp",
-        description: "Beviset er lastet opp",
+        title: "✅ File uploaded",
+        description: "The proof has been uploaded",
       });
     } catch (error: any) {
       console.error("Upload error:", error);
       toast({
-        title: "Opplasting feilet",
+        title: "Upload failed",
         description: error.message,
         variant: "destructive",
       });
@@ -107,8 +107,8 @@ export default function RegistrerOpplaeringPage() {
 
     if (!session?.user?.id) {
       toast({
-        title: "Ikke innlogget",
-        description: "Du må være innlogget for å registrere opplæring",
+        title: "Not signed in",
+        description: "You must be signed in to register training",
         variant: "destructive",
       });
       return;
@@ -116,8 +116,8 @@ export default function RegistrerOpplaeringPage() {
 
     if (!completedAt) {
       toast({
-        title: "Mangler dato",
-        description: "Vennligst fyll ut når kurset ble gjennomført",
+        title: "Missing date",
+        description: "Please fill in when the course was completed",
         variant: "destructive",
       });
       return;
@@ -125,8 +125,8 @@ export default function RegistrerOpplaeringPage() {
 
     if (!uploadedKey) {
       toast({
-        title: "Mangler bevis",
-        description: "Vennligst last opp bevis/diplom før du sender inn",
+        title: "Missing proof",
+        description: "Please upload proof/diploma before submitting",
         variant: "destructive",
       });
       return;
@@ -148,8 +148,8 @@ export default function RegistrerOpplaeringPage() {
 
       if (result.success) {
         toast({
-          title: "✅ Opplæring registrert",
-          description: "Opplæringen er sendt til godkjenning hos din leder",
+          title: "✅ Training registered",
+          description: "The training has been submitted for approval by your manager",
         });
         router.push("/ansatt/opplaering");
       } else {
@@ -158,7 +158,7 @@ export default function RegistrerOpplaeringPage() {
     } catch (error: any) {
       console.error("Submit error:", error);
       toast({
-        title: "Registrering feilet",
+        title: "Registration failed",
         description: error.message,
         variant: "destructive",
       });
@@ -178,11 +178,11 @@ export default function RegistrerOpplaeringPage() {
   if (!training) {
     return (
       <div className="space-y-6">
-        <h1 className="text-3xl font-bold">Opplæring ikke funnet</h1>
+        <h1 className="text-3xl font-bold">Training not found</h1>
         <Button asChild>
           <Link href="/ansatt/opplaering">
             <ArrowLeft className="mr-2 h-4 w-4" />
-            Tilbake til opplæring
+            Back to Training
           </Link>
         </Button>
       </div>
@@ -196,7 +196,7 @@ export default function RegistrerOpplaeringPage() {
         <Link href="/ansatt/opplaering">
           <Button variant="ghost" size="sm" className="mb-4">
             <ArrowLeft className="mr-2 h-4 w-4" />
-            Tilbake til opplæring
+            Back to Training
           </Button>
         </Link>
         <div className="flex items-center gap-3 mb-2">
@@ -204,13 +204,13 @@ export default function RegistrerOpplaeringPage() {
             <GraduationCap className="h-6 w-6 text-blue-600" />
           </div>
           <div>
-            <h1 className="text-3xl font-bold">Registrer opplæring</h1>
+            <h1 className="text-3xl font-bold">Register Training</h1>
             <p className="text-muted-foreground">{training.title}</p>
           </div>
         </div>
         {training.isRequired && (
           <Badge variant="destructive" className="mt-2">
-            Påkrevd kurs
+            Required course
           </Badge>
         )}
       </div>
@@ -219,36 +219,36 @@ export default function RegistrerOpplaeringPage() {
       <Card className="border-l-4 border-l-blue-500 bg-blue-50">
         <CardContent className="p-4">
           <p className="text-sm text-blue-900">
-            <strong>💡 Viktig:</strong> Last opp bevis (sertifikat, diplom, signert deltakerliste) 
-            for å dokumentere at du har gjennomført opplæringen. Din leder vil gjennomgå og godkjenne registreringen.
+            <strong>💡 Important:</strong> Upload proof (certificate, diploma, signed participant list)
+            to document that you have completed the training. Your manager will review and approve the registration.
           </p>
         </CardContent>
       </Card>
 
-      {/* Registreringsskjema */}
+      {/* Registration form */}
       <form onSubmit={handleSubmit}>
         <Card>
           <CardHeader>
-            <CardTitle>Opplysninger</CardTitle>
-            <CardDescription>Fyll ut informasjon om gjennomført opplæring</CardDescription>
+            <CardTitle>Details</CardTitle>
+            <CardDescription>Fill in information about completed training</CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
-            {/* Kursleverandør */}
+            {/* Course provider */}
             <div className="space-y-2">
-              <Label htmlFor="provider">Kursleverandør / Arrangør</Label>
+              <Label htmlFor="provider">Course Provider / Organizer</Label>
               <Input
                 id="provider"
                 value={provider}
                 onChange={(e) => setProvider(e.target.value)}
-                placeholder="F.eks. Røde Kors, HMS Nova, Internt"
+                placeholder="E.g. American Red Cross, OSHA, Internal"
                 required
               />
             </div>
 
-            {/* Gjennomføringsdato */}
+            {/* Completion date */}
             <div className="space-y-2">
               <Label htmlFor="completedAt">
-                Dato gjennomført <span className="text-destructive">*</span>
+                Completion date <span className="text-destructive">*</span>
               </Label>
               <Input
                 type="date"
@@ -259,9 +259,9 @@ export default function RegistrerOpplaeringPage() {
               />
             </div>
 
-            {/* Gyldighet */}
+            {/* Validity */}
             <div className="space-y-2">
-              <Label htmlFor="validUntil">Gyldig til (hvis aktuelt)</Label>
+              <Label htmlFor="validUntil">Valid until (if applicable)</Label>
               <Input
                 type="date"
                 id="validUntil"
@@ -269,14 +269,14 @@ export default function RegistrerOpplaeringPage() {
                 onChange={(e) => setValidUntil(e.target.value)}
               />
               <p className="text-xs text-muted-foreground">
-                Noen kurs har utløpsdato og må fornyes (f.eks. førstehjelpskurs)
+                Some courses have an expiration date and must be renewed (e.g. first aid courses)
               </p>
             </div>
 
-            {/* Fil-opplasting */}
+            {/* File upload */}
             <div className="space-y-2">
               <Label htmlFor="file">
-                Last opp bevis (PDF eller bilde) <span className="text-destructive">*</span>
+                Upload proof (PDF or image) <span className="text-destructive">*</span>
               </Label>
               <div className="space-y-3">
                 <Input
@@ -298,12 +298,12 @@ export default function RegistrerOpplaeringPage() {
                     {uploading ? (
                       <>
                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Laster opp...
+                        Uploading...
                       </>
                     ) : (
                       <>
                         <Upload className="mr-2 h-4 w-4" />
-                        Last opp fil
+                        Upload file
                       </>
                     )}
                   </Button>
@@ -312,12 +312,12 @@ export default function RegistrerOpplaeringPage() {
                 {uploadedKey && (
                   <div className="flex items-center gap-2 text-sm text-green-700 bg-green-50 border border-green-200 rounded-lg p-3">
                     <CheckCircle className="h-4 w-4 flex-shrink-0" />
-                    <span>Fil lastet opp og klar for innsending</span>
+                    <span>File uploaded and ready for submission</span>
                   </div>
                 )}
               </div>
               <p className="text-xs text-muted-foreground">
-                Last opp sertifikat, diplom eller annen dokumentasjon. Maks 10MB.
+                Upload certificate, diploma, or other documentation. Max 10MB.
               </p>
             </div>
           </CardContent>
@@ -333,12 +333,12 @@ export default function RegistrerOpplaeringPage() {
             {submitting ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Sender inn...
+                Submitting...
               </>
             ) : (
               <>
                 <CheckCircle className="mr-2 h-4 w-4" />
-                Send til godkjenning
+                Submit for approval
               </>
             )}
           </Button>
@@ -349,34 +349,33 @@ export default function RegistrerOpplaeringPage() {
             asChild
           >
             <Link href="/ansatt/opplaering">
-              Avbryt
+              Cancel
             </Link>
           </Button>
         </div>
       </form>
 
-      {/* Hjelp */}
+      {/* Help */}
       <Card className="bg-gray-50">
         <CardHeader className="pb-3">
-          <CardTitle className="text-lg">❓ Trenger du hjelp?</CardTitle>
+          <CardTitle className="text-lg">❓ Need help?</CardTitle>
         </CardHeader>
         <CardContent className="text-sm text-muted-foreground space-y-2">
           <p>
-            <strong>Hva skjer etter innsending?</strong>
+            <strong>What happens after submission?</strong>
           </p>
           <p>
-            Din leder vil motta en varsling og gjennomgå dokumentasjonen din.
-            De vil godkjenne opplæringen hvis alt er i orden, eller kontakte deg hvis noe mangler.
+            Your manager will receive a notification and review your documentation.
+            They will approve the training if everything is in order, or contact you if anything is missing.
           </p>
           <p className="pt-2">
-            <strong>Har du problemer med opplasting?</strong>
+            <strong>Having trouble uploading?</strong>
           </p>
           <p>
-            Kontakt din leder eller HMS-ansvarlig hvis du har tekniske problemer eller spørsmål.
+            Contact your manager or EHS coordinator if you have technical problems or questions.
           </p>
         </CardContent>
       </Card>
     </div>
   );
 }
-

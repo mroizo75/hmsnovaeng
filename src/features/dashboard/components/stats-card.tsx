@@ -72,7 +72,7 @@ export function StatsCard({
             )}
           >
             <span>{trend.isPositive ? "↑" : "↓"}</span>
-            <span>{Math.abs(trend.value)}% fra forrige måned</span>
+            <span>{Math.abs(trend.value)}% from last month</span>
           </p>
         )}
       </CardContent>

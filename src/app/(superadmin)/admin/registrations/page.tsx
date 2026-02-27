@@ -19,8 +19,8 @@ import {
 export const dynamic = 'force-dynamic';
 
 export const metadata = {
-  title: "Nye registreringer | HMS Nova Admin",
-  description: "Håndter nye bedriftsregistreringer",
+  title: "New registrations | EHS Nova Admin",
+  description: "Handle new company registrations",
 };
 
 async function RegistrationsList() {
@@ -30,7 +30,7 @@ async function RegistrationsList() {
     return (
       <Card>
         <CardContent className="p-12 text-center">
-          <p className="text-muted-foreground">Kunne ikke laste registreringer</p>
+          <p className="text-muted-foreground">Could not load registrations</p>
         </CardContent>
       </Card>
     );
@@ -43,9 +43,9 @@ async function RegistrationsList() {
       <Card>
         <CardContent className="p-12 text-center">
           <Building2 className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-          <p className="text-lg font-medium mb-2">Ingen nye registreringer</p>
+          <p className="text-lg font-medium mb-2">No new registrations</p>
           <p className="text-sm text-muted-foreground">
-            Når bedrifter registrerer seg, vises de her
+            When companies register, they will appear here
           </p>
         </CardContent>
       </Card>
@@ -67,22 +67,22 @@ async function RegistrationsList() {
                     <CardTitle className="text-xl">{registration.name}</CardTitle>
                     {isNew && (
                       <Badge variant="default" className="bg-primary">
-                        NY
+                        NEW
                       </Badge>
                     )}
                     {hasUsers && (
-                      <Badge variant="secondary">Konto opprettet</Badge>
+                      <Badge variant="secondary">Account created</Badge>
                     )}
                   </div>
                   <CardDescription className="flex items-center gap-2">
                     <Building2 className="h-3 w-3" />
-                    Org.nr: {registration.orgNumber || "Ikke oppgitt"}
+                    Reg. No.: {registration.orgNumber || "Not provided"}
                   </CardDescription>
                 </div>
                 <Link href={`/admin/registrations/${registration.id}`}>
                   <Button>
                     <Eye className="h-4 w-4 mr-2" />
-                    Se detaljer
+                    View details
                   </Button>
                 </Link>
               </div>
@@ -90,13 +90,13 @@ async function RegistrationsList() {
 
             <CardContent>
               <div className="grid md:grid-cols-2 gap-6">
-                {/* Venstre kolonne */}
+                {/* Left column */}
                 <div className="space-y-3">
                   <div className="flex items-start gap-3 text-sm">
                     <Users className="h-4 w-4 text-muted-foreground mt-0.5" />
                     <div>
                       <p className="font-medium">{registration.contactPerson}</p>
-                      <p className="text-muted-foreground text-xs">Kontaktperson</p>
+                      <p className="text-muted-foreground text-xs">Contact person</p>
                     </div>
                   </div>
 
@@ -104,7 +104,7 @@ async function RegistrationsList() {
                     <Mail className="h-4 w-4 text-muted-foreground mt-0.5" />
                     <div>
                       <p className="font-medium">{registration.contactEmail}</p>
-                      <p className="text-muted-foreground text-xs">E-post</p>
+                      <p className="text-muted-foreground text-xs">Email</p>
                     </div>
                   </div>
 
@@ -113,13 +113,13 @@ async function RegistrationsList() {
                       <Phone className="h-4 w-4 text-muted-foreground mt-0.5" />
                       <div>
                         <p className="font-medium">{registration.contactPhone}</p>
-                        <p className="text-muted-foreground text-xs">Telefon</p>
+                        <p className="text-muted-foreground text-xs">Phone</p>
                       </div>
                     </div>
                   )}
                 </div>
 
-                {/* Høyre kolonne */}
+                {/* Right column */}
                 <div className="space-y-3">
                   {(registration.address || registration.city) && (
                     <div className="flex items-start gap-3 text-sm">
@@ -128,10 +128,10 @@ async function RegistrationsList() {
                         <p className="font-medium">
                           {registration.address && <span>{registration.address}<br /></span>}
                           {registration.postalCode && registration.city && (
-                            <span>{registration.postalCode} {registration.city}</span>
+                            <span>{registration.city}, {registration.postalCode}</span>
                           )}
                         </p>
-                        <p className="text-muted-foreground text-xs">Adresse</p>
+                        <p className="text-muted-foreground text-xs">Address</p>
                       </div>
                     </div>
                   )}
@@ -140,10 +140,10 @@ async function RegistrationsList() {
                     <Building2 className="h-4 w-4 text-muted-foreground mt-0.5" />
                     <div>
                       <p className="font-medium">
-                        {registration.employeeCount || "Ukjent"} ansatte
+                        {registration.employeeCount || "Unknown"} employees
                       </p>
                       <p className="text-muted-foreground text-xs">
-                        Bransje: {registration.industry || "Ikke oppgitt"}
+                        Industry: {registration.industry || "Not provided"}
                       </p>
                     </div>
                   </div>
@@ -152,13 +152,13 @@ async function RegistrationsList() {
                     <Calendar className="h-4 w-4 text-muted-foreground mt-0.5" />
                     <div>
                       <p className="font-medium">
-                        {new Date(registration.createdAt).toLocaleDateString("nb-NO", {
-                          day: "2-digit",
+                        {new Date(registration.createdAt).toLocaleDateString("en-US", {
                           month: "long",
+                          day: "numeric",
                           year: "numeric",
                         })}
                       </p>
-                      <p className="text-muted-foreground text-xs">Registrert</p>
+                      <p className="text-muted-foreground text-xs">Registered</p>
                     </div>
                   </div>
                 </div>
@@ -170,19 +170,19 @@ async function RegistrationsList() {
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-sm font-medium">
-                        {registration.pricingTier === "MICRO" && "Micro (1-20 ansatte)"}
-                        {registration.pricingTier === "SMALL" && "Small (21-50 ansatte)"}
-                        {registration.pricingTier === "MEDIUM" && "Medium (51+ ansatte)"}
+                        {registration.pricingTier === "MICRO" && "Micro (1-20 employees)"}
+                        {registration.pricingTier === "SMALL" && "Small (21-50 employees)"}
+                        {registration.pricingTier === "MEDIUM" && "Medium (51+ employees)"}
                       </p>
                       <p className="text-xs text-muted-foreground">
-                        {registration.subscription.price.toLocaleString("nb-NO")} kr/år
+                        ${registration.subscription.price.toLocaleString("en-US")}/yr
                       </p>
                     </div>
                     {registration.trialEndsAt && (
                       <Badge variant="outline" className="flex items-center gap-1">
                         <Clock className="h-3 w-3" />
-                        Prøveperiode til{" "}
-                        {new Date(registration.trialEndsAt).toLocaleDateString("nb-NO")}
+                        Trial ends{" "}
+                        {new Date(registration.trialEndsAt).toLocaleDateString("en-US")}
                       </Badge>
                     )}
                   </div>
@@ -192,7 +192,7 @@ async function RegistrationsList() {
               {/* Notes */}
               {registration.notes && (
                 <div className="mt-6 pt-6 border-t">
-                  <p className="text-sm font-medium mb-2">Merknader:</p>
+                  <p className="text-sm font-medium mb-2">Notes:</p>
                   <p className="text-sm text-muted-foreground whitespace-pre-wrap">
                     {registration.notes}
                   </p>
@@ -204,7 +204,7 @@ async function RegistrationsList() {
                 <div className="mt-6 pt-6 border-t">
                   <Link href={`/admin/registrations/${registration.id}`}>
                     <Button variant="outline" className="w-full">
-                      Opprett admin-konto
+                      Create admin account
                       <ArrowRight className="ml-2 h-4 w-4" />
                     </Button>
                   </Link>
@@ -222,9 +222,9 @@ export default function RegistrationsPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold mb-2">Nye registreringer</h1>
+        <h1 className="text-3xl font-bold mb-2">New registrations</h1>
         <p className="text-muted-foreground">
-          Behandle og aktiver nye bedriftsregistreringer
+          Process and activate new company registrations
         </p>
       </div>
 
@@ -232,7 +232,7 @@ export default function RegistrationsPage() {
         fallback={
           <Card>
             <CardContent className="p-12 text-center">
-              <p className="text-muted-foreground">Laster registreringer...</p>
+              <p className="text-muted-foreground">Loading registrations...</p>
             </CardContent>
           </Card>
         }
@@ -242,4 +242,3 @@ export default function RegistrationsPage() {
     </div>
   );
 }
-

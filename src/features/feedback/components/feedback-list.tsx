@@ -38,11 +38,11 @@ interface FeedbackListProps {
 }
 
 const statusLabels: Record<FeedbackStatus, string> = {
-  NEW: "Ny",
-  ACKNOWLEDGED: "Delt med team",
-  SHARED: "Publisert",
-  FOLLOW_UP: "Under oppfølging",
-  CLOSED: "Lukket",
+  NEW: "New",
+  ACKNOWLEDGED: "Shared with Team",
+  SHARED: "Published",
+  FOLLOW_UP: "Under Follow-up",
+  CLOSED: "Closed",
 };
 
 const statusColors: Record<FeedbackStatus, string> = {
@@ -81,16 +81,16 @@ export function FeedbackList({ feedbacks, users }: FeedbackListProps) {
 
       if (result.success) {
         toast({
-          title: "✅ Oppdatert",
-          description: "Status for tilbakemeldingen er oppdatert.",
+          title: "✅ Updated",
+          description: "Feedback status has been updated.",
         });
         setSelectedId(null);
         setNotes("");
       } else {
         toast({
           variant: "destructive",
-          title: "Kunne ikke oppdatere",
-          description: result.error || "Prøv igjen senere",
+          title: "Could not update",
+          description: result.error || "Please try again later",
         });
       }
     });
@@ -104,12 +104,12 @@ export function FeedbackList({ feedbacks, users }: FeedbackListProps) {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Kunde</TableHead>
-                  <TableHead>Tilbakemelding</TableHead>
-                  <TableHead>Stemning</TableHead>
+                  <TableHead>Customer</TableHead>
+                  <TableHead>Feedback</TableHead>
+                  <TableHead>Sentiment</TableHead>
                   <TableHead>Status</TableHead>
-                  <TableHead>Ansvarlig</TableHead>
-                  <TableHead className="text-right">Oppfølging</TableHead>
+                  <TableHead>Responsible</TableHead>
+                  <TableHead className="text-right">Follow-up</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -117,30 +117,30 @@ export function FeedbackList({ feedbacks, users }: FeedbackListProps) {
                   <TableRow key={feedback.id}>
                     <TableCell className="space-y-1">
                       <p className="font-medium">
-                        {feedback.customerName || "Anonym"}
+                        {feedback.customerName || "Anonymous"}
                       </p>
                       <p className="text-xs text-muted-foreground">
                         {feedback.customerCompany || "—"}
                       </p>
                       <p className="text-xs text-muted-foreground">
-                        {new Date(feedback.recordedAt).toLocaleDateString("nb-NO")}
+                        {new Date(feedback.recordedAt).toLocaleDateString("en-US")}
                       </p>
                     </TableCell>
                     <TableCell>
                       <p className="font-medium">{feedback.summary}</p>
                       {feedback.rating && (
                         <p className="text-xs text-muted-foreground mt-1">
-                          Vurdering: {feedback.rating}/5
+                          Rating: {feedback.rating}/5
                         </p>
                       )}
                     </TableCell>
                     <TableCell>
                       <Badge className={sentimentColors[feedback.sentiment]}>
                         {feedback.sentiment === "POSITIVE"
-                          ? "Positiv"
+                          ? "Positive"
                           : feedback.sentiment === "NEUTRAL"
-                          ? "Nøytral"
-                          : "Negativ"}
+                          ? "Neutral"
+                          : "Negative"}
                       </Badge>
                     </TableCell>
                     <TableCell>
@@ -152,13 +152,13 @@ export function FeedbackList({ feedbacks, users }: FeedbackListProps) {
                       <p className="text-sm">
                         {feedback.followUpOwner?.name ||
                           feedback.followUpOwner?.email ||
-                          "Ikke satt"}
+                          "Not set"}
                       </p>
                       <p className="text-xs text-muted-foreground">
-                        Registrert av{" "}
+                        Recorded by{" "}
                         {feedback.recordedBy?.name ||
                           feedback.recordedBy?.email ||
-                          "Ukjent"}
+                          "Unknown"}
                       </p>
                     </TableCell>
                     <TableCell className="text-right">
@@ -174,7 +174,7 @@ export function FeedbackList({ feedbacks, users }: FeedbackListProps) {
                           setNotes(feedback.followUpNotes || "");
                         }}
                       >
-                        Oppdater
+                        Update
                       </Button>
                     </TableCell>
                   </TableRow>
@@ -190,7 +190,7 @@ export function FeedbackList({ feedbacks, users }: FeedbackListProps) {
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="font-semibold">
-                        {feedback.customerName || "Anonym"}
+                        {feedback.customerName || "Anonymous"}
                       </p>
                       <p className="text-xs text-muted-foreground">
                         {feedback.customerCompany || "—"}
@@ -198,10 +198,10 @@ export function FeedbackList({ feedbacks, users }: FeedbackListProps) {
                     </div>
                     <Badge className={sentimentColors[feedback.sentiment]}>
                       {feedback.sentiment === "POSITIVE"
-                        ? "Positiv"
+                        ? "Positive"
                         : feedback.sentiment === "NEUTRAL"
-                        ? "Nøytral"
-                        : "Negativ"}
+                        ? "Neutral"
+                        : "Negative"}
                     </Badge>
                   </div>
                   <p className="text-sm">{feedback.summary}</p>
@@ -214,8 +214,8 @@ export function FeedbackList({ feedbacks, users }: FeedbackListProps) {
                     )}
                   </div>
                   <div className="text-xs text-muted-foreground">
-                    Registrert {new Date(feedback.recordedAt).toLocaleDateString("nb-NO")} av{" "}
-                    {feedback.recordedBy?.name || feedback.recordedBy?.email || "Ukjent"}
+                    Recorded {new Date(feedback.recordedAt).toLocaleDateString("en-US")} by{" "}
+                    {feedback.recordedBy?.name || feedback.recordedBy?.email || "Unknown"}
                   </div>
                   <Button
                     variant="outline"
@@ -228,7 +228,7 @@ export function FeedbackList({ feedbacks, users }: FeedbackListProps) {
                       setNotes(feedback.followUpNotes || "");
                     }}
                   >
-                    Oppdater status
+                    Update Status
                   </Button>
                 </CardContent>
               </Card>
@@ -240,12 +240,12 @@ export function FeedbackList({ feedbacks, users }: FeedbackListProps) {
       {selectedId && (
         <Card>
           <CardHeader>
-            <CardTitle>Oppdater oppfølging</CardTitle>
+            <CardTitle>Update Follow-up</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="grid gap-4 md:grid-cols-2">
               <div className="space-y-2">
-                <Label>Oppfølgingsstatus</Label>
+                <Label>Follow-up Status</Label>
                 <Select value={status} onValueChange={(val) => setStatus(val as FeedbackStatus)}>
                   <SelectTrigger>
                     <SelectValue />
@@ -260,13 +260,13 @@ export function FeedbackList({ feedbacks, users }: FeedbackListProps) {
                 </Select>
               </div>
               <div className="space-y-2">
-                <Label>Ansvarlig</Label>
+                <Label>Responsible</Label>
                 <Select value={owner} onValueChange={setOwner}>
                   <SelectTrigger>
-                    <SelectValue placeholder="Velg ansvarlig" />
+                    <SelectValue placeholder="Select responsible" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value={NO_OWNER}>Ingen</SelectItem>
+                    <SelectItem value={NO_OWNER}>None</SelectItem>
                     {users.map((user) => (
                       <SelectItem key={user.id} value={user.id}>
                         {user.name || user.email}
@@ -277,7 +277,7 @@ export function FeedbackList({ feedbacks, users }: FeedbackListProps) {
               </div>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="followUpNotes">Notater</Label>
+              <Label htmlFor="followUpNotes">Notes</Label>
               <Textarea
                 id="followUpNotes"
                 value={notes}
@@ -287,10 +287,10 @@ export function FeedbackList({ feedbacks, users }: FeedbackListProps) {
             </div>
             <div className="flex justify-end gap-2">
               <Button variant="outline" onClick={() => setSelectedId(null)}>
-                Avbryt
+                Cancel
               </Button>
               <Button onClick={handleSave} disabled={isPending}>
-                {isPending ? "Lagrer..." : "Lagre oppdatering"}
+                {isPending ? "Saving..." : "Save Update"}
               </Button>
             </div>
           </CardContent>
@@ -299,4 +299,3 @@ export function FeedbackList({ feedbacks, users }: FeedbackListProps) {
     </div>
   );
 }
-

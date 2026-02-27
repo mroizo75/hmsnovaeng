@@ -25,9 +25,9 @@ export default function NyKompetansePage() {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      // Sjekk filstørrelse (maks 10MB)
+      // Check file size (max 10MB)
       if (file.size > 10 * 1024 * 1024) {
-        toast.error("Filen er for stor. Maks 10MB.");
+        toast.error("File is too large. Max 10MB.");
         return;
       }
       setFormData({ ...formData, certificateFile: file });
@@ -39,14 +39,14 @@ export default function NyKompetansePage() {
     setIsLoading(true);
 
     try {
-      // Valider
+      // Validate
       if (!formData.title || !formData.completedAt) {
-        toast.error("Fyll ut alle obligatoriske felt");
+        toast.error("Please fill in all required fields");
         setIsLoading(false);
         return;
       }
 
-      // Hvis det er en fil, last den opp først
+      // If there is a file, upload it first
       let proofDocKey = null;
       if (formData.certificateFile) {
         const uploadFormData = new FormData();
@@ -59,14 +59,14 @@ export default function NyKompetansePage() {
         });
 
         if (!uploadRes.ok) {
-          throw new Error("Feil ved opplasting av fil");
+          throw new Error("Error uploading file");
         }
 
         const uploadData = await uploadRes.json();
         proofDocKey = uploadData.fileKey;
       }
 
-      // Opprett opplæring
+      // Create training
       const payload = {
         title: formData.title,
         description: formData.description || undefined,
@@ -74,7 +74,7 @@ export default function NyKompetansePage() {
         completedAt: new Date(formData.completedAt).toISOString(),
         proofDocKey: proofDocKey || undefined,
         isRequired: false,
-        effectiveness: null, // Venter på godkjenning
+        effectiveness: null, // Awaiting approval
       };
 
       const res = await fetch("/api/training", {
@@ -85,15 +85,15 @@ export default function NyKompetansePage() {
 
       if (!res.ok) {
         const error = await res.json();
-        throw new Error(error.message || "Feil ved registrering");
+        throw new Error(error.message || "Error during registration");
       }
 
-      toast.success("Kompetansen er registrert! Venter på godkjenning fra leder.");
+      toast.success("Competence registered! Awaiting approval from manager.");
       router.push("/ansatt/opplaering");
       router.refresh();
     } catch (error: any) {
-      console.error("Feil:", error);
-      toast.error(error.message || "Noe gikk galt. Prøv igjen.");
+      console.error("Error:", error);
+      toast.error(error.message || "Something went wrong. Please try again.");
     } finally {
       setIsLoading(false);
     }
@@ -106,15 +106,15 @@ export default function NyKompetansePage() {
         <Link href="/ansatt/opplaering">
           <Button variant="ghost" size="sm" className="mb-4">
             <ArrowLeft className="h-4 w-4 mr-2" />
-            Tilbake til min opplæring
+            Back to my training
           </Button>
         </Link>
         <h1 className="text-2xl font-bold mb-2 flex items-center gap-2">
           <GraduationCap className="h-7 w-7 text-blue-600" />
-          Legg til egen kompetanse
+          Add own competence
         </h1>
         <p className="text-muted-foreground">
-          Registrer kurs, sertifikater eller annen kompetanse du har oppnådd
+          Register courses, certificates, or other competence you have achieved
         </p>
       </div>
 
@@ -122,63 +122,63 @@ export default function NyKompetansePage() {
       <Card className="border-l-4 border-l-blue-500 bg-blue-50">
         <CardContent className="p-4">
           <p className="text-sm text-blue-900">
-            <strong>💡 Viktig:</strong> Kompetansen må godkjennes av din leder før den 
-            blir aktiv i HMS-systemet. Du vil få en bekreftelse når den er godkjent.
+            <strong>💡 Important:</strong> The competence must be approved by your manager before it
+            becomes active in the EHS system. You will receive a confirmation when it is approved.
           </p>
         </CardContent>
       </Card>
 
-      {/* Skjema */}
+      {/* Form */}
       <Card>
         <CardHeader>
-          <CardTitle>Registrer kompetanse</CardTitle>
+          <CardTitle>Register competence</CardTitle>
           <CardDescription>
-            Fyll ut informasjon om kurset eller sertifikatet du har gjennomført
+            Fill in information about the course or certificate you have completed
           </CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Kurstittel */}
+            {/* Course title */}
             <div className="space-y-2">
               <Label htmlFor="title">
-                Kurstittel / Sertifikat <span className="text-red-500">*</span>
+                Course title / Certificate <span className="text-red-500">*</span>
               </Label>
               <Input
                 id="title"
                 required
-                placeholder="F.eks. Førstehjelp, HMS-kurs, Verneombud, etc."
+                placeholder="E.g. First Aid, EHS Course, Safety Representative, etc."
                 value={formData.title}
                 onChange={(e) => setFormData({ ...formData, title: e.target.value })}
               />
             </div>
 
-            {/* Beskrivelse */}
+            {/* Description */}
             <div className="space-y-2">
-              <Label htmlFor="description">Beskrivelse</Label>
+              <Label htmlFor="description">Description</Label>
               <Textarea
                 id="description"
-                placeholder="Kort beskrivelse av hva kurset omfattet..."
+                placeholder="Brief description of what the course covered..."
                 rows={3}
                 value={formData.description}
                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
               />
             </div>
 
-            {/* Kursholder/Leverandør */}
+            {/* Course provider */}
             <div className="space-y-2">
-              <Label htmlFor="provider">Kursholder / Leverandør</Label>
+              <Label htmlFor="provider">Course Provider / Organizer</Label>
               <Input
                 id="provider"
-                placeholder="F.eks. Norsk Førstehjelpsråd, Arbeidstilsynet, etc."
+                placeholder="E.g. American Red Cross, OSHA, Internal"
                 value={formData.provider}
                 onChange={(e) => setFormData({ ...formData, provider: e.target.value })}
               />
             </div>
 
-            {/* Gjennomført dato */}
+            {/* Completion date */}
             <div className="space-y-2">
               <Label htmlFor="completedAt">
-                Gjennomført dato <span className="text-red-500">*</span>
+                Completion date <span className="text-red-500">*</span>
               </Label>
               <Input
                 id="completedAt"
@@ -189,9 +189,9 @@ export default function NyKompetansePage() {
               />
             </div>
 
-            {/* Last opp sertifikat */}
+            {/* Upload certificate */}
             <div className="space-y-2">
-              <Label htmlFor="certificate">Last opp bevis (sertifikat, diplom, etc.)</Label>
+              <Label htmlFor="certificate">Upload proof (certificate, diploma, etc.)</Label>
               <div className="border-2 border-dashed rounded-lg p-6 text-center">
                 <Upload className="h-8 w-8 mx-auto mb-2 text-muted-foreground" />
                 <Input
@@ -205,33 +205,33 @@ export default function NyKompetansePage() {
                   <span className="text-sm text-blue-600 hover:underline">
                     {formData.certificateFile
                       ? formData.certificateFile.name
-                      : "Klikk for å laste opp fil"}
+                      : "Click to upload file"}
                   </span>
                 </Label>
                 <p className="text-xs text-muted-foreground mt-1">
-                  PDF, JPG eller PNG (maks 10MB)
+                  PDF, JPG, or PNG (max 10MB)
                 </p>
               </div>
             </div>
 
-            {/* Knapper */}
+            {/* Buttons */}
             <div className="flex gap-3 pt-4">
               <Button type="submit" disabled={isLoading} className="flex-1">
                 {isLoading ? (
                   <>
                     <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                    Registrerer...
+                    Registering...
                   </>
                 ) : (
                   <>
                     <GraduationCap className="h-4 w-4 mr-2" />
-                    Registrer kompetanse
+                    Register competence
                   </>
                 )}
               </Button>
               <Link href="/ansatt/opplaering" className="flex-1">
                 <Button type="button" variant="outline" className="w-full">
-                  Avbryt
+                  Cancel
                 </Button>
               </Link>
             </div>
@@ -239,17 +239,17 @@ export default function NyKompetansePage() {
         </CardContent>
       </Card>
 
-      {/* Hjelp */}
+      {/* Help */}
       <Card className="border-l-4 border-l-green-500 bg-green-50">
         <CardHeader className="pb-3">
-          <CardTitle className="text-lg">📚 Hva kan registreres?</CardTitle>
+          <CardTitle className="text-lg">📚 What can be registered?</CardTitle>
         </CardHeader>
         <CardContent className="space-y-2 text-sm text-green-900">
-          <p>✅ HMS-relaterte kurs (førstehjelp, brannvern, etc.)</p>
-          <p>✅ Faglige sertifiseringer og kompetansebevis</p>
-          <p>✅ Sikkerhetskurs og opplæring</p>
-          <p>✅ Verneombudopplæring</p>
-          <p>✅ Annen relevant kompetanse for din stilling</p>
+          <p>✅ EHS-related courses (first aid, fire safety, etc.)</p>
+          <p>✅ Professional certifications and competence certificates</p>
+          <p>✅ Safety courses and training</p>
+          <p>✅ Safety representative training</p>
+          <p>✅ Other relevant competence for your position</p>
         </CardContent>
       </Card>
     </div>

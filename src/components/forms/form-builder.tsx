@@ -137,20 +137,20 @@ export function FormBuilder({ tenantId, initialData }: FormBuilderProps) {
 
   function getDefaultLabel(type: string): string {
     const labels: Record<string, string> = {
-      TEXT: "Kort tekst",
-      TEXTAREA: "Lang tekst",
-      NUMBER: "Tall",
-      DATE: "Dato",
-      DATETIME: "Dato og tid",
-      CHECKBOX: "Avkrysningsboks",
-      RADIO: "Flervalg",
-      SELECT: "Rullegardin",
-      FILE: "Fil",
-      SIGNATURE: "Signatur",
-      LIKERT_SCALE: "Vurderingsspørsmål",
-      SECTION_HEADER: "Seksjonstittel",
+      TEXT: "Short text",
+      TEXTAREA: "Long text",
+      NUMBER: "Number",
+      DATE: "Date",
+      DATETIME: "Date and time",
+      CHECKBOX: "Checkbox",
+      RADIO: "Multiple choice",
+      SELECT: "Dropdown",
+      FILE: "File",
+      SIGNATURE: "Signature",
+      LIKERT_SCALE: "Rating question",
+      SECTION_HEADER: "Section header",
     };
-    return labels[type] || "Nytt felt";
+    return labels[type] || "New field";
   }
 
   function updateField(fieldId: string, updates: Partial<FormField>) {
@@ -167,8 +167,8 @@ export function FormBuilder({ tenantId, initialData }: FormBuilderProps) {
   async function saveForm() {
     if (!title.trim()) {
       toast({
-        title: "❌ Feil",
-        description: "Skjemaet må ha en tittel",
+        title: "❌ Error",
+        description: "The form must have a title",
         variant: "destructive",
       });
       return;
@@ -176,8 +176,8 @@ export function FormBuilder({ tenantId, initialData }: FormBuilderProps) {
 
     if (fields.length === 0) {
       toast({
-        title: "❌ Feil",
-        description: "Skjemaet må ha minst ett felt",
+        title: "❌ Error",
+        description: "The form must have at least one field",
         variant: "destructive",
       });
       return;
@@ -207,14 +207,14 @@ export function FormBuilder({ tenantId, initialData }: FormBuilderProps) {
       });
 
       if (!response.ok) {
-        throw new Error("Kunne ikke lagre skjema");
+        throw new Error("Could not save form");
       }
 
       const data = await response.json();
 
       toast({
-        title: "✅ Lagret",
-        description: "Skjemaet er lagret",
+        title: "✅ Saved",
+        description: "The form has been saved",
       });
 
       router.push("/dashboard/forms");
@@ -222,7 +222,7 @@ export function FormBuilder({ tenantId, initialData }: FormBuilderProps) {
     } catch (error) {
       toast({
         title: "❌ Feil",
-        description: "Kunne ikke lagre skjema",
+        description: "Could not save form",
         variant: "destructive",
       });
     } finally {
@@ -232,29 +232,29 @@ export function FormBuilder({ tenantId, initialData }: FormBuilderProps) {
 
   return (
     <div className="space-y-6">
-      {/* Header - Grunnleggende informasjon */}
+      {/* Header - Basic information */}
       <Card className="border-2 border-primary/20">
         <CardContent className="p-6">
           <div className="space-y-4">
             <div>
               <Label className="text-base font-semibold mb-2 block">
-                Skjemanavn *
+                Form name *
               </Label>
               <Input
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
-                placeholder="F.eks: HMS Morgenmøte, Sikkerhetsrunde, Vernerunde..."
+                placeholder="E.g.: EHS Morning Meeting, Safety Round, Inspection..."
                 className="text-lg h-12"
               />
             </div>
             <div>
               <Label className="text-base font-semibold mb-2 block">
-                Beskrivelse (valgfri)
+                Description (optional)
               </Label>
               <Textarea
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
-                placeholder="Beskriv formålet med skjemaet..."
+                placeholder="Describe the purpose of the form..."
                 className="resize-none"
                 rows={3}
               />
@@ -262,13 +262,13 @@ export function FormBuilder({ tenantId, initialData }: FormBuilderProps) {
             <div className="flex items-center justify-end gap-2 pt-4 border-t">
               <Button variant="outline" onClick={() => setActiveTab("settings")}>
                 <Settings className="h-4 w-4 mr-2" />
-                Innstillinger
+                Settings
               </Button>
               <Button onClick={saveForm} disabled={isSaving} size="lg">
-                {isSaving ? "Lagrer..." : (
+                {isSaving ? "Saving..." : (
                   <>
                     <Save className="h-4 w-4 mr-2" />
-                    Lagre skjema
+                    Save form
                   </>
                 )}
               </Button>
@@ -297,7 +297,7 @@ export function FormBuilder({ tenantId, initialData }: FormBuilderProps) {
               : "text-muted-foreground"
           }`}
         >
-          Innstillinger
+          Settings
         </button>
         <button
           onClick={() => setActiveTab("access")}
@@ -307,7 +307,7 @@ export function FormBuilder({ tenantId, initialData }: FormBuilderProps) {
               : "text-muted-foreground"
           }`}
         >
-          Tilgangsstyring
+          Access control
         </button>
       </div>
 
@@ -345,42 +345,42 @@ export function FormBuilder({ tenantId, initialData }: FormBuilderProps) {
         <Card className="p-6">
           <div className="space-y-6">
             <div>
-              <Label htmlFor="numberPrefix">Referansenummer-prefix</Label>
+              <Label htmlFor="numberPrefix">Reference number prefix</Label>
               <Input
                 id="numberPrefix"
                 value={numberPrefix}
                 onChange={(e) => setNumberPrefix(e.target.value)}
-                placeholder="F.eks. RUH for Rapportering Uhell"
+                placeholder="E.g. INC for Incident Report"
                 className="mt-2 max-w-xs"
               />
               <p className="text-sm text-muted-foreground mt-1">
-                Innsendte skjemaer får autogenerert nummer (f.eks. RUH-2025-001). Tom = SKJ.
+                Submitted forms get an auto-generated number (e.g. INC-2025-001). Empty = FRM.
               </p>
             </div>
 
             <div>
-              <Label>Kategori</Label>
+              <Label>Category</Label>
               <Select value={category} onValueChange={setCategory}>
                 <SelectTrigger className="mt-2">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="CUSTOM">Egendefinert</SelectItem>
-                  <SelectItem value="MEETING">Møtereferat</SelectItem>
-                  <SelectItem value="INSPECTION">🔍 Inspeksjon / Vernerunde</SelectItem>
-                  <SelectItem value="INCIDENT">Hendelsesrapport</SelectItem>
-                  <SelectItem value="RISK">Risikovurdering</SelectItem>
-                  <SelectItem value="TRAINING">Opplæring</SelectItem>
-                  <SelectItem value="CHECKLIST">Sjekkliste</SelectItem>
-                  <SelectItem value="TIMESHEET">Timeliste (regnskap)</SelectItem>
-                  <SelectItem value="WELLBEING">Psykososial puls (ISO 45003)</SelectItem>
-                  <SelectItem value="BCM">Beredskap (ISO 22301)</SelectItem>
-                  <SelectItem value="COMPLAINT">Kundeklage (ISO 10002)</SelectItem>
+                  <SelectItem value="CUSTOM">Custom</SelectItem>
+                  <SelectItem value="MEETING">Meeting minutes</SelectItem>
+                  <SelectItem value="INSPECTION">🔍 Inspection / Safety round</SelectItem>
+                  <SelectItem value="INCIDENT">Incident report</SelectItem>
+                  <SelectItem value="RISK">Risk assessment</SelectItem>
+                  <SelectItem value="TRAINING">Training</SelectItem>
+                  <SelectItem value="CHECKLIST">Checklist</SelectItem>
+                  <SelectItem value="TIMESHEET">Timesheet (payroll)</SelectItem>
+                  <SelectItem value="WELLBEING">Psychosocial pulse (ISO 45003)</SelectItem>
+                  <SelectItem value="BCM">Business continuity (ISO 22301)</SelectItem>
+                  <SelectItem value="COMPLAINT">Customer complaint (ISO 10002)</SelectItem>
                 </SelectContent>
               </Select>
               {category === "INSPECTION" && (
                 <p className="text-sm text-muted-foreground mt-2">
-                  💡 Dette skjemaet kan brukes som mal for vernerunder. Når du oppretter en vernerunde, kan du velge dette skjemaet som mal.
+                  💡 This form can be used as a template for safety rounds. When creating a safety round, you can select this form as a template.
                 </p>
               )}
             </div>
@@ -393,9 +393,9 @@ export function FormBuilder({ tenantId, initialData }: FormBuilderProps) {
                   onCheckedChange={(checked) => setAllowAnonymousResponses(!!checked)}
                 />
                 <div>
-                  <Label htmlFor="allowAnonymousResponses">Anonyme svar</Label>
+                  <Label htmlFor="allowAnonymousResponses">Anonymous responses</Label>
                   <p className="text-sm text-muted-foreground">
-                    Svarene lagres anonymt. Anbefalt for psykososial kartlegging (ISO 45003, AML § 4-3).
+                    Responses are stored anonymously. Recommended for psychosocial assessments (ISO 45003, OSHA Act).
                   </p>
                 </div>
               </div>
@@ -407,7 +407,7 @@ export function FormBuilder({ tenantId, initialData }: FormBuilderProps) {
                 checked={requiresSignature}
                 onCheckedChange={(checked) => setRequiresSignature(!!checked)}
               />
-              <Label htmlFor="requiresSignature">Krever digital signatur</Label>
+              <Label htmlFor="requiresSignature">Requires digital signature</Label>
             </div>
 
             <div className="flex items-center space-x-2">
@@ -416,7 +416,7 @@ export function FormBuilder({ tenantId, initialData }: FormBuilderProps) {
                 checked={requiresApproval}
                 onCheckedChange={(checked) => setRequiresApproval(!!checked)}
               />
-              <Label htmlFor="requiresApproval">Krever godkjenning fra leder</Label>
+              <Label htmlFor="requiresApproval">Requires approval from manager</Label>
             </div>
           </div>
         </Card>

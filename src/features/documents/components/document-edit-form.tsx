@@ -40,23 +40,23 @@ interface DocumentEditFormProps {
 }
 
 const documentKinds = [
-  { value: "LAW", label: "Lover og regler" },
-  { value: "PLAN", label: "HMS-håndbok / Plan" },
-  { value: "PROCEDURE", label: "Prosedyre (ISO 9001)" },
-  { value: "CHECKLIST", label: "Sjekkliste" },
-  { value: "FORM", label: "Skjema" },
-  { value: "SDS", label: "Sikkerhetsdatablad (SDS)" },
-  { value: "OTHER", label: "Annet" },
+  { value: "LAW", label: "Laws and regulations" },
+  { value: "PLAN", label: "HSE manual / Plan" },
+  { value: "PROCEDURE", label: "Procedure (ISO 9001)" },
+  { value: "CHECKLIST", label: "Checklist" },
+  { value: "FORM", label: "Form" },
+  { value: "SDS", label: "Safety Data Sheet (SDS)" },
+  { value: "OTHER", label: "Other" },
 ];
 
 const userRoles = [
   { value: "ADMIN", label: "Admin" },
-  { value: "HMS", label: "HMS-leder" },
-  { value: "LEDER", label: "Leder" },
-  { value: "VERNEOMBUD", label: "Verneombud" },
-  { value: "ANSATT", label: "Ansatt" },
-  { value: "BHT", label: "BHT" },
-  { value: "REVISOR", label: "Revisor" },
+  { value: "HMS", label: "HSE Manager" },
+  { value: "LEDER", label: "Manager" },
+  { value: "VERNEOMBUD", label: "Safety Representative" },
+  { value: "ANSATT", label: "Employee" },
+  { value: "BHT", label: "OHS" },
+  { value: "REVISOR", label: "Auditor" },
 ];
 
 const NO_OWNER_VALUE = "__none_owner__";
@@ -159,8 +159,8 @@ export function DocumentEditForm({ document, owners, templates }: DocumentEditFo
 
       if (result.success) {
         toast({
-          title: "✅ Dokument oppdatert",
-          description: "Endringene er lagret",
+          title: "✅ Document updated",
+          description: "Changes have been saved",
           className: "bg-green-50 border-green-200",
         });
         router.push("/dashboard/documents");
@@ -168,15 +168,15 @@ export function DocumentEditForm({ document, owners, templates }: DocumentEditFo
       } else {
         toast({
           variant: "destructive",
-          title: "Oppdatering feilet",
-          description: result.error || "Kunne ikke oppdatere dokument",
+          title: "Update failed",
+          description: result.error || "Could not update document",
         });
       }
     } catch (error) {
       toast({
         variant: "destructive",
-        title: "Uventet feil",
-        description: "Noe gikk galt ved oppdatering av dokument",
+        title: "Unexpected error",
+        description: "Something went wrong while updating the document",
       });
     } finally {
       setLoading(false);
@@ -186,21 +186,21 @@ export function DocumentEditForm({ document, owners, templates }: DocumentEditFo
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Rediger dokument</CardTitle>
+        <CardTitle>Edit document</CardTitle>
         <CardDescription>
-          Oppdater metadata og tilgangskontroll. For å endre fil, bruk "Last opp ny versjon".
+          Update metadata and access control. To change the file, use "Upload new version".
         </CardDescription>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="space-y-2">
-            <Label htmlFor="title">Tittel *</Label>
+            <Label htmlFor="title">Title *</Label>
             <Input
               id="title"
               name="title"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              placeholder="F.eks. HMS-håndbok 2025"
+              placeholder="E.g. HSE Manual 2025"
               required
               disabled={loading}
             />
@@ -208,10 +208,10 @@ export function DocumentEditForm({ document, owners, templates }: DocumentEditFo
 
           <div className="grid gap-4 md:grid-cols-2">
             <div className="space-y-2">
-              <Label htmlFor="kind">Type dokument *</Label>
+              <Label htmlFor="kind">Document type *</Label>
               <Select value={kind} onValueChange={(value: any) => setKind(value)} disabled={loading}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Velg type" />
+                  <SelectValue placeholder="Select type" />
                 </SelectTrigger>
                 <SelectContent>
                   {documentKinds.map((k) => (
@@ -224,7 +224,7 @@ export function DocumentEditForm({ document, owners, templates }: DocumentEditFo
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="version">Versjon</Label>
+              <Label htmlFor="version">Version</Label>
               <Input
                 id="version"
                 name="version"
@@ -238,17 +238,17 @@ export function DocumentEditForm({ document, owners, templates }: DocumentEditFo
 
           <div className="grid gap-4 md:grid-cols-2">
             <div className="space-y-2">
-              <Label htmlFor="ownerId">Prosesseier</Label>
+              <Label htmlFor="ownerId">Process owner</Label>
               <Select
                 value={selectedOwner}
                 onValueChange={setSelectedOwner}
                 disabled={loading || owners.length === 0}
               >
                 <SelectTrigger>
-                  <SelectValue placeholder={owners.length ? "Velg ansvarlig" : "Ingen brukere tilgjengelig"} />
+                  <SelectValue placeholder={owners.length ? "Select responsible" : "No users available"} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value={NO_OWNER_VALUE}>Ingen</SelectItem>
+                  <SelectItem value={NO_OWNER_VALUE}>None</SelectItem>
                   {owners.map((owner) => (
                     <SelectItem key={owner.id} value={owner.id}>
                       {owner.name || owner.email} ({owner.role})
@@ -259,17 +259,17 @@ export function DocumentEditForm({ document, owners, templates }: DocumentEditFo
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="templateId">Dokumentmal</Label>
+              <Label htmlFor="templateId">Document template</Label>
               <Select
                 value={selectedTemplate}
                 onValueChange={handleTemplateChange}
                 disabled={loading || templates.length === 0}
               >
                 <SelectTrigger>
-                  <SelectValue placeholder={templates.length ? "Velg mal (valgfritt)" : "Ingen maler tilgjengelig"} />
+                  <SelectValue placeholder={templates.length ? "Select template (optional)" : "No templates available"} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value={NO_TEMPLATE_VALUE}>Ingen</SelectItem>
+                  <SelectItem value={NO_TEMPLATE_VALUE}>None</SelectItem>
                   {templates.map((template) => (
                     <SelectItem key={template.id} value={template.id}>
                       {template.name} {template.isGlobal ? "• Global" : ""}
@@ -279,7 +279,7 @@ export function DocumentEditForm({ document, owners, templates }: DocumentEditFo
               </Select>
               {selectedTemplate !== NO_TEMPLATE_VALUE && (
                 <p className="text-xs text-muted-foreground">
-                  {templateMap.get(selectedTemplate)?.description ?? "Mal valgt"}
+                  {templateMap.get(selectedTemplate)?.description ?? "Template selected"}
                 </p>
               )}
             </div>
@@ -287,7 +287,7 @@ export function DocumentEditForm({ document, owners, templates }: DocumentEditFo
 
           <div className="grid gap-4 md:grid-cols-3">
             <div className="space-y-2">
-              <Label htmlFor="reviewIntervalMonths">Revisjonsintervall (måneder)</Label>
+              <Label htmlFor="reviewIntervalMonths">Review interval (months)</Label>
               <Input
                 id="reviewIntervalMonths"
                 name="reviewIntervalMonths"
@@ -303,7 +303,7 @@ export function DocumentEditForm({ document, owners, templates }: DocumentEditFo
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="effectiveFrom">Gyldig fra</Label>
+              <Label htmlFor="effectiveFrom">Effective from</Label>
               <Input
                 id="effectiveFrom"
                 name="effectiveFrom"
@@ -314,7 +314,7 @@ export function DocumentEditForm({ document, owners, templates }: DocumentEditFo
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="effectiveTo">Gyldig til</Label>
+              <Label htmlFor="effectiveTo">Effective to</Label>
               <Input
                 id="effectiveTo"
                 name="effectiveTo"
@@ -338,7 +338,7 @@ export function DocumentEditForm({ document, owners, templates }: DocumentEditFo
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="doSummary">Gjør (Do)</Label>
+              <Label htmlFor="doSummary">Do (Do)</Label>
               <Textarea
                 id="doSummary"
                 name="doSummary"
@@ -351,7 +351,7 @@ export function DocumentEditForm({ document, owners, templates }: DocumentEditFo
 
           <div className="grid gap-4 md:grid-cols-2">
             <div className="space-y-2">
-              <Label htmlFor="checkSummary">Kontroller (Check)</Label>
+              <Label htmlFor="checkSummary">Check (Check)</Label>
               <Textarea
                 id="checkSummary"
                 name="checkSummary"
@@ -361,7 +361,7 @@ export function DocumentEditForm({ document, owners, templates }: DocumentEditFo
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="actSummary">Forbedre (Act)</Label>
+              <Label htmlFor="actSummary">Act (Act)</Label>
               <Textarea
                 id="actSummary"
                 name="actSummary"
@@ -374,9 +374,9 @@ export function DocumentEditForm({ document, owners, templates }: DocumentEditFo
 
           <div className="space-y-3">
             <div>
-              <Label>Hvem skal se dokumentet?</Label>
+              <Label>Who should see the document?</Label>
               <p className="text-xs text-muted-foreground mt-1">
-                Velg hvilke roller som skal ha tilgang. Ingen valg = synlig for alle.
+                Select which roles should have access. No selection = visible to all.
               </p>
             </div>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -405,30 +405,30 @@ export function DocumentEditForm({ document, owners, templates }: DocumentEditFo
             </div>
             {selectedRoles.length > 0 ? (
               <p className="text-sm text-blue-600">
-                ✓ Valgt: {selectedRoles.map((role) => userRoles.find((r) => r.value === role)?.label).join(", ")}
+                ✓ Selected: {selectedRoles.map((role) => userRoles.find((r) => r.value === role)?.label).join(", ")}
               </p>
             ) : (
-              <p className="text-sm text-muted-foreground">📢 Synlig for alle roller</p>
+              <p className="text-sm text-muted-foreground">📢 Visible to all roles</p>
             )}
           </div>
 
           <div className="rounded-lg bg-muted/50 p-4">
-            <p className="text-sm font-medium mb-2">ℹ️ Viktig informasjon</p>
+            <p className="text-sm font-medium mb-2">ℹ️ Important information</p>
             <ul className="text-sm text-muted-foreground space-y-1 list-disc list-inside">
-              <li>Endringer påvirker kun metadata og tilgangskontroll</li>
-              <li>For å endre selve filen, bruk <strong>"Last opp ny versjon"</strong></li>
-              <li>Status og godkjenning endres ikke her</li>
+              <li>Changes only affect metadata and access control</li>
+              <li>To change the actual file, use <strong>"Upload new version"</strong></li>
+              <li>Status and approval are not changed here</li>
             </ul>
           </div>
 
           <div className="flex gap-4">
             <Button type="submit" disabled={loading}>
               {loading ? (
-                <>Lagrer...</>
+                <>Saving...</>
               ) : (
                 <>
                   <Save className="mr-2 h-4 w-4" />
-                  Lagre endringer
+                  Save changes
                 </>
               )}
             </Button>
@@ -438,7 +438,7 @@ export function DocumentEditForm({ document, owners, templates }: DocumentEditFo
               onClick={() => router.back()}
               disabled={loading}
             >
-              Avbryt
+              Cancel
             </Button>
           </div>
         </form>

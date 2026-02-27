@@ -23,7 +23,6 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Plus, ClipboardList, AlertCircle } from "lucide-react";
 import { format } from "date-fns";
-import { nb } from "date-fns/locale";
 import { PageHelpDialog } from "@/components/dashboard/page-help-dialog";
 import { helpContent } from "@/lib/help-content";
 
@@ -42,10 +41,10 @@ async function getAudits(tenantId: string) {
 
 function getStatusBadge(status: string) {
   const variants: Record<string, { variant: "default" | "secondary" | "destructive" | "outline"; label: string }> = {
-    PLANNED: { variant: "outline", label: "Planlagt" },
-    IN_PROGRESS: { variant: "default", label: "Pågår" },
-    COMPLETED: { variant: "secondary", label: "Fullført" },
-    CANCELLED: { variant: "destructive", label: "Avbrutt" },
+    PLANNED: { variant: "outline", label: "Planned" },
+    IN_PROGRESS: { variant: "default", label: "In Progress" },
+    COMPLETED: { variant: "secondary", label: "Completed" },
+    CANCELLED: { variant: "destructive", label: "Cancelled" },
   };
   const config = variants[status] || variants.PLANNED;
   return <Badge variant={config.variant}>{config.label}</Badge>;
@@ -53,11 +52,11 @@ function getStatusBadge(status: string) {
 
 function getTypeBadge(type: string) {
   const labels: Record<string, string> = {
-    INTERNAL: "Internrevisjon",
-    EXTERNAL: "Eksternrevisjon",
-    CERTIFICATION: "Sertifisering",
-    SUPPLIER: "Leverandørrevisjon",
-    FOLLOW_UP: "Oppfølging",
+    INTERNAL: "Internal Audit",
+    EXTERNAL: "External Audit",
+    CERTIFICATION: "Certification",
+    SUPPLIER: "Supplier Audit",
+    FOLLOW_UP: "Follow-up",
   };
   return <Badge variant="outline">{labels[type] || type}</Badge>;
 }
@@ -73,7 +72,7 @@ async function AuditsList() {
   });
 
   if (userTenants.length === 0) {
-    return <div>Ingen tenant tilgang</div>;
+    return <div>No tenant access</div>;
   }
 
   const audits = await getAudits(userTenants[0].tenantId);
@@ -83,14 +82,14 @@ async function AuditsList() {
       <Card>
         <CardContent className="flex flex-col items-center justify-center py-12">
           <ClipboardList className="h-12 w-12 text-muted-foreground mb-4" />
-          <h3 className="text-lg font-semibold mb-2">Ingen revisjoner ennå</h3>
+          <h3 className="text-lg font-semibold mb-2">No audits yet</h3>
           <p className="text-sm text-muted-foreground mb-4">
-            Opprett din første revisjon (internrevisjon, ISO 9001, etc.)
+            Create your first audit (internal audit, ISO 9001, etc.)
           </p>
           <Link href="/dashboard/audits/new">
             <Button>
               <Plus className="mr-2 h-4 w-4" />
-              Ny revisjon
+              New Audit
             </Button>
           </Link>
         </CardContent>
@@ -101,22 +100,22 @@ async function AuditsList() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Revisjoner</CardTitle>
-        <CardDescription>
-          {audits.length} revisjoner totalt
-        </CardDescription>
+          <CardTitle>Audits</CardTitle>
+          <CardDescription>
+            {audits.length} audits total
+          </CardDescription>
       </CardHeader>
       <CardContent>
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Tittel</TableHead>
+              <TableHead>Title</TableHead>
               <TableHead>Type</TableHead>
-              <TableHead>Område</TableHead>
-              <TableHead>Dato</TableHead>
+              <TableHead>Area</TableHead>
+              <TableHead>Date</TableHead>
               <TableHead>Status</TableHead>
-              <TableHead>Funn</TableHead>
-              <TableHead className="text-right">Handlinger</TableHead>
+              <TableHead>Findings</TableHead>
+              <TableHead className="text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -133,7 +132,7 @@ async function AuditsList() {
                     <span className="text-sm text-muted-foreground">{audit.area}</span>
                   </TableCell>
                   <TableCell>
-                    {format(new Date(audit.scheduledDate), "d. MMM yyyy", { locale: nb })}
+                    {format(new Date(audit.scheduledDate), "MMM d, yyyy")}
                   </TableCell>
                   <TableCell>{getStatusBadge(audit.status)}</TableCell>
                   <TableCell>
@@ -142,23 +141,23 @@ async function AuditsList() {
                         {majorNc > 0 && (
                           <Badge variant="destructive" className="gap-1 text-xs">
                             <AlertCircle className="h-3 w-3" />
-                            {majorNc} større avvik
+                            {majorNc} major nonconformities
                           </Badge>
                         )}
                         {minorNc > 0 && (
                           <Badge variant="secondary" className="gap-1 text-xs">
-                            {minorNc} mindre avvik
+                            {minorNc} minor nonconformities
                           </Badge>
                         )}
                       </div>
                     ) : (
-                      <span className="text-muted-foreground text-sm">Ingen funn</span>
+                      <span className="text-muted-foreground text-sm">No findings</span>
                     )}
                   </TableCell>
                   <TableCell className="text-right">
                     <Link href={`/dashboard/audits/${audit.id}`}>
                       <Button variant="ghost" size="sm">
-                        Se detaljer
+                        View details
                       </Button>
                     </Link>
                   </TableCell>
@@ -178,9 +177,9 @@ export default function AuditsPage() {
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">Revisjoner</h1>
+            <h1 className="text-3xl font-bold tracking-tight">Audits</h1>
             <p className="text-muted-foreground">
-              Internrevisjoner, ISO 9001, ISO 14001 og andre revisjoner
+              Internal audits, ISO 9001, ISO 14001 and other audits
             </p>
           </div>
           <PageHelpDialog content={helpContent.audits} />
@@ -188,12 +187,12 @@ export default function AuditsPage() {
         <Link href="/dashboard/audits/new">
           <Button>
             <Plus className="mr-2 h-4 w-4" />
-            Ny revisjon
+            New Audit
           </Button>
         </Link>
       </div>
 
-      <Suspense fallback={<div>Laster revisjoner...</div>}>
+      <Suspense fallback={<div>Loading audits...</div>}>
         <AuditsList />
       </Suspense>
     </div>

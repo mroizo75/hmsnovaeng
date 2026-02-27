@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
-import { nb } from "date-fns/locale";
+import { enUS } from "date-fns/locale";
 import { Shield, AlertCircle, MessageSquare, Eye } from "lucide-react";
 import {
   Table,
@@ -38,19 +38,19 @@ async function getWhistleblowings(tenantId: string) {
 function getStatusBadge(status: WhistleblowStatus) {
   switch (status) {
     case "RECEIVED":
-      return <Badge variant="secondary">Mottatt</Badge>;
+      return <Badge variant="secondary">Received</Badge>;
     case "ACKNOWLEDGED":
-      return <Badge className="bg-blue-500 hover:bg-blue-500">Bekreftet</Badge>;
+      return <Badge className="bg-blue-500 hover:bg-blue-500">Acknowledged</Badge>;
     case "UNDER_INVESTIGATION":
-      return <Badge className="bg-purple-500 hover:bg-purple-500">Under etterforskning</Badge>;
+      return <Badge className="bg-purple-500 hover:bg-purple-500">Under Investigation</Badge>;
     case "ACTION_TAKEN":
-      return <Badge className="bg-yellow-500 hover:bg-yellow-500">Tiltak iverksatt</Badge>;
+      return <Badge className="bg-yellow-500 hover:bg-yellow-500">Action Taken</Badge>;
     case "RESOLVED":
-      return <Badge className="bg-green-600 hover:bg-green-600">Løst</Badge>;
+      return <Badge className="bg-green-600 hover:bg-green-600">Resolved</Badge>;
     case "CLOSED":
-      return <Badge variant="outline">Avsluttet</Badge>;
+      return <Badge variant="outline">Closed</Badge>;
     case "DISMISSED":
-      return <Badge variant="destructive">Avvist</Badge>;
+      return <Badge variant="destructive">Dismissed</Badge>;
     default:
       return <Badge variant="secondary">{status}</Badge>;
   }
@@ -59,13 +59,13 @@ function getStatusBadge(status: WhistleblowStatus) {
 function getSeverityBadge(severity: WhistleblowSeverity) {
   switch (severity) {
     case "LOW":
-      return <Badge variant="outline">Lav</Badge>;
+      return <Badge variant="outline">Low</Badge>;
     case "MEDIUM":
       return <Badge className="bg-yellow-500 hover:bg-yellow-500">Medium</Badge>;
     case "HIGH":
-      return <Badge className="bg-orange-500 hover:bg-orange-500">Høy</Badge>;
+      return <Badge className="bg-orange-500 hover:bg-orange-500">High</Badge>;
     case "CRITICAL":
-      return <Badge variant="destructive">Kritisk</Badge>;
+      return <Badge variant="destructive">Critical</Badge>;
     default:
       return <Badge variant="secondary">{severity}</Badge>;
   }
@@ -74,21 +74,21 @@ function getSeverityBadge(severity: WhistleblowSeverity) {
 function getCategoryLabel(category: WhistleblowCategory) {
   switch (category) {
     case "HARASSMENT":
-      return "Trakassering";
+      return "Harassment";
     case "DISCRIMINATION":
-      return "Diskriminering";
+      return "Discrimination";
     case "WORK_ENVIRONMENT":
-      return "Arbeidsmiljø";
+      return "Work Environment";
     case "SAFETY":
-      return "HMS/Sikkerhet";
+      return "EHS/Safety";
     case "CORRUPTION":
-      return "Korrupsjon";
+      return "Corruption";
     case "ETHICS":
-      return "Etikk";
+      return "Ethics";
     case "LEGAL":
-      return "Lovbrudd";
+      return "Legal Violation";
     case "OTHER":
-      return "Annet";
+      return "Other";
     default:
       return category;
   }
@@ -114,26 +114,26 @@ export default async function WhistleblowingListPage() {
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">Varslinger</h1>
+            <h1 className="text-3xl font-bold tracking-tight">Whistleblowing</h1>
             <p className="text-muted-foreground">
-              Saksbehandling av mottatte varslinger
+              Case management for received reports
             </p>
           </div>
           <PageHelpDialog content={helpContent.whistleblowing} />
         </div>
         <Button asChild variant="outline">
           <Link href="/varsling">
-            <Shield className="mr-2 h-4 w-4" />
-            Offentlig varslingsside
+          <Shield className="mr-2 h-4 w-4" />
+          Public Reporting Page
           </Link>
         </Button>
       </div>
 
-      {/* Statistikk */}
+      {/* Statistics */}
       <div className="grid gap-4 md:grid-cols-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Totalt</CardTitle>
+            <CardTitle className="text-sm font-medium">Total</CardTitle>
             <Shield className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -143,7 +143,7 @@ export default async function WhistleblowingListPage() {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Nye</CardTitle>
+            <CardTitle className="text-sm font-medium">New</CardTitle>
             <AlertCircle className="h-4 w-4 text-blue-500" />
           </CardHeader>
           <CardContent>
@@ -155,7 +155,7 @@ export default async function WhistleblowingListPage() {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Under behandling</CardTitle>
+            <CardTitle className="text-sm font-medium">Under Review</CardTitle>
             <MessageSquare className="h-4 w-4 text-purple-500" />
           </CardHeader>
           <CardContent>
@@ -174,7 +174,7 @@ export default async function WhistleblowingListPage() {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Avsluttet</CardTitle>
+            <CardTitle className="text-sm font-medium">Closed</CardTitle>
             <Shield className="h-4 w-4 text-green-600" />
           </CardHeader>
           <CardContent>
@@ -188,9 +188,9 @@ export default async function WhistleblowingListPage() {
       {cases.length === 0 ? (
         <div className="flex flex-col items-center justify-center rounded-lg border border-dashed p-12 text-center">
           <Shield className="mb-4 h-12 w-12 text-muted-foreground" />
-          <h3 className="mb-2 text-lg font-semibold">Ingen varslinger</h3>
+          <h3 className="mb-2 text-lg font-semibold">No reports</h3>
           <p className="mb-4 text-sm text-muted-foreground">
-            Ingen varslinger er mottatt ennå.
+            No reports have been received yet.
           </p>
         </div>
       ) : (
@@ -198,13 +198,13 @@ export default async function WhistleblowingListPage() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Saksnr.</TableHead>
-                <TableHead>Tittel</TableHead>
-                <TableHead>Kategori</TableHead>
-                <TableHead>Alvorlighet</TableHead>
+                <TableHead>Case No.</TableHead>
+                <TableHead>Title</TableHead>
+                <TableHead>Category</TableHead>
+                <TableHead>Severity</TableHead>
                 <TableHead>Status</TableHead>
-                <TableHead>Mottatt</TableHead>
-                <TableHead className="text-right">Handlinger</TableHead>
+                <TableHead>Received</TableHead>
+                <TableHead className="text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -218,13 +218,13 @@ export default async function WhistleblowingListPage() {
                   <TableCell>{getSeverityBadge(c.severity)}</TableCell>
                   <TableCell>{getStatusBadge(c.status)}</TableCell>
                   <TableCell className="text-sm text-muted-foreground">
-                    {format(new Date(c.receivedAt), "dd. MMM yyyy", { locale: nb })}
+                    {format(new Date(c.receivedAt), "MMM d, yyyy", { locale: enUS })}
                   </TableCell>
                   <TableCell className="text-right">
                     <Link href={`/dashboard/whistleblowing/${c.id}`}>
                       <Button variant="ghost" size="sm">
                         <Eye className="mr-2 h-4 w-4" />
-                        Behandle
+                        Process
                       </Button>
                     </Link>
                   </TableCell>

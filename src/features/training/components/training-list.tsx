@@ -42,7 +42,7 @@ export function TrainingList({ trainings }: TrainingListProps) {
   const [statusFilter, setStatusFilter] = useState<string>("all");
 
   const handleDelete = async (id: string, title: string) => {
-    if (!confirm(`Er du sikker på at du vil slette opplæringen "${title}"?\n\nDette kan ikke angres.`)) {
+    if (!confirm(`Are you sure you want to delete "${title}"?\n\nThis cannot be undone.`)) {
       return;
     }
 
@@ -50,21 +50,20 @@ export function TrainingList({ trainings }: TrainingListProps) {
     const result = await deleteTraining(id);
     if (result.success) {
       toast({
-        title: "🗑️ Opplæring slettet",
-        description: `"${title}" er permanent fjernet`,
+        title: "🗑️ Training deleted",
+        description: `"${title}" has been permanently removed`,
       });
       router.refresh();
     } else {
       toast({
         variant: "destructive",
-        title: "Sletting feilet",
-        description: result.error || "Kunne ikke slette opplæring",
+        title: "Delete failed",
+        description: result.error || "Could not delete training",
       });
     }
     setLoading(null);
   };
 
-  // Filtering
   const filteredTrainings = trainings.filter((training) => {
     const matchesSearch =
       training.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -84,9 +83,9 @@ export function TrainingList({ trainings }: TrainingListProps) {
     return (
       <div className="flex flex-col items-center justify-center rounded-lg border border-dashed p-12 text-center">
         <GraduationCap className="mb-4 h-12 w-12 text-muted-foreground" />
-        <h3 className="text-xl font-semibold">Ingen opplæring registrert</h3>
+        <h3 className="text-xl font-semibold">No training registered</h3>
         <p className="mb-4 text-muted-foreground">
-          Start med å registrere kompetanse for dine ansatte.
+          Start by registering competence for your employees.
         </p>
       </div>
     );
@@ -94,12 +93,11 @@ export function TrainingList({ trainings }: TrainingListProps) {
 
   return (
     <div className="space-y-4">
-      {/* Filters */}
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div className="relative flex-1 max-w-sm">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input
-            placeholder="Søk etter kurs, leverandør eller ansatt..."
+            placeholder="Search by course, provider or employee..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="pl-10"
@@ -113,41 +111,39 @@ export function TrainingList({ trainings }: TrainingListProps) {
               <SelectValue placeholder="Status" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">Alle statuser</SelectItem>
-              <SelectItem value="NOT_STARTED">Ikke startet</SelectItem>
-              <SelectItem value="COMPLETED">Fullført</SelectItem>
-              <SelectItem value="VALID">Gyldig</SelectItem>
-              <SelectItem value="EXPIRING_SOON">Utløper snart</SelectItem>
-              <SelectItem value="EXPIRED">Utløpt</SelectItem>
+              <SelectItem value="all">All statuses</SelectItem>
+              <SelectItem value="NOT_STARTED">Not started</SelectItem>
+              <SelectItem value="COMPLETED">Completed</SelectItem>
+              <SelectItem value="VALID">Valid</SelectItem>
+              <SelectItem value="EXPIRING_SOON">Expiring soon</SelectItem>
+              <SelectItem value="EXPIRED">Expired</SelectItem>
             </SelectContent>
           </Select>
         </div>
       </div>
 
-      {/* Results count */}
       <div className="text-sm text-muted-foreground">
-        Viser {filteredTrainings.length} av {trainings.length} opplæringer
+        Showing {filteredTrainings.length} of {trainings.length} training records
       </div>
 
-      {/* Table */}
       <div className="rounded-md border">
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Kurs</TableHead>
-              <TableHead>Ansatt</TableHead>
-              <TableHead>Leverandør</TableHead>
-              <TableHead>Gjennomført</TableHead>
-              <TableHead>Gyldig til</TableHead>
+              <TableHead>Course</TableHead>
+              <TableHead>Employee</TableHead>
+              <TableHead>Provider</TableHead>
+              <TableHead>Completed</TableHead>
+              <TableHead>Valid until</TableHead>
               <TableHead>Status</TableHead>
-              <TableHead className="text-right">Handlinger</TableHead>
+              <TableHead className="text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {filteredTrainings.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={7} className="text-center text-muted-foreground">
-                  Ingen opplæringer funnet
+                  No training records found
                 </TableCell>
               </TableRow>
             ) : (
@@ -164,7 +160,7 @@ export function TrainingList({ trainings }: TrainingListProps) {
                           {training.title}
                           {training.isRequired && (
                             <Badge variant="outline" className="text-xs">
-                              Påkrevd
+                              Required
                             </Badge>
                           )}
                         </div>
@@ -178,7 +174,7 @@ export function TrainingList({ trainings }: TrainingListProps) {
                     <TableCell>
                       <div>
                         <div className="font-medium">
-                          {training.user?.name || "Ukjent"}
+                          {training.user?.name || "Unknown"}
                         </div>
                         <div className="text-sm text-muted-foreground">
                           {training.user?.email}
@@ -188,25 +184,25 @@ export function TrainingList({ trainings }: TrainingListProps) {
                     <TableCell>{training.provider}</TableCell>
                     <TableCell>
                       {training.completedAt
-                        ? new Date(training.completedAt).toLocaleDateString("nb-NO")
+                        ? new Date(training.completedAt).toLocaleDateString("en-US")
                         : "-"}
                     </TableCell>
                     <TableCell>
                       {training.validUntil ? (
                         <div>
-                          {new Date(training.validUntil).toLocaleDateString("nb-NO")}
+                          {new Date(training.validUntil).toLocaleDateString("en-US")}
                           {status === "EXPIRING_SOON" && (
                             <div className="text-xs text-yellow-600 font-medium mt-1">
                               {Math.ceil(
                                 (new Date(training.validUntil).getTime() - new Date().getTime()) /
                                   (1000 * 60 * 60 * 24)
                               )}{" "}
-                              dager igjen
+                              days remaining
                             </div>
                           )}
                         </div>
                       ) : (
-                        <span className="text-muted-foreground">Utløper ikke</span>
+                        <span className="text-muted-foreground">Does not expire</span>
                       )}
                     </TableCell>
                     <TableCell>
@@ -215,7 +211,7 @@ export function TrainingList({ trainings }: TrainingListProps) {
                     <TableCell className="text-right">
                       <div className="flex items-center justify-end gap-2">
                         {training.proofDocKey && (
-                          <Button variant="ghost" size="sm" title="Vis sertifikat">
+                          <Button variant="ghost" size="sm" title="View certificate">
                             <FileText className="h-4 w-4" />
                           </Button>
                         )}
@@ -239,4 +235,3 @@ export function TrainingList({ trainings }: TrainingListProps) {
     </div>
   );
 }
-

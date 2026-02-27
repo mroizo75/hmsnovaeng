@@ -18,59 +18,59 @@ export default async function NyttAvvik() {
       <div>
         <h1 className="text-2xl font-bold mb-2 flex items-center gap-2">
           <AlertCircle className="h-7 w-7 text-red-600" />
-          Rapporter avvik
+          Report Incident
         </h1>
         <p className="text-muted-foreground">
-          Meld fra om farlige situasjoner, ulykker eller nestenulykker
+          Report dangerous situations, accidents, or near misses
         </p>
       </div>
 
-      {/* Viktig melding */}
+      {/* Important message */}
       <Card className="border-l-4 border-l-red-500 bg-red-50">
         <CardContent className="p-4">
           <p className="text-sm text-red-900">
-            <strong>🚨 Ved akutt fare:</strong> Ring 110 (brann), 112 (politi) eller 113 (ambulanse) FØRST!
-            Rapporter deretter avviket her.
+            <strong>🚨 In case of immediate danger:</strong> Call 911 (fire, police, or ambulance) FIRST!
+            Then report the incident here.
           </p>
         </CardContent>
       </Card>
 
-      {/* Skjema */}
+      {/* Form */}
       <Card>
         <CardHeader>
-          <CardTitle>Avviksskjema</CardTitle>
+          <CardTitle>Incident Report Form</CardTitle>
         </CardHeader>
         <CardContent>
           <ReportIncidentForm 
             tenantId={session.user.tenantId}
-            reportedBy={session.user.name || session.user.email || "Ansatt"}
+            reportedBy={session.user.name || session.user.email || "Employee"}
           />
         </CardContent>
       </Card>
 
-      {/* Hjelp */}
+      {/* Help */}
       <Card className="border-l-4 border-l-blue-500 bg-blue-50">
         <CardHeader className="pb-3">
-          <CardTitle className="text-lg">💡 Hva skal jeg rapportere?</CardTitle>
+          <CardTitle className="text-lg">💡 What should I report?</CardTitle>
         </CardHeader>
         <CardContent className="space-y-2 text-sm">
           <div>
-            <strong>✅ Rapporter alltid:</strong>
+            <strong>✅ Always report:</strong>
             <ul className="list-disc list-inside mt-1 space-y-1 text-muted-foreground ml-2">
-              <li>Ulykker og personskader</li>
-              <li>Nestenulykker (kunne endt med skade)</li>
-              <li>Farlige situasjoner</li>
-              <li>Defekt utstyr eller verktøy</li>
-              <li>Manglende sikkerhetsutstyr</li>
-              <li>Forurensning eller utslipp</li>
+              <li>Accidents and personal injuries</li>
+              <li>Near misses (could have resulted in injury)</li>
+              <li>Dangerous situations</li>
+              <li>Defective equipment or tools</li>
+              <li>Missing safety equipment</li>
+              <li>Pollution or spills</li>
             </ul>
           </div>
           
           <div className="pt-2">
-            <strong>📝 Husk:</strong>
+            <strong>📝 Remember:</strong>
             <p className="text-muted-foreground mt-1">
-              Jo mer detaljer du gir, jo bedre kan vi forebygge lignende hendelser.
-              Alle rapporter behandles konfidensielt.
+              The more details you provide, the better we can prevent similar incidents.
+              All reports are handled confidentially.
             </p>
           </div>
         </CardContent>
@@ -78,4 +78,3 @@ export default async function NyttAvvik() {
     </div>
   );
 }
-

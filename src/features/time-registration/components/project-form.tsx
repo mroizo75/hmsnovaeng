@@ -55,7 +55,7 @@ export function ProjectForm({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!name.trim()) {
-      toast({ variant: "destructive", title: "Prosjektnavn er påkrevd" });
+      toast({ variant: "destructive", title: "Project name is required" });
       return;
     }
     setLoading(true);
@@ -77,7 +77,7 @@ export function ProjectForm({
         });
         if (!res.success) throw new Error(res.error);
       }
-      toast({ title: project ? "Prosjekt oppdatert" : "Prosjekt opprettet" });
+      toast({ title: project ? "Project updated" : "Project created" });
       onSuccess();
       onOpenChange(false);
     } catch (err) {
@@ -94,26 +94,26 @@ export function ProjectForm({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>{project ? "Rediger prosjekt" : "Nytt prosjekt"}</DialogTitle>
+          <DialogTitle>{project ? "Edit Project" : "New Project"}</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <Label htmlFor="name">Prosjektnavn *</Label>
+            <Label htmlFor="name">Project Name *</Label>
             <Input
               id="name"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="F.eks. Kunde X - Implementering"
+              placeholder="e.g. Client X - Implementation"
               required
             />
           </div>
           <div>
-            <Label htmlFor="code">Prosjektkode</Label>
+            <Label htmlFor="code">Project Code</Label>
             <Input
               id="code"
               value={code}
               onChange={(e) => setCode(e.target.value)}
-              placeholder="F.eks. PRJ-001"
+              placeholder="e.g. PRJ-001"
             />
           </div>
           {project && (
@@ -124,28 +124,28 @@ export function ProjectForm({
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="ACTIVE">Aktiv</SelectItem>
-                  <SelectItem value="COMPLETED">Avsluttet</SelectItem>
+                  <SelectItem value="ACTIVE">Active</SelectItem>
+                  <SelectItem value="COMPLETED">Completed</SelectItem>
                 </SelectContent>
               </Select>
             </div>
           )}
           <div>
-            <Label htmlFor="description">Beskrivelse</Label>
+            <Label htmlFor="description">Description</Label>
             <Textarea
               id="description"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              placeholder="Valgfri beskrivelse"
+              placeholder="Optional description"
               rows={2}
             />
           </div>
           <DialogFooter>
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
-              Avbryt
+              Cancel
             </Button>
             <Button type="submit" disabled={loading}>
-              {loading ? "Lagrer..." : project ? "Lagre" : "Opprett"}
+              {loading ? "Saving..." : project ? "Save" : "Create"}
             </Button>
           </DialogFooter>
         </form>

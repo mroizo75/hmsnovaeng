@@ -33,12 +33,12 @@ export default async function TrainingPage() {
   });
 
   if (!user || user.tenants.length === 0) {
-    return <div>Ingen tilgang til tenant</div>;
+    return <div>No tenant access</div>;
   }
 
   const tenantId = user.tenants[0].tenantId;
 
-  // Hent all opplæring med brukerinformasjon
+  // Fetch all training with user information
   const trainings = await prisma.training.findMany({
     where: { tenantId },
     include: {
@@ -124,10 +124,10 @@ export default async function TrainingPage() {
           <div>
             <h1 className="text-3xl font-bold flex items-center gap-2">
               <GraduationCap className="h-8 w-8" />
-              Opplæring og kompetanse
+              Training & Competence
             </h1>
             <p className="text-muted-foreground">
-              ISO 9001 - 7.2: Dokumenter og følg opp kompetanse
+              ISO 9001 - 7.2: Document and manage competence
             </p>
           </div>
           <PageHelpDialog content={helpContent.training} />
@@ -136,19 +136,19 @@ export default async function TrainingPage() {
           <Link href="/dashboard/goals?category=COMPETENCE">
             <Button variant="outline">
               <Target className="mr-2 h-4 w-4" />
-              Kompetansemål
+              Competence Goals
             </Button>
           </Link>
           <Link href="/dashboard/training/courses">
             <Button variant="outline">
               <Settings className="mr-2 h-4 w-4" />
-              Kursmaler
+              Course Templates
             </Button>
           </Link>
           <Link href="/dashboard/training/matrix">
             <Button variant="outline">
               <Users className="mr-2 h-4 w-4" />
-              Kompetansematrise
+              Competence Matrix
             </Button>
           </Link>
           <TrainingForm tenantId={tenantId} users={tenantUsers} courseTemplates={courseTemplates} />
@@ -159,63 +159,63 @@ export default async function TrainingPage() {
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Totalt</CardTitle>
+            <CardTitle className="text-sm font-medium">Total</CardTitle>
             <GraduationCap className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{trainings.length}</div>
-            <p className="text-xs text-muted-foreground">Registrerte opplæringer</p>
+            <p className="text-xs text-muted-foreground">Registered trainings</p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Fullført</CardTitle>
+            <CardTitle className="text-sm font-medium">Completed</CardTitle>
             <CheckCircle2 className="h-4 w-4 text-green-600" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-green-600">{completed}</div>
             <p className="text-xs text-muted-foreground">
               {trainings.length > 0
-                ? `${Math.round((completed / trainings.length) * 100)}% av totalt`
-                : "0% av totalt"}
+                ? `${Math.round((completed / trainings.length) * 100)}% of total`
+                : "0% of total"}
             </p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Utløper snart</CardTitle>
+            <CardTitle className="text-sm font-medium">Expiring Soon</CardTitle>
             <AlertTriangle className="h-4 w-4 text-yellow-600" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-yellow-600">{expiringSoon}</div>
-            <p className="text-xs text-muted-foreground">Innen 30 dager</p>
+            <p className="text-xs text-muted-foreground">Within 30 days</p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Utløpt</CardTitle>
+            <CardTitle className="text-sm font-medium">Expired</CardTitle>
             <XCircle className="h-4 w-4 text-red-600" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-red-600">{expired}</div>
-            <p className="text-xs text-muted-foreground">Må fornyes</p>
+            <p className="text-xs text-muted-foreground">Must be renewed</p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Evaluert</CardTitle>
+            <CardTitle className="text-sm font-medium">Evaluated</CardTitle>
             <Clock className="h-4 w-4 text-blue-600" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-blue-600">{evaluated}</div>
             <p className="text-xs text-muted-foreground">
               {completed > 0
-                ? `${Math.round((evaluated / completed) * 100)}% av fullført`
-                : "0% av fullført"}
+                ? `${Math.round((evaluated / completed) * 100)}% of completed`
+                : "0% of completed"}
             </p>
           </CardContent>
         </Card>
@@ -224,28 +224,28 @@ export default async function TrainingPage() {
       {/* ISO 9001 Info */}
       <Card className="bg-blue-50 border-blue-200">
         <CardHeader>
-          <CardTitle className="text-blue-900">📋 ISO 9001 - 7.2 Kompetanse</CardTitle>
+          <CardTitle className="text-blue-900">📋 ISO 9001 - 7.2 Competence</CardTitle>
           <CardDescription className="text-blue-800">
-            Krav til kompetansestyring
+            Competence management requirements
           </CardDescription>
         </CardHeader>
         <CardContent className="text-sm text-blue-800 space-y-2">
           <div className="grid md:grid-cols-2 gap-4">
             <div>
-              <p className="font-semibold mb-1">a) Bestemme kompetanse:</p>
-              <p>Definer nødvendig kompetanse for arbeid som påvirker kvalitet</p>
+              <p className="font-semibold mb-1">a) Determine competence:</p>
+              <p>Define required competence for work that affects quality</p>
             </div>
             <div>
-              <p className="font-semibold mb-1">b) Sikre kompetanse:</p>
-              <p>Dokumenter utdanning, opplæring eller erfaring</p>
+              <p className="font-semibold mb-1">b) Ensure competence:</p>
+              <p>Document education, training, or experience</p>
             </div>
             <div>
-              <p className="font-semibold mb-1">c) Evaluere effektivitet:</p>
-              <p>Vurder om opplæringen har gitt ønsket kompetanse</p>
+              <p className="font-semibold mb-1">c) Evaluate effectiveness:</p>
+              <p>Assess whether training has achieved desired competence</p>
             </div>
             <div>
-              <p className="font-semibold mb-1">d) Dokumentert informasjon:</p>
-              <p>Bevar bevis på kompetanse (sertifikater, kursbevis)</p>
+              <p className="font-semibold mb-1">d) Documented information:</p>
+              <p>Retain evidence of competence (certificates, course records)</p>
             </div>
           </div>
         </CardContent>
@@ -254,9 +254,9 @@ export default async function TrainingPage() {
       {/* Training List */}
       <Card>
         <CardHeader>
-          <CardTitle>Alle opplæringer</CardTitle>
+          <CardTitle>All Trainings</CardTitle>
           <CardDescription>
-            Oversikt over registrert kompetanse for alle ansatte
+            Overview of registered competence for all employees
           </CardDescription>
         </CardHeader>
         <CardContent>

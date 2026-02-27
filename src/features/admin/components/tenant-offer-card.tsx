@@ -14,11 +14,11 @@ import { Loader2, FileText, CheckCircle2, Send } from "lucide-react";
 type TenantOfferStatus = "DRAFT" | "SENT" | "ACCEPTED" | "REJECTED" | "EXPIRED";
 
 const OFFER_STATUS_LABELS: Record<TenantOfferStatus, string> = {
-  ACCEPTED: "Avtale godkjent",
-  SENT: "Sendt",
-  REJECTED: "Avvist",
-  EXPIRED: "Utløpt",
-  DRAFT: "Utkast",
+  ACCEPTED: "Agreement accepted",
+  SENT: "Sent",
+  REJECTED: "Rejected",
+  EXPIRED: "Expired",
+  DRAFT: "Draft",
 };
 
 interface TenantOfferCardProps {
@@ -62,8 +62,8 @@ export function TenantOfferCard({ tenant }: TenantOfferCardProps) {
     if (Number.isNaN(parsedSetup as number)) {
       toast({
         variant: "destructive",
-        title: "Ugyldig beløp",
-        description: "Etableringspris må være et heltall i kroner.",
+        title: "Invalid amount",
+        description: "Setup price must be a whole number in NOK.",
       });
       return;
     }
@@ -78,8 +78,8 @@ export function TenantOfferCard({ tenant }: TenantOfferCardProps) {
 
     if (result.success) {
       toast({
-        title: "Tilbud sendt",
-        description: "Kunden har fått e-post med lenke til kontrakt.",
+        title: "Offer sent",
+        description: "The customer has received an email with a link to the contract.",
       });
       setNotes("");
       setSetupPrice("");
@@ -87,8 +87,8 @@ export function TenantOfferCard({ tenant }: TenantOfferCardProps) {
     } else {
       toast({
         variant: "destructive",
-        title: "Kunne ikke sende tilbud",
-        description: result.error || "Noe gikk galt. Prøv igjen.",
+        title: "Could not send offer",
+        description: result.error || "Something went wrong. Please try again.",
       });
     }
   };
@@ -98,47 +98,47 @@ export function TenantOfferCard({ tenant }: TenantOfferCardProps) {
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <FileText className="h-5 w-5" />
-          Tilbud / Kontrakt
+          Offer / Contract
         </CardTitle>
         <CardDescription>
-          Send standardtilbud med 12 mnd binding og 3 mnd oppsigelse direkte til kunden.
+          Send standard offer with 12 month commitment and 3 month notice directly to the customer.
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid md:grid-cols-2 gap-4">
             <div>
-              <Label className="text-muted-foreground">Mottaker</Label>
+              <Label className="text-muted-foreground">Recipient</Label>
               <p className="text-sm font-medium mt-1">
-                {tenant.invoiceEmail || tenant.contactEmail || "Ingen e-post registrert"}
+                {tenant.invoiceEmail || tenant.contactEmail || "No email registered"}
               </p>
               <p className="text-xs text-muted-foreground">
-                Tilbud sendes til faktura-epost, eller kontaktperson hvis den mangler.
+                Offer is sent to billing email, or contact person if missing.
               </p>
             </div>
             <div>
-              <Label htmlFor="setupPrice">Etablering / oppsett (kr)</Label>
+              <Label htmlFor="setupPrice">Setup (NOK)</Label>
               <Input
                 id="setupPrice"
                 type="number"
                 min={0}
                 value={setupPrice}
                 onChange={(e) => setSetupPrice(e.target.value)}
-                placeholder="Valgfritt, f.eks. 3000"
+                placeholder="Optional, e.g. 3000"
                 disabled={isSubmitting}
               />
             </div>
           </div>
 
           <div>
-            <Label htmlFor="offerNotes">Tilleggsnotat til tilbud (valgfritt)</Label>
+            <Label htmlFor="offerNotes">Additional note for offer (optional)</Label>
             <textarea
               id="offerNotes"
               className="mt-1 block w-full rounded-md border border-input bg-background px-3 py-2 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
               rows={3}
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
-              placeholder="F.eks. spesielle avtaler, rabatter eller hva som er inkludert i oppsettet."
+              placeholder="E.g. special agreements, discounts or what is included in the setup."
               disabled={isSubmitting}
             />
           </div>
@@ -148,12 +148,12 @@ export function TenantOfferCard({ tenant }: TenantOfferCardProps) {
               {isSubmitting ? (
                 <>
                   <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                  Sender...
+                  Sending...
                 </>
               ) : (
                 <>
                   <Send className="h-4 w-4 mr-2" />
-                  Send tilbud
+                  Send offer
                 </>
               )}
             </Button>
@@ -164,7 +164,7 @@ export function TenantOfferCard({ tenant }: TenantOfferCardProps) {
           <div className="pt-4 border-t space-y-2">
             <div className="flex items-center justify-between">
               <span className="text-sm font-medium text-muted-foreground">
-                Siste tilbud
+                Latest offer
               </span>
               <Badge
                 variant={
@@ -183,17 +183,16 @@ export function TenantOfferCard({ tenant }: TenantOfferCardProps) {
               </Badge>
             </div>
             <p className="text-sm">
-              Årspris:{" "}
+              Annual price:{" "}
               <span className="font-semibold">
-                {latestOffer.yearlyPrice.toLocaleString("nb-NO")} kr/år
+                {latestOffer.yearlyPrice.toLocaleString("en-US")} NOK/year
               </span>{" "}
-              • Binding: {latestOffer.bindingMonths} mnd • Oppsigelse:{" "}
-              {latestOffer.noticeMonths} mnd
+              • Commitment: {latestOffer.bindingMonths} months • Notice: {latestOffer.noticeMonths} months
             </p>
             {latestOffer.sentAt && (
               <p className="text-xs text-muted-foreground">
-                Sendt:{" "}
-                {new Date(latestOffer.sentAt).toLocaleDateString("nb-NO", {
+                Sent:{" "}
+                {new Date(latestOffer.sentAt).toLocaleDateString("en-US", {
                   day: "2-digit",
                   month: "short",
                   year: "numeric",
@@ -205,8 +204,8 @@ export function TenantOfferCard({ tenant }: TenantOfferCardProps) {
             {latestOffer.acceptedAt && (
               <p className="text-xs text-muted-foreground flex items-center gap-1">
                 <CheckCircle2 className="h-3 w-3 text-green-600" />
-                Akseptert:{" "}
-                {new Date(latestOffer.acceptedAt).toLocaleDateString("nb-NO", {
+                Accepted:{" "}
+                {new Date(latestOffer.acceptedAt).toLocaleDateString("en-US", {
                   day: "2-digit",
                   month: "short",
                   year: "numeric",

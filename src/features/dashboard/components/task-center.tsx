@@ -23,7 +23,7 @@ import {
 import Link from "next/link";
 import { getMyTasks, type TaskSummary } from "@/server/actions/task.actions";
 import { formatDistanceToNow } from "date-fns";
-import { nb } from "date-fns/locale";
+import { enUS } from "date-fns/locale";
 
 interface TaskCenterProps {
   tenantId: string;
@@ -79,25 +79,25 @@ export function TaskCenter({ tenantId, userId }: TaskCenterProps) {
       <CardHeader className="pb-2">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <div>
-            <CardTitle className="text-lg">Oppgavesenter</CardTitle>
+            <CardTitle className="text-lg">Task Center</CardTitle>
             <CardDescription className="text-xs">
-              Kritisk · Kommende · Gjennomgang
+              Critical · Upcoming · Review
             </CardDescription>
           </div>
           <div className="flex flex-wrap items-center gap-2">
             {criticalCount > 0 && (
               <Badge variant="destructive" className="text-xs">
-                {criticalCount} kritiske
+                {criticalCount} critical
               </Badge>
             )}
             {upcomingCount > 0 && (
               <Badge variant="secondary" className="text-xs">
-                {upcomingCount} kommende
+                {upcomingCount} upcoming
               </Badge>
             )}
             {reviewCount > 0 && (
               <Badge variant="outline" className="text-xs">
-                {reviewCount} gjennomgang
+                {reviewCount} review
               </Badge>
             )}
           </div>
@@ -109,23 +109,23 @@ export function TaskCenter({ tenantId, userId }: TaskCenterProps) {
             {!hasAny && (
               <div className="flex flex-col items-center justify-center py-8 text-center text-sm text-muted-foreground">
                 <CheckCircle2 className="h-10 w-10 text-green-500 mb-2" />
-                <p className="font-medium text-foreground">Alt er ajour</p>
-                <p>Ingen kritiske eller kommende oppgaver</p>
+                <p className="font-medium text-foreground">All up to date</p>
+                <p>No critical or upcoming tasks</p>
               </div>
             )}
 
-            {/* Kritisk */}
+            {/* Critical */}
             {hasCritical && (
               <section>
                 <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">
-                  Kritisk
+                  Critical
                 </h3>
                 <div className="space-y-1.5">
                   {tasks.overdueMeasures > 0 && (
                     <TaskRow
                       icon={AlertTriangle}
                       iconClass="text-red-600 bg-red-50"
-                      title={`${tasks.overdueMeasures} forfalte tiltak`}
+                      title={`${tasks.overdueMeasures} overdue actions`}
                       href="/dashboard/actions"
                     />
                   )}
@@ -133,7 +133,7 @@ export function TaskCenter({ tenantId, userId }: TaskCenterProps) {
                     <TaskRow
                       icon={AlertCircle}
                       iconClass="text-red-600 bg-red-50"
-                      title={`${tasks.overdueIncidents} avvik venter`}
+                      title={`${tasks.overdueIncidents} incidents pending`}
                       href="/dashboard/incidents"
                     />
                   )}
@@ -141,7 +141,7 @@ export function TaskCenter({ tenantId, userId }: TaskCenterProps) {
                     <TaskRow
                       icon={GraduationCap}
                       iconClass="text-red-600 bg-red-50"
-                      title={`${tasks.expiredTraining} utløpt opplæring`}
+                      title={`${tasks.expiredTraining} expired training`}
                       href="/dashboard/training"
                     />
                   )}
@@ -149,7 +149,7 @@ export function TaskCenter({ tenantId, userId }: TaskCenterProps) {
                     <TaskRow
                       icon={Shield}
                       iconClass="text-red-600 bg-red-50"
-                      title={`${tasks.overdueInspections} forfalte vernerunder`}
+                      title={`${tasks.overdueInspections} overdue inspections`}
                       href="/dashboard/inspections"
                     />
                   )}
@@ -157,11 +157,11 @@ export function TaskCenter({ tenantId, userId }: TaskCenterProps) {
               </section>
             )}
 
-            {/* Kommende */}
+            {/* Upcoming */}
             {hasUpcoming && (
               <section>
                 <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">
-                  Kommende (7 dager)
+                  Upcoming (7 days)
                 </h3>
                 <div className="space-y-1.5">
                   {tasks.upcomingMeasures.map((m) => (
@@ -172,7 +172,7 @@ export function TaskCenter({ tenantId, userId }: TaskCenterProps) {
                       title={m.title}
                       sub={formatDistanceToNow(new Date(m.dueAt), {
                         addSuffix: true,
-                        locale: nb,
+                        locale: enUS,
                       })}
                       href="/dashboard/actions"
                     />
@@ -185,7 +185,7 @@ export function TaskCenter({ tenantId, userId }: TaskCenterProps) {
                       title={m.title}
                       sub={formatDistanceToNow(new Date(m.scheduledDate), {
                         addSuffix: true,
-                        locale: nb,
+                        locale: enUS,
                       })}
                       href={`/dashboard/meetings/${m.id}`}
                     />
@@ -198,7 +198,7 @@ export function TaskCenter({ tenantId, userId }: TaskCenterProps) {
                       title={i.title}
                       sub={formatDistanceToNow(new Date(i.scheduledDate), {
                         addSuffix: true,
-                        locale: nb,
+                        locale: enUS,
                       })}
                       href={`/dashboard/inspections/${i.id}`}
                     />
@@ -211,7 +211,7 @@ export function TaskCenter({ tenantId, userId }: TaskCenterProps) {
                       title={a.title}
                       sub={formatDistanceToNow(new Date(a.scheduledDate), {
                         addSuffix: true,
-                        locale: nb,
+                        locale: enUS,
                       })}
                       href={`/dashboard/audits/${a.id}`}
                     />
@@ -220,18 +220,18 @@ export function TaskCenter({ tenantId, userId }: TaskCenterProps) {
               </section>
             )}
 
-            {/* Trenger gjennomgang */}
+            {/* Needs review */}
             {hasReview && (
               <section>
                 <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">
-                  Trenger gjennomgang
+                  Needs review
                 </h3>
                 <div className="space-y-1.5">
                   {tasks.documentsNeedingReview > 0 && (
                     <TaskRow
                       icon={FileText}
                       iconClass="text-amber-600 bg-amber-50"
-                      title={`${tasks.documentsNeedingReview} dokumenter`}
+                      title={`${tasks.documentsNeedingReview} documents`}
                       href="/dashboard/documents"
                     />
                   )}
@@ -239,7 +239,7 @@ export function TaskCenter({ tenantId, userId }: TaskCenterProps) {
                     <TaskRow
                       icon={Beaker}
                       iconClass="text-amber-600 bg-amber-50"
-                      title={`${tasks.chemicalsNeedingReview} kjemikalier`}
+                      title={`${tasks.chemicalsNeedingReview} chemicals`}
                       href="/dashboard/chemicals"
                     />
                   )}
@@ -247,7 +247,7 @@ export function TaskCenter({ tenantId, userId }: TaskCenterProps) {
                     <TaskRow
                       icon={AlertTriangle}
                       iconClass="text-amber-600 bg-amber-50"
-                      title={`${tasks.risksNeedingReview} risikoer`}
+                      title={`${tasks.risksNeedingReview} risks`}
                       href="/dashboard/risks"
                     />
                   )}
@@ -255,7 +255,7 @@ export function TaskCenter({ tenantId, userId }: TaskCenterProps) {
                     <TaskRow
                       icon={Target}
                       iconClass="text-amber-600 bg-amber-50"
-                      title={`${tasks.goalsAtRisk} mål i fare`}
+                      title={`${tasks.goalsAtRisk} goals at risk`}
                       href="/dashboard/goals"
                     />
                   )}
@@ -263,7 +263,7 @@ export function TaskCenter({ tenantId, userId }: TaskCenterProps) {
                     <TaskRow
                       icon={GraduationCap}
                       iconClass="text-amber-600 bg-amber-50"
-                      title={`${tasks.expiringTraining.length} opplæringer utløper`}
+                      title={`${tasks.expiringTraining.length} training expiring`}
                       href="/dashboard/training"
                     />
                   )}
@@ -273,28 +273,28 @@ export function TaskCenter({ tenantId, userId }: TaskCenterProps) {
           </div>
         </ScrollArea>
 
-        {/* Kompakt sammendrag nederst */}
+        {/* Compact summary at bottom */}
         <div className="flex flex-wrap items-center gap-3 pt-3 mt-3 border-t text-sm">
           <Link
             href="/dashboard/incidents"
             className="flex items-center gap-1.5 text-muted-foreground hover:text-foreground"
           >
             <AlertCircle className="h-4 w-4" />
-            <span>{tasks.openIncidents} avvik</span>
+            <span>{tasks.openIncidents} incidents</span>
           </Link>
           <Link
             href="/dashboard/actions"
             className="flex items-center gap-1.5 text-muted-foreground hover:text-foreground"
           >
             <CheckCircle2 className="h-4 w-4" />
-            <span>{tasks.activeMeasures} tiltak</span>
+            <span>{tasks.activeMeasures} actions</span>
           </Link>
           <Link
             href="/dashboard/meetings"
             className="flex items-center gap-1.5 text-muted-foreground hover:text-foreground"
           >
             <Calendar className="h-4 w-4" />
-            <span>{tasks.upcomingMeetings.length} møter</span>
+            <span>{tasks.upcomingMeetings.length} meetings</span>
           </Link>
           {tasks.unreadNotifications > 0 && (
             <Link
@@ -302,7 +302,7 @@ export function TaskCenter({ tenantId, userId }: TaskCenterProps) {
               className="flex items-center gap-1.5 text-blue-600 hover:underline"
             >
               <Bell className="h-4 w-4" />
-              <span>{tasks.unreadNotifications} varsler</span>
+              <span>{tasks.unreadNotifications} alerts</span>
             </Link>
           )}
         </div>

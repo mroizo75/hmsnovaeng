@@ -101,13 +101,13 @@ export default async function SecurityPage() {
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div>
-            <h1 className="text-3xl font-bold">Informasjonssikkerhet (ISO 27001)</h1>
-            <p className="text-muted-foreground">Kontroller, evidens og tilgangsgjennomganger for ISMS-et</p>
+            <h1 className="text-3xl font-bold">Information Security (ISO 27001)</h1>
+            <p className="text-muted-foreground">Controls, evidence, and access reviews for the ISMS</p>
           </div>
           <PageHelpDialog content={helpContent.security} />
         </div>
         <Button variant="outline" asChild>
-          <a href="/dashboard/documents?filter=ISMS">ISMS-dokumenter</a>
+          <a href="/dashboard/documents?filter=ISMS">ISMS Documents</a>
         </Button>
       </div>
 
@@ -122,8 +122,8 @@ export default async function SecurityPage() {
       <Card>
         <CardHeader className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
           <div>
-            <CardTitle>Sikkerhetsobjekter</CardTitle>
-            <CardDescription>Beskyttede systemer, enheter og informasjon</CardDescription>
+            <CardTitle>Security Assets</CardTitle>
+            <CardDescription>Protected systems, devices, and information</CardDescription>
           </div>
           <SecurityAssetForm users={usersList} />
         </CardHeader>
@@ -135,8 +135,8 @@ export default async function SecurityPage() {
       <Card>
         <CardHeader className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
           <div>
-            <CardTitle>Sikkerhetskontroller</CardTitle>
-            <CardDescription>Følg opp Annex A-kontroller og implementering</CardDescription>
+            <CardTitle>Security Controls</CardTitle>
+            <CardDescription>Track Annex A controls and implementation</CardDescription>
           </div>
           <div className="flex flex-col gap-2 md:flex-row">
             <SecurityEvidenceForm controls={controls.map((control) => ({ id: control.id, code: control.code, title: control.title }))} />
@@ -156,8 +156,8 @@ export default async function SecurityPage() {
       <Card>
         <CardHeader className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
           <div>
-            <CardTitle>Tilgangsgjennomganger</CardTitle>
-            <CardDescription>Planlegg og dokumenter periodiske tilgangsrevisjoner</CardDescription>
+            <CardTitle>Access Reviews</CardTitle>
+            <CardDescription>Plan and document periodic access audits</CardDescription>
           </div>
           <SecurityAccessReviewForm />
         </CardHeader>

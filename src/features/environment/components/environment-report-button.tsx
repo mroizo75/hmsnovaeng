@@ -26,7 +26,7 @@ export function EnvironmentReportButton() {
 
       if (!response.ok) {
         const error = await response.json();
-        throw new Error(error.error || "Kunne ikke generere rapport");
+        throw new Error(error.error || "Could not generate report");
       }
 
       // Last ned PDF
@@ -34,22 +34,22 @@ export function EnvironmentReportButton() {
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = `Miljorapport_${year}.pdf`;
+      a.download = `EnvironmentReport_${year}.pdf`;
       document.body.appendChild(a);
       a.click();
       window.URL.revokeObjectURL(url);
       document.body.removeChild(a);
 
       toast({
-        title: "✅ Rapport generert!",
-        description: `Miljørapport for ${year} er lastet ned`,
+        title: "✅ Report generated!",
+        description: `Environmental report for ${year} has been downloaded`,
         className: "bg-green-50 border-green-200",
       });
     } catch (error: any) {
       console.error("Report generation error:", error);
       toast({
-        title: "Feil ved generering",
-        description: error.message || "Kunne ikke generere miljørapport",
+        title: "Error generating report",
+        description: error.message || "Could not generate environmental report",
         variant: "destructive",
       });
     } finally {
@@ -64,23 +64,23 @@ export function EnvironmentReportButton() {
           {loading ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Genererer...
+              Generating...
             </>
           ) : (
             <>
               <FileText className="mr-2 h-4 w-4" />
-              Miljørapport
+              Environmental Report
               <ChevronDown className="ml-2 h-4 w-4" />
             </>
           )}
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-56">
-        <DropdownMenuLabel>Velg år</DropdownMenuLabel>
+        <DropdownMenuLabel>Select year</DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuItem onClick={() => handleDownload(currentYear)}>
           <Download className="mr-2 h-4 w-4" />
-          {currentYear} (Inneværende år)
+          {currentYear} (Current year)
         </DropdownMenuItem>
         <DropdownMenuItem onClick={() => handleDownload(currentYear - 1)}>
           <Download className="mr-2 h-4 w-4" />
@@ -92,7 +92,7 @@ export function EnvironmentReportButton() {
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         <div className="px-2 py-1.5 text-xs text-muted-foreground">
-          Rapporten inkluderer målinger, mål og tiltak for valgt år
+          The report includes measurements, goals, and actions for the selected year
         </div>
       </DropdownMenuContent>
     </DropdownMenu>

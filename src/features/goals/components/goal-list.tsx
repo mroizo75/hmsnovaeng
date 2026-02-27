@@ -48,7 +48,7 @@ export function GoalList({ goals }: GoalListProps) {
   const [categoryFilter, setCategoryFilter] = useState<string>("all");
 
   const handleDelete = async (id: string, title: string) => {
-    if (!confirm(`Er du sikker på at du vil slette målet "${title}"?\n\nDette kan ikke angres.`)) {
+    if (!confirm(`Are you sure you want to delete the goal "${title}"?\n\nThis cannot be undone.`)) {
       return;
     }
 
@@ -56,15 +56,15 @@ export function GoalList({ goals }: GoalListProps) {
     const result = await deleteGoal(id);
     if (result.success) {
       toast({
-        title: "🗑️ Mål slettet",
-        description: `"${title}" er permanent fjernet`,
+        title: "🗑️ Goal deleted",
+        description: `"${title}" has been permanently removed`,
       });
       router.refresh();
     } else {
       toast({
         variant: "destructive",
-        title: "Sletting feilet",
-        description: result.error || "Kunne ikke slette mål",
+        title: "Delete failed",
+        description: result.error || "Could not delete goal",
       });
     }
     setLoading(null);
@@ -83,14 +83,14 @@ export function GoalList({ goals }: GoalListProps) {
     return (
       <div className="flex flex-col items-center justify-center rounded-lg border border-dashed p-12 text-center">
         <Target className="mb-4 h-12 w-12 text-muted-foreground" />
-        <h3 className="text-xl font-semibold">Ingen mål funnet</h3>
+        <h3 className="text-xl font-semibold">No goals found</h3>
         <p className="mb-4 text-muted-foreground">
-          Start med å opprette ditt første kvalitetsmål.
+          Start by creating your first quality goal.
         </p>
         <Link href="/dashboard/goals/new">
           <Button>
             <Target className="mr-2 h-4 w-4" />
-            Opprett mål
+            Create goal
           </Button>
         </Link>
       </div>
@@ -104,7 +104,7 @@ export function GoalList({ goals }: GoalListProps) {
         <div className="relative flex-1 max-w-sm">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input
-            placeholder="Søk etter mål..."
+            placeholder="Search goals..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="pl-10"
@@ -118,29 +118,29 @@ export function GoalList({ goals }: GoalListProps) {
               <SelectValue placeholder="Status" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">Alle statuser</SelectItem>
-              <SelectItem value="ACTIVE">Aktivt</SelectItem>
-              <SelectItem value="ACHIEVED">Oppnådd</SelectItem>
-              <SelectItem value="AT_RISK">I risiko</SelectItem>
-              <SelectItem value="FAILED">Ikke oppnådd</SelectItem>
-              <SelectItem value="ARCHIVED">Arkivert</SelectItem>
+              <SelectItem value="all">All statuses</SelectItem>
+              <SelectItem value="ACTIVE">Active</SelectItem>
+              <SelectItem value="ACHIEVED">Achieved</SelectItem>
+              <SelectItem value="AT_RISK">At risk</SelectItem>
+              <SelectItem value="FAILED">Not achieved</SelectItem>
+              <SelectItem value="ARCHIVED">Archived</SelectItem>
             </SelectContent>
           </Select>
 
           <Select value={categoryFilter} onValueChange={setCategoryFilter}>
             <SelectTrigger className="w-[140px]">
-              <SelectValue placeholder="Kategori" />
+              <SelectValue placeholder="Category" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">Alle kategorier</SelectItem>
-              <SelectItem value="QUALITY">Kvalitet</SelectItem>
-              <SelectItem value="HMS">HMS</SelectItem>
-              <SelectItem value="ENVIRONMENT">Miljø</SelectItem>
-              <SelectItem value="CUSTOMER">Kunde</SelectItem>
-              <SelectItem value="EFFICIENCY">Effektivitet</SelectItem>
-              <SelectItem value="FINANCE">Økonomi</SelectItem>
-              <SelectItem value="COMPETENCE">Kompetanse</SelectItem>
-              <SelectItem value="OTHER">Annet</SelectItem>
+              <SelectItem value="all">All categories</SelectItem>
+              <SelectItem value="QUALITY">Quality</SelectItem>
+              <SelectItem value="HMS">EHS</SelectItem>
+              <SelectItem value="ENVIRONMENT">Environment</SelectItem>
+              <SelectItem value="CUSTOMER">Customer</SelectItem>
+              <SelectItem value="EFFICIENCY">Efficiency</SelectItem>
+              <SelectItem value="FINANCE">Finance</SelectItem>
+              <SelectItem value="COMPETENCE">Competence</SelectItem>
+              <SelectItem value="OTHER">Other</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -148,7 +148,7 @@ export function GoalList({ goals }: GoalListProps) {
 
       {/* Results count */}
       <div className="text-sm text-muted-foreground">
-        Viser {filteredGoals.length} av {goals.length} mål
+        Showing {filteredGoals.length} of {goals.length} goals
       </div>
 
       {/* Table */}
@@ -156,19 +156,19 @@ export function GoalList({ goals }: GoalListProps) {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Mål</TableHead>
-              <TableHead>Kategori</TableHead>
-              <TableHead>Fremgang</TableHead>
+              <TableHead>Goal</TableHead>
+              <TableHead>Category</TableHead>
+              <TableHead>Progress</TableHead>
               <TableHead>Status</TableHead>
-              <TableHead>År</TableHead>
-              <TableHead className="text-right">Handlinger</TableHead>
+              <TableHead>Year</TableHead>
+              <TableHead className="text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {filteredGoals.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={6} className="text-center text-muted-foreground">
-                  Ingen mål funnet
+                  No goals found
                 </TableCell>
               </TableRow>
             ) : (

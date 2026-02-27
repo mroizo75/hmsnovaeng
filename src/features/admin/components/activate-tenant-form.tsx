@@ -45,23 +45,23 @@ export function ActivateTenantForm({
       if (result.success) {
         toast({
           title: "✅ Tenant aktivert!",
-          description: "Admin-bruker er opprettet og e-post er sendt til kunden.",
+          description: "Admin user has been created and email has been sent to the customer.",
         });
         router.push("/admin/registrations");
         router.refresh();
       } else {
-        const errorMsg = "error" in result ? result.error : "Kunne ikke aktivere tenant";
+        const errorMsg = "error" in result ? result.error : "Could not activate tenant";
         toast({
           variant: "destructive",
-          title: "❌ Feil",
+          title: "❌ Error",
           description: errorMsg,
         });
       }
     } catch {
       toast({
         variant: "destructive",
-        title: "❌ Systemfeil",
-        description: "En uventet feil oppstod",
+        title: "❌ System error",
+        description: "An unexpected error occurred",
       });
     } finally {
       setLoading(false);
@@ -72,36 +72,36 @@ export function ActivateTenantForm({
     <form onSubmit={handleSubmit} className="space-y-4">
       {/* Admin E-post */}
       <div className="space-y-2">
-        <Label htmlFor="adminEmail">Admin E-post *</Label>
+        <Label htmlFor="adminEmail">Admin Email *</Label>
         <Input
           id="adminEmail"
           type="email"
           value={formData.adminEmail}
           onChange={(e) => setFormData({ ...formData, adminEmail: e.target.value })}
           required
-          placeholder="admin@bedrift.no"
+          placeholder="admin@company.com"
         />
         <p className="text-xs text-muted-foreground">
-          E-postadressen admin-brukeren skal logge inn med
+          The email address the admin user will use to log in
         </p>
       </div>
 
       {/* Admin Navn */}
       <div className="space-y-2">
-        <Label htmlFor="adminName">Admin Navn *</Label>
+        <Label htmlFor="adminName">Admin Name *</Label>
         <Input
           id="adminName"
           type="text"
           value={formData.adminName}
           onChange={(e) => setFormData({ ...formData, adminName: e.target.value })}
           required
-          placeholder="Ola Nordmann"
+          placeholder="John Doe"
         />
       </div>
 
       {/* Admin Passord */}
       <div className="space-y-2">
-        <Label htmlFor="adminPassword">Midlertidig passord *</Label>
+        <Label htmlFor="adminPassword">Temporary password *</Label>
         <div className="flex gap-2">
           <div className="relative flex-1">
             <Input
@@ -111,7 +111,7 @@ export function ActivateTenantForm({
               onChange={(e) => setFormData({ ...formData, adminPassword: e.target.value })}
               required
               minLength={8}
-              placeholder="Min. 8 tegn"
+              placeholder="Min. 8 characters"
               className="pr-10"
             />
             <button
@@ -127,22 +127,22 @@ export function ActivateTenantForm({
             variant="outline"
             onClick={() => setFormData({ ...formData, adminPassword: generatePassword() })}
           >
-            Generer
+            Generate
           </Button>
         </div>
         <p className="text-xs text-muted-foreground">
-          Passordet sendes til kunden - de må endre det ved første innlogging
+          The password is sent to the customer - they must change it on first login
         </p>
       </div>
 
       {/* Interne notater */}
       <div className="space-y-2">
-        <Label htmlFor="notes">Interne notater (valgfritt)</Label>
+        <Label htmlFor="notes">Internal notes (optional)</Label>
         <Textarea
           id="notes"
           value={formData.notes}
           onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-          placeholder="F.eks. spesielle avtaler, rabatter, etc."
+          placeholder="E.g. special agreements, discounts, etc."
           rows={3}
         />
       </div>
@@ -156,12 +156,12 @@ export function ActivateTenantForm({
           {loading ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Aktiverer...
+              Activating...
             </>
           ) : (
             <>
               <CheckCircle2 className="mr-2 h-4 w-4" />
-              Aktiver tenant og send e-post
+              Activate tenant and send email
             </>
           )}
         </Button>

@@ -15,7 +15,7 @@ interface FAQSectionProps {
 
 export function FAQSection({
   faqs,
-  title = "Ofte stilte spørsmål",
+  title = "Frequently Asked Questions",
   description,
   enableSchema = true,
 }: FAQSectionProps) {

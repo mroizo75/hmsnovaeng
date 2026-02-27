@@ -12,7 +12,7 @@ interface HMSScoreChartProps {
 }
 
 export function HMSScoreChart({ data }: HMSScoreChartProps) {
-  // Beregn trend
+  // Calculate trend
   const firstScore = data[0]?.score || 0;
   const lastScore = data[data.length - 1]?.score || 0;
   const trend = lastScore - firstScore;
@@ -35,8 +35,8 @@ export function HMSScoreChart({ data }: HMSScoreChartProps) {
       <CardHeader>
         <div className="flex items-center justify-between">
           <div>
-            <CardTitle className="text-base sm:text-lg">HMS-score</CardTitle>
-            <CardDescription className="text-xs sm:text-sm">Utvikling siste 6 måneder</CardDescription>
+            <CardTitle className="text-base sm:text-lg">H&S Score</CardTitle>
+            <CardDescription className="text-xs sm:text-sm">Last 6 months</CardDescription>
           </div>
           <div className="flex items-center gap-2">
             {getTrendIcon()}
@@ -74,7 +74,7 @@ export function HMSScoreChart({ data }: HMSScoreChartProps) {
                 fontSize: '12px',
               }}
               labelStyle={{ color: 'hsl(var(--foreground))' }}
-              formatter={(value: number) => [`${value}%`, 'HMS-score']}
+              formatter={(value: number) => [`${value}%`, 'H&S Score']}
             />
             <Area
               type="monotone"
@@ -86,7 +86,7 @@ export function HMSScoreChart({ data }: HMSScoreChartProps) {
           </AreaChart>
         </ResponsiveContainer>
         <div className="mt-4 flex items-center justify-between text-xs text-muted-foreground">
-          <span>Målet er 90%+</span>
+          <span>Target is 90%+</span>
           <span className="font-semibold text-foreground">{lastScore}%</span>
         </div>
       </CardContent>

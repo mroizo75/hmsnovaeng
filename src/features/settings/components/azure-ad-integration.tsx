@@ -37,8 +37,8 @@ export function AzureAdIntegration({ tenant, isAdmin }: AzureAdIntegrationProps)
     if (!isAdmin) {
       toast({
         variant: "destructive",
-        title: "Ingen tilgang",
-        description: "Kun administratorer kan endre Azure AD-innstillinger",
+        title: "No access",
+        description: "Only administrators can change Azure AD settings",
       });
       return;
     }
@@ -56,16 +56,16 @@ export function AzureAdIntegration({ tenant, isAdmin }: AzureAdIntegrationProps)
 
     if (result.success) {
       toast({
-        title: "✅ Office 365 SSO aktivert!",
-        description: "Ansatte kan nå logge inn med sine Microsoft-kontoer",
+        title: "✅ Office 365 SSO enabled!",
+        description: "Employees can now sign in with their Microsoft accounts",
         className: "bg-green-50 border-green-200",
       });
       router.refresh();
     } else {
       toast({
         variant: "destructive",
-        title: "Feil",
-        description: result.error || "Kunne ikke lagre innstillinger",
+        title: "Error",
+        description: result.error || "Could not save settings",
       });
     }
 
@@ -85,19 +85,19 @@ export function AzureAdIntegration({ tenant, isAdmin }: AzureAdIntegrationProps)
               <div>
                 <CardTitle>Microsoft Azure AD / Office 365</CardTitle>
                 <CardDescription>
-                  Koble bedriftens Office 365-kontoer til HMS Nova
+                  Connect your company&apos;s Office 365 accounts to EHS Nova
                 </CardDescription>
               </div>
             </div>
             {isConfigured ? (
               <Badge variant="default" className="gap-1">
                 <CheckCircle2 className="h-3 w-3" />
-                Aktiv
+                Active
               </Badge>
             ) : (
               <Badge variant="secondary" className="gap-1">
                 <AlertCircle className="h-3 w-3" />
-                Ikke konfigurert
+                Not configured
               </Badge>
             )}
           </div>
@@ -105,7 +105,7 @@ export function AzureAdIntegration({ tenant, isAdmin }: AzureAdIntegrationProps)
         <CardContent>
           {tenant.azureAdLastSync && (
             <p className="text-sm text-muted-foreground">
-              Sist synkronisert: {new Date(tenant.azureAdLastSync).toLocaleString("nb-NO")}
+              Last synced: {new Date(tenant.azureAdLastSync).toLocaleString("en-US")}
             </p>
           )}
         </CardContent>
@@ -118,19 +118,19 @@ export function AzureAdIntegration({ tenant, isAdmin }: AzureAdIntegrationProps)
             <Sparkles className="h-5 w-5 text-green-600 flex-shrink-0 mt-0.5" />
             <div className="space-y-2 text-sm">
               <p className="font-medium text-green-900">
-                ✨ Så enkelt er det!
+                ✨ It&apos;s that simple!
               </p>
               <ol className="list-decimal list-inside space-y-2 text-green-800">
-                <li className="font-medium">Skriv inn ditt e-postdomene (f.eks. "bedrift.no")</li>
-                <li>Velg standard rolle for nye ansatte</li>
-                <li>Aktiver SSO med én klikk</li>
-                <li className="text-green-900 font-semibold">✅ FERDIG! Alle ansatte kan nå logge inn!</li>
+                <li className="font-medium">Enter your email domain (e.g. &quot;company.com&quot;)</li>
+                <li>Choose the default role for new employees</li>
+                <li>Enable SSO with one click</li>
+                <li className="text-green-900 font-semibold">✅ DONE! All employees can now sign in!</li>
               </ol>
               <div className="bg-white rounded-md p-3 mt-3 border border-green-200">
-                <p className="text-green-900 font-medium mb-1">🔐 Hvordan fungerer det?</p>
+                <p className="text-green-900 font-medium mb-1">🔐 How does it work?</p>
                 <p className="text-green-700 text-xs">
-                  Når en ansatt logger inn med Microsoft for første gang, opprettes kontoen deres automatisk i HMS Nova. 
-                  Ingen komplisert oppsett i Azure Portal nødvendig!
+                  When an employee signs in with Microsoft for the first time, their account is automatically created in EHS Nova.
+                  No complex setup in Azure Portal required!
                 </p>
               </div>
             </div>
@@ -144,19 +144,19 @@ export function AzureAdIntegration({ tenant, isAdmin }: AzureAdIntegrationProps)
           <CardHeader>
             <CardTitle>Office 365 / Microsoft 365 SSO</CardTitle>
             <CardDescription>
-              La alle ansatte logge inn med sine eksisterende Microsoft-kontoer
+              Let all employees sign in with their existing Microsoft accounts
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
             {/* Primary Domain */}
             <div className="space-y-2">
               <Label htmlFor="azureAdDomain" className="text-base">
-                E-postdomene for bedriften *
+                Company email domain *
               </Label>
               <Input
                 id="azureAdDomain"
                 name="azureAdDomain"
-                placeholder="bedrift.no"
+                placeholder="company.com"
                 defaultValue={tenant.azureAdDomain || ""}
                 disabled={!isAdmin || loading}
                 required
@@ -164,8 +164,8 @@ export function AzureAdIntegration({ tenant, isAdmin }: AzureAdIntegrationProps)
               />
               <div className="bg-blue-50 p-3 rounded-md border border-blue-200 mt-2">
                 <p className="text-sm text-blue-900">
-                  💡 <strong>Eksempel:</strong> Hvis ansatte har e-poster som <code className="bg-blue-100 px-1 rounded">ansatt@bedrift.no</code>, 
-                  skriv kun <code className="bg-blue-100 px-1 rounded">bedrift.no</code> (uten @)
+                  💡 <strong>Example:</strong> If employees have emails like <code className="bg-blue-100 px-1 rounded">employee@company.com</code>,
+                  enter only <code className="bg-blue-100 px-1 rounded">company.com</code> (without @)
                 </p>
               </div>
             </div>
@@ -173,7 +173,7 @@ export function AzureAdIntegration({ tenant, isAdmin }: AzureAdIntegrationProps)
             {/* Default Role for new users */}
             <div className="space-y-2">
               <Label htmlFor="azureAdAutoRole" className="text-base">
-                Standard rolle for nye ansatte
+                Default role for new employees
               </Label>
               <Select
                 name="azureAdAutoRole"
@@ -184,19 +184,19 @@ export function AzureAdIntegration({ tenant, isAdmin }: AzureAdIntegrationProps)
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="ANSATT">👤 Ansatt</SelectItem>
-                  <SelectItem value="LEDER">👔 Leder</SelectItem>
-                  <SelectItem value="HMS">🦺 HMS-ansvarlig</SelectItem>
-                  <SelectItem value="VERNEOMBUD">🛡️ Verneombud</SelectItem>
-                  <SelectItem value="BHT">🩺 Bedriftshelsetjeneste</SelectItem>
-                  <SelectItem value="REVISOR">📋 Revisor</SelectItem>
+                  <SelectItem value="ANSATT">👤 Employee</SelectItem>
+                  <SelectItem value="LEDER">👔 Manager</SelectItem>
+                  <SelectItem value="HMS">🦺 EHS Coordinator</SelectItem>
+                  <SelectItem value="VERNEOMBUD">🛡️ Safety Representative</SelectItem>
+                  <SelectItem value="BHT">🩺 Occupational Health</SelectItem>
+                  <SelectItem value="REVISOR">📋 Auditor</SelectItem>
                   <SelectItem value="ADMIN">⚙️ Administrator</SelectItem>
                 </SelectContent>
               </Select>
               <p className="text-sm text-muted-foreground">
-                Hvilken rolle skal ansatte få automatisk når de logger inn første gang?
+                Which role should employees automatically get when they sign in for the first time?
                 <br />
-                <span className="text-xs">💡 Du kan endre roller manuelt senere under "Brukere"</span>
+                <span className="text-xs">💡 You can change roles manually later under &quot;Users&quot;</span>
               </p>
             </div>
 
@@ -204,10 +204,10 @@ export function AzureAdIntegration({ tenant, isAdmin }: AzureAdIntegrationProps)
             <div className="flex items-center justify-between rounded-lg border-2 border-green-200 bg-green-50/50 p-4">
               <div className="space-y-1">
                 <Label htmlFor="azureAdEnabled" className="text-base font-semibold text-green-900">
-                  ✨ Aktiver Microsoft SSO
+                  ✨ Enable Microsoft SSO
                 </Label>
                 <p className="text-sm text-green-700">
-                  La alle ansatte logge inn med sine @{tenant.azureAdDomain || "bedrift.no"} kontoer
+                  Let all employees sign in with their @{tenant.azureAdDomain || "company.com"} accounts
                 </p>
               </div>
               <Switch
@@ -221,7 +221,7 @@ export function AzureAdIntegration({ tenant, isAdmin }: AzureAdIntegrationProps)
 
             {!isAdmin && (
               <p className="text-sm text-yellow-600 bg-yellow-50 p-3 rounded-md border border-yellow-200">
-                ⚠️ Kun administratorer kan endre Azure AD-innstillinger
+                ⚠️ Only administrators can change Azure AD settings
               </p>
             )}
           </CardContent>
@@ -231,7 +231,7 @@ export function AzureAdIntegration({ tenant, isAdmin }: AzureAdIntegrationProps)
         {isAdmin && (
           <div className="flex flex-col gap-3">
             <Button type="submit" disabled={loading} size="lg" className="bg-green-600 hover:bg-green-700">
-              {loading ? "Lagrer..." : enabled ? "✅ Lagre og aktiver SSO" : "Lagre innstillinger"}
+              {loading ? "Saving..." : enabled ? "✅ Save and enable SSO" : "Save settings"}
             </Button>
             
             {isConfigured && (
@@ -239,10 +239,10 @@ export function AzureAdIntegration({ tenant, isAdmin }: AzureAdIntegrationProps)
                 <div className="flex items-start gap-2">
                   <CheckCircle2 className="h-5 w-5 text-green-600 mt-0.5" />
                   <div className="text-sm">
-                    <p className="font-medium text-green-900">Microsoft SSO er aktivert!</p>
+                    <p className="font-medium text-green-900">Microsoft SSO is enabled!</p>
                     <p className="text-green-700 mt-1">
-                      Ansatte kan nå gå til <strong>hmsnova.com/login</strong> og klikke 
-                      <strong> "Logg inn med Microsoft"</strong> for å logge inn automatisk.
+                      Employees can now go to <strong>hmsnova.com/login</strong> and click
+                      <strong> &quot;Sign in with Microsoft&quot;</strong> to sign in automatically.
                     </p>
                   </div>
                 </div>
@@ -255,43 +255,42 @@ export function AzureAdIntegration({ tenant, isAdmin }: AzureAdIntegrationProps)
       {/* FAQ Card */}
       <Card className="border-gray-200">
         <CardHeader>
-          <CardTitle className="text-base">❓ Vanlige spørsmål</CardTitle>
+          <CardTitle className="text-base">❓ Frequently Asked Questions</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4 text-sm">
           <div>
-            <p className="font-medium text-gray-900 mb-1">Må vi gjøre noe i Azure Portal eller Microsoft 365 Admin?</p>
-            <p className="text-gray-600">Nei! Du trenger kun å skrive inn domenet ditt her. Ingen teknisk konfigurasjon nødvendig.</p>
+            <p className="font-medium text-gray-900 mb-1">Do we need to do anything in Azure Portal or Microsoft 365 Admin?</p>
+            <p className="text-gray-600">No! You only need to enter your domain here. No technical configuration required.</p>
           </div>
           
           <div>
-            <p className="font-medium text-gray-900 mb-1">Hva skjer når en ansatt logger inn første gang?</p>
+            <p className="font-medium text-gray-900 mb-1">What happens when an employee signs in for the first time?</p>
             <p className="text-gray-600">
-              Kontoen deres opprettes automatisk i HMS Nova med rollen du har valgt. 
-              De får umiddelbar tilgang til systemet.
+              Their account is automatically created in EHS Nova with the role you have selected.
+              They get immediate access to the system.
             </p>
           </div>
           
           <div>
-            <p className="font-medium text-gray-900 mb-1">Kan ansatte fortsatt bruke passord?</p>
+            <p className="font-medium text-gray-900 mb-1">Can employees still use a password?</p>
             <p className="text-gray-600">
-              Ja! SSO er et tillegg. Ansatte kan velge mellom Microsoft-innlogging eller vanlig passord.
+              Yes! SSO is an addition. Employees can choose between Microsoft sign-in or regular password.
             </p>
           </div>
           
           <div>
-            <p className="font-medium text-gray-900 mb-1">Hva hvis en ansatt slutter?</p>
+            <p className="font-medium text-gray-900 mb-1">What if an employee leaves?</p>
             <p className="text-gray-600">
-              Deaktiver eller slett brukeren under "Brukere" i HMS Nova. 
-              Hvis de deaktiveres i Microsoft 365, kan de heller ikke logge inn via SSO.
+              Deactivate or delete the user under &quot;Users&quot; in EHS Nova.
+              If they are deactivated in Microsoft 365, they also cannot sign in via SSO.
             </p>
           </div>
 
           <p className="text-muted-foreground mt-4 pt-4 border-t">
-            💡 Trenger du hjelp? Kontakt <strong>support@hmsnova.com</strong>
+            💡 Need help? Contact <strong>support@hmsnova.com</strong>
           </p>
         </CardContent>
       </Card>
     </div>
   );
 }
-

@@ -39,10 +39,10 @@ export default async function AnnualHmsPlanPage() {
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div>
-            <h1 className="text-3xl font-bold">Årlig HMS-plan</h1>
+            <h1 className="text-3xl font-bold">Annual H&S Plan</h1>
             <p className="text-muted-foreground mt-1">
-              Steg-for-steg sjekkliste for årets HMS-krav. Huk av når hvert steg er fullført – når listen er komplett,
-              har dere dokumentert at kravene er oppfylt.
+              Step-by-step checklist for this year's H&S requirements. Check off each step when completed – when the list is complete,
+              you have documented that the requirements are fulfilled.
             </p>
           </div>
           <PageHelpDialog content={helpContent["annual-hms-plan"]} />

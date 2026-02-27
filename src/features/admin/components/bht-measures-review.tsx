@@ -51,8 +51,8 @@ export function BhtMeasuresReview({
     if (!reportId) {
       toast({
         variant: "destructive",
-        title: "Mangler årsrapport",
-        description: "Opprett årsrapport først for å bekrefte tiltak",
+        title: "Missing annual report",
+        description: "Create annual report first to confirm actions",
       });
       return;
     }
@@ -65,10 +65,10 @@ export function BhtMeasuresReview({
       });
 
       if (result.success) {
-        toast({ title: "✅ Tiltak gjennomgått bekreftet" });
+        toast({ title: "✅ Actions reviewed confirmed" });
         router.refresh();
       } else {
-        toast({ variant: "destructive", title: "Feil", description: result.error });
+        toast({ variant: "destructive", title: "Error", description: result.error });
       }
     } finally {
       setLoading(false);
@@ -78,13 +78,13 @@ export function BhtMeasuresReview({
   function getStatusBadge(status: string) {
     switch (status) {
       case "DONE":
-        return <Badge className="bg-green-500">Fullført</Badge>;
+        return <Badge className="bg-green-500">Completed</Badge>;
       case "IN_PROGRESS":
-        return <Badge variant="secondary">Pågår</Badge>;
+        return <Badge variant="secondary">In progress</Badge>;
       case "OVERDUE":
-        return <Badge className="bg-red-500">Forfalt</Badge>;
+        return <Badge className="bg-red-500">Overdue</Badge>;
       default:
-        return <Badge variant="outline">Ventende</Badge>;
+        return <Badge variant="outline">Pending</Badge>;
     }
   }
 
@@ -92,14 +92,14 @@ export function BhtMeasuresReview({
     return (
       <div className="flex items-center gap-2 p-4 bg-green-50 border border-green-200 rounded-lg text-green-700">
         <CheckCircle2 className="h-5 w-5" />
-        <span>BHT har gjennomgått og bekreftet bedriftens tiltak</span>
+        <span>OHS has reviewed and confirmed the company's actions</span>
       </div>
     );
   }
 
   return (
     <div className="space-y-4">
-      {/* Tiltak-liste med klikk */}
+      {/* Action list with click */}
       <div className="space-y-2">
         {measures.map((measure) => (
           <Dialog key={measure.id}>
@@ -121,10 +121,10 @@ export function BhtMeasuresReview({
                     )}
                     <div className="flex items-center gap-4 mt-2 text-xs text-muted-foreground">
                       {measure.responsible && (
-                        <span>Ansvarlig: {measure.responsible.name}</span>
+                        <span>Responsible: {measure.responsible.name}</span>
                       )}
                       {measure.dueAt && (
-                        <span>Frist: {new Date(measure.dueAt).toLocaleDateString("nb-NO")}</span>
+                        <span>Due: {new Date(measure.dueAt).toLocaleDateString("nb-NO")}</span>
                       )}
                     </div>
                   </div>
@@ -136,13 +136,13 @@ export function BhtMeasuresReview({
               <DialogHeader>
                 <DialogTitle>{measure.title}</DialogTitle>
                 <DialogDescription>
-                  Detaljer om tiltaket
+                  Action details
                 </DialogDescription>
               </DialogHeader>
               <div className="space-y-4">
                 <div>
-                  <p className="text-sm text-muted-foreground">Beskrivelse</p>
-                  <p>{measure.description || "Ingen beskrivelse"}</p>
+                  <p className="text-sm text-muted-foreground">Description</p>
+                  <p>{measure.description || "No description"}</p>
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
@@ -150,19 +150,19 @@ export function BhtMeasuresReview({
                     {getStatusBadge(measure.status)}
                   </div>
                   <div>
-                    <p className="text-sm text-muted-foreground">Ansvarlig</p>
-                    <p>{measure.responsible?.name || "Ikke tildelt"}</p>
+                    <p className="text-sm text-muted-foreground">Responsible</p>
+                    <p>{measure.responsible?.name || "Not assigned"}</p>
                   </div>
                   <div>
-                    <p className="text-sm text-muted-foreground">Frist</p>
+                    <p className="text-sm text-muted-foreground">Due</p>
                     <p>
                       {measure.dueAt
                         ? new Date(measure.dueAt).toLocaleDateString("nb-NO")
-                        : "Ikke satt"}
+                        : "Not set"}
                     </p>
                   </div>
                   <div>
-                    <p className="text-sm text-muted-foreground">Opprettet</p>
+                    <p className="text-sm text-muted-foreground">Created</p>
                     <p>{new Date(measure.createdAt).toLocaleDateString("nb-NO")}</p>
                   </div>
                 </div>
@@ -174,22 +174,22 @@ export function BhtMeasuresReview({
 
       {measures.length === 0 && (
         <p className="text-muted-foreground text-center py-4">
-          Ingen tiltak å gjennomgå
+          No actions to review
         </p>
       )}
 
-      {/* BHT-anbefaling og bekreftelse */}
+      {/* OHS recommendation and confirmation */}
       <div className="border-t pt-4 space-y-4">
         <div className="space-y-2">
           <Label htmlFor="recommendation" className="flex items-center gap-2">
             <MessageSquare className="h-4 w-4" />
-            BHT-anbefaling til tiltak (valgfritt)
+            OHS recommendation for actions (optional)
           </Label>
           <Textarea
             id="recommendation"
             value={recommendation}
             onChange={(e) => setRecommendation(e.target.value)}
-            placeholder="Skriv anbefaling eller kommentar til bedriftens tiltak..."
+            placeholder="Write recommendation or comment on company actions..."
             rows={3}
           />
         </div>
@@ -204,12 +204,12 @@ export function BhtMeasuresReview({
           ) : (
             <CheckCircle2 className="h-4 w-4 mr-2" />
           )}
-          Bekreft tiltak gjennomgått
+          Confirm actions reviewed
         </Button>
 
         {!reportId && (
           <p className="text-sm text-orange-600 text-center">
-            ⚠ Opprett årsrapport først for å bekrefte tiltak
+            ⚠ Create annual report first to confirm actions
           </p>
         )}
       </div>

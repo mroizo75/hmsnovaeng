@@ -6,11 +6,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { FileText, Download, Edit, Clock, CheckCircle2, AlertCircle, Calendar, User, Tag } from "lucide-react";
+import { FileText, Download, Edit, Clock, CheckCircle2, Calendar, User, Tag } from "lucide-react";
 
 function formatDate(date?: Date | null) {
   if (!date) return "—";
-  return new Date(date).toLocaleDateString("nb-NO", {
+  return new Date(date).toLocaleDateString("en-US", {
     day: "2-digit",
     month: "long",
     year: "numeric",
@@ -34,22 +34,22 @@ function getStatusColor(status: string) {
 
 function getStatusLabel(status: string) {
   const labels: Record<string, string> = {
-    DRAFT: "Utkast",
-    UNDER_REVIEW: "Under gjennomgang",
-    APPROVED: "Godkjent",
-    OBSOLETE: "Utgått",
+    DRAFT: "Draft",
+    UNDER_REVIEW: "Under Review",
+    APPROVED: "Approved",
+    OBSOLETE: "Obsolete",
   };
   return labels[status] || status;
 }
 
 const kindLabels: Record<string, string> = {
-  LAW: "Lover og regler",
-  PROCEDURE: "Prosedyre (ISO 9001)",
-  CHECKLIST: "Sjekkliste",
-  FORM: "Skjema",
-  SDS: "Sikkerhetsdatablad (SDS)",
-  PLAN: "HMS-håndbok / Plan",
-  OTHER: "Annet",
+  LAW: "Laws and Regulations",
+  PROCEDURE: "Procedure (ISO 9001)",
+  CHECKLIST: "Checklist",
+  FORM: "Form",
+  SDS: "Safety Data Sheet (SDS)",
+  PLAN: "H&S Handbook / Plan",
+  OTHER: "Other",
 };
 
 export default async function DocumentDetailPage({ params }: { params: Promise<{ id: string }> }) {
@@ -104,7 +104,7 @@ export default async function DocumentDetailPage({ params }: { params: Promise<{
             <FileText className="h-8 w-8 text-blue-600" />
             <div>
               <h1 className="text-3xl font-bold">{document.title}</h1>
-              <p className="text-muted-foreground">Versjon {document.version}</p>
+              <p className="text-muted-foreground">Version {document.version}</p>
             </div>
           </div>
         </div>
@@ -112,19 +112,19 @@ export default async function DocumentDetailPage({ params }: { params: Promise<{
           <Button variant="outline" asChild>
             <Link href={`/dashboard/documents/${document.id}/edit`}>
               <Edit className="h-4 w-4 mr-2" />
-              Rediger
+              Edit
             </Link>
           </Button>
           <Button asChild>
             <a href={`/api/documents/${document.id}/download`} download>
               <Download className="h-4 w-4 mr-2" />
-              Last ned
+              Download
             </a>
           </Button>
         </div>
       </div>
 
-      {/* Status og metadata */}
+      {/* Status and metadata */}
       <div className="grid gap-4 md:grid-cols-3">
         <Card>
           <CardHeader className="pb-3">
@@ -139,19 +139,19 @@ export default async function DocumentDetailPage({ params }: { params: Promise<{
 
         <Card>
           <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium">Dokumenttype</CardTitle>
+            <CardTitle className="text-sm font-medium">Document Type</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="flex items-center gap-2">
               <Tag className="h-4 w-4 text-muted-foreground" />
-              <span>{document.template?.name || kindLabels[document.kind] || document.kind || "Dokument"}</span>
+              <span>{document.template?.name || kindLabels[document.kind] || document.kind || "Document"}</span>
             </div>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium">Kategori</CardTitle>
+            <CardTitle className="text-sm font-medium">Category</CardTitle>
           </CardHeader>
           <CardContent>
             <Badge variant="outline">{document.template?.category || "GENERAL"}</Badge>
@@ -159,21 +159,21 @@ export default async function DocumentDetailPage({ params }: { params: Promise<{
         </Card>
       </div>
 
-      {/* Detaljer */}
+      {/* Details */}
       <Card>
         <CardHeader>
-          <CardTitle>Dokumentdetaljer</CardTitle>
+          <CardTitle>Document Details</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid gap-4 md:grid-cols-2">
             <div className="flex items-start gap-3">
               <User className="h-5 w-5 text-muted-foreground mt-0.5" />
               <div>
-                <p className="text-sm font-medium">Eier</p>
+                <p className="text-sm font-medium">Owner</p>
                 <p className="text-sm text-muted-foreground">
                   {document.owner?.name || document.owner?.email || "—"}
                 </p>
-                <p className="text-xs text-muted-foreground">Opprettet {formatDate(document.createdAt)}</p>
+                <p className="text-xs text-muted-foreground">Created {formatDate(document.createdAt)}</p>
               </div>
             </div>
 
@@ -181,7 +181,7 @@ export default async function DocumentDetailPage({ params }: { params: Promise<{
               <div className="flex items-start gap-3">
                 <CheckCircle2 className="h-5 w-5 text-green-600 mt-0.5" />
                 <div>
-                  <p className="text-sm font-medium">Godkjent av</p>
+                  <p className="text-sm font-medium">Approved by</p>
                   <p className="text-sm text-muted-foreground">
                     {document.approvedByUser?.name || document.approvedByUser?.email || "—"}
                   </p>
@@ -193,7 +193,7 @@ export default async function DocumentDetailPage({ params }: { params: Promise<{
             <div className="flex items-start gap-3">
               <Clock className="h-5 w-5 text-muted-foreground mt-0.5" />
               <div>
-                <p className="text-sm font-medium">Sist oppdatert</p>
+                <p className="text-sm font-medium">Last updated</p>
                 <p className="text-sm text-muted-foreground">{formatDate(document.updatedAt)}</p>
               </div>
             </div>
@@ -202,11 +202,11 @@ export default async function DocumentDetailPage({ params }: { params: Promise<{
               <div className="flex items-start gap-3">
                 <Calendar className="h-5 w-5 text-muted-foreground mt-0.5" />
                 <div>
-                  <p className="text-sm font-medium">Neste gjennomgang</p>
+                  <p className="text-sm font-medium">Next review</p>
                   <p className="text-sm text-muted-foreground">{formatDate(document.nextReviewDate)}</p>
                   {document.reviewIntervalMonths && (
                     <p className="text-xs text-muted-foreground">
-                      (Hvert {document.reviewIntervalMonths} måned)
+                      (Every {document.reviewIntervalMonths} months)
                     </p>
                   )}
                 </div>
@@ -216,12 +216,12 @@ export default async function DocumentDetailPage({ params }: { params: Promise<{
         </CardContent>
       </Card>
 
-      {/* Versjonshistorikk */}
+      {/* Version history */}
       {document.versions.length > 0 && (
         <Card>
           <CardHeader>
-            <CardTitle>Versjonshistorikk</CardTitle>
-            <CardDescription>Siste {document.versions.length} versjoner</CardDescription>
+            <CardTitle>Version History</CardTitle>
+            <CardDescription>Last {document.versions.length} versions</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
@@ -231,7 +231,7 @@ export default async function DocumentDetailPage({ params }: { params: Promise<{
                   className="flex items-center justify-between border rounded-lg p-3"
                 >
                   <div>
-                    <p className="font-medium">Versjon {version.version}</p>
+                    <p className="font-medium">Version {version.version}</p>
                     <p className="text-xs text-muted-foreground">
                       {formatDate(version.createdAt)}
                       {version.changeComment && ` · ${version.changeComment}`}
@@ -247,7 +247,7 @@ export default async function DocumentDetailPage({ params }: { params: Promise<{
             </div>
             {document.versions.length >= 5 && (
               <p className="text-xs text-muted-foreground mt-3 text-center">
-                Viser kun de 5 siste versjonene
+                Showing only the last 5 versions
               </p>
             )}
           </CardContent>

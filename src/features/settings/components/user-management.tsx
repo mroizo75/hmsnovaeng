@@ -82,12 +82,12 @@ export function UserManagement({ users, currentUserId, isAdmin, pricingTier, max
   const handleInvite = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    // Sjekk brukergrense FØR vi sender
+    // Check user limit BEFORE sending
     if (hasReachedLimit) {
       toast({
         variant: "destructive",
-        title: "❌ Brukergrense nådd",
-        description: `Du har nådd maks antall brukere (${maxUsers}) for din pakke. Oppgrader abonnementet for å legge til flere.`,
+        title: "❌ User limit reached",
+        description: `You have reached the maximum number of users (${maxUsers}) for your plan. Upgrade your subscription to add more.`,
       });
       return;
     }
@@ -105,8 +105,8 @@ export function UserManagement({ users, currentUserId, isAdmin, pricingTier, max
 
     if (result.success) {
       toast({
-        title: "✅ Bruker invitert",
-        description: `${data.email} er lagt til`,
+        title: "✅ User invited",
+        description: `${data.email} has been added`,
         className: "bg-green-50 border-green-200",
       });
       setInviteOpen(false);
@@ -115,7 +115,7 @@ export function UserManagement({ users, currentUserId, isAdmin, pricingTier, max
       toast({
         variant: "destructive",
         title: "Feil",
-        description: result.error || "Kunne ikke invitere bruker",
+        description: result.error || "Could not invite user",
       });
     }
 
@@ -128,8 +128,8 @@ export function UserManagement({ users, currentUserId, isAdmin, pricingTier, max
 
     if (result.success) {
       toast({
-        title: "✅ Rolle oppdatert",
-        description: "Brukerens rolle er endret",
+        title: "✅ Role updated",
+        description: "User role has been changed",
         className: "bg-green-50 border-green-200",
       });
       router.refresh();
@@ -137,7 +137,7 @@ export function UserManagement({ users, currentUserId, isAdmin, pricingTier, max
       toast({
         variant: "destructive",
         title: "Feil",
-        description: result.error || "Kunne ikke oppdatere rolle",
+        description: result.error || "Could not update role",
       });
     }
 
@@ -145,7 +145,7 @@ export function UserManagement({ users, currentUserId, isAdmin, pricingTier, max
   };
 
   const handleRemove = async (userId: string, userName: string) => {
-    if (!confirm(`Er du sikker på at du vil fjerne ${userName} fra bedriften?`)) {
+    if (!confirm(`Are you sure you want to remove ${userName} from the company?`)) {
       return;
     }
 
@@ -154,15 +154,15 @@ export function UserManagement({ users, currentUserId, isAdmin, pricingTier, max
 
     if (result.success) {
       toast({
-        title: "🗑️ Bruker fjernet",
-        description: `${userName} er fjernet fra bedriften`,
+        title: "🗑️ User removed",
+        description: `${userName} has been removed from the company`,
       });
       router.refresh();
     } else {
       toast({
         variant: "destructive",
         title: "Feil",
-        description: result.error || "Kunne ikke fjerne bruker",
+        description: result.error || "Could not remove user",
       });
     }
 
@@ -173,16 +173,16 @@ export function UserManagement({ users, currentUserId, isAdmin, pricingTier, max
     if (!importFile) {
       toast({
         variant: "destructive",
-        title: "Velg fil",
-        description: "Velg en CSV- eller Excel-fil først.",
+        title: "Select file",
+        description: "Select a CSV or Excel file first.",
       });
       return;
     }
     if (hasReachedLimit) {
       toast({
         variant: "destructive",
-        title: "Brukergrense nådd",
-        description: `Du har nådd maks antall brukere (${maxUsers}). Oppgrader for å importere flere.`,
+        title: "User limit reached",
+        description: `You have reached the maximum number of users (${maxUsers}). Upgrade to import more.`,
       });
       return;
     }
@@ -194,10 +194,10 @@ export function UserManagement({ users, currentUserId, isAdmin, pricingTier, max
     setImportFile(null);
 
     if (!result.success) {
-      const errMsg = "error" in result ? result.error : "Kunne ikke importere";
+      const errMsg = "error" in result ? result.error : "Could not import";
       toast({
         variant: "destructive",
-        title: "Import feilet",
+        title: "Import failed",
         description: errMsg,
       });
       return;
@@ -205,10 +205,10 @@ export function UserManagement({ users, currentUserId, isAdmin, pricingTier, max
 
     const msg =
       result.skipped > 0
-        ? `${result.imported} importert, ${result.skipped} allerede medlem. Aktiver brukere under Handlinger når du vil sende invitasjon.`
-        : `${result.imported} brukere importert. Aktiver under Handlinger for å sende invitasjon.`;
+        ? `${result.imported} imported, ${result.skipped} already members. Activate users under Actions when you want to send invitation.`
+        : `${result.imported} users imported. Activate under Actions to send invitation.`;
     toast({
-      title: "Import fullført",
+      title: "Import completed",
       description: msg,
       className: "bg-green-50 border-green-200",
     });
@@ -221,16 +221,16 @@ export function UserManagement({ users, currentUserId, isAdmin, pricingTier, max
     setActivatingUserId(null);
     if (result.success) {
       toast({
-        title: "Bruker aktivert",
-        description: "Invitasjon med passord er sendt på e-post.",
+        title: "User activated",
+        description: "Invitation with password has been sent via email.",
         className: "bg-green-50 border-green-200",
       });
       router.refresh();
     } else {
       toast({
         variant: "destructive",
-        title: "Kunne ikke aktivere",
-        description: "error" in result ? result.error : "Kunne ikke aktivere bruker",
+        title: "Could not activate",
+        description: "error" in result ? result.error : "Could not activate user",
       });
     }
   };
@@ -239,7 +239,7 @@ export function UserManagement({ users, currentUserId, isAdmin, pricingTier, max
     if (pendingActivationCount === 0) return;
     if (
       !confirm(
-        `Aktiver ${pendingActivationCount} bruker${pendingActivationCount === 1 ? "" : "e"}? Invitasjon med passord sendes til alle på e-post.`
+        `Activate ${pendingActivationCount} user${pendingActivationCount === 1 ? "" : "s"}? Invitation with password will be sent to all via email.`
       )
     ) {
       return;
@@ -250,10 +250,10 @@ export function UserManagement({ users, currentUserId, isAdmin, pricingTier, max
     if (result.success) {
       const msg =
         result.failed > 0
-          ? `${result.activated} aktivert, ${result.failed} feilet.${result.errors.length > 0 ? ` ${result.errors[0]}` : ""}`
-          : `${result.activated} brukere aktivert – invitasjon sendt på e-post.`;
+          ? `${result.activated} activated, ${result.failed} failed.${result.errors.length > 0 ? ` ${result.errors[0]}` : ""}`
+          : `${result.activated} users activated – invitation sent via email.`;
       toast({
-        title: "Aktivering fullført",
+        title: "Activation completed",
         description: msg,
         className: "bg-green-50 border-green-200",
       });
@@ -261,8 +261,8 @@ export function UserManagement({ users, currentUserId, isAdmin, pricingTier, max
     } else {
       toast({
         variant: "destructive",
-        title: "Kunne ikke aktivere",
-        description: "error" in result ? result.error : "Kunne ikke aktivere",
+        title: "Could not activate",
+        description: "error" in result ? result.error : "Could not activate",
       });
     }
   };
@@ -272,34 +272,34 @@ export function UserManagement({ users, currentUserId, isAdmin, pricingTier, max
       case "ADMIN":
         return <Badge className="bg-purple-100 text-purple-800 border-purple-200">⚙️ Admin</Badge>;
       case "LEDER":
-        return <Badge className="bg-blue-100 text-blue-800 border-blue-200">👔 Leder</Badge>;
+        return <Badge className="bg-blue-100 text-blue-800 border-blue-200">👔 Manager</Badge>;
       case "HMS":
-        return <Badge className="bg-orange-100 text-orange-800 border-orange-200">🦺 HMS-ansvarlig</Badge>;
+        return <Badge className="bg-orange-100 text-orange-800 border-orange-200">🦺 EHS Manager</Badge>;
       case "VERNEOMBUD":
-        return <Badge className="bg-green-100 text-green-800 border-green-200">🛡️ Verneombud</Badge>;
+        return <Badge className="bg-green-100 text-green-800 border-green-200">🛡️ Safety Representative</Badge>;
       case "BHT":
-        return <Badge className="bg-teal-100 text-teal-800 border-teal-200">🩺 BHT</Badge>;
+        return <Badge className="bg-teal-100 text-teal-800 border-teal-200">🩺 OHS</Badge>;
       case "REVISOR":
-        return <Badge className="bg-indigo-100 text-indigo-800 border-indigo-200">📋 Revisor</Badge>;
+        return <Badge className="bg-indigo-100 text-indigo-800 border-indigo-200">📋 Auditor</Badge>;
       case "ANSATT":
-        return <Badge className="bg-gray-100 text-gray-800 border-gray-200">👤 Ansatt</Badge>;
+        return <Badge className="bg-gray-100 text-gray-800 border-gray-200">👤 Employee</Badge>;
       default:
         return <Badge variant="outline">{role}</Badge>;
     }
   };
 
-  // Finn pakkenavn basert på pricing tier
+  // Get plan name based on pricing tier
   const getPlanName = (tier: string | null) => {
     switch (tier) {
       case "MICRO":
-        return "Små bedrifter (1-20 ansatte)";
+        return "Small companies (1-20 employees)";
       case "SMALL":
-        return "Mellomstore bedrifter (21-50 ansatte)";
+        return "Medium companies (21-50 employees)";
       case "MEDIUM":
       case "LARGE":
-        return "Store bedrifter (51+ ansatte)";
+        return "Large companies (51+ employees)";
       default:
-        return "Standard pakke";
+        return "Standard plan";
     }
   };
 
@@ -310,10 +310,10 @@ export function UserManagement({ users, currentUserId, isAdmin, pricingTier, max
           <div>
             <CardTitle className="flex items-center gap-2">
               <User className="h-5 w-5" />
-              Brukere ({currentUserCount} / {maxUsers === 999 ? "∞" : maxUsers})
+              Users ({currentUserCount} / {maxUsers === 999 ? "∞" : maxUsers})
             </CardTitle>
             <CardDescription>
-              Administrer brukere og deres tilgang • {getPlanName(pricingTier)}. Importer uten å sende invitasjon; aktiver under Handlinger for å sende e-post.
+              Manage users and their access • {getPlanName(pricingTier)}. Import without sending invitation; activate under Actions to send email.
             </CardDescription>
           </div>
         </div>
@@ -323,12 +323,12 @@ export function UserManagement({ users, currentUserId, isAdmin, pricingTier, max
               {remainingSlots <= 3 && remainingSlots > 0 && maxUsers !== 999 && (
                 <div className="flex items-center gap-1 text-xs text-amber-600">
                   <AlertCircle className="h-3 w-3" />
-                  <span>{remainingSlots} ledig{remainingSlots === 1 ? '' : 'e'} plass{remainingSlots === 1 ? '' : 'er'}</span>
+                  <span>{remainingSlots} slot{remainingSlots === 1 ? '' : 's'} remaining</span>
                 </div>
               )}
               {maxUsers === 999 && (
                 <div className="flex items-center gap-1 text-xs text-green-600">
-                  <span>Ubegrenset brukere ✓</span>
+                  <span>Unlimited users ✓</span>
                 </div>
               )}
               <div className="flex flex-wrap items-center gap-2">
@@ -349,82 +349,82 @@ export function UserManagement({ users, currentUserId, isAdmin, pricingTier, max
                     disabled={importLoading || !importFile || (hasReachedLimit && maxUsers !== 999)}
                   >
                     <Upload className="mr-1.5 h-4 w-4" />
-                    {importLoading ? "Importerer..." : "Importer"}
+                    {importLoading ? "Importing..." : "Import"}
                   </Button>
                   <a
                     href="/api/users/import-example"
-                    download="bruker-import-eksempel.xlsx"
+                    download="user-import-example.xlsx"
                     className="text-xs text-muted-foreground hover:underline"
                   >
-                    Last ned Excel-eksempel
+                    Download Excel example
                   </a>
                 </div>
 
                 <details className="group rounded-md border bg-muted/20 px-3 py-2 text-sm">
                   <summary className="flex cursor-pointer list-none items-center gap-2 font-medium text-muted-foreground hover:text-foreground [&::-webkit-details-marker]:hidden">
                     <HelpCircle className="h-4 w-4" />
-                    Hvordan importere brukere?
+                    How to import users?
                   </summary>
                   <div className="mt-3 space-y-2 border-t pt-3 text-muted-foreground">
-                    <p><strong>1. Last ned eksempelfil</strong> – Klikk «Last ned Excel-eksempel» for å få en ferdig mal.</p>
-                    <p><strong>2. Fyll ut Excel-filen</strong> – Bruk kolonnene <code className="rounded bg-muted px-1">email</code>, <code className="rounded bg-muted px-1">navn</code> og <code className="rounded bg-muted px-1">rolle</code>. Gyldige roller: ANSATT, LEDER, HMS, VERNEOMBUD, BHT, REVISOR, ADMIN.</p>
-                    <p><strong>3. Importer filen</strong> – Velg din fil og klikk «Importer». Brukere legges til uten invitasjon.</p>
-                    <p><strong>4. Aktiver brukere</strong> – Klikk «Aktiver alle» for å sende invitasjon med passord til alle importerte brukere, eller aktiver en og en under Handlinger.</p>
-                    <p className="text-xs pt-1">Støtter både .csv og .xlsx (Excel). Maks 500 brukere per import, filstørrelse inntil 2 MB.</p>
+                    <p><strong>1. Download example file</strong> – Click "Download Excel example" to get a ready-made template.</p>
+                    <p><strong>2. Fill out the Excel file</strong> – Use columns <code className="rounded bg-muted px-1">email</code>, <code className="rounded bg-muted px-1">name</code> and <code className="rounded bg-muted px-1">role</code>. Valid roles: ANSATT, LEDER, HMS, VERNEOMBUD, BHT, REVISOR, ADMIN.</p>
+                    <p><strong>3. Import the file</strong> – Select your file and click "Import". Users are added without invitation.</p>
+                    <p><strong>4. Activate users</strong> – Click "Activate all" to send invitation with password to all imported users, or activate one by one under Actions.</p>
+                    <p className="text-xs pt-1">Supports both .csv and .xlsx (Excel). Max 500 users per import, file size up to 2 MB.</p>
                   </div>
                 </details>
                 <Dialog open={inviteOpen} onOpenChange={setInviteOpen}>
                 <DialogTrigger asChild>
                   <Button disabled={hasReachedLimit && maxUsers !== 999}>
                     <UserPlus className="mr-2 h-4 w-4" />
-                    Inviter bruker
+                    Invite user
                   </Button>
                 </DialogTrigger>
                 <DialogContent>
                 <DialogHeader>
-                  <DialogTitle>Inviter ny bruker</DialogTitle>
+                  <DialogTitle>Invite new user</DialogTitle>
                   <DialogDescription>
-                    Legg til en ny bruker i bedriften
+                    Add a new user to the company
                   </DialogDescription>
                 </DialogHeader>
 
                 <form onSubmit={handleInvite} className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="name">Navn *</Label>
+                    <Label htmlFor="name">Name *</Label>
                     <Input
                       id="name"
                       name="name"
-                      placeholder="Fornavn Etternavn"
+                      placeholder="First Last"
                       required
                       disabled={inviteLoading}
                     />
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="email">E-post *</Label>
+                    <Label htmlFor="email">Email *</Label>
                     <Input
                       id="email"
                       name="email"
                       type="email"
-                      placeholder="bruker@bedrift.no"
+                      placeholder="user@company.com"
                       required
                       disabled={inviteLoading}
                     />
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="role">Rolle *</Label>
+                    <Label htmlFor="role">Role *</Label>
                     <Select name="role" required disabled={inviteLoading} defaultValue="ANSATT">
                       <SelectTrigger>
-                        <SelectValue placeholder="Velg rolle" />
+                        <SelectValue placeholder="Select role" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="ANSATT">👤 Ansatt</SelectItem>
-                        <SelectItem value="LEDER">👔 Leder</SelectItem>
-                        <SelectItem value="HMS">🦺 HMS-ansvarlig</SelectItem>
-                        <SelectItem value="VERNEOMBUD">🛡️ Verneombud</SelectItem>
-                        <SelectItem value="BHT">🩺 Bedriftshelsetjeneste</SelectItem>
-                        <SelectItem value="REVISOR">📋 Revisor</SelectItem>
+                        <SelectItem value="ANSATT">👤 Employee</SelectItem>
+                        <SelectItem value="LEDER">👔 Manager</SelectItem>
+                        <SelectItem value="HMS">🦺 EHS Manager</SelectItem>
+                        <SelectItem value="VERNEOMBUD">🛡️ Safety Representative</SelectItem>
+                        <SelectItem value="BHT">🩺 Occupational Health Service</SelectItem>
+                        <SelectItem value="REVISOR">📋 Auditor</SelectItem>
                         <SelectItem value="ADMIN">⚙️ Administrator</SelectItem>
                       </SelectContent>
                     </Select>
@@ -437,10 +437,10 @@ export function UserManagement({ users, currentUserId, isAdmin, pricingTier, max
                       onClick={() => setInviteOpen(false)}
                       disabled={inviteLoading}
                     >
-                      Avbryt
+                      Cancel
                     </Button>
                     <Button type="submit" disabled={inviteLoading}>
-                      {inviteLoading ? "Inviterer..." : "Inviter bruker"}
+                      {inviteLoading ? "Inviting..." : "Invite user"}
                     </Button>
                   </div>
                 </form>
@@ -454,7 +454,7 @@ export function UserManagement({ users, currentUserId, isAdmin, pricingTier, max
         {pendingActivationCount > 0 && isAdmin && (
           <div className="mb-4 flex items-center justify-between rounded-lg border border-amber-200 bg-amber-50 px-4 py-3">
             <p className="text-sm text-amber-800">
-              {pendingActivationCount} bruker{pendingActivationCount === 1 ? "" : "e"} venter på aktivering (invitasjon med passord)
+              {pendingActivationCount} user{pendingActivationCount === 1 ? "" : "s"} waiting for activation (invitation with password)
             </p>
             <Button
               variant="default"
@@ -463,25 +463,25 @@ export function UserManagement({ users, currentUserId, isAdmin, pricingTier, max
               disabled={activatingAll}
             >
               <Send className="mr-2 h-4 w-4" />
-              {activatingAll ? "Aktiverer..." : "Aktiver alle"}
+              {activatingAll ? "Activating..." : "Activate all"}
             </Button>
           </div>
         )}
 
         {users.length === 0 ? (
           <div className="text-center text-muted-foreground py-8">
-            Ingen brukere funnet
+            No users found
           </div>
         ) : (
           <div className="rounded-md border">
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Navn</TableHead>
-                  <TableHead>E-post</TableHead>
-                  <TableHead>Rolle</TableHead>
-                  <TableHead>Medlem siden</TableHead>
-                  {isAdmin && <TableHead className="text-right">Handlinger</TableHead>}
+                  <TableHead>Name</TableHead>
+                  <TableHead>Email</TableHead>
+                  <TableHead>Role</TableHead>
+                  <TableHead>Member since</TableHead>
+                  {isAdmin && <TableHead className="text-right">Actions</TableHead>}
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -491,10 +491,10 @@ export function UserManagement({ users, currentUserId, isAdmin, pricingTier, max
                   return (
                     <TableRow key={userTenant.userId}>
                       <TableCell className="font-medium">
-                        {userTenant.user.name || "Ingen navn"}
+                        {userTenant.user.name || "No name"}
                         {isCurrentUser && (
                           <Badge variant="outline" className="ml-2">
-                            Deg
+                            You
                           </Badge>
                         )}
                       </TableCell>
@@ -512,12 +512,12 @@ export function UserManagement({ users, currentUserId, isAdmin, pricingTier, max
                               <SelectValue />
                             </SelectTrigger>
                             <SelectContent>
-                              <SelectItem value="ANSATT">👤 Ansatt</SelectItem>
-                              <SelectItem value="LEDER">👔 Leder</SelectItem>
-                              <SelectItem value="HMS">🦺 HMS-ansvarlig</SelectItem>
-                              <SelectItem value="VERNEOMBUD">🛡️ Verneombud</SelectItem>
-                              <SelectItem value="BHT">🩺 Bedriftshelsetjeneste</SelectItem>
-                              <SelectItem value="REVISOR">📋 Revisor</SelectItem>
+                              <SelectItem value="ANSATT">👤 Employee</SelectItem>
+                              <SelectItem value="LEDER">👔 Manager</SelectItem>
+                              <SelectItem value="HMS">🦺 EHS Manager</SelectItem>
+                              <SelectItem value="VERNEOMBUD">🛡️ Safety Representative</SelectItem>
+                              <SelectItem value="BHT">🩺 Occupational Health Service</SelectItem>
+                              <SelectItem value="REVISOR">📋 Auditor</SelectItem>
                               <SelectItem value="ADMIN">⚙️ Administrator</SelectItem>
                             </SelectContent>
                           </Select>
@@ -526,7 +526,7 @@ export function UserManagement({ users, currentUserId, isAdmin, pricingTier, max
                         )}
                       </TableCell>
                       <TableCell>
-                        {new Date(userTenant.user.createdAt).toLocaleDateString("nb-NO")}
+                        {new Date(userTenant.user.createdAt).toLocaleDateString("en-US")}
                       </TableCell>
                       {isAdmin && (
                         <TableCell className="text-right">
@@ -540,7 +540,7 @@ export function UserManagement({ users, currentUserId, isAdmin, pricingTier, max
                                   disabled={activatingUserId === userTenant.userId || loading === userTenant.userId}
                                 >
                                   <Send className="h-4 w-4 mr-1" />
-                                  {activatingUserId === userTenant.userId ? "Aktiverer..." : "Aktiver"}
+                                  {activatingUserId === userTenant.userId ? "Activating..." : "Activate"}
                                 </Button>
                               )}
                               <Button
@@ -572,7 +572,7 @@ export function UserManagement({ users, currentUserId, isAdmin, pricingTier, max
           <Card className="bg-amber-50 border-amber-200 mt-4">
             <CardContent className="pt-4">
               <p className="text-sm text-amber-800">
-                ℹ️ Kun administratorer kan administrere brukere
+                ℹ️ Only administrators can manage users
               </p>
             </CardContent>
           </Card>
@@ -585,11 +585,11 @@ export function UserManagement({ users, currentUserId, isAdmin, pricingTier, max
                 <AlertCircle className="h-5 w-5 text-red-600 mt-0.5" />
                 <div>
                   <p className="text-sm font-semibold text-red-800">
-                    Brukergrense nådd
+                    User limit reached
                   </p>
                   <p className="text-sm text-red-700 mt-1">
-                    Du har nådd maks antall brukere ({maxUsers}) for din abonnementspakke. 
-                    Kontakt support for å oppgradere til en større pakke.
+                    You have reached the maximum number of users ({maxUsers}) for your subscription plan. 
+                    Contact support to upgrade to a larger plan.
                   </p>
                 </div>
               </div>

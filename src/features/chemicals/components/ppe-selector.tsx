@@ -37,7 +37,7 @@ export function PPESelector({ defaultValue, onChange }: PPESelectorProps) {
 
   return (
     <div className="space-y-4">
-      <Label>Påkrevd personlig verneutstyr (PPE)</Label>
+      <Label>Required personal protective equipment (PPE)</Label>
       <input type="hidden" name="requiredPPE" value={JSON.stringify(selected)} />
       
       <ScrollArea className="h-[400px] pr-4">
@@ -73,7 +73,7 @@ export function PPESelector({ defaultValue, onChange }: PPESelectorProps) {
 
       {selected.length > 0 && (
         <div className="text-sm text-muted-foreground">
-          Valgte: {selected.length} PPE-krav
+          Selected: {selected.length} PPE requirement{selected.length !== 1 ? "s" : ""}
         </div>
       )}
     </div>

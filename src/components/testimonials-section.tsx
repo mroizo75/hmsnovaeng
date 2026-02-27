@@ -12,34 +12,34 @@ interface Testimonial {
   highlight: string;
 }
 
-// Top testimonials - PLACEHOLDER - Erstatt med ekte kundeomtaler!
+// Top testimonials - PLACEHOLDER - Replace with real customer testimonials!
 const FEATURED_TESTIMONIALS: Testimonial[] = [
   {
     id: 1,
-    author: "Fornøyd kunde",
-    role: "Daglig leder",
-    company: "Norsk bedrift",
+    author: "Satisfied customer",
+    role: "CEO",
+    company: "US Company",
     rating: 5,
-    quote: "HMS Nova har gjort HMS-arbeidet vårt mye enklere. Godt system.",
-    highlight: "Enkelt å bruke",
+    quote: "EHS Nova has made our EHS work much easier. A great system.",
+    highlight: "Easy to use",
   },
   {
     id: 2,
-    author: "Fornøyd kunde",
-    role: "HMS-ansvarlig",
-    company: "Norsk bedrift",
+    author: "Satisfied customer",
+    role: "EHS Coordinator",
+    company: "US Company",
     rating: 5,
-    quote: "Bra funksjonalitet og god support. Anbefales!",
-    highlight: "God support",
+    quote: "Great functionality and excellent support. Highly recommended!",
+    highlight: "Great support",
   },
   {
     id: 3,
-    author: "Fornøyd kunde",
-    role: "Eier",
-    company: "Norsk bedrift",
+    author: "Satisfied customer",
+    role: "Owner",
+    company: "US Company",
     rating: 5,
-    quote: "Fint system til en god pris. Vi er fornøyde.",
-    highlight: "God verdi",
+    quote: "A great system at a great price. We are very satisfied.",
+    highlight: "Great value",
   },
 ];
 
@@ -50,8 +50,8 @@ interface TestimonialsSectionProps {
 }
 
 export function TestimonialsSection({
-  title = "Hva kundene våre sier",
-  description = "Norske bedrifter som bruker HMS Nova",
+  title = "What our customers say",
+  description = "US companies using EHS Nova",
   showLink = true,
 }: TestimonialsSectionProps) {
   return (
@@ -71,7 +71,7 @@ export function TestimonialsSection({
           <span className="ml-2 font-semibold">4.8/5</span>
         </div>
         <p className="text-sm text-muted-foreground">
-          Basert på omtaler fra fornøyde kunder
+          Based on reviews from satisfied customers
         </p>
       </div>
 
@@ -96,7 +96,7 @@ export function TestimonialsSection({
               <div className="relative mb-4">
                 <Quote className="absolute -top-1 -left-1 h-6 w-6 text-primary/20" />
                 <p className="text-sm italic pl-5">
-                  "{testimonial.quote}"
+                  &ldquo;{testimonial.quote}&rdquo;
                 </p>
               </div>
 
@@ -123,10 +123,10 @@ export function TestimonialsSection({
       {showLink && (
         <div className="text-center mt-12">
           <Link 
-            href="/anmeldelser" 
+            href="/reviews" 
             className="text-primary hover:underline font-semibold"
           >
-            Les alle kundeomtaler →
+            Read all customer reviews →
           </Link>
         </div>
       )}

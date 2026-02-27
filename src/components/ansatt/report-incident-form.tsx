@@ -35,10 +35,10 @@ export function ReportIncidentForm({
   function handleImageChange(e: React.ChangeEvent<HTMLInputElement>) {
     if (e.target.files) {
       const files = Array.from(e.target.files);
-      const newImageFiles = [...imageFiles, ...files].slice(0, 5); // Max 5 bilder
+      const newImageFiles = [...imageFiles, ...files].slice(0, 5); // Max 5 images
       setImageFiles(newImageFiles);
 
-      // Generer previews
+      // Generate previews
       const previews = newImageFiles.map((file) => URL.createObjectURL(file));
       setImagePreviews(previews);
     }
@@ -57,12 +57,12 @@ export function ReportIncidentForm({
 
     const formData = new FormData(e.currentTarget);
     
-    // Legg til bilder i FormData
+    // Add images to FormData
     imageFiles.forEach((file) => {
       formData.append("images", file);
     });
 
-    // Legg til metadata
+    // Add metadata
     formData.append("tenantId", tenantId);
     formData.append("reportedBy", reportedBy);
     formData.append("date", new Date().toISOString());
@@ -70,23 +70,23 @@ export function ReportIncidentForm({
     try {
       const response = await fetch("/api/incidents/report", {
         method: "POST",
-        body: formData, // Send FormData, ikke JSON
+        body: formData,
       });
 
       if (!response.ok) {
-        throw new Error("Kunne ikke sende rapport");
+        throw new Error("Could not submit report");
       }
 
       toast({
-        title: "✅ Avvik rapportert",
-        description: "Takk for rapporten! HMS-ansvarlig er varslet.",
+        title: "✅ Incident reported",
+        description: "Thank you for your report! The EHS coordinator has been notified.",
       });
 
       router.push(successRedirectPath);
     } catch (error) {
       toast({
-        title: "❌ Feil",
-        description: "Kunne ikke sende rapport. Prøv igjen.",
+        title: "❌ Error",
+        description: "Could not submit report. Please try again.",
         variant: "destructive",
       });
     } finally {
@@ -99,94 +99,94 @@ export function ReportIncidentForm({
       {/* Type */}
       <div className="space-y-2">
         <Label htmlFor="type" className="text-base">
-          Type hendelse *
+          Type of incident *
         </Label>
         <Select name="type" required>
           <SelectTrigger className="h-12 text-base">
-            <SelectValue placeholder="Velg type" />
+            <SelectValue placeholder="Select type" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="AVVIK">⚠️ Avvik</SelectItem>
-            <SelectItem value="NESTEN">🟡 Nestenulykke</SelectItem>
-            <SelectItem value="SKADE">🔴 Skade/Ulykke</SelectItem>
-            <SelectItem value="MILJO">🌍 Miljøavvik</SelectItem>
-            <SelectItem value="KVALITET">📋 Kvalitetsavvik</SelectItem>
+            <SelectItem value="AVVIK">⚠️ Deviation</SelectItem>
+            <SelectItem value="NESTEN">🟡 Near miss</SelectItem>
+            <SelectItem value="SKADE">🔴 Injury/Accident</SelectItem>
+            <SelectItem value="MILJO">🌍 Environmental incident</SelectItem>
+            <SelectItem value="KVALITET">📋 Quality deviation</SelectItem>
           </SelectContent>
         </Select>
       </div>
 
-      {/* Alvorlighetsgrad */}
+      {/* Severity */}
       <div className="space-y-2">
         <Label htmlFor="severity" className="text-base">
-          Hvor alvorlig? *
+          How serious? *
         </Label>
         <Select name="severity" required>
           <SelectTrigger className="h-12 text-base">
-            <SelectValue placeholder="Velg alvorlighetsgrad" />
+            <SelectValue placeholder="Select severity" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="5">🔴 Kritisk (5) - Umiddelbar fare</SelectItem>
-            <SelectItem value="4">🟠 Høy (4) - Alvorlig</SelectItem>
-            <SelectItem value="3">🟡 Middels (3)</SelectItem>
-            <SelectItem value="2">🟢 Lav (2)</SelectItem>
-            <SelectItem value="1">⚪ Svært lav (1)</SelectItem>
+            <SelectItem value="5">🔴 Critical (5) - Immediate danger</SelectItem>
+            <SelectItem value="4">🟠 High (4) - Serious</SelectItem>
+            <SelectItem value="3">🟡 Medium (3)</SelectItem>
+            <SelectItem value="2">🟢 Low (2)</SelectItem>
+            <SelectItem value="1">⚪ Very low (1)</SelectItem>
           </SelectContent>
         </Select>
       </div>
 
-      {/* Tittel */}
+      {/* Title */}
       <div className="space-y-2">
         <Label htmlFor="title" className="text-base">
-          Kort beskrivelse *
+          Brief description *
         </Label>
         <Input
           id="title"
           name="title"
-          placeholder="F.eks: Våt gulv uten varsling"
+          placeholder="E.g.: Wet floor without warning sign"
           required
           className="h-12 text-base"
         />
       </div>
 
-      {/* Sted */}
+      {/* Location */}
       <div className="space-y-2">
         <Label htmlFor="location" className="text-base">
-          Hvor skjedde det? *
+          Where did it happen? *
         </Label>
         <Input
           id="location"
           name="location"
-          placeholder="F.eks: Verksted, bygg A"
+          placeholder="E.g.: Workshop, Building A"
           required
           className="h-12 text-base"
         />
       </div>
 
-      {/* Beskrivelse */}
+      {/* Description */}
       <div className="space-y-2">
         <Label htmlFor="description" className="text-base">
-          Detaljert beskrivelse *
+          Detailed description *
         </Label>
         <Textarea
           id="description"
           name="description"
-          placeholder="Beskriv hva som skjedde, hvem var involvert, hva var årsaken..."
+          placeholder="Describe what happened, who was involved, what was the cause..."
           required
           rows={6}
           className="text-base resize-none"
         />
         <p className="text-xs text-muted-foreground">
-          Jo mer detaljer, jo bedre kan vi forebygge lignende hendelser
+          The more details, the better we can prevent similar incidents
         </p>
       </div>
 
-      {/* Bildeopplasting */}
+      {/* Image upload */}
       <div className="space-y-3">
         <Label htmlFor="images" className="text-base">
-          📸 Bilder (valgfritt, maks 5)
+          📸 Photos (optional, max 5)
         </Label>
         <div className="space-y-3">
-          {/* Upload knapp */}
+          {/* Upload button */}
           <div className="relative">
             <Input
               id="images"
@@ -209,10 +209,10 @@ export function ReportIncidentForm({
               <Camera className="h-6 w-6 text-muted-foreground" />
               <div className="text-center">
                 <p className="text-sm font-medium">
-                  {imageFiles.length >= 5 ? "Maks 5 bilder" : "Ta bilde eller velg fra album"}
+                  {imageFiles.length >= 5 ? "Max 5 photos" : "Take photo or choose from album"}
                 </p>
                 <p className="text-xs text-muted-foreground">
-                  {imageFiles.length > 0 ? `${imageFiles.length}/5 bilder lagt til` : "Valgfritt"}
+                  {imageFiles.length > 0 ? `${imageFiles.length}/5 photos added` : "Optional"}
                 </p>
               </div>
             </Label>
@@ -225,7 +225,7 @@ export function ReportIncidentForm({
                 <div key={index} className="relative aspect-square rounded-lg overflow-hidden border">
                   <Image
                     src={preview}
-                    alt={`Forhåndsvisning ${index + 1}`}
+                    alt={`Preview ${index + 1}`}
                     fill
                     className="object-cover"
                   />
@@ -242,7 +242,7 @@ export function ReportIncidentForm({
           )}
         </div>
         <p className="text-xs text-muted-foreground">
-          💡 Bilder hjelper oss å forstå situasjonen bedre og kan brukes til å forebygge lignende hendelser
+          💡 Photos help us better understand the situation and can be used to prevent similar incidents
         </p>
       </div>
 
@@ -257,10 +257,10 @@ export function ReportIncidentForm({
           {isSubmitting ? (
             <>
               <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-              Sender...
+              Submitting...
             </>
           ) : (
-            "📤 Send rapport"
+            "📤 Submit report"
           )}
         </Button>
 
@@ -272,10 +272,9 @@ export function ReportIncidentForm({
           size="lg"
           className="w-full h-12"
         >
-          Avbryt
+          Cancel
         </Button>
       </div>
     </form>
   );
 }
-

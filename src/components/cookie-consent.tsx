@@ -33,49 +33,49 @@ export function CookieConsent() {
   });
 
   useEffect(() => {
-    // Sjekk om brukeren allerede har gjort et valg
+    // Check if user has already made a choice
     const consent = localStorage.getItem('cookie-consent');
     if (!consent) {
-      // Vent litt før banner vises for bedre UX
+      // Wait briefly before showing banner for better UX
       setTimeout(() => setShowBanner(true), 1000);
     } else {
-      // Last inn tidligere preferanser
+      // Load previous preferences
       try {
         const saved = JSON.parse(consent);
         setPreferences(saved);
-        // Aktiver cookies basert på preferanser
+        // Apply cookies based on preferences
         applyCookiePreferences(saved);
       } catch (e) {
-        // Ugyldig JSON, vis banner igjen
+        // Invalid JSON, show banner again
         setShowBanner(true);
       }
     }
   }, []);
 
   const applyCookiePreferences = (prefs: CookiePreferences) => {
-    // Aktiver/deaktiver Google Analytics
+    // Enable/disable Google Analytics
     if (typeof window !== 'undefined') {
       if (prefs.analytics) {
-        // Aktiver GA (hvis du bruker det)
+        // Enable GA (if used)
         // @ts-ignore
         window['ga-disable-GA_MEASUREMENT_ID'] = false;
       } else {
-        // Deaktiver GA
+        // Disable GA
         // @ts-ignore
         window['ga-disable-GA_MEASUREMENT_ID'] = true;
       }
     }
 
-    // Sett andre cookies basert på preferanser
+    // Set other cookies based on preferences
     if (!prefs.functional) {
-      // Fjern funksjonelle cookies
+      // Remove functional cookies
       if (typeof window !== 'undefined') {
         localStorage.removeItem('user-preferences');
         localStorage.removeItem('notification-settings');
       }
     }
 
-    // Marketing cookies (ingen for øyeblikket)
+    // Marketing cookies (none at this time)
   };
 
   const savePreferences = (prefs: CookiePreferences) => {
@@ -126,12 +126,12 @@ export function CookieConsent() {
               </div>
               
               <div className="flex-1">
-                <h3 className="font-bold text-lg mb-2 text-gray-900 dark:text-gray-100">Vi bruker cookies 🍪</h3>
+                <h3 className="font-bold text-lg mb-2 text-gray-900 dark:text-gray-100">We use cookies 🍪</h3>
                 <p className="text-sm text-gray-700 dark:text-gray-300 mb-4">
-                  HMS Nova bruker cookies for å forbedre din opplevelse, holde deg innlogget og analysere 
-                  bruken av nettstedet. Strengt nødvendige cookies kan ikke avslås.{" "}
+                  EHS Nova uses cookies to improve your experience, keep you signed in, and analyze
+                  site usage. Strictly necessary cookies cannot be declined.{" "}
                   <Link href="/cookies" className="text-green-700 dark:text-green-400 hover:underline font-bold underline">
-                    Les mer
+                    Learn more
                   </Link>
                 </p>
 
@@ -140,21 +140,21 @@ export function CookieConsent() {
                     onClick={acceptAll} 
                     className="flex-1 sm:flex-initial bg-green-800 hover:bg-green-700 text-white border-0 shadow-md hover:shadow-lg transition-all"
                   >
-                    Aksepter alle
+                    Accept all
                   </Button>
                   <Button 
                     onClick={rejectAll} 
                     className="flex-1 sm:flex-initial bg-gray-800 hover:bg-gray-700 text-white border-0 shadow-md hover:shadow-lg transition-all"
                   >
-                    Kun nødvendige
+                    Necessary only
                   </Button>
                   <Button 
                     onClick={() => setShowSettings(true)} 
                     className="flex-1 sm:flex-initial bg-gray-800 hover:bg-gray-700 text-white border-0 shadow-md hover:shadow-lg transition-all"
-                    aria-label="Tilpass cookie-innstillinger"
+                    aria-label="Customize cookie settings"
                   >
                     <SettingsIcon className="h-4 w-4 mr-2 text-white" aria-hidden="true" />
-                    Tilpass
+                    Customize
                   </Button>
                 </div>
               </div>
@@ -164,7 +164,7 @@ export function CookieConsent() {
                 size="icon"
                 className="flex-shrink-0 text-gray-900 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-800"
                 onClick={() => setShowBanner(false)}
-                aria-label="Lukk cookie-banner"
+                aria-label="Close cookie banner"
               >
                 <X className="h-4 w-4" />
               </Button>
@@ -179,42 +179,42 @@ export function CookieConsent() {
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <SettingsIcon className="h-5 w-5" />
-              Cookie-innstillinger
+              Cookie settings
             </DialogTitle>
             <DialogDescription>
-              Velg hvilke cookies du vil tillate. Strengt nødvendige cookies kan ikke avslås.
+              Choose which cookies you want to allow. Strictly necessary cookies cannot be declined.
             </DialogDescription>
           </DialogHeader>
 
           <div className="space-y-6 mt-4">
-            {/* Strengt nødvendige */}
+            {/* Strictly necessary */}
             <div className="border rounded-lg p-4 bg-muted/30">
               <div className="flex items-start justify-between gap-4 mb-3">
                 <div className="flex items-start gap-3">
                   <Shield className="h-5 w-5 text-green-600 mt-0.5 flex-shrink-0" />
                   <div>
-                    <h4 className="font-semibold">Strengt nødvendige</h4>
+                    <h4 className="font-semibold">Strictly necessary</h4>
                     <p className="text-sm text-muted-foreground mt-1">
-                      Disse cookies er nødvendige for at nettstedet skal fungere (autentisering, sikkerhet, GDPR-samtykke).
+                      These cookies are required for the site to function (authentication, security, consent).
                     </p>
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
                   <Switch checked={true} disabled />
-                  <Label className="text-xs text-muted-foreground">Alltid på</Label>
+                  <Label className="text-xs text-muted-foreground">Always on</Label>
                 </div>
               </div>
             </div>
 
-            {/* Funksjonelle */}
+            {/* Functional */}
             <div className="border rounded-lg p-4">
               <div className="flex items-start justify-between gap-4 mb-3">
                 <div className="flex items-start gap-3">
                   <SettingsIcon className="h-5 w-5 text-blue-600 mt-0.5 flex-shrink-0" />
                   <div>
-                    <h4 className="font-semibold">Funksjonelle cookies</h4>
+                    <h4 className="font-semibold">Functional cookies</h4>
                     <p className="text-sm text-muted-foreground mt-1">
-                      Lagrer dine preferanser som språk, tema og dashbord-layout for en bedre brukeropplevelse.
+                      Stores your preferences such as language, theme, and dashboard layout for a better experience.
                     </p>
                   </div>
                 </div>
@@ -227,16 +227,16 @@ export function CookieConsent() {
               </div>
             </div>
 
-            {/* Analyse */}
+            {/* Analytics */}
             <div className="border rounded-lg p-4">
               <div className="flex items-start justify-between gap-4 mb-3">
                 <div className="flex items-start gap-3">
                   <BarChart className="h-5 w-5 text-purple-600 mt-0.5 flex-shrink-0" />
                   <div>
-                    <h4 className="font-semibold">Analyse-cookies</h4>
+                    <h4 className="font-semibold">Analytics cookies</h4>
                     <p className="text-sm text-muted-foreground mt-1">
-                      Hjelper oss å forstå hvordan du bruker nettstedet slik at vi kan forbedre det. 
-                      Vi bruker Google Analytics med IP-anonymisering.
+                      Helps us understand how you use the site so we can improve it.
+                      We use Google Analytics with IP anonymization.
                     </p>
                   </div>
                 </div>
@@ -249,15 +249,15 @@ export function CookieConsent() {
               </div>
             </div>
 
-            {/* Markedsføring */}
+            {/* Marketing */}
             <div className="border rounded-lg p-4 opacity-60">
               <div className="flex items-start justify-between gap-4 mb-3">
                 <div className="flex items-start gap-3">
                   <Cookie className="h-5 w-5 text-orange-600 mt-0.5 flex-shrink-0" />
                   <div>
-                    <h4 className="font-semibold">Markedsførings-cookies</h4>
+                    <h4 className="font-semibold">Marketing cookies</h4>
                     <p className="text-sm text-muted-foreground mt-1">
-                      Brukes til å vise deg relevante annonser. <strong>Vi bruker for øyeblikket ikke disse.</strong>
+                      Used to show you relevant ads. <strong>We do not currently use these.</strong>
                     </p>
                   </div>
                 </div>
@@ -277,36 +277,35 @@ export function CookieConsent() {
               onClick={saveCustomPreferences} 
               className="flex-1 bg-green-800 hover:bg-green-700 text-white border-0 shadow-md hover:shadow-lg transition-all"
             >
-              Lagre innstillinger
+              Save settings
             </Button>
             <Button 
               onClick={acceptAll} 
               className="flex-1 bg-gray-800 hover:bg-gray-700 text-white border-0 shadow-md hover:shadow-lg transition-all"
             >
-              Aksepter alle
+              Accept all
             </Button>
             <Button 
               onClick={rejectAll} 
               className="flex-1 bg-gray-800 hover:bg-gray-700 text-white border-0 shadow-md hover:shadow-lg transition-all"
             >
-              Kun nødvendige
+              Necessary only
             </Button>
           </div>
 
           <p className="text-xs text-center text-gray-600 dark:text-gray-400 mt-4">
-            Les vår{" "}
+            Read our{" "}
             <Link href="/cookies" className="text-green-700 dark:text-green-400 hover:underline font-medium">
-              cookie-policy
+              cookie policy
             </Link>
-            {" "}og{" "}
+            {" "}and{" "}
             <Link href="/personvern" className="text-green-700 dark:text-green-400 hover:underline font-medium">
-              personvernerklæring
+              privacy policy
             </Link>
-            {" "}for mer informasjon.
+            {" "}for more information.
           </p>
         </DialogContent>
       </Dialog>
     </>
   );
 }
-

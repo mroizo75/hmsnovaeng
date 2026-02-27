@@ -31,7 +31,7 @@ export function MeasureList({ measures }: MeasureListProps) {
   const [loading, setLoading] = useState<string | null>(null);
 
   const handleDelete = async (id: string, title: string) => {
-    if (!confirm(`Er du sikker på at du vil slette "${title}"?\n\nDette kan ikke angres.`)) {
+    if (!confirm(`Are you sure you want to delete "${title}"?\n\nThis cannot be undone.`)) {
       return;
     }
 
@@ -40,22 +40,22 @@ export function MeasureList({ measures }: MeasureListProps) {
 
     if (result.success) {
       toast({
-        title: "🗑️ Tiltak slettet",
-        description: `"${title}" er fjernet`,
+        title: "🗑️ Action deleted",
+        description: `"${title}" has been removed`,
       });
       router.refresh();
     } else {
       toast({
         variant: "destructive",
-        title: "Feil",
-        description: result.error || "Kunne ikke slette tiltak",
+        title: "Error",
+        description: result.error || "Could not delete action",
       });
     }
     setLoading(null);
   };
 
   const formatDate = (date: Date) => {
-    return new Date(date).toLocaleDateString("no-NO", {
+    return new Date(date).toLocaleDateString("en-US", {
       day: "2-digit",
       month: "short",
       year: "numeric",
@@ -70,7 +70,7 @@ export function MeasureList({ measures }: MeasureListProps) {
   if (measures.length === 0) {
     return (
       <div className="text-center py-8 text-muted-foreground">
-        <p>Ingen tiltak registrert</p>
+        <p>No actions registered</p>
       </div>
     );
   }
@@ -81,11 +81,11 @@ export function MeasureList({ measures }: MeasureListProps) {
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>Tiltak</TableHead>
-            <TableHead className="hidden md:table-cell">Detaljer</TableHead>
-            <TableHead>Frist</TableHead>
+            <TableHead>Action</TableHead>
+            <TableHead className="hidden md:table-cell">Details</TableHead>
+            <TableHead>Due Date</TableHead>
             <TableHead>Status</TableHead>
-            <TableHead className="text-right">Handlinger</TableHead>
+            <TableHead className="text-right">Actions</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -94,23 +94,23 @@ export function MeasureList({ measures }: MeasureListProps) {
             const statusColor = getMeasureStatusColor(measure.status);
             const overdue = isOverdue(measure.dueAt, measure.status);
             const categoryLabels: Record<string, string> = {
-              CORRECTIVE: "Korrigerende",
-              PREVENTIVE: "Forebyggende",
-              IMPROVEMENT: "Forbedring",
-              MITIGATION: "Mitigering",
+              CORRECTIVE: "Corrective",
+              PREVENTIVE: "Preventive",
+              IMPROVEMENT: "Improvement",
+              MITIGATION: "Mitigation",
             };
             const frequencyLabels: Record<string, string> = {
-              WEEKLY: "Ukentlig",
-              MONTHLY: "Månedlig",
-              QUARTERLY: "Kvartalsvis",
-              ANNUAL: "Årlig",
-              BIENNIAL: "Annet hvert år",
+              WEEKLY: "Weekly",
+              MONTHLY: "Monthly",
+              QUARTERLY: "Quarterly",
+              ANNUAL: "Annual",
+              BIENNIAL: "Biennial",
             };
             const effectivenessLabels: Record<ActionEffectiveness, string> = {
-              EFFECTIVE: "Effektivt",
-              PARTIALLY_EFFECTIVE: "Delvis",
-              INEFFECTIVE: "Ikke effekt",
-              NOT_EVALUATED: "Ikke evaluert",
+              EFFECTIVE: "Effective",
+              PARTIALLY_EFFECTIVE: "Partial",
+              INEFFECTIVE: "Ineffective",
+              NOT_EVALUATED: "Not evaluated",
             };
 
             return (
@@ -137,30 +137,30 @@ export function MeasureList({ measures }: MeasureListProps) {
                       {categoryLabels[measure.category] || measure.category}
                     </div>
                     <div>
-                      <span className="text-muted-foreground">Oppfølging:</span>{" "}
+                      <span className="text-muted-foreground">Follow-up:</span>{" "}
                       {frequencyLabels[measure.followUpFrequency || "ANNUAL"]}
                     </div>
                     {measure.costEstimate && (
                       <div>
-                        <span className="text-muted-foreground">Kost:</span>{" "}
-                        {measure.costEstimate.toLocaleString("no-NO")} kr
+                        <span className="text-muted-foreground">Cost:</span>{" "}
+                        ${measure.costEstimate.toLocaleString("en-US")}
                       </div>
                     )}
                     {measure.benefitEstimate && (
                       <div>
-                        <span className="text-muted-foreground">Effekt:</span>{" "}
+                        <span className="text-muted-foreground">Benefit:</span>{" "}
                         {measure.benefitEstimate}
                       </div>
                     )}
                     {measure.effectiveness !== "NOT_EVALUATED" && (
                       <div>
-                        <span className="text-muted-foreground">Evaluering:</span>{" "}
+                        <span className="text-muted-foreground">Evaluation:</span>{" "}
                         {effectivenessLabels[measure.effectiveness]}
                       </div>
                     )}
                     {measure.risk && (
                       <div>
-                        <span className="text-muted-foreground">Risiko:</span>{" "}
+                        <span className="text-muted-foreground">Risk:</span>{" "}
                         {measure.risk.title}
                       </div>
                     )}
@@ -182,7 +182,7 @@ export function MeasureList({ measures }: MeasureListProps) {
                     <Button variant="ghost" size="sm" asChild>
                       <Link
                         href={`/dashboard/measures/${measure.id}`}
-                        title="Rediger og oppdater status"
+                        title="Edit and update status"
                       >
                         <Pencil className="h-4 w-4" />
                       </Link>

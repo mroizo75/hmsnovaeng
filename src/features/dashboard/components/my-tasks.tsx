@@ -19,10 +19,10 @@ interface MyTasksProps {
 export function MyTasks({ tasks }: MyTasksProps) {
   const getTypeLabel = (type: Task["type"]) => {
     const labels = {
-      measure: "Tiltak",
-      training: "Opplæring",
-      approval: "Godkjenning",
-      audit: "Revisjon",
+      measure: "Action",
+      training: "Training",
+      approval: "Approval",
+      audit: "Audit",
     };
     return labels[type];
   };
@@ -56,26 +56,26 @@ export function MyTasks({ tasks }: MyTasksProps) {
     if (diffDays < 0) {
       return (
         <span className="text-xs text-red-600 font-semibold">
-          Forfalt for {Math.abs(diffDays)} dager siden
+          Overdue {Math.abs(diffDays)} days ago
         </span>
       );
     }
     if (diffDays === 0) {
-      return <span className="text-xs text-red-600 font-semibold">Forfaller i dag!</span>;
+      return <span className="text-xs text-red-600 font-semibold">Due today!</span>;
     }
     if (diffDays === 1) {
-      return <span className="text-xs text-yellow-600 font-semibold">Forfaller i morgen</span>;
+      return <span className="text-xs text-yellow-600 font-semibold">Due tomorrow</span>;
     }
     if (diffDays <= 7) {
-      return <span className="text-xs text-yellow-600">Om {diffDays} dager</span>;
+      return <span className="text-xs text-yellow-600">In {diffDays} days</span>;
     }
-    return <span className="text-xs text-muted-foreground">Om {diffDays} dager</span>;
+    return <span className="text-xs text-muted-foreground">In {diffDays} days</span>;
   };
 
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
-        <CardTitle className="text-xl font-bold">Mine oppgaver</CardTitle>
+        <CardTitle className="text-xl font-bold">My Tasks</CardTitle>
         <Badge variant="secondary" className="text-sm">
           {tasks.length}
         </Badge>
@@ -84,9 +84,9 @@ export function MyTasks({ tasks }: MyTasksProps) {
         {tasks.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-8 text-center">
             <CheckCircle2 className="h-12 w-12 text-green-500 mb-3" />
-            <p className="text-sm font-medium">Ingen aktive oppgaver</p>
+            <p className="text-sm font-medium">No active tasks</p>
             <p className="text-xs text-muted-foreground mt-1">
-              Alt er under kontroll! 🎉
+              Everything is under control! 🎉
             </p>
           </div>
         ) : (

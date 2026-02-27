@@ -23,7 +23,7 @@ export function NotificationSettings({ user, userTenant }: NotificationSettingsP
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
   
-  // Bruk innstillinger fra UserTenant (tenant-spesifikk)
+  // Use settings from UserTenant (tenant-specific)
   const [notifyByEmail, setNotifyByEmail] = useState(userTenant.notifyByEmail);
   const [notifyBySms, setNotifyBySms] = useState(userTenant.notifyBySms);
   const [reminderDaysBefore, setReminderDaysBefore] = useState(userTenant.reminderDaysBefore);
@@ -32,7 +32,7 @@ export function NotificationSettings({ user, userTenant }: NotificationSettingsP
   const [notifyAudits, setNotifyAudits] = useState(userTenant.notifyAudits);
   const [notifyMeasures, setNotifyMeasures] = useState(userTenant.notifyMeasures);
 
-  // Sjekk telefonnummer fra både UserTenant og User (fallback)
+  // Check phone number from both UserTenant and User (fallback)
   const hasPhoneNumber = !!userTenant.phone || !!user.phone;
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -42,8 +42,8 @@ export function NotificationSettings({ user, userTenant }: NotificationSettingsP
     if (notifyBySms && !hasPhoneNumber) {
       toast({
         variant: "destructive",
-        title: "Mangler telefonnummer",
-        description: "Du må legge til telefonnummer i profilen for å motta SMS-varsler",
+        title: "Missing phone number",
+        description: "You must add a phone number to your profile to receive SMS notifications",
       });
       setLoading(false);
       return;
@@ -61,16 +61,16 @@ export function NotificationSettings({ user, userTenant }: NotificationSettingsP
 
     if (result.success) {
       toast({
-        title: "✅ Innstillinger lagret",
-        description: "Varslingsinnstillingene dine er oppdatert",
+        title: "✅ Settings saved",
+        description: "Your notification settings have been updated",
         className: "bg-green-50 border-green-200",
       });
       router.refresh();
     } else {
       toast({
         variant: "destructive",
-        title: "Feil",
-        description: result.error || "Kunne ikke lagre innstillinger",
+        title: "Error",
+        description: result.error || "Could not save settings",
       });
     }
 
@@ -85,32 +85,32 @@ export function NotificationSettings({ user, userTenant }: NotificationSettingsP
           <div className="flex items-center gap-3">
             <Bell className="h-6 w-6 text-primary" />
             <div>
-              <CardTitle>Varslingsinnstillinger</CardTitle>
+              <CardTitle>Notification settings</CardTitle>
               <CardDescription>
-                Velg hvordan og når du vil motta påminnelser
+                Choose how and when you want to receive reminders
               </CardDescription>
             </div>
           </div>
         </CardHeader>
       </Card>
 
-      {/* Varslingsmetoder */}
+      {/* Notification methods */}
       <Card>
         <CardHeader>
-          <CardTitle>Varslingsmetoder</CardTitle>
+          <CardTitle>Notification methods</CardTitle>
           <CardDescription>
-            Hvordan vil du motta varsler?
+            How do you want to receive notifications?
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
-          {/* E-post */}
+          {/* Email */}
           <div className="flex items-center justify-between rounded-lg border p-4">
             <div className="flex items-center gap-3">
               <Mail className="h-5 w-5 text-muted-foreground" />
               <div className="space-y-0.5">
-                <Label htmlFor="notifyByEmail">E-postvarsler</Label>
+                <Label htmlFor="notifyByEmail">Email notifications</Label>
                 <p className="text-sm text-muted-foreground">
-                  Motta påminnelser på e-post ({user.email})
+                  Receive reminders via email ({user.email})
                 </p>
               </div>
             </div>
@@ -127,16 +127,16 @@ export function NotificationSettings({ user, userTenant }: NotificationSettingsP
             <div className="flex items-center gap-3">
               <Smartphone className="h-5 w-5 text-muted-foreground" />
               <div className="space-y-0.5">
-                <Label htmlFor="notifyBySms">SMS-varsler</Label>
+                <Label htmlFor="notifyBySms">SMS notifications</Label>
                 <p className="text-sm text-muted-foreground">
                   {hasPhoneNumber
-                    ? `Motta påminnelser på SMS (${userTenant.phone || user.phone})`
-                    : "Legg til telefonnummer i profilen for å aktivere SMS"}
+                    ? `Receive reminders via SMS (${userTenant.phone || user.phone})`
+                    : "Add phone number to your profile to enable SMS"}
                 </p>
                 {notifyBySms && !hasPhoneNumber && (
                   <p className="text-sm text-amber-600 flex items-center gap-1 mt-1">
                     <AlertCircle className="h-3 w-3" />
-                    SMS krever telefonnummer
+                    SMS requires phone number
                   </p>
                 )}
               </div>
@@ -149,9 +149,9 @@ export function NotificationSettings({ user, userTenant }: NotificationSettingsP
             />
           </div>
 
-          {/* Påminnelsestid */}
+          {/* Reminder time */}
           <div className="space-y-3">
-            <Label htmlFor="reminderDaysBefore">Når vil du ha påminnelser?</Label>
+            <Label htmlFor="reminderDaysBefore">When do you want reminders?</Label>
             <Select
               value={reminderDaysBefore.toString()}
               onValueChange={(value) => setReminderDaysBefore(parseInt(value))}
@@ -161,38 +161,38 @@ export function NotificationSettings({ user, userTenant }: NotificationSettingsP
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="0">Samme dag</SelectItem>
-                <SelectItem value="1">1 dag før</SelectItem>
-                <SelectItem value="2">2 dager før</SelectItem>
-                <SelectItem value="3">3 dager før</SelectItem>
-                <SelectItem value="7">1 uke før</SelectItem>
-                <SelectItem value="14">2 uker før</SelectItem>
+                <SelectItem value="0">Same day</SelectItem>
+                <SelectItem value="1">1 day before</SelectItem>
+                <SelectItem value="2">2 days before</SelectItem>
+                <SelectItem value="3">3 days before</SelectItem>
+                <SelectItem value="7">1 week before</SelectItem>
+                <SelectItem value="14">2 weeks before</SelectItem>
               </SelectContent>
             </Select>
             <p className="text-sm text-muted-foreground">
-              Du vil motta varsler {reminderDaysBefore === 0 ? "samme dag" : `${reminderDaysBefore} dag${reminderDaysBefore > 1 ? "er" : ""} før`} planlagte hendelser
+              You will receive notifications {reminderDaysBefore === 0 ? "on the same day" : `${reminderDaysBefore} day${reminderDaysBefore > 1 ? "s" : ""} before`} scheduled events
             </p>
           </div>
         </CardContent>
       </Card>
 
-      {/* Hva vil du få varsler om */}
+      {/* What do you want to be notified about */}
       <Card>
         <CardHeader>
-          <CardTitle>Hva vil du få varsler om?</CardTitle>
+          <CardTitle>What do you want to be notified about?</CardTitle>
           <CardDescription>
-            Velg hvilke typer hendelser du vil bli varslet om
+            Choose which event types you want to be notified about
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          {/* Møter */}
+          {/* Meetings */}
           <div className="flex items-center justify-between rounded-lg border p-4">
             <div className="flex items-center gap-3">
               <Calendar className="h-5 w-5 text-blue-600" />
               <div className="space-y-0.5">
-                <Label htmlFor="notifyMeetings">Møter</Label>
+                <Label htmlFor="notifyMeetings">Meetings</Label>
                 <p className="text-sm text-muted-foreground">
-                  AMU/VO møter, BHT møter, ledelsens gjennomgang
+                  AMU/VO meetings, OHS meetings, management review
                 </p>
               </div>
             </div>
@@ -204,14 +204,14 @@ export function NotificationSettings({ user, userTenant }: NotificationSettingsP
             />
           </div>
 
-          {/* Vernerunder/Inspeksjoner */}
+          {/* Safety walks/Inspections */}
           <div className="flex items-center justify-between rounded-lg border p-4">
             <div className="flex items-center gap-3">
               <ClipboardCheck className="h-5 w-5 text-green-600" />
               <div className="space-y-0.5">
-                <Label htmlFor="notifyInspections">Vernerunder & Inspeksjoner</Label>
+                <Label htmlFor="notifyInspections">Safety Walks & Inspections</Label>
                 <p className="text-sm text-muted-foreground">
-                  Planlagte vernerunder, HMS-inspeksjoner, sikkerhetsvandringer
+                  Planned safety walks, EHS inspections, security patrols
                 </p>
               </div>
             </div>
@@ -223,14 +223,14 @@ export function NotificationSettings({ user, userTenant }: NotificationSettingsP
             />
           </div>
 
-          {/* Revisjoner */}
+          {/* Audits */}
           <div className="flex items-center justify-between rounded-lg border p-4">
             <div className="flex items-center gap-3">
               <AlertCircle className="h-5 w-5 text-orange-600" />
               <div className="space-y-0.5">
-                <Label htmlFor="notifyAudits">Revisjoner</Label>
+                <Label htmlFor="notifyAudits">Audits</Label>
                 <p className="text-sm text-muted-foreground">
-                  Internrevisjoner, eksterne revisjoner, sertifiseringsrevisjoner
+                  Internal audits, external audits, certification audits
                 </p>
               </div>
             </div>
@@ -242,14 +242,14 @@ export function NotificationSettings({ user, userTenant }: NotificationSettingsP
             />
           </div>
 
-          {/* Tiltak */}
+          {/* Actions */}
           <div className="flex items-center justify-between rounded-lg border p-4">
             <div className="flex items-center gap-3">
               <Target className="h-5 w-5 text-red-600" />
               <div className="space-y-0.5">
-                <Label htmlFor="notifyMeasures">Tiltak som forfaller</Label>
+                <Label htmlFor="notifyMeasures">Actions due</Label>
                 <p className="text-sm text-muted-foreground">
-                  Korrigerende tiltak, handlingsplaner, oppgaver du er ansvarlig for
+                  Corrective actions, action plans, tasks you are responsible for
                 </p>
               </div>
             </div>
@@ -263,7 +263,7 @@ export function NotificationSettings({ user, userTenant }: NotificationSettingsP
         </CardContent>
       </Card>
 
-      {/* Info om SMS */}
+      {/* SMS info */}
       {notifyBySms && (
         <Card className="border-blue-200 bg-blue-50/50">
           <CardContent className="pt-6">
@@ -271,13 +271,13 @@ export function NotificationSettings({ user, userTenant }: NotificationSettingsP
               <Smartphone className="h-5 w-5 text-blue-600 flex-shrink-0 mt-0.5" />
               <div className="space-y-2 text-sm">
                 <p className="font-medium text-blue-900">
-                  Om SMS-varsler
+                  About SMS notifications
                 </p>
                 <ul className="list-disc list-inside space-y-1 text-blue-800">
-                  <li>SMS sendes via norsk leverandør (Link Mobility)</li>
-                  <li>Du mottar kun de viktigste påminnelsene på SMS</li>
-                  <li>Alle varsler sendes også på e-post</li>
-                  <li>Du kan når som helst slå av SMS-varsler</li>
+                  <li>SMS is sent via Norwegian provider (Link Mobility)</li>
+                  <li>You only receive the most important reminders via SMS</li>
+                  <li>All notifications are also sent via email</li>
+                  <li>You can disable SMS notifications at any time</li>
                 </ul>
               </div>
             </div>
@@ -290,11 +290,11 @@ export function NotificationSettings({ user, userTenant }: NotificationSettingsP
         <Link href="/dashboard/settings/test-notifications">
           <Button type="button" variant="outline">
             <TestTube className="mr-2 h-4 w-4" />
-            Test e-postvarsling
+            Test email notifications
           </Button>
         </Link>
         <Button type="submit" disabled={loading}>
-          {loading ? "Lagrer..." : "Lagre innstillinger"}
+          {loading ? "Saving..." : "Save settings"}
         </Button>
       </div>
     </form>

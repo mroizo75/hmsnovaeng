@@ -19,7 +19,7 @@ interface StoffkartotekClientProps {
 export function StoffkartotekClient({ chemicals }: StoffkartotekClientProps) {
   const [searchTerm, setSearchTerm] = useState("");
 
-  // Filtrer kjemikalier basert på søk
+  // Filter chemicals based on search
   const filteredChemicals = useMemo(() => {
     if (!searchTerm.trim()) return chemicals;
 
@@ -34,13 +34,13 @@ export function StoffkartotekClient({ chemicals }: StoffkartotekClientProps) {
 
   return (
     <>
-      {/* Søkefelt og dialog-knapp */}
+      {/* Search field and dialog button */}
       <div className="flex flex-col sm:flex-row gap-3">
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
             type="search"
-            placeholder="Søk etter produktnavn, leverandør eller CAS-nummer..."
+            placeholder="Search by product name, supplier, or CAS number..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="pl-10"
@@ -49,21 +49,21 @@ export function StoffkartotekClient({ chemicals }: StoffkartotekClientProps) {
         <SafetySymbolsDialog />
       </div>
 
-      {/* Resultatstatistikk */}
+      {/* Result statistics */}
       {searchTerm && (
         <p className="text-sm text-muted-foreground">
-          Viser {filteredChemicals.length} av {chemicals.length} kjemikalier
+          Showing {filteredChemicals.length} of {chemicals.length} chemicals
         </p>
       )}
 
-      {/* Stoffliste */}
+      {/* Chemical list */}
       <div className="space-y-3">
         {filteredChemicals.length === 0 ? (
           <Card>
             <CardContent className="text-center py-12">
               <Beaker className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
               <p className="text-muted-foreground">
-                {searchTerm ? "Ingen kjemikalier funnet" : "Ingen kjemikalier registrert ennå"}
+                {searchTerm ? "No chemicals found" : "No chemicals registered yet"}
               </p>
             </CardContent>
           </Card>
@@ -89,7 +89,7 @@ export function StoffkartotekClient({ chemicals }: StoffkartotekClientProps) {
                       
                       <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground mb-2">
                         {chemical.supplier && (
-                          <span>Leverandør: {chemical.supplier}</span>
+                          <span>Supplier: {chemical.supplier}</span>
                         )}
                         {chemical.casNumber && (
                           <Badge variant="outline" className="text-xs">
@@ -98,17 +98,17 @@ export function StoffkartotekClient({ chemicals }: StoffkartotekClientProps) {
                         )}
                       </div>
 
-                      {/* H-setninger */}
+                      {/* H-Statements */}
                       {chemical.hazardStatements && (
                         <div className="mb-3 p-2 bg-orange-50 border border-orange-200 rounded">
-                          <p className="text-xs font-medium text-orange-900 mb-1">H-setninger (Faresetninger):</p>
+                          <p className="text-xs font-medium text-orange-900 mb-1">H-Statements (Hazard Statements):</p>
                           <p className="text-xs text-orange-800 line-clamp-2">
                             {chemical.hazardStatements}
                           </p>
                         </div>
                       )}
 
-                      {/* Faresymboler */}
+                      {/* Hazard symbols */}
                       {chemical.warningPictograms && (() => {
                         try {
                           const pictograms = JSON.parse(chemical.warningPictograms);
@@ -118,7 +118,7 @@ export function StoffkartotekClient({ chemicals }: StoffkartotekClientProps) {
                                 <div key={idx} className="h-8 w-8 relative">
                                   <Image
                                     src={`/faremerker/${pic}`}
-                                    alt="Farepiktogram"
+                                    alt="Hazard pictogram"
                                     fill
                                     className="object-contain"
                                   />
@@ -136,10 +136,10 @@ export function StoffkartotekClient({ chemicals }: StoffkartotekClientProps) {
                         }
                       })()}
 
-                      {/* Notater (synlig for ansatte i listen) */}
+                      {/* Notes (visible for employees in the list) */}
                       {chemical.notes && (
                         <div className="mb-2 p-2 bg-muted/50 rounded text-xs">
-                          <span className="font-medium text-muted-foreground">Notater: </span>
+                          <span className="font-medium text-muted-foreground">Notes: </span>
                           <span className="line-clamp-2">{chemical.notes}</span>
                         </div>
                       )}
@@ -150,7 +150,7 @@ export function StoffkartotekClient({ chemicals }: StoffkartotekClientProps) {
                           const ppe = JSON.parse(chemical.requiredPPE);
                           return Array.isArray(ppe) && ppe.length > 0 ? (
                             <div className="flex items-center gap-1 text-xs">
-                              <span className="text-muted-foreground">Verneutstyr:</span>
+                              <span className="text-muted-foreground">PPE required:</span>
                               <div className="flex gap-1">
                                 {ppe.slice(0, 3).map((ppeItem: string, idx: number) => {
                                   const normalizedFile = normalizePpeFile(ppeItem);
@@ -176,7 +176,7 @@ export function StoffkartotekClient({ chemicals }: StoffkartotekClientProps) {
                       })()}
                     </div>
 
-                    {/* SDS nedlasting */}
+                    {/* SDS download */}
                     {chemical.sdsKey && (
                       <div className="flex flex-col gap-2">
                         <div className="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center">

@@ -18,47 +18,47 @@ export const emailSchema = z
 // Password validation (strict)
 export const passwordSchema = z
   .string()
-  .min(12, "Passordet må være minst 12 tegn")
-  .max(128, "Passordet er for langt")
-  .regex(/[A-Z]/, "Passordet må inneholde minst én stor bokstav")
-  .regex(/[a-z]/, "Passordet må inneholde minst én liten bokstav")
-  .regex(/[0-9]/, "Passordet må inneholde minst ett tall")
-  .regex(/[^A-Za-z0-9]/, "Passordet må inneholde minst ett spesialtegn (!@#$%^&* etc.)");
+  .min(12, "Password must be at least 12 characters")
+  .max(128, "Password is too long")
+  .regex(/[A-Z]/, "Password must contain at least one uppercase letter")
+  .regex(/[a-z]/, "Password must contain at least one lowercase letter")
+  .regex(/[0-9]/, "Password must contain at least one number")
+  .regex(/[^A-Za-z0-9]/, "Password must contain at least one special character (!@#$%^&* etc.)");
 
 // Password validation (legacy - for existing users)
 export const passwordSchemaLegacy = z
   .string()
-  .min(8, "Passordet må være minst 8 tegn")
-  .max(128, "Passordet er for langt");
+  .min(8, "Password must be at least 8 characters")
+  .max(128, "Password is too long");
 
 // Name validation
 export const nameSchema = z
   .string()
-  .min(1, "Navn er påkrevd")
-  .max(100, "Navnet er for langt")
+  .min(1, "Name is required")
+  .max(100, "Name is too long")
   .trim()
-  .regex(/^[a-zA-ZæøåÆØÅ\s\-']+$/, "Navnet kan bare inneholde bokstaver, mellomrom, bindestrek og apostrof");
+  .regex(/^[a-zA-ZæøåÆØÅ\s\-']+$/, "Name can only contain letters, spaces, hyphens, and apostrophes");
 
 // Organization number (Norwegian)
 export const orgNumberSchema = z
   .string()
-  .regex(/^\d{9}$/, "Organisasjonsnummer må være 9 siffer")
+  .regex(/^\d{9}$/, "Organization number must be 9 digits")
   .optional()
   .or(z.literal(""));
 
 // Phone number (Norwegian)
 export const phoneSchema = z
   .string()
-  .regex(/^(\+47)?[2-9]\d{7}$/, "Ugyldig norsk telefonnummer")
+  .regex(/^(\+\d{1,3})?[\s.-]?\(?\d{3}\)?[\s.-]?\d{3}[\s.-]?\d{4}$/, "Invalid phone number")
   .optional()
   .or(z.literal(""));
 
 // Token validation
 export const tokenSchema = z
   .string()
-  .min(32, "Ugyldig token")
-  .max(256, "Ugyldig token")
-  .regex(/^[a-f0-9]+$/, "Ugyldig token format");
+  .min(32, "Invalid token")
+  .max(256, "Invalid token")
+  .regex(/^[a-f0-9]+$/, "Invalid token format");
 
 /**
  * Login Schema
@@ -105,7 +105,7 @@ export const changePasswordSchema = z.object({
   newPassword: passwordSchema, // Use strict for new passwords
   confirmPassword: z.string(),
 }).refine((data) => data.newPassword === data.confirmPassword, {
-  message: "Passordene matcher ikke",
+  message: "Passwords do not match",
   path: ["confirmPassword"],
 });
 
@@ -126,7 +126,7 @@ export const registerUserSchema = z.object({
   email: emailSchema,
   password: passwordSchema,
   phone: phoneSchema.optional(),
-  companyName: z.string().min(1, "Bedriftsnavn er påkrevd").max(200).trim().optional(),
+  companyName: z.string().min(1, "Company name is required").max(200).trim().optional(),
   orgNumber: orgNumberSchema.optional(),
 });
 

@@ -24,7 +24,7 @@ import {
 import { Card, CardContent } from "@/components/ui/card";
 import { createMeasurement } from "@/server/actions/goal.actions";
 import { useToast } from "@/hooks/use-toast";
-import { Plus, TrendingUp } from "lucide-react";
+import { TrendingUp } from "lucide-react";
 
 interface MeasurementFormProps {
   goalId: string;
@@ -64,8 +64,8 @@ export function MeasurementForm({
 
     if (result.success) {
       toast({
-        title: "✅ Måling registrert",
-        description: "KPI-verdien er oppdatert",
+        title: "✅ Measurement recorded",
+        description: "KPI value has been updated",
         className: "bg-green-50 border-green-200",
       });
       setOpen(false);
@@ -73,8 +73,8 @@ export function MeasurementForm({
     } else {
       toast({
         variant: "destructive",
-        title: "Feil",
-        description: result.error || "Kunne ikke registrere måling",
+        title: "Error",
+        description: result.error || "Could not record measurement",
       });
     }
 
@@ -87,15 +87,15 @@ export function MeasurementForm({
         {trigger || (
           <Button>
             <TrendingUp className="mr-2 h-4 w-4" />
-            Registrer måling
+            Record Measurement
           </Button>
         )}
       </DialogTrigger>
       <DialogContent className="max-w-2xl">
         <DialogHeader>
-          <DialogTitle>Registrer KPI-måling</DialogTitle>
+          <DialogTitle>Record KPI Measurement</DialogTitle>
           <DialogDescription>
-            ISO 9001 - 9.1: Overvåk og mål fremgang mot målet
+            ISO 9001 - 9.1: Monitor and measure progress towards the goal
           </DialogDescription>
         </DialogHeader>
 
@@ -103,11 +103,11 @@ export function MeasurementForm({
           <Card className="bg-blue-50 border-blue-200">
             <CardContent className="pt-4">
               <p className="text-sm font-medium text-blue-900 mb-1">
-                📊 Mål: {goalTitle}
+                📊 Goal: {goalTitle}
               </p>
               {unit && (
                 <p className="text-sm text-blue-800">
-                  Enhet: {unit}
+                  Unit: {unit}
                 </p>
               )}
             </CardContent>
@@ -115,23 +115,23 @@ export function MeasurementForm({
 
           <div className="grid gap-4 md:grid-cols-2">
             <div className="space-y-2">
-              <Label htmlFor="value">Målt verdi *</Label>
+              <Label htmlFor="value">Measured Value *</Label>
               <Input
                 id="value"
                 name="value"
                 type="number"
                 step="0.01"
-                placeholder="F.eks. 25.5"
+                placeholder="e.g. 25.5"
                 required
                 disabled={loading}
               />
               <p className="text-sm text-muted-foreground">
-                Verdien som ble målt
+                The value that was measured
               </p>
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="measurementDate">Målingstidspunkt *</Label>
+              <Label htmlFor="measurementDate">Measurement Date *</Label>
               <Input
                 id="measurementDate"
                 name="measurementDate"
@@ -144,26 +144,26 @@ export function MeasurementForm({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="measurementType">Type måling *</Label>
+            <Label htmlFor="measurementType">Measurement Type *</Label>
             <Select name="measurementType" required disabled={loading} defaultValue="MANUAL">
               <SelectTrigger>
-                <SelectValue placeholder="Velg type" />
+                <SelectValue placeholder="Select type" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="MANUAL">Manuell</SelectItem>
-                <SelectItem value="AUTOMATIC">Automatisk</SelectItem>
-                <SelectItem value="CALCULATED">Beregnet</SelectItem>
+                <SelectItem value="MANUAL">Manual</SelectItem>
+                <SelectItem value="AUTOMATIC">Automatic</SelectItem>
+                <SelectItem value="CALCULATED">Calculated</SelectItem>
               </SelectContent>
             </Select>
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="comment">Kommentar (valgfritt)</Label>
+            <Label htmlFor="comment">Comment (optional)</Label>
             <Textarea
               id="comment"
               name="comment"
               rows={3}
-              placeholder="Tilleggskommentarer til målingen..."
+              placeholder="Additional comments about the measurement..."
               disabled={loading}
             />
           </div>
@@ -174,9 +174,9 @@ export function MeasurementForm({
                 💡 Tips:
               </p>
               <ul className="text-sm text-amber-800 space-y-1 list-disc list-inside">
-                <li>Registrer målinger regelmessig for å følge fremgang</li>
-                <li>Statusen oppdateres automatisk basert på fremgang</li>
-                <li>Legg til kommentar hvis verdien er uventet</li>
+                <li>Record measurements regularly to track progress</li>
+                <li>Status is automatically updated based on progress</li>
+                <li>Add a comment if the value is unexpected</li>
               </ul>
             </CardContent>
           </Card>
@@ -188,10 +188,10 @@ export function MeasurementForm({
               onClick={() => setOpen(false)}
               disabled={loading}
             >
-              Avbryt
+              Cancel
             </Button>
             <Button type="submit" disabled={loading}>
-              {loading ? "Registrerer..." : "Registrer måling"}
+              {loading ? "Recording..." : "Record Measurement"}
             </Button>
           </div>
         </form>
@@ -199,4 +199,3 @@ export function MeasurementForm({
     </Dialog>
   );
 }
-

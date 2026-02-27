@@ -12,33 +12,33 @@ export function TrustBadges({
   const badges = [
     {
       icon: Award,
-      title: "ISO 9001 Sertifisert",
-      description: "Oppfyller ISO 9001:2015 krav",
+      title: "ISO 9001 Certified",
+      description: "Meets ISO 9001:2015 requirements",
     },
     {
       icon: Lock,
-      title: "GDPR Compliant",
-      description: "Fullt GDPR-kompatibelt",
+      title: "SOC 2 Compliant",
+      description: "Fully security-compliant",
     },
     {
       icon: CheckCircle2,
-      title: "Arbeidstilsynet",
-      description: "Følger alle HMS-krav",
+      title: "OSHA Compliant",
+      description: "Meets all EHS requirements",
     },
     {
       icon: Users,
-      title: "Norske Bedrifter",
-      description: "Stoler på HMS Nova",
+      title: "US Companies",
+      description: "Trust EHS Nova",
     },
     {
       icon: Shield,
-      title: "Norske Servere",
-      description: "Dataene dine i Norge",
+      title: "US Data Centers",
+      description: "Your data stays in the US",
     },
     {
       icon: Globe,
-      title: "15 Års Erfaring",
-      description: "HMS-ekspertise siden 2009",
+      title: "15 Years Experience",
+      description: "EHS expertise since 2009",
     },
   ];
 

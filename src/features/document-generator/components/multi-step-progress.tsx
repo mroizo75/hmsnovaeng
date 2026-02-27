@@ -13,7 +13,7 @@ const STEPS: Step[] = [
   { id: 1, name: "Bedrift", description: "Bedriftsinformasjon" },
   { id: 2, name: "Bransje", description: "Velg bransje" },
   { id: 3, name: "HMS-roller", description: "Organisering" },
-  { id: 4, name: "Opplæring", description: "Kompetanse" },
+  { id: 4, name: "Training", description: "Competence" },
   { id: 5, name: "Bekreft", description: "Generer" },
 ];
 

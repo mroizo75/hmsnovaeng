@@ -2,157 +2,168 @@
 
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { Download, Menu, X } from "lucide-react";
-import { useState } from "react";
+import { Menu, X, ChevronDown } from "lucide-react";
+import { useState, useRef, useEffect } from "react";
 import Image from "next/image";
 import { RegisterDialog } from "@/components/register-dialog";
 
+const resourceLinks = [
+  { href: "/ehs-handbook", label: "Free EHS Handbook" },
+  { href: "/risk-assessment-template", label: "Risk Assessment Template" },
+  { href: "/osha-300-log-guide", label: "OSHA 300 Log Guide" },
+  { href: "/iso-45001-checklist", label: "ISO 45001 Checklist" },
+  { href: "/ehs-blog", label: "EHS Blog" },
+];
+
 export function PublicNav() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [resourcesOpen, setResourcesOpen] = useState(false);
+  const resourcesRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (resourcesRef.current && !resourcesRef.current.contains(e.target as Node)) {
+        setResourcesOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   return (
-    <nav className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b">
+    <nav className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b shadow-sm">
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
-          {/* Logo */}
           <Link href="/" className="flex items-center space-x-2">
-              <Image src="/logo-nova.png" alt="HMS Nova" width={155} height={150} />
+            <Image src="/logo-eng.png" alt="HMS Nova EHS" width={155} height={150} />
           </Link>
 
-          {/* Desktop Menu */}
-          <div className="hidden md:flex items-center space-x-8">
-            <Link 
-              href="/#funksjoner" 
+          <div className="hidden md:flex items-center space-x-6">
+            <Link
+              href="/features"
               className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
             >
-              Funksjoner
+              Features
             </Link>
-            <Link 
-              href="/priser" 
+            <Link
+              href="/compliance"
               className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
             >
-              Priser
+              Compliance
             </Link>
-            <Link 
-              href="/bedriftshelsetjeneste" 
+            <Link
+              href="/pricing"
               className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
             >
-              BHT
+              Pricing
             </Link>
-            <Link 
-              href="/hms-kurs" 
+            <Link
+              href="/about"
               className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
             >
-              Kurs
+              About
             </Link>
-            <Link 
-              href="/hva-er-hms-nova" 
-              className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
-            >
-              Om HMS Nova
-            </Link>
-            <Link 
-              href="/blogg" 
-              className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
-            >
-              HMS-blogg
-            </Link>
-            <Link 
-              href="/registrer-bedrift" 
-              className="text-sm font-medium text-primary hover:text-primary/80 transition-colors flex items-center gap-1"
-            >
-              <Download className="h-4 w-4" />
-              Prøv gratis
-            </Link>
+
+            <div className="relative" ref={resourcesRef}>
+              <button
+                className="flex items-center gap-1 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+                onClick={() => setResourcesOpen((prev) => !prev)}
+                aria-haspopup="true"
+                aria-expanded={resourcesOpen}
+              >
+                Resources
+                <ChevronDown className={`h-4 w-4 transition-transform ${resourcesOpen ? "rotate-180" : ""}`} />
+              </button>
+              {resourcesOpen && (
+                <div className="absolute top-full left-0 mt-0 w-52 bg-white border rounded-lg shadow-lg py-2 z-50">
+                  {resourceLinks.map((link) => (
+                    <Link
+                      key={link.href}
+                      href={link.href}
+                      className="block px-4 py-2 text-sm text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors"
+                      onClick={() => setResourcesOpen(false)}
+                    >
+                      {link.label}
+                    </Link>
+                  ))}
+                </div>
+              )}
+            </div>
+
             <Link href="/login">
               <Button variant="ghost" size="sm">
-                Logg inn
+                Log In
               </Button>
             </Link>
             <RegisterDialog>
-              <Button size="sm" className="bg-primary hover:bg-primary/90">
-                Kom i gang
+              <Button size="sm" className="bg-primary hover:bg-primary/90 text-white">
+                Start Free Trial
               </Button>
             </RegisterDialog>
           </div>
 
-          {/* Mobile Menu Button */}
           <button
             className="md:hidden"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            aria-label={mobileMenuOpen ? "Lukk meny" : "Åpne meny"}
+            aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
             aria-expanded={mobileMenuOpen}
           >
-            {mobileMenuOpen ? (
-              <X className="h-6 w-6" />
-            ) : (
-              <Menu className="h-6 w-6" />
-            )}
+            {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
           </button>
         </div>
 
-        {/* Mobile Menu */}
         {mobileMenuOpen && (
           <div className="md:hidden py-4 space-y-3 border-t">
-            <Link 
-              href="/#funksjoner" 
+            <Link
+              href="/features"
               className="block py-2 text-sm font-medium text-muted-foreground hover:text-foreground"
               onClick={() => setMobileMenuOpen(false)}
             >
-              Funksjoner
+              Features
             </Link>
-            <Link 
-              href="/priser" 
+            <Link
+              href="/compliance"
               className="block py-2 text-sm font-medium text-muted-foreground hover:text-foreground"
               onClick={() => setMobileMenuOpen(false)}
             >
-              Priser
+              Compliance
             </Link>
-            <Link 
-              href="/bedriftshelsetjeneste" 
+            <Link
+              href="/pricing"
               className="block py-2 text-sm font-medium text-muted-foreground hover:text-foreground"
               onClick={() => setMobileMenuOpen(false)}
             >
-              BHT
+              Pricing
             </Link>
-            <Link 
-              href="/hms-kurs" 
+            <Link
+              href="/about"
               className="block py-2 text-sm font-medium text-muted-foreground hover:text-foreground"
               onClick={() => setMobileMenuOpen(false)}
             >
-              Kurs
+              About
             </Link>
-            <Link 
-              href="/hva-er-hms-nova" 
-              className="block py-2 text-sm font-medium text-muted-foreground hover:text-foreground"
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              Om HMS Nova
-            </Link>
-            <Link 
-              href="/blogg" 
-              className="block py-2 text-sm font-medium text-muted-foreground hover:text-foreground"
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              HMS-blogg
-            </Link>
-            <Link 
-              href="/registrer-bedrift" 
-              className="block py-2 text-sm font-medium text-primary hover:text-primary/80 flex items-center gap-1"
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              <Download className="h-4 w-4" />
-              Prøv gratis
-            </Link>
+            <div className="border-t pt-2">
+              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide px-0 py-1">Resources</p>
+              {resourceLinks.map((link) => (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className="block py-2 text-sm text-muted-foreground hover:text-foreground pl-2"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  {link.label}
+                </Link>
+              ))}
+            </div>
             <div className="pt-3 space-y-2">
               <Link href="/login" className="block" onClick={() => setMobileMenuOpen(false)}>
                 <Button variant="outline" size="sm" className="w-full">
-                  Logg inn
+                  Log In
                 </Button>
               </Link>
               <RegisterDialog onOpenChange={() => setMobileMenuOpen(false)}>
-                <Button size="sm" className="w-full bg-primary hover:bg-primary/90">
-                  Kom i gang
+                <Button size="sm" className="w-full bg-primary hover:bg-primary/90 text-white">
+                  Start Free Trial
                 </Button>
               </RegisterDialog>
             </div>

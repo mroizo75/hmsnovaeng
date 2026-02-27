@@ -42,14 +42,14 @@ export default async function AnsattTimeregistreringPage() {
           className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground"
         >
           <ArrowLeft className="h-4 w-4" />
-          Tilbake
+          Back
         </Link>
         <Card>
           <CardContent className="py-12 text-center">
             <Clock className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-            <h2 className="text-lg font-semibold mb-2">Timeføring er ikke aktivert</h2>
+            <h2 className="text-lg font-semibold mb-2">Time tracking is not enabled</h2>
             <p className="text-sm text-muted-foreground">
-              Kontakt din leder eller administrator for å aktivere timeregistrering for bedriften.
+              Contact your manager or administrator to enable time tracking for the company.
             </p>
           </CardContent>
         </Card>
@@ -74,12 +74,12 @@ export default async function AnsattTimeregistreringPage() {
           className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground"
         >
           <ArrowLeft className="h-4 w-4" />
-          Tilbake
+          Back
         </Link>
         <Card>
           <CardContent className="py-8">
             <p className="text-muted-foreground text-center">
-              Kunne ikke laste oversikt. Prøv igjen senere.
+              Could not load overview. Please try again later.
             </p>
           </CardContent>
         </Card>
@@ -94,13 +94,13 @@ export default async function AnsattTimeregistreringPage() {
         className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground"
       >
         <ArrowLeft className="h-4 w-4" />
-        Tilbake til oversikt
+        Back to overview
       </Link>
 
       <div>
-        <h1 className="text-2xl font-bold">Timeføring</h1>
+        <h1 className="text-2xl font-bold">Time Tracking</h1>
         <p className="text-muted-foreground">
-          Registrer timer og km godtgjørelse per prosjekt
+          Register hours and mileage reimbursement per project
         </p>
       </div>
 
@@ -108,10 +108,10 @@ export default async function AnsattTimeregistreringPage() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Clock className="h-5 w-5" />
-            Registrer timer
+            Register hours
           </CardTitle>
           <CardDescription>
-            Skriv kun timer og reise – ordinær og overtid beregnes automatisk
+            Enter hours and travel only – regular and overtime are calculated automatically
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -128,10 +128,10 @@ export default async function AnsattTimeregistreringPage() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Car className="h-5 w-5" />
-            Km godtgjørelse
+            Mileage reimbursement
           </CardTitle>
           <CardDescription>
-            Kilometer – sats er satt av leder. Kun hvis avtalt med arbeidsgiver.
+            Miles – rate is set by manager. Only if agreed with employer.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -147,9 +147,9 @@ export default async function AnsattTimeregistreringPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Mine registreringer</CardTitle>
+          <CardTitle>My registrations</CardTitle>
           <CardDescription>
-            Ordinære timer og overtid for gjeldende måned – oversikt for lønn
+            Regular hours and overtime for the current month – payroll overview
           </CardDescription>
         </CardHeader>
         <CardContent>

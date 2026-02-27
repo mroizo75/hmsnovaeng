@@ -57,7 +57,7 @@ export default function LoginPage() {
         router.refresh();
       }
     } catch (error) {
-      setError("Noe gikk galt. Prøv igjen.");
+      setError("Something went wrong. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -67,10 +67,10 @@ export default function LoginPage() {
     <div className="flex min-h-screen items-center justify-center bg-secondary p-4">
       <Card className="w-full max-w-md">
         <CardHeader className="space-y-1">
-          {/* <CardTitle className="text-2xl font-bold">HMS Nova logg inn</CardTitle> */}
-          <Image src="/logo-nova.png" alt="HMS Nova" width={150} height={150} className="mx-auto" />
+          {/* <CardTitle className="text-2xl font-bold">EHS Nova sign in</CardTitle> */}
+          <Image src="/logo-nova.png" alt="EHS Nova" width={150} height={150} className="mx-auto" />
           <CardDescription className="text-center text-xl md:text-lg">
-            Logg inn med din e-post og passord
+            Sign in with your email and password
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -80,7 +80,7 @@ export default function LoginPage() {
               <Input
                 id="email"
                 type="email"
-                placeholder="din@epost.no"
+                placeholder="your@email.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
@@ -100,7 +100,7 @@ export default function LoginPage() {
             </div>
             {verified && (
               <div className="rounded-lg bg-green-100 p-3 text-sm text-green-800">
-                ✓ E-postadressen din er verifisert! Du kan nå logge inn.
+                ✓ Your email address has been verified! You can now sign in.
               </div>
             )}
             {error && (
@@ -119,7 +119,7 @@ export default function LoginPage() {
                   </div>
                   <div className="relative flex justify-center text-xs uppercase">
                     <span className="bg-background px-2 text-muted-foreground">
-                      Eller
+                      Or
                     </span>
                   </div>
                 </div>
@@ -142,7 +142,7 @@ export default function LoginPage() {
                     <path fill="#05a6f0" d="M1 12h10v10H1z" />
                     <path fill="#ffba08" d="M12 12h10v10H12z" />
                   </svg>
-                  Logg inn med Microsoft
+                  Sign in with Microsoft
                 </Button>
               </>
             )}
@@ -152,7 +152,7 @@ export default function LoginPage() {
                 href="/forgot-password"
                 className="text-sm text-muted-foreground hover:text-foreground hover:underline"
               >
-                Glemt passord?
+                Forgot password?
               </Link>
             </div>
           </form>

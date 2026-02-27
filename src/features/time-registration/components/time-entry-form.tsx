@@ -30,7 +30,7 @@ interface TimeEntryFormProps {
   projects: Project[];
   defaultDate?: Date;
   lunchBreakMinutes?: number;
-  /** Fra denne klokken (man–fre) = 100 % overtid. Null = alt 50 % */
+  /** From this hour (Mon–Fri) = 100% overtime. Null = all 50% */
   eveningOvertimeFromHour?: number | null;
 }
 
@@ -55,7 +55,7 @@ export function TimeEntryForm({
     e.preventDefault();
     const h = parseFloat(hours.replace(",", "."));
     if (!projectId || isNaN(h) || h <= 0) {
-      toast({ variant: "destructive", title: "Fyll ut prosjekt og timer" });
+      toast({ variant: "destructive", title: "Please fill in project and hours" });
       return;
     }
     setLoading(true);
@@ -76,8 +76,8 @@ export function TimeEntryForm({
       toast({
         title:
           mode === "work"
-            ? "Timer registrert (ordinær + overtid automatisk fordelt)"
-            : "Reisetid registrert",
+            ? "Hours registered (regular + overtime automatically distributed)"
+            : "Travel time registered",
       });
       router.refresh();
       setDate(format(new Date(), "yyyy-MM-dd"));
@@ -99,18 +99,18 @@ export function TimeEntryForm({
         <TabsList className="grid w-full max-w-xs grid-cols-2">
           <TabsTrigger value="work" className="gap-1.5">
             <Briefcase className="h-4 w-4" />
-            Arbeid
+            Work
           </TabsTrigger>
           <TabsTrigger value="travel" className="gap-1.5">
             <Car className="h-4 w-4" />
-            Reise/kjøring
+            Travel/driving
           </TabsTrigger>
         </TabsList>
       </Tabs>
 
       <div className="flex flex-wrap items-end gap-3">
         <div className="space-y-1">
-          <Label className="text-xs">Dato</Label>
+          <Label className="text-xs">Date</Label>
           <Input
             type="date"
             value={date}
@@ -119,10 +119,10 @@ export function TimeEntryForm({
           />
         </div>
         <div className="space-y-1">
-          <Label className="text-xs">Prosjekt</Label>
+          <Label className="text-xs">Project</Label>
           <Select value={projectId} onValueChange={setProjectId} required>
             <SelectTrigger className="w-48">
-              <SelectValue placeholder="Velg prosjekt" />
+              <SelectValue placeholder="Select project" />
             </SelectTrigger>
             <SelectContent>
               {projects.map((p) => (
@@ -135,10 +135,10 @@ export function TimeEntryForm({
         </div>
         <div className="space-y-1">
           <Label className="text-xs flex items-center gap-1">
-            {mode === "travel" ? "Reisetimer" : "Klokketimer"}
+            {mode === "travel" ? "Travel Hours" : "Clock Hours"}
             {mode === "work" && (
               <span
-                title={`8–16 = 8 t, 8–20 = 12 t. Lunsj (${lunchBreakMinutes} min) trekkes automatisk.`}
+                title={`8–16 = 8h, 8–20 = 12h. Lunch (${lunchBreakMinutes} min) deducted automatically.`}
                 className="cursor-help inline-flex"
               >
                 <HelpCircle className="h-3.5 w-3.5 text-muted-foreground" />
@@ -164,20 +164,20 @@ export function TimeEntryForm({
               htmlFor="workedAfterEvening"
               className="text-xs font-normal cursor-pointer"
             >
-              Arbeid etter kl {eveningOvertimeFromHour} (100 % overtid)
+              Work after {eveningOvertimeFromHour}:00 (100% overtime)
             </Label>
           </div>
         )}
         <div className="space-y-1 flex-1 min-w-[140px]">
-          <Label className="text-xs">Kommentar</Label>
+          <Label className="text-xs">Comment</Label>
           <Input
             value={comment}
             onChange={(e) => setComment(e.target.value)}
-            placeholder="Valgfritt"
+            placeholder="Optional"
           />
         </div>
         <Button type="submit" size="sm" disabled={loading}>
-          {loading ? "..." : "Registrer"}
+          {loading ? "..." : "Register"}
         </Button>
       </div>
     </form>

@@ -32,24 +32,24 @@ export default async function AnnualHmsPlanReportPage({ searchParams }: AnnualHm
   if (!result.success) {
     return (
       <div className="mx-auto max-w-3xl space-y-4 p-6">
-        <h1 className="text-2xl font-bold">Årlig HMS-plan – rapport</h1>
-        <p className="text-sm text-muted-foreground">Kunne ikke hente sjekkliste for valgt år.</p>
+        <h1 className="text-2xl font-bold">Annual H&S Plan – Report</h1>
+        <p className="text-sm text-muted-foreground">Could not retrieve checklist for the selected year.</p>
       </div>
     );
   }
 
   const { steps, completedCount, totalCount } = result.data;
-  const generatedAt = now.toLocaleString("nb-NO");
+  const generatedAt = now.toLocaleString("en-US");
 
   return (
     <div className="mx-auto max-w-4xl space-y-6 p-6 bg-background text-foreground">
       <header className="border-b pb-4 print:border-none">
-        <h1 className="text-3xl font-bold">Årlig HMS-plan – rapport {year}</h1>
+        <h1 className="text-3xl font-bold">Annual H&S Plan – Report {year}</h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          Oversikt over alle steg i den årlige HMS-planen for valgt år, med status og dato for gjennomføring.
+          Overview of all steps in the annual H&S plan for the selected year, with status and completion date.
         </p>
         <p className="mt-2 text-xs text-muted-foreground">
-          Generert: {generatedAt}
+          Generated: {generatedAt}
         </p>
         <p className="mt-1 text-xs text-muted-foreground">
           Tenant: {session.user.tenantName ?? ""}
@@ -58,8 +58,8 @@ export default async function AnnualHmsPlanReportPage({ searchParams }: AnnualHm
 
       <section className="space-y-2">
         <p className="text-sm">
-          Fullført: <span className="font-semibold">{completedCount}</span> av{" "}
-          <span className="font-semibold">{totalCount}</span> steg.
+          Completed: <span className="font-semibold">{completedCount}</span> of{" "}
+          <span className="font-semibold">{totalCount}</span> steps.
         </p>
       </section>
 
@@ -78,26 +78,26 @@ export default async function AnnualHmsPlanReportPage({ searchParams }: AnnualHm
                 <p
                   className={step.completedAt ? "font-semibold text-green-700 dark:text-green-300" : "font-semibold text-red-700 dark:text-red-300"}
                 >
-                  {step.completedAt ? "Fullført" : "Ikke fullført"}
+                  {step.completedAt ? "Completed" : "Not completed"}
                 </p>
                 {step.completedAt && (
                   <p className="text-xs text-muted-foreground">
-                    Dato: {new Date(step.completedAt).toLocaleDateString("nb-NO")}
+                    Date: {new Date(step.completedAt).toLocaleDateString("en-US")}
                   </p>
                 )}
               </div>
             </div>
             <p className="mt-2 text-sm text-muted-foreground">{step.description}</p>
             {step.legalRef && (
-              <p className="mt-1 text-xs text-muted-foreground">Krav: {step.legalRef}</p>
+              <p className="mt-1 text-xs text-muted-foreground">Requirement: {step.legalRef}</p>
             )}
           </div>
         ))}
       </section>
 
       <p className="mt-4 text-xs text-muted-foreground print:text-[10px]">
-        Denne rapporten dokumenterer gjennomføringen av årlig HMS-plan i henhold til definerte steg i HMS-systemet.
-        Bruk rapporten som vedlegg til ledelsens gjennomgang, styremøter eller eksterne revisjoner.
+        This report documents the completion of the annual H&S plan in accordance with the defined steps in the H&S system.
+        Use this report as an attachment to management reviews, board meetings, or external audits.
       </p>
     </div>
   );

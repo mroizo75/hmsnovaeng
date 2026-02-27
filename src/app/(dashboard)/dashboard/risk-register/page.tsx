@@ -60,7 +60,7 @@ export default async function RiskRegisterPage() {
       <Card>
         <CardHeader>
           <CardTitle>Enterprise risk register</CardTitle>
-          <CardDescription>Helhetlig oversikt over virksomhetens topp-risikoer med koblede kontroller og tiltak</CardDescription>
+          <CardDescription>Comprehensive overview of the organization's top risks with linked controls and actions</CardDescription>
         </CardHeader>
         <CardContent>
           <RiskRegisterTable rows={rows} />

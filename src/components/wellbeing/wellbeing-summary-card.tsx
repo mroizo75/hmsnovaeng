@@ -48,7 +48,7 @@ export function WellbeingSummaryCard({ year, onDataLoaded }: WellbeingSummaryPro
       if (result.success && result.data) {
         setData(result.data);
         
-        // Generer sammendrag-tekst for management review
+        // Generate summary text for management review
         if (onDataLoaded) {
           const summary = generateSummaryText(result.data);
           onDataLoaded(summary);
@@ -57,8 +57,8 @@ export function WellbeingSummaryCard({ year, onDataLoaded }: WellbeingSummaryPro
         setData(null);
       }
     } catch (error) {
-      console.error("Feil ved henting av wellbeing-data:", error);
-      toast.error("Kunne ikke hente psykososiale data");
+      console.error("Error fetching wellbeing data:", error);
+      toast.error("Could not load psychosocial work environment data");
     } finally {
       setLoading(false);
     }
@@ -71,42 +71,42 @@ export function WellbeingSummaryCard({ year, onDataLoaded }: WellbeingSummaryPro
       data.criticalIncidents.press +
       data.criticalIncidents.konflikter;
 
-    let text = `# Psykososialt Arbeidsmiljø ${data.year}\n\n`;
-    text += `**Antall besvarelser:** ${data.totalResponses}\n`;
-    text += `**Samlet score:** ${data.overallScore.toFixed(2)}/5.0\n\n`;
+    let text = `# Psychosocial Work Environment ${data.year}\n\n`;
+    text += `**Total responses:** ${data.totalResponses}\n`;
+    text += `**Overall score:** ${data.overallScore.toFixed(2)}/5.0\n\n`;
 
     if (data.trend) {
       const emoji = data.trend.improving ? "📈" : "📉";
-      text += `**Utvikling:** ${emoji} ${data.trend.change > 0 ? "+" : ""}${data.trend.change.toFixed(2)} fra ${year - 1} (${data.trend.previousYear.toFixed(2)})\n\n`;
+      text += `**Trend:** ${emoji} ${data.trend.change > 0 ? "+" : ""}${data.trend.change.toFixed(2)} from ${year - 1} (${data.trend.previousYear.toFixed(2)})\n\n`;
     }
 
     if (totalCritical > 0) {
-      text += `## ⚠️ Kritiske forhold rapportert: ${totalCritical}\n`;
-      if (data.criticalIncidents.mobbing > 0) text += `- Mobbing: ${data.criticalIncidents.mobbing}\n`;
-      if (data.criticalIncidents.trakassering > 0) text += `- Trakassering: ${data.criticalIncidents.trakassering}\n`;
-      if (data.criticalIncidents.press > 0) text += `- Utilbørlig press: ${data.criticalIncidents.press}\n`;
-      if (data.criticalIncidents.konflikter > 0) text += `- Uhåndterte konflikter: ${data.criticalIncidents.konflikter}\n`;
-      text += `\n**VIKTIG:** Disse forholdene krever umiddelbar oppfølging i henhold til Arbeidsmiljøloven § 4-3.\n\n`;
+      text += `## ⚠️ Critical incidents reported: ${totalCritical}\n`;
+      if (data.criticalIncidents.mobbing > 0) text += `- Bullying: ${data.criticalIncidents.mobbing}\n`;
+      if (data.criticalIncidents.trakassering > 0) text += `- Harassment: ${data.criticalIncidents.trakassering}\n`;
+      if (data.criticalIncidents.press > 0) text += `- Undue pressure: ${data.criticalIncidents.press}\n`;
+      if (data.criticalIncidents.konflikter > 0) text += `- Unresolved conflicts: ${data.criticalIncidents.konflikter}\n`;
+      text += `\n**IMPORTANT:** These issues require immediate follow-up in accordance with OSHA 29 CFR 1904.\n\n`;
     }
 
     if (data.topConcerns.length > 0) {
-      text += `## Hovedutfordringer\n`;
+      text += `## Main Concerns\n`;
       data.topConcerns.forEach((concern) => {
         text += `- ${concern}\n`;
       });
       text += `\n`;
     }
 
-    text += `## Tiltak\n`;
-    text += `- Risikovurderinger opprettet: ${data.generatedRisks}\n`;
-    text += `- Tiltak gjennomført: ${data.implementedMeasures}\n\n`;
+    text += `## Actions\n`;
+    text += `- Risk assessments created: ${data.generatedRisks}\n`;
+    text += `- Actions implemented: ${data.implementedMeasures}\n\n`;
 
     if (data.overallScore >= 3.5) {
-      text += `**Vurdering:** Det psykososiale arbeidsmiljøet vurderes som tilfredsstillende. Fortsett det gode arbeidet.\n`;
+      text += `**Assessment:** The psychosocial work environment is assessed as satisfactory. Keep up the good work.\n`;
     } else if (data.overallScore >= 2.5) {
-      text += `**Vurdering:** Det psykososiale arbeidsmiljøet har forbedringsområder som må følges opp.\n`;
+      text += `**Assessment:** The psychosocial work environment has areas for improvement that must be followed up.\n`;
     } else {
-      text += `**Vurdering:** ⚠️ Det psykososiale arbeidsmiljøet krever umiddelbar oppfølging og tiltak.\n`;
+      text += `**Assessment:** ⚠️ The psychosocial work environment requires immediate follow-up and action.\n`;
     }
 
     return text;
@@ -137,9 +137,9 @@ export function WellbeingSummaryCard({ year, onDataLoaded }: WellbeingSummaryPro
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Heart className="h-5 w-5" />
-            Psykososialt Arbeidsmiljø
+            Psychosocial Work Environment
           </CardTitle>
-          <CardDescription>Oppsummering for {year}</CardDescription>
+          <CardDescription>Summary for {year}</CardDescription>
         </CardHeader>
         <CardContent className="flex items-center justify-center py-8">
           <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
@@ -154,15 +154,15 @@ export function WellbeingSummaryCard({ year, onDataLoaded }: WellbeingSummaryPro
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Heart className="h-5 w-5" />
-            Psykososialt Arbeidsmiljø
+            Psychosocial Work Environment
           </CardTitle>
-          <CardDescription>Oppsummering for {year}</CardDescription>
+          <CardDescription>Summary for {year}</CardDescription>
         </CardHeader>
         <CardContent className="py-8">
           <div className="text-center text-muted-foreground">
             <Heart className="h-12 w-12 text-gray-300 mx-auto mb-3" />
-            <p>Ingen psykososiale kartlegginger for {year}</p>
-            <p className="text-sm mt-1">Gjennomfør kartlegginger for å vise data her</p>
+            <p>No psychosocial assessments for {year}</p>
+            <p className="text-sm mt-1">Complete assessments to show data here</p>
           </div>
         </CardContent>
       </Card>
@@ -176,9 +176,9 @@ export function WellbeingSummaryCard({ year, onDataLoaded }: WellbeingSummaryPro
           <div>
             <CardTitle className="flex items-center gap-2">
               <Heart className="h-5 w-5" />
-              Psykososialt Arbeidsmiljø
+              Psychosocial Work Environment
             </CardTitle>
-            <CardDescription>Oppsummering for {year}</CardDescription>
+            <CardDescription>Summary for {year}</CardDescription>
           </div>
           <Button variant="ghost" size="sm" onClick={fetchData}>
             <RefreshCw className="h-4 w-4" />
@@ -186,20 +186,20 @@ export function WellbeingSummaryCard({ year, onDataLoaded }: WellbeingSummaryPro
         </div>
       </CardHeader>
       <CardContent className="space-y-4">
-        {/* Hovedstatistikk */}
+        {/* Main statistics */}
         <div className="grid md:grid-cols-3 gap-3">
           <div className="p-3 rounded-lg bg-muted/50">
-            <div className="text-sm text-muted-foreground">Besvarelser</div>
+            <div className="text-sm text-muted-foreground">Responses</div>
             <div className="text-2xl font-bold">{data.totalResponses}</div>
           </div>
           <div className="p-3 rounded-lg bg-muted/50">
-            <div className="text-sm text-muted-foreground">Samlet score</div>
+            <div className="text-sm text-muted-foreground">Overall score</div>
             <div className={`text-2xl font-bold ${getScoreColor(data.overallScore)}`}>
               {data.overallScore.toFixed(2)} {getScoreEmoji(data.overallScore)}
             </div>
           </div>
           <div className={`p-3 rounded-lg ${totalCritical > 0 ? "bg-red-50" : "bg-muted/50"}`}>
-            <div className="text-sm text-muted-foreground">Kritiske forhold</div>
+            <div className="text-sm text-muted-foreground">Critical incidents</div>
             <div className={`text-2xl font-bold ${totalCritical > 0 ? "text-red-600" : ""}`}>
               {totalCritical}
             </div>
@@ -215,32 +215,32 @@ export function WellbeingSummaryCard({ year, onDataLoaded }: WellbeingSummaryPro
               <TrendingDown className="h-5 w-5 text-red-600" />
             )}
             <span className="text-sm">
-              <strong>Utvikling:</strong> {data.trend.change > 0 ? "+" : ""}
-              {data.trend.change.toFixed(2)} fra {year - 1}
+              <strong>Trend:</strong> {data.trend.change > 0 ? "+" : ""}
+              {data.trend.change.toFixed(2)} from {year - 1}
             </span>
           </div>
         )}
 
-        {/* Kritiske hendelser */}
+        {/* Critical incidents */}
         {totalCritical > 0 && (
           <div className="p-3 rounded-lg border border-red-200 bg-red-50">
             <div className="flex items-center gap-2 mb-2">
               <AlertTriangle className="h-5 w-5 text-red-600" />
-              <span className="font-medium text-red-900">Kritiske forhold rapportert</span>
+              <span className="font-medium text-red-900">Critical incidents reported</span>
             </div>
             <div className="space-y-1 text-sm text-red-800">
-              {data.criticalIncidents.mobbing > 0 && <div>• Mobbing: {data.criticalIncidents.mobbing}</div>}
-              {data.criticalIncidents.trakassering > 0 && <div>• Trakassering: {data.criticalIncidents.trakassering}</div>}
-              {data.criticalIncidents.press > 0 && <div>• Utilbørlig press: {data.criticalIncidents.press}</div>}
-              {data.criticalIncidents.konflikter > 0 && <div>• Uhåndterte konflikter: {data.criticalIncidents.konflikter}</div>}
+              {data.criticalIncidents.mobbing > 0 && <div>• Bullying: {data.criticalIncidents.mobbing}</div>}
+              {data.criticalIncidents.trakassering > 0 && <div>• Harassment: {data.criticalIncidents.trakassering}</div>}
+              {data.criticalIncidents.press > 0 && <div>• Undue pressure: {data.criticalIncidents.press}</div>}
+              {data.criticalIncidents.konflikter > 0 && <div>• Unresolved conflicts: {data.criticalIncidents.konflikter}</div>}
             </div>
           </div>
         )}
 
-        {/* Hovedutfordringer */}
+        {/* Main concerns */}
         {data.topConcerns.length > 0 && (
           <div className="p-3 rounded-lg bg-yellow-50 border border-yellow-200">
-            <div className="font-medium text-yellow-900 mb-1">Hovedutfordringer</div>
+            <div className="font-medium text-yellow-900 mb-1">Main concerns</div>
             <ul className="text-sm text-yellow-800 space-y-1">
               {data.topConcerns.slice(0, 3).map((concern, idx) => (
                 <li key={idx}>• {concern}</li>
@@ -249,15 +249,15 @@ export function WellbeingSummaryCard({ year, onDataLoaded }: WellbeingSummaryPro
           </div>
         )}
 
-        {/* Tiltak */}
+        {/* Actions */}
         <div className="grid grid-cols-2 gap-3 text-sm">
           <div className="p-2 rounded bg-blue-50 text-center">
             <div className="font-bold text-lg text-blue-600">{data.generatedRisks}</div>
-            <div className="text-blue-700">Risikoer identifisert</div>
+            <div className="text-blue-700">Risks identified</div>
           </div>
           <div className="p-2 rounded bg-green-50 text-center">
             <div className="font-bold text-lg text-green-600">{data.implementedMeasures}</div>
-            <div className="text-green-700">Tiltak gjennomført</div>
+            <div className="text-green-700">Actions implemented</div>
           </div>
         </div>
       </CardContent>

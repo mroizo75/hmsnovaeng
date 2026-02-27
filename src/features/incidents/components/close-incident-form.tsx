@@ -39,23 +39,23 @@ export function CloseIncidentForm({ incidentId, userId }: CloseIncidentFormProps
 
       if (result.success) {
         toast({
-          title: "✅ Avvik lukket",
-          description: "Avviket er nå fullstendig håndtert og dokumentert",
+          title: "✅ Incident closed",
+          description: "The incident has been fully handled and documented",
           className: "bg-green-50 border-green-200",
         });
         router.refresh();
       } else {
         toast({
           variant: "destructive",
-          title: "Feil",
-          description: result.error || "Kunne ikke lukke avvik",
+          title: "Error",
+          description: result.error || "Could not close incident",
         });
       }
     } catch (error) {
       toast({
         variant: "destructive",
-        title: "Uventet feil",
-        description: "Noe gikk galt",
+        title: "Unexpected error",
+        description: "Something went wrong",
       });
     } finally {
       setLoading(false);
@@ -67,87 +67,87 @@ export function CloseIncidentForm({ incidentId, userId }: CloseIncidentFormProps
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <CheckCircle className="h-5 w-5 text-green-600" />
-          Lukk avvik
+          Close incident
         </CardTitle>
         <CardDescription>
-          ISO 9001: Gjennomgå effektiviteten av korrigerende tiltak
+          ISO 9001: Review the effectiveness of corrective actions
         </CardDescription>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="rounded-lg bg-green-50 border border-green-200 p-4 mb-4">
-            <p className="text-sm font-medium text-green-900 mb-2">✅ Klart for lukking</p>
+            <p className="text-sm font-medium text-green-900 mb-2">✅ Ready for closure</p>
             <ul className="text-sm text-green-800 space-y-1 list-disc list-inside">
-              <li>Årsaksanalyse er fullført</li>
-              <li>Alle korrigerende tiltak er gjennomført</li>
-              <li>Nå må du evaluere om tiltakene var effektive</li>
+              <li>Root cause analysis is complete</li>
+              <li>All corrective actions have been implemented</li>
+              <li>Now evaluate whether the actions were effective</li>
             </ul>
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="effectivenessReview">Effektivitetsvurdering *</Label>
+            <Label htmlFor="effectivenessReview">Effectiveness review *</Label>
             <Textarea
               id="effectivenessReview"
               name="effectivenessReview"
-              placeholder="Har tiltakene eliminert grunnårsaken? Vil lignende hendelser kunne forebygges nå? Beskriv evalueringen."
+              placeholder="Have the actions eliminated the root cause? Can similar incidents be prevented now? Describe the evaluation."
               required
               disabled={loading}
               rows={5}
             />
             <p className="text-xs text-muted-foreground">
-              Vurder om de korrigerende tiltakene har vært effektive
+              Assess whether the corrective actions have been effective
             </p>
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="measureEffectiveness">Effekt av tiltak</Label>
+            <Label htmlFor="measureEffectiveness">Action effectiveness</Label>
             <Select
               name="measureEffectiveness"
               defaultValue="EFFECTIVE"
               disabled={loading}
             >
               <SelectTrigger>
-                <SelectValue placeholder="Velg vurdering" />
+                <SelectValue placeholder="Select assessment" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="EFFECTIVE">Tiltakene var effektive</SelectItem>
-                <SelectItem value="PARTIALLY_EFFECTIVE">Delvis effektive</SelectItem>
-                <SelectItem value="INEFFECTIVE">Ikke effektive</SelectItem>
-                <SelectItem value="NOT_EVALUATED">Ikke evaluert</SelectItem>
+                <SelectItem value="EFFECTIVE">Actions were effective</SelectItem>
+                <SelectItem value="PARTIALLY_EFFECTIVE">Partially effective</SelectItem>
+                <SelectItem value="INEFFECTIVE">Not effective</SelectItem>
+                <SelectItem value="NOT_EVALUATED">Not evaluated</SelectItem>
               </SelectContent>
             </Select>
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="lessonsLearned">Læringspunkter</Label>
+            <Label htmlFor="lessonsLearned">Lessons learned</Label>
             <Textarea
               id="lessonsLearned"
               name="lessonsLearned"
-              placeholder="Hva har vi lært av denne hendelsen? Hva kan vi forbedre i fremtiden?"
+              placeholder="What have we learned from this incident? What can we improve in the future?"
               disabled={loading}
               rows={4}
             />
             <p className="text-xs text-muted-foreground">
-              Dokumenter læring for fremtidig forbedring
+              Document learnings for future improvement
             </p>
           </div>
 
           <div className="rounded-lg bg-blue-50 border border-blue-200 p-4">
             <p className="text-sm font-medium text-blue-900 mb-2">📋 ISO 9001 Compliance</p>
             <p className="text-sm text-blue-800">
-              Ved å lukke avviket bekrefter du at:
+              By closing the incident you confirm that:
             </p>
             <ul className="text-sm text-blue-800 mt-2 space-y-1 list-disc list-inside ml-2">
-              <li>Grunnårsaken er identifisert og dokumentert</li>
-              <li>Korrigerende tiltak er implementert</li>
-              <li>Effektiviteten av tiltakene er vurdert</li>
-              <li>Dokumentasjonen er komplett og bevares</li>
+              <li>The root cause has been identified and documented</li>
+              <li>Corrective actions have been implemented</li>
+              <li>The effectiveness of the actions has been assessed</li>
+              <li>Documentation is complete and retained</li>
             </ul>
           </div>
 
           <div className="flex justify-end gap-4">
             <Button type="submit" disabled={loading}>
-              {loading ? "Lukker..." : "Lukk avvik"}
+              {loading ? "Closing..." : "Close incident"}
             </Button>
           </div>
         </form>
@@ -155,4 +155,3 @@ export function CloseIncidentForm({ incidentId, userId }: CloseIncidentFormProps
     </Card>
   );
 }
-

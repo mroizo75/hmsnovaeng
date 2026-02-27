@@ -23,7 +23,7 @@ export default async function IncidentsPage() {
   });
 
   if (!user || user.tenants.length === 0) {
-    return <div>Ingen tilgang til tenant</div>;
+    return <div>No tenant access</div>;
   }
 
   const tenantId = user.tenants[0].tenantId;
@@ -56,9 +56,9 @@ export default async function IncidentsPage() {
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div>
-            <h1 className="text-3xl font-bold">Avvik og hendelser</h1>
+            <h1 className="text-3xl font-bold">Incidents and Deviations</h1>
             <p className="text-muted-foreground">
-              ISO 9001: Rapporter og følg opp avvik systematisk
+              ISO 9001: Report and follow up on incidents systematically
             </p>
           </div>
           <PageHelpDialog content={helpContent.incidents} />
@@ -66,7 +66,7 @@ export default async function IncidentsPage() {
         <Button asChild>
           <Link href="/dashboard/incidents/new">
             <Plus className="mr-2 h-4 w-4" />
-            Rapporter avvik
+            Report Incident
           </Link>
         </Button>
       </div>
@@ -74,29 +74,29 @@ export default async function IncidentsPage() {
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Totalt</CardTitle>
+            <CardTitle className="text-sm font-medium">Total</CardTitle>
             <AlertCircle className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{stats.total}</div>
-            <p className="text-xs text-muted-foreground">Registrerte avvik</p>
+            <p className="text-xs text-muted-foreground">Registered incidents</p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Åpne</CardTitle>
+            <CardTitle className="text-sm font-medium">Open</CardTitle>
             <Clock className="h-4 w-4 text-red-600" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-red-600">{stats.open}</div>
-            <p className="text-xs text-muted-foreground">Venter på utredning</p>
+            <p className="text-xs text-muted-foreground">Awaiting investigation</p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Under håndtering</CardTitle>
+            <CardTitle className="text-sm font-medium">Being Handled</CardTitle>
             <FileSearch className="h-4 w-4 text-yellow-600" />
           </CardHeader>
           <CardContent>
@@ -104,26 +104,26 @@ export default async function IncidentsPage() {
               {stats.investigating + stats.actionTaken}
             </div>
             <p className="text-xs text-muted-foreground">
-              {stats.investigating} utredning, {stats.actionTaken} tiltak
+              {stats.investigating} investigating, {stats.actionTaken} action taken
             </p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Lukket</CardTitle>
+            <CardTitle className="text-sm font-medium">Closed</CardTitle>
             <CheckCircle className="h-4 w-4 text-green-600" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-green-600">{stats.closed}</div>
-            <p className="text-xs text-muted-foreground">Avsluttede avvik</p>
+            <p className="text-xs text-muted-foreground">Closed incidents</p>
           </CardContent>
         </Card>
       </div>
 
       <Card>
         <CardHeader>
-          <CardTitle>Alle avvik</CardTitle>
+          <CardTitle>All Incidents</CardTitle>
         </CardHeader>
         <CardContent>
           <IncidentList incidents={incidents} />
@@ -131,24 +131,24 @@ export default async function IncidentsPage() {
       </Card>
 
       <div className="rounded-lg bg-blue-50 border border-blue-200 p-6">
-        <h3 className="font-semibold text-blue-900 mb-3">📋 ISO 9001 - 10.2 Avvik og korrigerende tiltak</h3>
+        <h3 className="font-semibold text-blue-900 mb-3">📋 ISO 9001 - 10.2 Nonconformities and Corrective Actions</h3>
         <div className="grid md:grid-cols-2 gap-4 text-sm text-blue-800">
           <div>
-            <h4 className="font-medium mb-2">Organisasjonen skal:</h4>
+            <h4 className="font-medium mb-2">The organization shall:</h4>
             <ul className="space-y-1 list-disc list-inside">
-              <li>Reagere på avvik (umiddelbare tiltak)</li>
-              <li>Vurdere behov for korrigerende tiltak</li>
-              <li>Implementere nødvendige tiltak</li>
-              <li>Gjennomgå effektiviteten av tiltak</li>
+              <li>React to nonconformities (immediate actions)</li>
+              <li>Assess the need for corrective actions</li>
+              <li>Implement necessary actions</li>
+              <li>Review the effectiveness of actions</li>
             </ul>
           </div>
           <div>
-            <h4 className="font-medium mb-2">Dokumentasjon:</h4>
+            <h4 className="font-medium mb-2">Documentation:</h4>
             <ul className="space-y-1 list-disc list-inside">
-              <li>Natur av avvik og påfølgende tiltak</li>
-              <li>Resultater av korrigerende tiltak</li>
-              <li>Årsaksanalyse (root cause)</li>
-              <li>Læringspunkter for forbedring</li>
+              <li>Nature of nonconformity and subsequent actions</li>
+              <li>Results of corrective actions</li>
+              <li>Root cause analysis</li>
+              <li>Learning points for improvement</li>
             </ul>
           </div>
         </div>

@@ -91,18 +91,18 @@ export default function NewAuditPage() {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.message || "Kunne ikke opprette revisjon");
+        throw new Error(data.message || "Could not create audit");
       }
 
       toast({
-        title: "Revisjon opprettet",
-        description: "Revisjonen er nå opprettet og klar for gjennomføring",
+        title: "Audit created",
+        description: "The audit has been created and is ready for execution",
       });
 
       router.push(`/dashboard/audits/${data.data.audit.id}`);
     } catch (error: any) {
       toast({
-        title: "Feil",
+        title: "Error",
         description: error.message,
         variant: "destructive",
       });
@@ -120,18 +120,18 @@ export default function NewAuditPage() {
           </Button>
         </Link>
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Ny revisjon</h1>
+          <h1 className="text-3xl font-bold tracking-tight">New Audit</h1>
           <p className="text-muted-foreground">
-            Opprett en ny internrevisjon eller ISO-revisjon
+            Create a new internal audit or ISO audit
           </p>
         </div>
       </div>
 
       <Card>
         <CardHeader>
-          <CardTitle>Revisjonsdetaljer</CardTitle>
+          <CardTitle>Audit Details</CardTitle>
           <CardDescription>
-            Fyll ut informasjonen nedenfor i henhold til ISO 9001 krav
+            Fill in the information below in accordance with ISO 9001 requirements
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -139,7 +139,7 @@ export default function NewAuditPage() {
             <div className="grid gap-6 md:grid-cols-2">
               <div className="space-y-2 md:col-span-2">
                 <Label htmlFor="title">
-                  Tittel <span className="text-destructive">*</span>
+                  Title <span className="text-destructive">*</span>
                 </Label>
                 <Input
                   id="title"
@@ -147,14 +147,14 @@ export default function NewAuditPage() {
                   onChange={(e) =>
                     setFormData({ ...formData, title: e.target.value })
                   }
-                  placeholder="F.eks. Q1 2025 Internrevisjon - Produksjon"
+                  placeholder="E.g. Q1 2025 Internal Audit - Production"
                   required
                 />
               </div>
 
               <div className="space-y-2">
                 <Label htmlFor="auditType">
-                  Type revisjon <span className="text-destructive">*</span>
+                  Audit Type <span className="text-destructive">*</span>
                 </Label>
                 <Select
                   value={formData.auditType}
@@ -166,18 +166,18 @@ export default function NewAuditPage() {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="INTERNAL">Internrevisjon</SelectItem>
-                    <SelectItem value="EXTERNAL">Eksternrevisjon</SelectItem>
-                    <SelectItem value="CERTIFICATION">Sertifisering</SelectItem>
-                    <SelectItem value="SUPPLIER">Leverandørrevisjon</SelectItem>
-                    <SelectItem value="FOLLOW_UP">Oppfølging</SelectItem>
+                    <SelectItem value="INTERNAL">Internal Audit</SelectItem>
+                    <SelectItem value="EXTERNAL">External Audit</SelectItem>
+                    <SelectItem value="CERTIFICATION">Certification</SelectItem>
+                    <SelectItem value="SUPPLIER">Supplier Audit</SelectItem>
+                    <SelectItem value="FOLLOW_UP">Follow-up</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
 
               <div className="space-y-2">
                 <Label htmlFor="leadAuditorId">
-                  Hovedrevisor <span className="text-destructive">*</span>
+                  Lead Auditor <span className="text-destructive">*</span>
                 </Label>
                 <Select
                   value={formData.leadAuditorId}
@@ -187,7 +187,7 @@ export default function NewAuditPage() {
                   disabled={loadingUsers}
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder={loadingUsers ? "Laster brukere..." : "Velg revisor"} />
+                    <SelectValue placeholder={loadingUsers ? "Loading users..." : "Select auditor"} />
                   </SelectTrigger>
                   <SelectContent>
                     {users.map((u) => (
@@ -201,7 +201,7 @@ export default function NewAuditPage() {
 
               <div className="space-y-2">
                 <Label htmlFor="scheduledDate">
-                  Planlagt dato <span className="text-destructive">*</span>
+                  Scheduled Date <span className="text-destructive">*</span>
                 </Label>
                 <Input
                   id="scheduledDate"
@@ -216,7 +216,7 @@ export default function NewAuditPage() {
 
               <div className="space-y-2">
                 <Label htmlFor="area">
-                  Område <span className="text-destructive">*</span>
+                  Area <span className="text-destructive">*</span>
                 </Label>
                 <Input
                   id="area"
@@ -224,27 +224,27 @@ export default function NewAuditPage() {
                   onChange={(e) =>
                     setFormData({ ...formData, area: e.target.value })
                   }
-                  placeholder="F.eks. HMS, Kvalitet, Miljø"
+                  placeholder="E.g. H&S, Quality, Environment"
                   required
                 />
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="department">Avdeling</Label>
+                <Label htmlFor="department">Department</Label>
                 <Input
                   id="department"
                   value={formData.department}
                   onChange={(e) =>
                     setFormData({ ...formData, department: e.target.value })
                   }
-                  placeholder="F.eks. Produksjon, Lager"
+                  placeholder="E.g. Production, Warehouse"
                 />
               </div>
             </div>
 
             <div className="space-y-2">
               <Label htmlFor="scope">
-                Omfang (ISO 9001) <span className="text-destructive">*</span>
+                Scope (ISO 9001) <span className="text-destructive">*</span>
               </Label>
               <Textarea
                 id="scope"
@@ -252,18 +252,18 @@ export default function NewAuditPage() {
                 onChange={(e) =>
                   setFormData({ ...formData, scope: e.target.value })
                 }
-                placeholder="Beskriv revisjonens omfang..."
+                placeholder="Describe the audit scope..."
                 rows={3}
                 required
               />
               <p className="text-xs text-muted-foreground">
-                Hva skal revideres? Hvilke prosesser/områder?
+                What will be audited? Which processes/areas?
               </p>
             </div>
 
             <div className="space-y-2">
               <Label htmlFor="criteria">
-                Kriterier (ISO 9001) <span className="text-destructive">*</span>
+                Criteria (ISO 9001) <span className="text-destructive">*</span>
               </Label>
               <Textarea
                 id="criteria"
@@ -271,24 +271,24 @@ export default function NewAuditPage() {
                 onChange={(e) =>
                   setFormData({ ...formData, criteria: e.target.value })
                 }
-                placeholder="F.eks. ISO 9001:2015 krav 7.1-7.5..."
+                placeholder="E.g. ISO 9001:2015 requirements 7.1-7.5..."
                 rows={3}
                 required
               />
               <p className="text-xs text-muted-foreground">
-                Hvilke krav skal vurderes? ISO-klausuler, lover, interne krav?
+                Which requirements will be assessed? ISO clauses, laws, internal requirements?
               </p>
             </div>
 
             <div className="flex justify-end gap-4">
               <Link href="/dashboard/audits">
                 <Button type="button" variant="outline">
-                  Avbryt
+                  Cancel
                 </Button>
               </Link>
               <Button type="submit" disabled={loading}>
                 <Save className="mr-2 h-4 w-4" />
-                {loading ? "Oppretter..." : "Opprett revisjon"}
+                {loading ? "Creating..." : "Create Audit"}
               </Button>
             </div>
           </form>

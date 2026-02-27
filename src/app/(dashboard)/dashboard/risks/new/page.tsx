@@ -20,7 +20,7 @@ export default async function NewRiskAssessmentPage() {
   });
 
   if (!user || user.tenants.length === 0) {
-    return <div>Ingen tilgang til tenant</div>;
+    return <div>No tenant access</div>;
   }
 
   const tenantId = user.tenants[0].tenantId;
@@ -32,12 +32,12 @@ export default async function NewRiskAssessmentPage() {
         <Button variant="ghost" asChild className="mb-4">
           <Link href="/dashboard/risks">
             <ArrowLeft className="mr-2 h-4 w-4" />
-            Tilbake til risikovurdering
+            Back to Risk Assessment
           </Link>
         </Button>
-        <h1 className="text-3xl font-bold">Ny risikovurdering</h1>
+        <h1 className="text-3xl font-bold">New Risk Assessment</h1>
         <p className="text-muted-foreground">
-          Opprett en risikovurdering for et år (f.eks. 2026). Deretter legger du inn risikopunkter nedover i listen – ISO 45001.
+          Create a risk assessment for a year (e.g. 2026). Then add risk items in the list below – ISO 45001.
         </p>
       </div>
 

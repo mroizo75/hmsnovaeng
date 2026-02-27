@@ -13,25 +13,25 @@ export default function AvvikTakk() {
           </div>
 
           <h1 className="text-2xl font-bold mb-3">
-            Takk for rapporten!
+            Thank you for your report!
           </h1>
 
           <p className="text-muted-foreground mb-8">
-            Avviket er registrert og HMS-ansvarlig er varslet.
-            Du vil få beskjed når avviket er behandlet.
+            The incident has been registered and the EHS coordinator has been notified.
+            You will be notified when the incident has been processed.
           </p>
 
           <div className="space-y-3">
             <Link href="/ansatt">
               <Button size="lg" className="w-full">
                 <Home className="mr-2 h-5 w-5" />
-                Tilbake til forsiden
+                Back to home
               </Button>
             </Link>
 
             <Link href="/ansatt/avvik/ny">
               <Button variant="outline" size="lg" className="w-full">
-                Rapporter nytt avvik
+                Report new incident
               </Button>
             </Link>
           </div>
@@ -40,4 +40,3 @@ export default function AvvikTakk() {
     </div>
   );
 }
-

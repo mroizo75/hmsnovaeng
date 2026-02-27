@@ -8,7 +8,7 @@ import { Progress } from "@/components/ui/progress";
 import Link from "next/link";
 import { CheckCircle2, ExternalLink, Loader2 } from "lucide-react";
 import { format } from "date-fns";
-import { nb } from "date-fns/locale";
+import { enUS } from "date-fns/locale";
 import { useToast } from "@/hooks/use-toast";
 import {
   getCategoryLabel,
@@ -96,15 +96,15 @@ export function AnnualPlanChecklist({
           return next;
         });
         toast({
-          title: "Feil",
+          title: "Error",
           description: errorMessage,
           variant: "destructive",
           duration: 5000,
         });
       } else {
         toast({
-          title: newCompleted ? "Steg fullført" : "Avkryssing fjernet",
-          description: newCompleted ? "Steget er markert som fullført." : undefined,
+          title: newCompleted ? "Step completed" : "Check removed",
+          description: newCompleted ? "The step has been marked as completed." : undefined,
           duration: 4000,
         });
       }
@@ -119,13 +119,13 @@ export function AnnualPlanChecklist({
 
   return (
     <div className="space-y-6">
-      {/* Fremdrift */}
+      {/* Progress */}
       <Card>
         <CardHeader className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <CardTitle className="text-lg">Fremdrift for {initialData.year}</CardTitle>
+            <CardTitle className="text-lg">Progress for {initialData.year}</CardTitle>
             <CardDescription>
-              Når alle steg er avkrysset, har dere dokumentert at årets HMS-krav er oppfylt.
+              When all steps are checked, you have documented that this year's EHS requirements are fulfilled.
             </CardDescription>
           </div>
           <div className="flex flex-wrap gap-2">
@@ -135,7 +135,7 @@ export function AnnualPlanChecklist({
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                Åpne rapport for utskrift
+                Open report for printing
                 <ExternalLink className="ml-1 h-3.5 w-3.5" />
               </Link>
             </Button>
@@ -145,7 +145,7 @@ export function AnnualPlanChecklist({
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                Last ned PDF (Adobe)
+                Download PDF (Adobe)
                 <ExternalLink className="ml-1 h-3.5 w-3.5" />
               </Link>
             </Button>
@@ -155,21 +155,21 @@ export function AnnualPlanChecklist({
           <div className="flex items-center justify-between gap-4">
             <Progress value={progressPercent} className="h-3 flex-1" />
             <span className="text-sm font-medium tabular-nums text-muted-foreground shrink-0">
-              {completedCount} av {totalCount} fullført
+              {completedCount} of {totalCount} completed
             </span>
           </div>
           {progressPercent === 100 && (
             <div className="flex items-center gap-2 rounded-lg bg-green-50 dark:bg-green-950/30 p-3 text-green-800 dark:text-green-200">
               <CheckCircle2 className="h-5 w-5 shrink-0" />
               <p className="text-sm font-medium">
-                Alle steg er fullført for {initialData.year}. Dere har dokumentert at årets HMS-plan er gjennomført.
+                All steps are completed for {initialData.year}. You have documented that this year's EHS plan has been carried out.
               </p>
             </div>
           )}
         </CardContent>
       </Card>
 
-      {/* Sjekkliste gruppert etter kategori */}
+      {/* Checklist grouped by category */}
       <div className="space-y-8">
         {getCategoryOrder().map((category) => {
           const steps = byCategory.get(category);
@@ -180,7 +180,7 @@ export function AnnualPlanChecklist({
               <CardHeader>
                 <CardTitle className="text-base">{label}</CardTitle>
                 <CardDescription>
-                  {steps.filter((s) => isStepCompleted(s.key)).length} av {steps.length} fullført i denne gruppen
+                  {steps.filter((s) => isStepCompleted(s.key)).length} of {steps.length} completed in this group
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
@@ -215,18 +215,18 @@ export function AnnualPlanChecklist({
                         </label>
                         <p className="text-sm text-muted-foreground">{step.description}</p>
                         {step.legalRef && (
-                          <p className="text-xs text-muted-foreground">Krav: {step.legalRef}</p>
+                          <p className="text-xs text-muted-foreground">Requirement: {step.legalRef}</p>
                         )}
                         {completed && step.completedAt && (
                           <p className="text-xs text-muted-foreground">
-                            Fullført {format(new Date(step.completedAt), "d. MMM yyyy", { locale: nb })}
+                            Completed {format(new Date(step.completedAt), "MMM d, yyyy", { locale: enUS })}
                           </p>
                         )}
                       </div>
                       {step.href && (
                         <Button asChild variant="ghost" size="sm" className="shrink-0">
                           <Link href={step.href} target="_blank" rel="noopener noreferrer">
-                            Gå til modul
+                            Go to module
                             <ExternalLink className="ml-1 h-3.5 w-3.5" />
                           </Link>
                         </Button>

@@ -11,19 +11,19 @@ interface RiskMatrixProps {
 }
 
 const likelihoodLabels = [
-  { value: 5, label: "Svært sannsynlig", desc: "Skjer ofte (>50%)" },
-  { value: 4, label: "Sannsynlig", desc: "Kan skje (25-50%)" },
-  { value: 3, label: "Mulig", desc: "Kan hende (10-25%)" },
-  { value: 2, label: "Usannsynlig", desc: "Skjer sjelden (1-10%)" },
-  { value: 1, label: "Svært usannsynlig", desc: "Nesten aldri (<1%)" },
+  { value: 5, label: "Very likely", desc: "Happens often (>50%)" },
+  { value: 4, label: "Likely", desc: "Can happen (25-50%)" },
+  { value: 3, label: "Possible", desc: "May happen (10-25%)" },
+  { value: 2, label: "Unlikely", desc: "Rarely happens (1-10%)" },
+  { value: 1, label: "Very unlikely", desc: "Almost never (<1%)" },
 ];
 
 const consequenceLabels = [
-  { value: 1, label: "Ubetydelig", desc: "Ingen skade" },
-  { value: 2, label: "Mindre", desc: "Førstehjelpsskade" },
-  { value: 3, label: "Moderat", desc: "Fraværsskade" },
-  { value: 4, label: "Alvorlig", desc: "Varig skade" },
-  { value: 5, label: "Katastrofal", desc: "Dødsfall" },
+  { value: 1, label: "Insignificant", desc: "No harm" },
+  { value: 2, label: "Minor", desc: "First aid injury" },
+  { value: 3, label: "Moderate", desc: "Lost time injury" },
+  { value: 4, label: "Serious", desc: "Permanent injury" },
+  { value: 5, label: "Catastrophic", desc: "Fatality" },
 ];
 
 export function RiskMatrix({
@@ -39,9 +39,9 @@ export function RiskMatrix({
   return (
     <Card>
       <CardHeader>
-        <CardTitle>5x5 Risikomatrise</CardTitle>
+        <CardTitle>5x5 Risk Matrix</CardTitle>
         <CardDescription>
-          Klikk på en celle for å velge sannsynlighet og konsekvens
+          Click a cell to select likelihood and consequence
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -50,7 +50,7 @@ export function RiskMatrix({
             <thead>
               <tr>
                 <th className="border p-2 bg-muted text-xs font-semibold">
-                  Sannsynlighet<br/>↓<br/>Konsekvens →
+                  Likelihood<br/>↓<br/>Consequence →
                 </th>
                 {consequenceLabels.map((c) => (
                   <th key={c.value} className="border p-2 bg-muted text-xs">
@@ -86,7 +86,7 @@ export function RiskMatrix({
                         <div className="text-white font-bold text-2xl">{score}</div>
                         {riskCount > 0 && (
                           <div className="text-white text-xs mt-1">
-                            {riskCount} risiko{riskCount > 1 ? "er" : ""}
+                            {riskCount} risk{riskCount > 1 ? "s" : ""}
                           </div>
                         )}
                       </td>
@@ -101,23 +101,22 @@ export function RiskMatrix({
         <div className="mt-6 grid grid-cols-2 md:grid-cols-4 gap-3">
           <div className="flex items-center gap-2">
             <div className="w-6 h-6 bg-green-500 rounded"></div>
-            <span className="text-sm">Lav (1-5)</span>
+            <span className="text-sm">Low (1-5)</span>
           </div>
           <div className="flex items-center gap-2">
             <div className="w-6 h-6 bg-yellow-500 rounded"></div>
-            <span className="text-sm">Moderat (6-11)</span>
+            <span className="text-sm">Medium (6-11)</span>
           </div>
           <div className="flex items-center gap-2">
             <div className="w-6 h-6 bg-orange-500 rounded"></div>
-            <span className="text-sm">Høy (12-19)</span>
+            <span className="text-sm">High (12-19)</span>
           </div>
           <div className="flex items-center gap-2">
             <div className="w-6 h-6 bg-red-500 rounded"></div>
-            <span className="text-sm">Kritisk (20-25)</span>
+            <span className="text-sm">Critical (20-25)</span>
           </div>
         </div>
       </CardContent>
     </Card>
   );
 }
-

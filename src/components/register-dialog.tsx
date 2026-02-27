@@ -54,7 +54,7 @@ export function RegisterDialog({ trigger, children, onOpenChange }: RegisterDial
     city: "",
   });
 
-  // Valider org.nr mot Brreg
+  // Validate org number
   async function handleOrgNumberBlur(e: React.FocusEvent<HTMLInputElement>) {
     const orgNumber = e.target.value.trim();
     
@@ -72,7 +72,7 @@ export function RegisterDialog({ trigger, children, onOpenChange }: RegisterDial
       if (result.success && result.data) {
         setOrgValidated(true);
         
-        // Auto-fyll bedriftsinformasjon fra Brreg
+        // Auto-fill company information
         setFormData({
           companyName: result.data.navn,
           orgNumber: result.data.organisasjonsnummer,
@@ -84,12 +84,12 @@ export function RegisterDialog({ trigger, children, onOpenChange }: RegisterDial
         setError(null);
       } else {
         setOrgValidated(false);
-        setError("❌ " + (result.error || "Organisasjonsnummer ikke funnet eller bedriften er ikke aktiv"));
+        setError("❌ " + (result.error || "Business registration number not found or company is inactive"));
       }
     } catch (err) {
       console.error("Org validation error:", err);
       setOrgValidated(false);
-      setError("⚠️ Kunne ikke validere organisasjonsnummer. Prøv igjen.");
+      setError("⚠️ Could not validate business registration number. Please try again.");
     } finally {
       setIsValidatingOrg(false);
     }
@@ -99,7 +99,7 @@ export function RegisterDialog({ trigger, children, onOpenChange }: RegisterDial
     e.preventDefault();
 
     if (!orgValidated) {
-      setError("❌ Du må oppgi et gyldig organisasjonsnummer før du kan registrere");
+      setError("❌ Please provide a valid business registration number before registering");
       return;
     }
 
@@ -124,10 +124,10 @@ export function RegisterDialog({ trigger, children, onOpenChange }: RegisterDial
           city: "",
         });
       } else {
-        setError(result.error || "Noe gikk galt. Prøv igjen.");
+        setError(result.error || "Something went wrong. Please try again.");
       }
     } catch (err) {
-      setError("En uventet feil oppstod. Prøv igjen senere.");
+      setError("An unexpected error occurred. Please try again later.");
     } finally {
       setIsSubmitting(false);
     }
@@ -140,18 +140,18 @@ export function RegisterDialog({ trigger, children, onOpenChange }: RegisterDial
       </DialogTrigger>
       <DialogContent className="w-[95vw] max-w-2xl max-h-[90vh] p-0 overflow-hidden"  aria-describedby="register-description">
         <DialogHeader className="px-3 sm:px-4 md:px-6 pt-3 sm:pt-4 md:pt-6 border-b pb-3 sm:pb-4">
-          <DialogTitle className="text-lg sm:text-xl md:text-2xl">Registrer bedrift</DialogTitle>
+          <DialogTitle className="text-lg sm:text-xl md:text-2xl">Register your company</DialogTitle>
           <DialogDescription id="register-description" className="text-xs sm:text-sm">
-            Fyll ut skjemaet, så setter vi opp din konto innen 24 timer. 14 dagers gratis prøveperiode.
+            Fill out the form and we will set up your account within 24 hours. 14-day free trial.
           </DialogDescription>
         </DialogHeader>
         
         <ScrollArea className="max-h-[calc(90vh-140px)] px-3 sm:px-4 md:px-6 pb-3 sm:pb-4 md:pb-6">
           <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-4 md:space-y-5">
-            {/* Organisasjonsnummer - FØRST for Brreg-validering */}
+            {/* Business registration number */}
             <div className="space-y-2">
               <Label htmlFor="orgNumber" className="text-xs sm:text-sm font-medium">
-                Organisasjonsnummer <span className="text-destructive">*</span>
+                Business Registration Number <span className="text-destructive">*</span>
               </Label>
               <div className="relative">
                 <Code className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
@@ -179,14 +179,14 @@ export function RegisterDialog({ trigger, children, onOpenChange }: RegisterDial
                 )}
               </div>
               <p className="text-[10px] sm:text-xs text-muted-foreground">
-                Vi sjekker at bedriften er registrert i Brønnøysundregistrene
+                We verify that the company is registered in the official business registry
               </p>
             </div>
 
-            {/* Bedriftsnavn - Auto-fylles fra Brreg */}
+            {/* Company name – auto-filled */}
             <div className="space-y-2">
               <Label htmlFor="companyName" className="text-xs sm:text-sm font-medium">
-                Bedriftsnavn <span className="text-destructive">*</span>
+                Company Name <span className="text-destructive">*</span>
               </Label>
               <div className="relative">
                 <Building2 className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
@@ -195,7 +195,7 @@ export function RegisterDialog({ trigger, children, onOpenChange }: RegisterDial
                   name="companyName"
                   type="text"
                   required
-                  placeholder="Bedrift AS"
+                  placeholder="Company Inc."
                   className="pl-10 h-11"
                   value={formData.companyName}
                   onChange={(e) => setFormData({ ...formData, companyName: e.target.value })}
@@ -204,61 +204,61 @@ export function RegisterDialog({ trigger, children, onOpenChange }: RegisterDial
               </div>
               {orgValidated && formData.companyName && (
                 <p className="text-[10px] sm:text-xs text-green-600 dark:text-green-500">
-                  ✓ Hentet fra Brønnøysundregistrene
+                  ✓ Retrieved from business registry
                 </p>
               )}
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-              {/* Antall ansatte */}
+              {/* Number of employees */}
               <div className="space-y-2">
                 <Label htmlFor="employeeCount" className="text-xs sm:text-sm font-medium">
-                  Antall ansatte <span className="text-destructive">*</span>
+                  Number of employees <span className="text-destructive">*</span>
                 </Label>
                 <Select name="employeeCount" required>
                   <SelectTrigger className="h-11">
-                    <SelectValue placeholder="Velg" />
+                    <SelectValue placeholder="Select" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="1-20">1-20 ansatte</SelectItem>
-                    <SelectItem value="21-50">21-50 ansatte</SelectItem>
-                    <SelectItem value="51+">51+ ansatte</SelectItem>
+                    <SelectItem value="1-20">1-20 employees</SelectItem>
+                    <SelectItem value="21-50">21-50 employees</SelectItem>
+                    <SelectItem value="51+">51+ employees</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
 
-              {/* Bransje */}
+              {/* Industry */}
               <div className="space-y-2">
                 <Label htmlFor="industry" className="text-xs sm:text-sm font-medium">
-                  Bransje <span className="text-destructive">*</span>
+                  Industry <span className="text-destructive">*</span>
                 </Label>
                 <Select name="industry" required>
                   <SelectTrigger className="h-11">
-                    <SelectValue placeholder="Velg" />
+                    <SelectValue placeholder="Select" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="Bygg og anlegg">Bygg og anlegg</SelectItem>
-                    <SelectItem value="Helsevesen">Helsevesen</SelectItem>
-                    <SelectItem value="Transport og logistikk">Transport og logistikk</SelectItem>
-                    <SelectItem value="Industri og produksjon">Industri og produksjon</SelectItem>
-                    <SelectItem value="Handel og service">Handel og service</SelectItem>
-                    <SelectItem value="Hotell og restaurant">Hotell og restaurant</SelectItem>
-                    <SelectItem value="Utdanning">Utdanning</SelectItem>
-                    <SelectItem value="Teknologi og IT">Teknologi og IT</SelectItem>
-                    <SelectItem value="Landbruk">Landbruk</SelectItem>
-                    <SelectItem value="Annet">Annet</SelectItem>
+                    <SelectItem value="Construction">Construction</SelectItem>
+                    <SelectItem value="Healthcare">Healthcare</SelectItem>
+                    <SelectItem value="Transportation and Logistics">Transportation and Logistics</SelectItem>
+                    <SelectItem value="Manufacturing">Manufacturing</SelectItem>
+                    <SelectItem value="Retail and Service">Retail and Service</SelectItem>
+                    <SelectItem value="Hospitality">Hospitality</SelectItem>
+                    <SelectItem value="Education">Education</SelectItem>
+                    <SelectItem value="Technology and IT">Technology and IT</SelectItem>
+                    <SelectItem value="Agriculture">Agriculture</SelectItem>
+                    <SelectItem value="Other">Other</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
             </div>
 
             <div className="border-t pt-3 sm:pt-4 md:pt-5">
-              <h3 className="font-semibold mb-3 sm:mb-4 text-xs sm:text-sm">Kontaktperson</h3>
+              <h3 className="font-semibold mb-3 sm:mb-4 text-xs sm:text-sm">Contact Person</h3>
 
-              {/* Kontaktperson navn */}
+              {/* Contact name */}
               <div className="space-y-2 mb-3 sm:mb-4">
                 <Label htmlFor="contactPerson" className="text-xs sm:text-sm font-medium">
-                  Navn <span className="text-destructive">*</span>
+                  Name <span className="text-destructive">*</span>
                 </Label>
                 <div className="relative">
                   <User className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
@@ -267,17 +267,17 @@ export function RegisterDialog({ trigger, children, onOpenChange }: RegisterDial
                     name="contactPerson"
                     type="text"
                     required
-                    placeholder="Ola Nordmann"
+                    placeholder="Jane Smith"
                     className="pl-10 h-11"
                   />
                 </div>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-                {/* E-post */}
+                {/* Email */}
                 <div className="space-y-2">
                   <Label htmlFor="contactEmail" className="text-xs sm:text-sm font-medium">
-                    E-post <span className="text-destructive">*</span>
+                    Email <span className="text-destructive">*</span>
                   </Label>
                   <div className="relative">
                     <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
@@ -286,16 +286,16 @@ export function RegisterDialog({ trigger, children, onOpenChange }: RegisterDial
                       name="contactEmail"
                       type="email"
                       required
-                      placeholder="ola@bedrift.no"
+                      placeholder="jane@company.com"
                       className="pl-10 h-11"
                     />
                   </div>
                 </div>
 
-                {/* Telefon */}
+                {/* Phone */}
                 <div className="space-y-2">
                   <Label htmlFor="contactPhone" className="text-xs sm:text-sm font-medium">
-                    Telefon <span className="text-destructive">*</span>
+                    Phone <span className="text-destructive">*</span>
                   </Label>
                   <div className="relative">
                     <Phone className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
@@ -304,7 +304,7 @@ export function RegisterDialog({ trigger, children, onOpenChange }: RegisterDial
                       name="contactPhone"
                       type="tel"
                       required
-                      placeholder="+47 123 45 678"
+                      placeholder="+1 (555) 123-4567"
                       className="pl-10 h-11"
                     />
                   </div>
@@ -313,9 +313,9 @@ export function RegisterDialog({ trigger, children, onOpenChange }: RegisterDial
             </div>
 
             <div className="border-t pt-3 sm:pt-4 md:pt-5">
-              <h3 className="font-semibold mb-3 sm:mb-4 text-xs sm:text-sm">Fakturaadresse</h3>
+              <h3 className="font-semibold mb-3 sm:mb-4 text-xs sm:text-sm">Billing Address</h3>
 
-              {/* EHF Toggle */}
+              {/* Electronic invoice toggle */}
               <div className="flex items-center space-x-3 mb-4 p-3 sm:p-4 bg-muted/50 rounded-lg">
                 <Checkbox
                   id="useEHF"
@@ -327,18 +327,18 @@ export function RegisterDialog({ trigger, children, onOpenChange }: RegisterDial
                 <input type="hidden" name="useEHF" value={useEHF ? "true" : "false"} />
                 <div className="flex-1">
                   <Label htmlFor="useEHF" className="cursor-pointer font-medium text-sm">
-                    Vi mottar EHF-fakturaer
+                    We receive electronic invoices
                   </Label>
                   <p className="text-xs text-muted-foreground mt-0.5">
-                    Elektronisk faktura (anbefalt)
+                    Electronic invoice (recommended)
                   </p>
                 </div>
               </div>
 
-              {/* Faktura e-post */}
+              {/* Invoice email */}
               <div className="space-y-2 mb-4">
                 <Label htmlFor="invoiceEmail" className="text-sm font-medium">
-                  E-post for faktura {!useEHF && <span className="text-destructive">*</span>}
+                  Billing email {!useEHF && <span className="text-destructive">*</span>}
                 </Label>
                 <div className="relative">
                   <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
@@ -347,18 +347,18 @@ export function RegisterDialog({ trigger, children, onOpenChange }: RegisterDial
                     name="invoiceEmail"
                     type="email"
                     required={!useEHF}
-                    placeholder="regnskap@bedrift.no"
+                    placeholder="billing@company.com"
                     className="pl-10 h-11"
                   />
                 </div>
               </div>
 
-              {/* Postadresse (kun hvis ikke EHF) - Auto-fylles fra Brreg */}
+              {/* Postal address (only if no electronic invoice) */}
               {!useEHF && (
                 <>
                   <div className="space-y-2 mb-4">
                     <Label htmlFor="address" className="text-sm font-medium">
-                      Gateadresse <span className="text-destructive">*</span>
+                      Street address <span className="text-destructive">*</span>
                     </Label>
                     <div className="relative">
                       <MapPin className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
@@ -367,7 +367,7 @@ export function RegisterDialog({ trigger, children, onOpenChange }: RegisterDial
                         name="address"
                         type="text"
                         required={!useEHF}
-                        placeholder="Storgata 1"
+                        placeholder="123 Main St"
                         className="pl-10 h-11"
                         value={formData.address}
                         onChange={(e) => setFormData({ ...formData, address: e.target.value })}
@@ -378,15 +378,15 @@ export function RegisterDialog({ trigger, children, onOpenChange }: RegisterDial
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <Label htmlFor="postalCode" className="text-sm font-medium">
-                        Postnummer <span className="text-destructive">*</span>
+                        ZIP code <span className="text-destructive">*</span>
                       </Label>
                       <Input
                         id="postalCode"
                         name="postalCode"
                         type="text"
                         required={!useEHF}
-                        placeholder="0123"
-                        pattern="[0-9]{4}"
+                        placeholder="12345"
+                        pattern="[0-9]{5}"
                         className="h-11"
                         value={formData.postalCode}
                         onChange={(e) => setFormData({ ...formData, postalCode: e.target.value })}
@@ -395,14 +395,14 @@ export function RegisterDialog({ trigger, children, onOpenChange }: RegisterDial
 
                     <div className="space-y-2">
                       <Label htmlFor="city" className="text-sm font-medium">
-                        Poststed <span className="text-destructive">*</span>
+                        City <span className="text-destructive">*</span>
                       </Label>
                       <Input
                         id="city"
                         name="city"
                         type="text"
                         required={!useEHF}
-                        placeholder="Oslo"
+                        placeholder="New York"
                         className="h-11"
                         value={formData.city}
                         onChange={(e) => setFormData({ ...formData, city: e.target.value })}
@@ -411,22 +411,22 @@ export function RegisterDialog({ trigger, children, onOpenChange }: RegisterDial
                   </div>
                   {orgValidated && formData.address && (
                     <p className="text-xs text-green-600 dark:text-green-500 mt-2">
-                      ✓ Adresse hentet fra Brønnøysundregistrene
+                      ✓ Address retrieved from business registry
                     </p>
                   )}
                 </>
               )}
             </div>
 
-            {/* Melding/Kommentar */}
+            {/* Notes/Comments */}
             <div className="space-y-2 px-1">
               <Label htmlFor="notes" className="text-sm font-medium">
-                Spørsmål eller ønsker? (valgfritt)
+                Questions or requests? (optional)
               </Label>
               <Textarea
                 id="notes"
                 name="notes"
-                placeholder="F.eks. ønsker om demo, spesielle behov, etc."
+                placeholder="E.g. demo request, special needs, etc."
                 rows={3}
                 className="resize-none"
               />
@@ -443,15 +443,15 @@ export function RegisterDialog({ trigger, children, onOpenChange }: RegisterDial
             <div className="grid grid-cols-3 gap-2 sm:gap-3 bg-muted/50 p-3 sm:p-4 rounded-lg mx-1">
               <div className="text-center">
                 <CheckCircle2 className="h-5 w-5 sm:h-6 sm:w-6 text-primary mx-auto mb-1" />
-                <p className="text-xs font-medium">24t aktivering</p>
+                <p className="text-xs font-medium">24h activation</p>
               </div>
               <div className="text-center">
                 <CheckCircle2 className="h-5 w-5 sm:h-6 sm:w-6 text-primary mx-auto mb-1" />
-                <p className="text-xs font-medium">14 dagers prøve</p>
+                <p className="text-xs font-medium">14-day trial</p>
               </div>
               <div className="text-center">
                 <CheckCircle2 className="h-5 w-5 sm:h-6 sm:w-6 text-primary mx-auto mb-1" />
-                <p className="text-xs font-medium">Ingen binding</p>
+                <p className="text-xs font-medium">No commitment</p>
               </div>
             </div>
 
@@ -466,18 +466,18 @@ export function RegisterDialog({ trigger, children, onOpenChange }: RegisterDial
                 {isSubmitting ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Sender...
+                    Submitting...
                   </>
                 ) : !orgValidated ? (
-                  "Valider org.nr først"
+                  "Validate registration number first"
                 ) : (
-                  "Registrer bedrift"
+                  "Register company"
                 )}
               </Button>
             </div>
 
             <p className="text-xs text-center text-muted-foreground px-1">
-              Ved å registrere godtar du våre vilkår og personvernserklæring.
+              By registering you agree to our terms of service and privacy policy.
             </p>
           </form>
         </ScrollArea>
@@ -485,4 +485,3 @@ export function RegisterDialog({ trigger, children, onOpenChange }: RegisterDial
     </Dialog>
   );
 }
-

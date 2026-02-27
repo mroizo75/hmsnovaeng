@@ -36,7 +36,7 @@ export default async function EnvironmentPage() {
   });
 
   if (!user || user.tenants.length === 0) {
-    return <div>Ingen tilgang til tenant</div>;
+    return <div>No tenant access</div>;
   }
 
   const tenantId = user.tenants[0].tenantId;
@@ -65,7 +65,7 @@ export default async function EnvironmentPage() {
       where: {
         tenantId,
         measurementDate: {
-          gte: new Date(new Date().getFullYear(), 0, 1), // Fra 1. januar i år
+          gte: new Date(new Date().getFullYear(), 0, 1),
         },
       },
       include: {
@@ -94,9 +94,9 @@ export default async function EnvironmentPage() {
         <div className="flex items-center gap-3">
           <div>
             <p className="text-sm text-muted-foreground">ISO 14001</p>
-            <h1 className="text-3xl font-bold">Miljøstyring</h1>
+            <h1 className="text-3xl font-bold">Environmental Management</h1>
             <p className="text-muted-foreground">
-              Oversikt over miljøaspekter, målinger og oppfølging
+              Overview of environmental aspects, measurements, and follow-up
             </p>
           </div>
           <PageHelpDialog content={helpContent.environment} />
@@ -104,7 +104,7 @@ export default async function EnvironmentPage() {
         <div className="flex gap-2">
           <EnvironmentReportButton />
           <Button asChild>
-            <Link href="/dashboard/environment/new">Nytt miljøaspekt</Link>
+            <Link href="/dashboard/environment/new">New Environmental Aspect</Link>
           </Button>
         </div>
       </div>
@@ -112,45 +112,45 @@ export default async function EnvironmentPage() {
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Registrerte aspekter</CardTitle>
+            <CardTitle className="text-sm font-medium">Registered Aspects</CardTitle>
             <Leaf className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{total}</div>
-            <p className="text-xs text-muted-foreground">Totalt i miljoregisteret</p>
+            <p className="text-xs text-muted-foreground">Total in environmental registry</p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Kritiske</CardTitle>
+            <CardTitle className="text-sm font-medium">Critical</CardTitle>
             <AlertTriangle className="h-4 w-4 text-red-600" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-red-600">{critical}</div>
-            <p className="text-xs text-muted-foreground">Betydning &ge; 20</p>
+            <p className="text-xs text-muted-foreground">Significance &ge; 20</p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Målinger i avvik</CardTitle>
+            <CardTitle className="text-sm font-medium">Non-Compliant Measurements</CardTitle>
             <Activity className="h-4 w-4 text-orange-600" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-orange-600">{nonCompliantCount}</div>
-            <p className="text-xs text-muted-foreground">Krever korrigerende tiltak</p>
+            <p className="text-xs text-muted-foreground">Requires corrective actions</p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Overdue revisjoner</CardTitle>
+            <CardTitle className="text-sm font-medium">Overdue Reviews</CardTitle>
             <TimerReset className="h-4 w-4 text-yellow-600" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-yellow-600">{overdueReviews}</div>
-            <p className="text-xs text-muted-foreground">Mangler oppdatert vurdering</p>
+            <p className="text-xs text-muted-foreground">Missing updated assessment</p>
           </CardContent>
         </Card>
       </div>
@@ -165,4 +165,3 @@ export default async function EnvironmentPage() {
     </div>
   );
 }
-

@@ -14,7 +14,7 @@ export default async function AnsattDokumenter() {
     redirect("/login");
   }
 
-  // Hent brukerens rolle for denne tenanten
+  // Fetch user role for this tenant
   const userTenant = await prisma.userTenant.findUnique({
     where: {
       userId_tenantId: {
@@ -29,11 +29,11 @@ export default async function AnsattDokumenter() {
 
   const userRole = userTenant?.role || "ANSATT";
 
-  // Hent alle godkjente dokumenter for denne tenanten
+  // Fetch all approved documents for this tenant
   const allDocuments = await prisma.document.findMany({
     where: {
       tenantId: session.user.tenantId,
-      status: "APPROVED", // Kun godkjente dokumenter for ansatte
+      status: "APPROVED", // Only approved documents for employees
     },
     include: {
       approvedByUser: {
@@ -46,13 +46,13 @@ export default async function AnsattDokumenter() {
     orderBy: {
       updatedAt: "desc",
     },
-    take: 200, // Hent flere for å kunne filtrere
+    take: 200, // Fetch more to allow filtering
   });
 
-  // Filtrer basert på roller i JavaScript (siden JSON-filtering i Prisma er komplisert)
+  // Filter based on roles in JavaScript (since JSON filtering in Prisma is complex)
   const documents = allDocuments.filter((doc) => {
     if (!doc.visibleToRoles) {
-      // Ingen rolle-restriksjoner = synlig for alle
+      // No role restrictions = visible to all
       return true;
     }
     try {
@@ -61,36 +61,36 @@ export default async function AnsattDokumenter() {
         : doc.visibleToRoles;
       
       if (!Array.isArray(roles) || roles.length === 0) {
-        // Tom array eller ikke en array = synlig for alle
+        // Empty array or not an array = visible to all
         return true;
       }
       
-      // Sjekk om brukerens rolle er i listen
+      // Check if user role is in the list
       return roles.includes(userRole);
     } catch (error) {
-      console.error("Feil ved parsing av visibleToRoles:", error);
-      return true; // Vis dokumentet hvis det er feil i dataene
+      console.error("Error parsing visibleToRoles:", error);
+      return true; // Show document if there is an error in the data
     }
-  }).slice(0, 50); // Begrens til 50 dokumenter
+  }).slice(0, 50); // Limit to 50 documents
 
   return (
     <div className="space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-bold mb-2">📄 Dokumenter</h1>
+        <h1 className="text-2xl font-bold mb-2">📄 Documents</h1>
         <p className="text-muted-foreground">
-          HMS-dokumenter og prosedyrer du har tilgang til
+          EHS documents and procedures you have access to
         </p>
       </div>
 
-      {/* Dokumentliste */}
+      {/* Document list */}
       <div className="space-y-3">
         {documents.length === 0 ? (
           <Card>
             <CardContent className="text-center py-12">
               <FileText className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
               <p className="text-muted-foreground">
-                Ingen dokumenter tilgjengelig ennå
+                No documents available yet
               </p>
             </CardContent>
           </Card>
@@ -113,13 +113,13 @@ export default async function AnsattDokumenter() {
                       
                       <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground mb-2">
                         <Badge variant="outline" className="text-xs">
-                          {doc.kind === "LAW" && "⚖️ Lover og regler"}
-                          {doc.kind === "PROCEDURE" && "📋 Prosedyre (ISO 9001)"}
-                          {doc.kind === "CHECKLIST" && "✅ Sjekkliste"}
-                          {doc.kind === "FORM" && "📝 Skjema"}
-                          {doc.kind === "SDS" && "⚠️ Sikkerhetsdatablad (SDS)"}
-                          {doc.kind === "PLAN" && "📖 HMS-håndbok / Plan"}
-                          {doc.kind === "OTHER" && "📄 Annet"}
+                          {doc.kind === "LAW" && "⚖️ Laws and Regulations"}
+                          {doc.kind === "PROCEDURE" && "📋 Procedure (ISO 9001)"}
+                          {doc.kind === "CHECKLIST" && "✅ Checklist"}
+                          {doc.kind === "FORM" && "📝 Form"}
+                          {doc.kind === "SDS" && "⚠️ Safety Data Sheet (SDS)"}
+                          {doc.kind === "PLAN" && "📖 EHS Handbook / Plan"}
+                          {doc.kind === "OTHER" && "📄 Other"}
                         </Badge>
                         
                         <span className="flex items-center gap-1">
@@ -130,11 +130,11 @@ export default async function AnsattDokumenter() {
 
                       <div className="flex items-center gap-2">
                         <Badge variant="secondary" className="text-xs bg-green-100 text-green-700">
-                          ✓ Godkjent
+                          ✓ Approved
                         </Badge>
                         {doc.approvedByUser && (
                           <span className="text-xs text-muted-foreground">
-                            av {doc.approvedByUser.name || doc.approvedByUser.email}
+                            by {doc.approvedByUser.name || doc.approvedByUser.email}
                           </span>
                         )}
                       </div>
@@ -158,12 +158,11 @@ export default async function AnsattDokumenter() {
       <Card className="border-l-4 border-l-blue-500 bg-blue-50">
         <CardContent className="p-4">
           <p className="text-sm text-blue-900">
-            <strong>💡 Tips:</strong> Trykk på et dokument for å lese det eller laste det ned.
-            Alle dokumenter er godkjent og oppdatert.
+            <strong>💡 Tips:</strong> Tap a document to read or download it.
+            All documents are approved and up to date.
           </p>
         </CardContent>
       </Card>
     </div>
   );
 }
-

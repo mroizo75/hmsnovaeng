@@ -40,10 +40,10 @@ export function WellbeingReport() {
   const [loading, setLoading] = useState(false);
   const [downloading, setDownloading] = useState(false);
 
-  // Generer år-liste (siste 5 år)
+  // Generate year list (last 5 years)
   const years = Array.from({ length: 5 }, (_, i) => currentYear - i);
 
-  // Hent rapport når år endres
+  // Fetch report when year changes
   useEffect(() => {
     fetchReport(selectedYear);
   }, [selectedYear]);
@@ -63,8 +63,8 @@ export function WellbeingReport() {
         }
       }
     } catch (error) {
-      console.error("Feil ved henting av rapport:", error);
-      toast.error("Kunne ikke hente rapport");
+      console.error("Error fetching report:", error);
+      toast.error("Could not load report");
       setReport(null);
     } finally {
       setLoading(false);
@@ -78,7 +78,7 @@ export function WellbeingReport() {
       
       if (!response.ok) {
         const error = await response.json();
-        toast.error(error.error || "Kunne ikke generere PDF");
+        toast.error(error.error || "Could not generate PDF");
         return;
       }
 
@@ -86,16 +86,16 @@ export function WellbeingReport() {
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = `Psykososial-Rapport-${selectedYear}.pdf`;
+      a.download = `Psychosocial-Report-${selectedYear}.pdf`;
       document.body.appendChild(a);
       a.click();
       window.URL.revokeObjectURL(url);
       document.body.removeChild(a);
 
-      toast.success("PDF lastet ned!");
+      toast.success("PDF downloaded!");
     } catch (error) {
-      console.error("Feil ved nedlasting av PDF:", error);
-      toast.error("Kunne ikke laste ned PDF");
+      console.error("Error downloading PDF:", error);
+      toast.error("Could not download PDF");
     } finally {
       setDownloading(false);
     }
@@ -128,14 +128,14 @@ export function WellbeingReport() {
 
   return (
     <div className="space-y-6">
-      {/* Header med år-velger */}
+      {/* Header with year selector */}
       <Card>
         <CardHeader>
           <div className="flex items-center justify-between">
             <div>
-              <CardTitle>Årsrapport - Psykososialt Arbeidsmiljø</CardTitle>
+              <CardTitle>Annual Report – Psychosocial Work Environment</CardTitle>
               <CardDescription>
-                Aggregert rapport basert på alle psykososiale kartlegginger
+                Aggregated report based on all psychosocial assessments
               </CardDescription>
             </div>
             <div className="flex items-center gap-3">
@@ -156,12 +156,12 @@ export function WellbeingReport() {
                   {downloading ? (
                     <>
                       <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                      Genererer...
+                      Generating...
                     </>
                   ) : (
                     <>
                       <Download className="h-4 w-4 mr-2" />
-                      Last ned PDF
+                      Download PDF
                     </>
                   )}
                 </Button>
@@ -175,7 +175,7 @@ export function WellbeingReport() {
         <Card>
           <CardContent className="flex items-center justify-center py-12">
             <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-            <span className="ml-3 text-muted-foreground">Henter rapport...</span>
+            <span className="ml-3 text-muted-foreground">Loading report...</span>
           </CardContent>
         </Card>
       ) : !report || report.totalResponses === 0 ? (
@@ -183,33 +183,33 @@ export function WellbeingReport() {
           <CardContent className="flex flex-col items-center justify-center py-12">
             <FileText className="h-12 w-12 text-gray-300 mb-3" />
             <p className="text-muted-foreground text-center">
-              Ingen psykososiale kartlegginger funnet for {selectedYear}
+              No psychosocial assessments found for {selectedYear}
             </p>
             <p className="text-sm text-muted-foreground text-center mt-2">
-              Gjennomfør kartlegginger for å generere rapport
+              Complete assessments to generate a report
             </p>
           </CardContent>
         </Card>
       ) : (
         <>
-          {/* Sammendrag */}
+          {/* Summary */}
           <div className="grid md:grid-cols-3 gap-4">
             <Card>
               <CardHeader className="pb-3">
                 <CardTitle className="text-sm font-medium text-muted-foreground">
-                  Besvarelser
+                  Responses
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="text-3xl font-bold">{report.totalResponses}</div>
-                <p className="text-xs text-muted-foreground mt-1">Totalt antall</p>
+                <p className="text-xs text-muted-foreground mt-1">Total count</p>
               </CardContent>
             </Card>
 
             <Card className={totalCritical > 0 ? "border-red-200" : ""}>
               <CardHeader className="pb-3">
                 <CardTitle className="text-sm font-medium text-muted-foreground">
-                  Samlet Score
+                  Overall Score
                 </CardTitle>
               </CardHeader>
               <CardContent>
@@ -221,7 +221,7 @@ export function WellbeingReport() {
                     {getTrendIcon(report.trend.change)}
                     <span className="text-xs text-muted-foreground">
                       {report.trend.change > 0 ? "+" : ""}
-                      {report.trend.change.toFixed(2)} fra {selectedYear - 1}
+                      {report.trend.change.toFixed(2)} from {selectedYear - 1}
                     </span>
                   </div>
                 )}
@@ -231,7 +231,7 @@ export function WellbeingReport() {
             <Card className={totalCritical > 0 ? "border-red-200 bg-red-50" : ""}>
               <CardHeader className="pb-3">
                 <CardTitle className="text-sm font-medium text-muted-foreground">
-                  Kritiske Forhold
+                  Critical Incidents
                 </CardTitle>
               </CardHeader>
               <CardContent>
@@ -239,23 +239,23 @@ export function WellbeingReport() {
                   {totalCritical}
                 </div>
                 <p className="text-xs text-muted-foreground mt-1">
-                  {totalCritical > 0 ? "Krever oppfølging" : "Ingen rapportert"}
+                  {totalCritical > 0 ? "Requires follow-up" : "None reported"}
                 </p>
               </CardContent>
             </Card>
           </div>
 
-          {/* Kritiske hendelser detaljer */}
+          {/* Critical incident details */}
           {totalCritical > 0 && (
             <Card className="border-red-200 bg-red-50">
               <CardHeader>
-                <CardTitle className="text-red-900">🚨 Kritiske Forhold Rapportert</CardTitle>
+                <CardTitle className="text-red-900">🚨 Critical Incidents Reported</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="grid md:grid-cols-2 gap-3">
                   {report.criticalIncidents.mobbing > 0 && (
                     <div className="flex items-center justify-between p-3 bg-white rounded-lg">
-                      <span className="text-sm font-medium">Mobbing</span>
+                      <span className="text-sm font-medium">Bullying</span>
                       <span className="text-lg font-bold text-red-600">
                         {report.criticalIncidents.mobbing}
                       </span>
@@ -263,7 +263,7 @@ export function WellbeingReport() {
                   )}
                   {report.criticalIncidents.trakassering > 0 && (
                     <div className="flex items-center justify-between p-3 bg-white rounded-lg">
-                      <span className="text-sm font-medium">Trakassering</span>
+                      <span className="text-sm font-medium">Harassment</span>
                       <span className="text-lg font-bold text-red-600">
                         {report.criticalIncidents.trakassering}
                       </span>
@@ -271,7 +271,7 @@ export function WellbeingReport() {
                   )}
                   {report.criticalIncidents.press > 0 && (
                     <div className="flex items-center justify-between p-3 bg-white rounded-lg">
-                      <span className="text-sm font-medium">Utilbørlig press</span>
+                      <span className="text-sm font-medium">Undue pressure</span>
                       <span className="text-lg font-bold text-red-600">
                         {report.criticalIncidents.press}
                       </span>
@@ -279,7 +279,7 @@ export function WellbeingReport() {
                   )}
                   {report.criticalIncidents.konflikter > 0 && (
                     <div className="flex items-center justify-between p-3 bg-white rounded-lg">
-                      <span className="text-sm font-medium">Uhåndterte konflikter</span>
+                      <span className="text-sm font-medium">Unresolved conflicts</span>
                       <span className="text-lg font-bold text-red-600">
                         {report.criticalIncidents.konflikter}
                       </span>
@@ -290,11 +290,11 @@ export function WellbeingReport() {
             </Card>
           )}
 
-          {/* Seksjonsvurdering */}
+          {/* Section assessment */}
           <Card>
             <CardHeader>
-              <CardTitle>Seksjonsvurdering</CardTitle>
-              <CardDescription>Gjennomsnittsscore per område</CardDescription>
+              <CardTitle>Section Assessment</CardTitle>
+              <CardDescription>Average score per area</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
@@ -338,12 +338,12 @@ export function WellbeingReport() {
             </CardContent>
           </Card>
 
-          {/* Hovedutfordringer */}
+          {/* Main concerns */}
           {report.topConcerns.length > 0 && (
             <Card>
               <CardHeader>
-                <CardTitle>Hovedutfordringer</CardTitle>
-                <CardDescription>Områder som scorer lavest</CardDescription>
+                <CardTitle>Main Concerns</CardTitle>
+                <CardDescription>Areas with the lowest scores</CardDescription>
               </CardHeader>
               <CardContent>
                 <ul className="list-disc list-inside space-y-2">
@@ -357,20 +357,20 @@ export function WellbeingReport() {
             </Card>
           )}
 
-          {/* Tiltak og oppfølging */}
+          {/* Actions and follow-up */}
           <Card>
             <CardHeader>
-              <CardTitle>Tiltak og Oppfølging</CardTitle>
-              <CardDescription>Iverksatte og gjennomførte tiltak</CardDescription>
+              <CardTitle>Actions and Follow-up</CardTitle>
+              <CardDescription>Initiated and completed actions</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="grid md:grid-cols-2 gap-4">
                 <div className="flex items-center justify-between p-4 bg-blue-50 rounded-lg">
-                  <span className="text-sm font-medium">Risikovurderinger opprettet</span>
+                  <span className="text-sm font-medium">Risk assessments created</span>
                   <span className="text-2xl font-bold text-blue-600">{report.generatedRisks}</span>
                 </div>
                 <div className="flex items-center justify-between p-4 bg-green-50 rounded-lg">
-                  <span className="text-sm font-medium">Tiltak gjennomført</span>
+                  <span className="text-sm font-medium">Actions implemented</span>
                   <span className="text-2xl font-bold text-green-600">
                     {report.implementedMeasures}
                   </span>

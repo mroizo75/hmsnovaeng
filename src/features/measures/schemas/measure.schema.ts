@@ -21,13 +21,13 @@ export const createMeasureSchema = z.object({
   incidentId: z.string().cuid().optional(),
   auditId: z.string().cuid().optional(),
   goalId: z.string().cuid().optional(),
-  title: z.string().min(3, "Tittel må være minst 3 tegn"),
+  title: z.string().min(3, "Title must be at least 3 characters"),
   description: z.preprocess(
     (v) => (v === "" || v == null ? undefined : v),
-    z.string().min(10, "Beskrivelse må være minst 10 tegn").optional()
+    z.string().min(10, "Description must be at least 10 characters").optional()
   ),
   dueAt: z.date(),
-  responsibleId: z.string().cuid({ message: "Ansvarlig person må velges" }),
+  responsibleId: z.string().cuid({ message: "A responsible person must be selected" }),
   status: z.nativeEnum(ActionStatus).default("PENDING"),
   category: z.nativeEnum(MeasureCategory).default("CORRECTIVE"),
   followUpFrequency: z.nativeEnum(ControlFrequency).default("ANNUAL"),
@@ -78,10 +78,10 @@ export function isMeasureOverdue(dueAt: Date, status: ActionStatus): boolean {
  */
 export function getMeasureStatusLabel(status: ActionStatus): string {
   const labels: Record<ActionStatus, string> = {
-    PENDING: "Ikke startet",
-    IN_PROGRESS: "Pågår",
-    DONE: "Fullført",
-    OVERDUE: "Forfalt",
+    PENDING: "Not Started",
+    IN_PROGRESS: "In Progress",
+    DONE: "Completed",
+    OVERDUE: "Overdue",
   };
   return labels[status];
 }

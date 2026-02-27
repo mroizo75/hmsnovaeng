@@ -51,7 +51,7 @@ const navItems = [
   { href: "/dashboard/training", label: "nav.training", icon: GraduationCap, permission: "training" as const, simple: true },
   { href: "/dashboard/actions", label: "nav.actions", icon: ListTodo, permission: "actions" as const, simple: true },
   { href: "/dashboard/chemicals", label: "nav.chemicals", icon: Beaker, permission: "chemicals" as const, simple: true },
-  { href: "/dashboard/wellbeing", label: "nav.wellbeing", icon: HeartPulse, permission: "forms" as const, simple: true }, // Psykososial = lovpålagt
+  { href: "/dashboard/wellbeing", label: "nav.wellbeing", icon: HeartPulse, permission: "forms" as const, simple: true }, // Psychosocial = mandatory
   // AVANSERT
   { href: "/dashboard/forms", label: "nav.forms", icon: ClipboardList, permission: "forms" as const, simple: false },
   { href: "/dashboard/risks", label: "nav.risks", icon: AlertTriangle, permission: "risks" as const, simple: false },
@@ -73,7 +73,7 @@ export function MobileNav() {
   const { simpleMenuItems } = useSimpleMenuConfig();
   const [open, setOpen] = useState(false);
 
-  // Filtrer navigasjon basert på tilganger OG enkel/avansert modus
+  // Filter navigation based on permissions AND simple/advanced mode
   const allowedNavItems = navItems.filter((item) => {
     if (!visibleNavItems[item.permission]) return false;
     if (!isSimpleMode) return true;
@@ -99,7 +99,7 @@ export function MobileNav() {
             </SheetTrigger>
             <SheetContent side="left" className="w-72 p-0">
               <VisuallyHidden.Root>
-                <SheetTitle>Navigasjonsmeny</SheetTitle>
+                <SheetTitle>Navigation menu</SheetTitle>
               </VisuallyHidden.Root>
               <div className="flex h-full flex-col">
                 <div className="border-b p-6">
@@ -111,7 +111,7 @@ export function MobileNav() {
                   )}
                 </div>
 
-                {/* Enkel/Avansert toggle */}
+                {/* Simple/Advanced toggle */}
                 <div className="border-b px-4 py-3">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
@@ -121,7 +121,7 @@ export function MobileNav() {
                         <Sparkles className="h-4 w-4 text-purple-500" />
                       )}
                       <span className="text-sm font-medium">
-                        {isSimpleMode ? "Enkel modus" : "Avansert"}
+                        {isSimpleMode ? "Simple mode" : "Advanced"}
                       </span>
                     </div>
                     <Switch

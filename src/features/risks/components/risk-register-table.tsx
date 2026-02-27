@@ -26,10 +26,10 @@ import { nb } from "date-fns/locale";
 import Link from "next/link";
 
 const statusLabels: Record<string, string> = {
-  OPEN: "Identifisert",
-  MITIGATING: "Tiltak iverksatt",
-  ACCEPTED: "Akseptert",
-  CLOSED: "Lukket",
+  OPEN: "Identified",
+  MITIGATING: "Actions implemented",
+  ACCEPTED: "Accepted",
+  CLOSED: "Closed",
 };
 
 interface RiskRegisterRow {
@@ -71,40 +71,40 @@ export function RiskRegisterTable({ rows }: RiskRegisterTableProps) {
         <div className="flex items-center gap-3">
           <Select value={categoryFilter} onValueChange={setCategoryFilter}>
             <SelectTrigger className="w-[220px]">
-              <SelectValue placeholder="Filtrer kategori" />
+              <SelectValue placeholder="Filter category" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="ALL">Alle kategorier</SelectItem>
-              <SelectItem value="STRATEGIC">Strategisk</SelectItem>
-              <SelectItem value="OPERATIONAL">Operasjonell</SelectItem>
-              <SelectItem value="SAFETY">Sikkerhet</SelectItem>
-              <SelectItem value="HEALTH">Helse</SelectItem>
-              <SelectItem value="ENVIRONMENTAL">Miljø</SelectItem>
-              <SelectItem value="INFORMATION_SECURITY">Informasjonssikkerhet</SelectItem>
-              <SelectItem value="LEGAL">Juridisk</SelectItem>
+              <SelectItem value="ALL">All categories</SelectItem>
+              <SelectItem value="STRATEGIC">Strategic</SelectItem>
+              <SelectItem value="OPERATIONAL">Operational</SelectItem>
+              <SelectItem value="SAFETY">Safety</SelectItem>
+              <SelectItem value="HEALTH">Health</SelectItem>
+              <SelectItem value="ENVIRONMENTAL">Environmental</SelectItem>
+              <SelectItem value="INFORMATION_SECURITY">Information Security</SelectItem>
+              <SelectItem value="LEGAL">Legal</SelectItem>
             </SelectContent>
           </Select>
           <Input
-            placeholder="Søk etter risiko..."
+            placeholder="Search risks..."
             value={search}
             onChange={(event) => setSearch(event.target.value)}
             className="w-[220px]"
           />
         </div>
-        <p className="text-sm text-muted-foreground">{filteredRows.length} av {rows.length} risikoer</p>
+        <p className="text-sm text-muted-foreground">{filteredRows.length} of {rows.length} risks</p>
       </div>
 
       <div className="rounded-lg border">
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Risiko</TableHead>
-              <TableHead>Eksponering</TableHead>
-              <TableHead>Rest-risiko</TableHead>
-              <TableHead>Kontroller</TableHead>
-              <TableHead>Strategi</TableHead>
-              <TableHead>Neste gjennomgang</TableHead>
-              <TableHead>Lenker</TableHead>
+              <TableHead>Risk</TableHead>
+              <TableHead>Exposure</TableHead>
+              <TableHead>Residual risk</TableHead>
+              <TableHead>Controls</TableHead>
+              <TableHead>Strategy</TableHead>
+              <TableHead>Next review</TableHead>
+              <TableHead>Links</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -121,7 +121,7 @@ export function RiskRegisterTable({ rows }: RiskRegisterTableProps) {
                         {row.title}
                       </Link>
                       <p className="text-xs text-muted-foreground">
-                        {row.category} • {row.owner?.name || row.owner?.email || "Ikke satt"}
+                        {row.category} • {row.owner?.name || row.owner?.email || "Not assigned"}
                       </p>
                       <Badge variant="outline">{statusLabels[row.status] ?? row.status}</Badge>
                     </div>
@@ -135,42 +135,42 @@ export function RiskRegisterTable({ rows }: RiskRegisterTableProps) {
                     {row.residualScore != null ? (
                       <div className="flex flex-col gap-1">
                         <span className="text-sm font-medium">
-                          Før: {row.score} → Etter: {row.residualScore}
+                          Before: {row.score} → After: {row.residualScore}
                         </span>
-                        <Badge variant="secondary">Restrisiko: {row.residualScore}</Badge>
+                        <Badge variant="secondary">Residual: {row.residualScore}</Badge>
                       </div>
                     ) : (
-                      <span className="text-xs text-muted-foreground">Ikke vurdert</span>
+                      <span className="text-xs text-muted-foreground">Not assessed</span>
                     )}
                   </TableCell>
                   <TableCell className="text-sm">
                     <p>
-                      Effektive: <span className="font-medium">{controlSummary.effective}</span>
+                      Effective: <span className="font-medium">{controlSummary.effective}</span>
                     </p>
                     <p>
                       GAP: <span className="font-medium text-orange-600">{controlSummary.gaps}</span>
                     </p>
                     <p className="text-xs text-muted-foreground">
-                      Pensjonert: {controlSummary.retired}
+                      Retired: {controlSummary.retired}
                     </p>
                   </TableCell>
                   <TableCell className="text-sm">
                     <p>{row.responseStrategy}</p>
                     <p className="text-xs text-muted-foreground">Trend: {row.trend}</p>
                     {row.measuresOpen > 0 && (
-                      <p className="text-xs text-orange-600">{row.measuresOpen} åpne tiltak</p>
+                      <p className="text-xs text-orange-600">{row.measuresOpen} open actions</p>
                     )}
                   </TableCell>
                   <TableCell className="text-sm">
                     {row.nextReviewDate ? (
                       format(row.nextReviewDate, "dd. MMM yyyy", { locale: nb })
                     ) : (
-                      <span className="text-muted-foreground text-xs">Ikke satt</span>
+                      <span className="text-muted-foreground text-xs">Not set</span>
                     )}
                   </TableCell>
                   <TableCell className="text-sm">
-                    <p>Dokumenter: {row.documentCount}</p>
-                    <p>Revisjoner: {row.auditCount}</p>
+                    <p>Documents: {row.documentCount}</p>
+                    <p>Audits: {row.auditCount}</p>
                   </TableCell>
                 </TableRow>
               );
@@ -181,4 +181,3 @@ export function RiskRegisterTable({ rows }: RiskRegisterTableProps) {
     </div>
   );
 }
-

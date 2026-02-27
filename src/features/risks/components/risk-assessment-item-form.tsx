@@ -19,21 +19,21 @@ import { useToast } from "@/hooks/use-toast";
 import type { RiskCategory } from "@prisma/client";
 
 const LEVEL_OPTIONS = [
-  { value: "LOW", label: "Lav" },
-  { value: "MEDIUM", label: "Moderat" },
-  { value: "HIGH", label: "Høy" },
-  { value: "CRITICAL", label: "Kritisk" },
+  { value: "LOW", label: "Low" },
+  { value: "MEDIUM", label: "Medium" },
+  { value: "HIGH", label: "High" },
+  { value: "CRITICAL", label: "Critical" },
 ] as const;
 
 const WORKPLACE_CATEGORY_OPTIONS: Array<{ value: RiskCategory; label: string }> = [
-  { value: "PSYCHOSOCIAL", label: "Psykososialt" },
-  { value: "ERGONOMIC", label: "Ergonomisk" },
-  { value: "ORGANISATIONAL", label: "Organisatorisk" },
-  { value: "PHYSICAL", label: "Fysisk" },
-  { value: "SAFETY", label: "Sikkerhet" },
-  { value: "HEALTH", label: "Helse" },
-  { value: "OPERATIONAL", label: "Operasjonell" },
-  { value: "ENVIRONMENTAL", label: "Miljø" },
+  { value: "PSYCHOSOCIAL", label: "Psychosocial" },
+  { value: "ERGONOMIC", label: "Ergonomic" },
+  { value: "ORGANISATIONAL", label: "Organizational" },
+  { value: "PHYSICAL", label: "Physical" },
+  { value: "SAFETY", label: "Safety" },
+  { value: "HEALTH", label: "Health" },
+  { value: "OPERATIONAL", label: "Operational" },
+  { value: "ENVIRONMENTAL", label: "Environmental" },
 ];
 
 interface RiskAssessmentItemFormProps {
@@ -70,7 +70,7 @@ export function RiskAssessmentItemForm({
     e.preventDefault();
     const trimmed = title.trim();
     if (trimmed.length < 3) {
-      toast({ variant: "destructive", title: "Tittel må være minst 3 tegn" });
+      toast({ variant: "destructive", title: "Title must be at least 3 characters" });
       return;
     }
     setLoading(true);
@@ -88,17 +88,17 @@ export function RiskAssessmentItemForm({
         konsekvens: konsekvens.trim() || null,
       });
       if (result.success) {
-        toast({ title: "Risikopunkt lagt til", className: "bg-green-50 border-green-200" });
+        toast({ title: "Risk item added", className: "bg-green-50 border-green-200" });
         setTitle("");
         setBeskrivelse("");
         setKonsekvens("");
         onAdded?.();
         router.refresh();
       } else {
-        toast({ variant: "destructive", title: "Feil", description: result.error });
+        toast({ variant: "destructive", title: "Error", description: result.error });
       }
     } catch {
-      toast({ variant: "destructive", title: "Feil", description: "Kunne ikke legge til" });
+      toast({ variant: "destructive", title: "Error", description: "Could not add item" });
     } finally {
       setLoading(false);
     }
@@ -107,27 +107,27 @@ export function RiskAssessmentItemForm({
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Legg til risikopunkt</CardTitle>
+        <CardTitle>Add risk item</CardTitle>
         <CardDescription>
-          Tittel, beskrivelse, konsekvens, nivå, kategori og dato (ISO 45001)
+          Title, description, consequence, level, category and date (ISO 45001)
         </CardDescription>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid gap-4 md:grid-cols-3">
             <div className="space-y-2">
-              <Label htmlFor="item-title">Tittel / kort beskrivelse *</Label>
+              <Label htmlFor="item-title">Title / short description *</Label>
               <Input
                 id="item-title"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
-                placeholder="F.eks. Manglende medvirkning i beslutningsprosesser"
+                placeholder="E.g. Lack of employee involvement in decision-making"
                 minLength={3}
                 disabled={loading}
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="item-date">Vurderingsdato</Label>
+              <Label htmlFor="item-date">Assessment date</Label>
               <Input
                 id="item-date"
                 type="date"
@@ -137,7 +137,7 @@ export function RiskAssessmentItemForm({
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="item-next-review">Neste revisjon</Label>
+              <Label htmlFor="item-next-review">Next review</Label>
               <Input
                 id="item-next-review"
                 type="date"
@@ -148,30 +148,30 @@ export function RiskAssessmentItemForm({
             </div>
           </div>
           <div className="space-y-2">
-            <Label htmlFor="item-beskrivelse">Beskrivelse</Label>
+            <Label htmlFor="item-beskrivelse">Description</Label>
             <Textarea
               id="item-beskrivelse"
               value={beskrivelse}
               onChange={(e) => setBeskrivelse(e.target.value)}
-              placeholder="Beskriv situasjonen, hvor det kan skje, hvem som er utsatt, etc."
+              placeholder="Describe the situation, where it can occur, who is at risk, etc."
               disabled={loading}
               rows={3}
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="item-konsekvens">Konsekvens</Label>
+            <Label htmlFor="item-konsekvens">Consequence</Label>
             <Textarea
               id="item-konsekvens"
               value={konsekvens}
               onChange={(e) => setKonsekvens(e.target.value)}
-              placeholder="Hva kan skje dersom risikoscenarioet inntreffer? Beskriv konsekvensen."
+              placeholder="What could happen if the risk scenario occurs? Describe the consequence."
               disabled={loading}
               rows={3}
             />
           </div>
           <div className="grid gap-4 md:grid-cols-3">
             <div className="space-y-2">
-              <Label>Nivå</Label>
+              <Label>Level</Label>
               <Select
                 value={level}
                 onValueChange={(v) => setLevel(v as "LOW" | "MEDIUM" | "HIGH" | "CRITICAL")}
@@ -190,7 +190,7 @@ export function RiskAssessmentItemForm({
               </Select>
             </div>
             <div className="space-y-2">
-              <Label>Kategori</Label>
+              <Label>Category</Label>
               <Select value={category} onValueChange={(v: RiskCategory) => setCategory(v)} disabled={loading}>
                 <SelectTrigger>
                   <SelectValue />
@@ -206,7 +206,7 @@ export function RiskAssessmentItemForm({
             </div>
           </div>
           <Button type="submit" disabled={loading}>
-            {loading ? "Legger til..." : "Legg til risikopunkt"}
+            {loading ? "Adding..." : "Add risk item"}
           </Button>
         </form>
       </CardContent>

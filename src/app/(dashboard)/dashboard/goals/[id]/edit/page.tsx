@@ -27,7 +27,7 @@ export default async function EditGoalPage({ params }: { params: Promise<{ id: s
   });
 
   if (!user || user.tenants.length === 0) {
-    return <div>Du er ikke tilknyttet en tenant.</div>;
+    return <div>You are not associated with a tenant.</div>;
   }
 
   const tenantId = user.tenants[0].tenantId;
@@ -63,10 +63,10 @@ export default async function EditGoalPage({ params }: { params: Promise<{ id: s
         <Link href={`/dashboard/goals/${goal.id}`}>
           <Button variant="ghost" size="sm" className="mb-4">
             <ArrowLeft className="mr-2 h-4 w-4" />
-            Tilbake til mål
+            Back to Goals
           </Button>
         </Link>
-        <h1 className="text-3xl font-bold">Rediger mål</h1>
+        <h1 className="text-3xl font-bold">Edit Goal</h1>
         <p className="text-muted-foreground">{goal.title}</p>
       </div>
 

@@ -28,13 +28,13 @@ export function SecurityAccessReviewForm() {
       });
 
       if (result.success) {
-        toast({ title: "Tilgangsgjennomgang opprettet" });
+        toast({ title: "Access review created" });
         setOpen(false);
       } else {
         toast({
           variant: "destructive",
-          title: "Feil",
-          description: result.error || "Kunne ikke opprette tilgangsgjennomgang",
+          title: "Error",
+          description: result.error || "Could not create access review",
         });
       }
     });
@@ -45,37 +45,37 @@ export function SecurityAccessReviewForm() {
       <DialogTrigger asChild>
         <Button size="sm">
           <Plus className="mr-2 h-4 w-4" />
-          Ny tilgangsgjennomgang
+          New Access Review
         </Button>
       </DialogTrigger>
       <DialogContent className="max-w-lg">
         <DialogHeader>
-          <DialogTitle>Opprett tilgangsgjennomgang</DialogTitle>
+          <DialogTitle>Create Access Review</DialogTitle>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="title">Tittel *</Label>
-            <Input id="title" name="title" required disabled={isPending} placeholder="F.eks. Q1 Azure AD review" />
+            <Label htmlFor="title">Title *</Label>
+            <Input id="title" name="title" required disabled={isPending} placeholder="e.g. Q1 Azure AD Review" />
           </div>
           <div className="space-y-2">
             <Label htmlFor="systemName">System</Label>
-            <Input id="systemName" name="systemName" disabled={isPending} placeholder="F.eks. Azure AD" />
+            <Input id="systemName" name="systemName" disabled={isPending} placeholder="e.g. Azure AD" />
           </div>
           <div className="space-y-2">
             <Label htmlFor="scope">Scope</Label>
             <Textarea id="scope" name="scope" rows={3} disabled={isPending} />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="dueDate">Frist</Label>
+            <Label htmlFor="dueDate">Due Date</Label>
             <Input id="dueDate" name="dueDate" type="date" disabled={isPending} />
           </div>
           <div className="flex justify-end gap-2">
             <Button type="button" variant="outline" onClick={() => setOpen(false)} disabled={isPending}>
-              Avbryt
+              Cancel
             </Button>
             <Button type="submit" disabled={isPending}>
-              {isPending ? "Lagrer..." : "Opprett"}
+              {isPending ? "Saving..." : "Create"}
             </Button>
           </div>
         </form>
@@ -83,4 +83,3 @@ export function SecurityAccessReviewForm() {
     </Dialog>
   );
 }
-

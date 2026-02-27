@@ -27,12 +27,11 @@ export default async function NewGoalPage() {
   });
 
   if (!user || user.tenants.length === 0) {
-    return <div>Du er ikke tilknyttet en tenant.</div>;
+    return <div>You are not associated with a tenant.</div>;
   }
 
   const tenantId = user.tenants[0].tenantId;
 
-  // Hent alle brukere i tenant for ansvarlig-dropdown
   const tenantUsers = await prisma.userTenant.findMany({
     where: { tenantId },
     include: {
@@ -55,15 +54,14 @@ export default async function NewGoalPage() {
         <Link href="/dashboard/goals">
           <Button variant="ghost" size="sm" className="mb-4">
             <ArrowLeft className="mr-2 h-4 w-4" />
-            Tilbake til mål
+            Back to Goals
           </Button>
         </Link>
-        <h1 className="text-3xl font-bold">Opprett nytt mål</h1>
-        <p className="text-muted-foreground">ISO 9001 - 6.2 Kvalitetsmål</p>
+        <h1 className="text-3xl font-bold">Create New Goal</h1>
+        <p className="text-muted-foreground">ISO 9001 - 6.2 Quality Goals</p>
       </div>
 
       <GoalForm tenantId={tenantId} users={users} mode="create" />
     </div>
   );
 }
-

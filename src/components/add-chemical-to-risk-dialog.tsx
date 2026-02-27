@@ -76,8 +76,8 @@ export function AddChemicalToRiskDialog({
     if (!formData.chemicalId) {
       toast({
         variant: "destructive",
-        title: "Feil",
-        description: "Velg et kjemikalie",
+        title: "Error",
+        description: "Select a chemical",
       });
       return;
     }
@@ -91,8 +91,8 @@ export function AddChemicalToRiskDialog({
 
     if (result.success) {
       toast({
-        title: "✅ Kjemikalie koblet",
-        description: "Kjemikalien er nå knyttet til risikoen",
+        title: "✅ Chemical linked",
+        description: "The chemical is now linked to the risk",
         className: "bg-green-50 border-green-200",
       });
       setFormData({
@@ -106,8 +106,8 @@ export function AddChemicalToRiskDialog({
     } else {
       toast({
         variant: "destructive",
-        title: "Feil",
-        description: result.error || "Kunne ikke koble kjemikalie",
+        title: "Error",
+        description: result.error || "Could not link chemical",
       });
     }
 
@@ -118,15 +118,15 @@ export function AddChemicalToRiskDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Legg til kjemikalie</DialogTitle>
+          <DialogTitle>Add chemical</DialogTitle>
           <DialogDescription>
-            Koble et farlig stoff til denne risikovurderingen
+            Link a hazardous substance to this risk assessment
           </DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="chemical">Kjemikalie</Label>
+            <Label htmlFor="chemical">Chemical</Label>
             {loadingChemicals ? (
               <div className="flex items-center justify-center py-4">
                 <Loader2 className="h-6 w-6 animate-spin" />
@@ -139,14 +139,14 @@ export function AddChemicalToRiskDialog({
                 }
               >
                 <SelectTrigger>
-                  <SelectValue placeholder="Velg kjemikalie" />
+                  <SelectValue placeholder="Select chemical" />
                 </SelectTrigger>
                 <SelectContent>
                   {chemicals.map((chemical) => (
                     <SelectItem key={chemical.id} value={chemical.id}>
                       {chemical.productName}
                       {chemical.isCMR && " [CMR]"}
-                      {chemical.containsIsocyanates && " [Diisocyanater]"}
+                      {chemical.containsIsocyanates && " [Diisocyanates]"}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -155,7 +155,7 @@ export function AddChemicalToRiskDialog({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="exposure">Eksponeringsnivå</Label>
+            <Label htmlFor="exposure">Exposure level</Label>
             <Select
               value={formData.exposure}
               onValueChange={(value: any) =>
@@ -166,10 +166,10 @@ export function AddChemicalToRiskDialog({
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="LOW">Lav - Minimal eksponering</SelectItem>
-                <SelectItem value="MEDIUM">Moderat - Standard sikkerhetstiltak</SelectItem>
-                <SelectItem value="HIGH">Høy - Krever ekstra tiltak</SelectItem>
-                <SelectItem value="CRITICAL">Kritisk - CMR/Diisocyanater</SelectItem>
+                <SelectItem value="LOW">Low - Minimal exposure</SelectItem>
+                <SelectItem value="MEDIUM">Moderate - Standard safety measures</SelectItem>
+                <SelectItem value="HIGH">High - Requires extra measures</SelectItem>
+                <SelectItem value="CRITICAL">Critical - CMR/Diisocyanates</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -183,15 +183,15 @@ export function AddChemicalToRiskDialog({
               }
             />
             <Label htmlFor="ppRequired" className="cursor-pointer">
-              Personlig verneutstyr påkrevd
+              Personal protective equipment required
             </Label>
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="note">Merknad (valgfritt)</Label>
+            <Label htmlFor="note">Note (optional)</Label>
             <Textarea
               id="note"
-              placeholder="Spesielle forholdsregler, bruksområde, etc."
+              placeholder="Special precautions, area of use, etc."
               value={formData.note}
               onChange={(e) =>
                 setFormData({ ...formData, note: e.target.value })
@@ -207,11 +207,11 @@ export function AddChemicalToRiskDialog({
               onClick={() => onOpenChange(false)}
               disabled={loading}
             >
-              Avbryt
+              Cancel
             </Button>
             <Button type="submit" disabled={loading || loadingChemicals}>
               {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              Legg til
+              Add
             </Button>
           </DialogFooter>
         </form>

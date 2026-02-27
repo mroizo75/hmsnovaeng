@@ -26,20 +26,20 @@ interface IncidentFormProps {
 }
 
 const incidentTypes: Array<{ value: IncidentType; label: string; desc: string }> = [
-  { value: "AVVIK", label: "Avvik", desc: "Avvik fra prosedyrer eller krav" },
-  { value: "NESTEN", label: "Nestenulykke", desc: "Hendelse som kunne ført til skade" },
-  { value: "SKADE", label: "Personskade", desc: "Skade på person" },
-  { value: "MILJO", label: "Miljøhendelse", desc: "Utslipp, søl eller miljøskade" },
-  { value: "KVALITET", label: "Kvalitetsavvik", desc: "Produkt/tjeneste kvalitet" },
-  { value: "CUSTOMER", label: "Kundeklage", desc: "ISO 10002: Kunde- og brukertilbakemeldinger" },
+  { value: "AVVIK", label: "Incident", desc: "Deviation from procedures or requirements" },
+  { value: "NESTEN", label: "Near Miss", desc: "Incident that could have caused harm" },
+  { value: "SKADE", label: "Personal Injury", desc: "Injury to a person" },
+  { value: "MILJO", label: "Environmental Incident", desc: "Spill, release, or environmental damage" },
+  { value: "KVALITET", label: "Quality Incident", desc: "Product/service quality" },
+  { value: "CUSTOMER", label: "Customer Complaint", desc: "ISO 10002: Customer and user feedback" },
 ];
 
 const severityLevels = [
-  { value: 1, label: "1 - Ubetydelig", desc: "Ingen konsekvenser" },
-  { value: 2, label: "2 - Mindre", desc: "Små konsekvenser" },
-  { value: 3, label: "3 - Moderat", desc: "Merkbare konsekvenser" },
-  { value: 4, label: "4 - Alvorlig", desc: "Store konsekvenser" },
-  { value: 5, label: "5 - Kritisk", desc: "Svært alvorlige konsekvenser" },
+  { value: 1, label: "1 - Insignificant", desc: "No consequences" },
+  { value: 2, label: "2 - Minor", desc: "Minor consequences" },
+  { value: 3, label: "3 - Moderate", desc: "Noticeable consequences" },
+  { value: 4, label: "4 - Serious", desc: "Major consequences" },
+  { value: 5, label: "5 - Critical", desc: "Very serious consequences" },
 ];
 
 const NO_RISK_REFERENCE_VALUE = "__none_risk_reference__";
@@ -92,8 +92,8 @@ export function IncidentForm({ tenantId, userId, risks = [], defaultType }: Inci
       if (result.success) {
         const redirectRoute = result.data?.type === "CUSTOMER" ? "/dashboard/complaints" : "/dashboard/incidents";
         toast({
-          title: "✅ Avvik rapportert",
-          description: "Avviket er registrert og vil bli fulgt opp",
+          title: "✅ Incident reported",
+          description: "The incident has been recorded and will be followed up",
           className: "bg-green-50 border-green-200",
         });
         router.push(redirectRoute);
@@ -101,15 +101,15 @@ export function IncidentForm({ tenantId, userId, risks = [], defaultType }: Inci
       } else {
         toast({
           variant: "destructive",
-          title: "Feil",
-          description: result.error || "Kunne ikke rapportere avvik",
+          title: "Error",
+          description: result.error || "Could not report incident",
         });
       }
     } catch (error) {
       toast({
         variant: "destructive",
-        title: "Uventet feil",
-        description: "Noe gikk galt",
+        title: "Unexpected error",
+        description: "Something went wrong",
       });
     } finally {
       setLoading(false);
@@ -120,13 +120,13 @@ export function IncidentForm({ tenantId, userId, risks = [], defaultType }: Inci
     <form onSubmit={handleSubmit} className="space-y-6">
       <Card>
         <CardHeader>
-          <CardTitle>Grunnleggende informasjon</CardTitle>
-          <CardDescription>ISO 9001: Rapporter hva som skjedde</CardDescription>
+          <CardTitle>Basic information</CardTitle>
+          <CardDescription>ISO 9001: Report what happened</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid gap-4 md:grid-cols-2">
             <div className="space-y-2">
-              <Label htmlFor="type">Type hendelse *</Label>
+              <Label htmlFor="type">Incident type *</Label>
               <Select
                 name="type"
                 required
@@ -135,7 +135,7 @@ export function IncidentForm({ tenantId, userId, risks = [], defaultType }: Inci
                 onValueChange={(value) => setSelectedType(value as IncidentType)}
               >
                 <SelectTrigger>
-                  <SelectValue placeholder="Velg type" />
+                  <SelectValue placeholder="Select type" />
                 </SelectTrigger>
                 <SelectContent>
                   {incidentTypes.map((type) => (
@@ -153,10 +153,10 @@ export function IncidentForm({ tenantId, userId, risks = [], defaultType }: Inci
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="severity">Alvorlighetsgrad *</Label>
+              <Label htmlFor="severity">Severity *</Label>
               <Select name="severity" required disabled={loading}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Velg alvorlighet" />
+                  <SelectValue placeholder="Select severity" />
                 </SelectTrigger>
                 <SelectContent>
                   {severityLevels.map((level) => (
@@ -170,22 +170,22 @@ export function IncidentForm({ tenantId, userId, risks = [], defaultType }: Inci
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="title">Tittel *</Label>
+            <Label htmlFor="title">Title *</Label>
             <Input
               id="title"
               name="title"
-              placeholder="F.eks. Fall fra stige ved lagerarbeid"
+              placeholder="E.g. Fall from ladder during warehouse work"
               required
               disabled={loading}
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="description">Beskrivelse *</Label>
+            <Label htmlFor="description">Description *</Label>
             <Textarea
               id="description"
               name="description"
-              placeholder="Beskriv detaljert hva som skjedde, når, hvor og hvem som var involvert"
+              placeholder="Describe in detail what happened, when, where and who was involved"
               required
               disabled={loading}
               rows={5}
@@ -194,7 +194,7 @@ export function IncidentForm({ tenantId, userId, risks = [], defaultType }: Inci
 
           <div className="grid gap-4 md:grid-cols-2">
             <div className="space-y-2">
-              <Label htmlFor="occurredAt">Når skjedde det? *</Label>
+              <Label htmlFor="occurredAt">When did it happen? *</Label>
               <Input
                 id="occurredAt"
                 name="occurredAt"
@@ -206,22 +206,22 @@ export function IncidentForm({ tenantId, userId, risks = [], defaultType }: Inci
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="location">Hvor skjedde det?</Label>
+              <Label htmlFor="location">Where did it happen?</Label>
               <Input
                 id="location"
                 name="location"
-                placeholder="F.eks. Lager 2, Produksjonshall A"
+                placeholder="E.g. Warehouse 2, Production Hall A"
                 disabled={loading}
               />
             </div>
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="witnessName">Vitner (navn)</Label>
+            <Label htmlFor="witnessName">Witnesses (name)</Label>
             <Input
               id="witnessName"
               name="witnessName"
-              placeholder="Navn på vitner til hendelsen"
+              placeholder="Names of witnesses to the incident"
               disabled={loading}
             />
           </div>
@@ -231,38 +231,38 @@ export function IncidentForm({ tenantId, userId, risks = [], defaultType }: Inci
       {selectedType === "CUSTOMER" && (
         <Card>
           <CardHeader>
-            <CardTitle>Kundeklage</CardTitle>
-            <CardDescription>ISO 10002: registrer hvem som klager og hvordan saken skal håndteres</CardDescription>
+            <CardTitle>Customer Complaint</CardTitle>
+            <CardDescription>ISO 10002: Record who is complaining and how the case should be handled</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="grid gap-4 md:grid-cols-2">
               <div className="space-y-2">
-                <Label htmlFor="customerName">Kundenavn *</Label>
+                <Label htmlFor="customerName">Customer name *</Label>
                 <Input
                   id="customerName"
                   name="customerName"
-                  placeholder="Navn på kunde/bedrift"
+                  placeholder="Name of customer/company"
                   disabled={loading}
                   required={selectedType === "CUSTOMER"}
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="customerEmail">Kunde e-post</Label>
-                <Input id="customerEmail" name="customerEmail" type="email" placeholder="kunde@firma.no" disabled={loading} />
+                <Label htmlFor="customerEmail">Customer email</Label>
+                <Input id="customerEmail" name="customerEmail" type="email" placeholder="customer@company.com" disabled={loading} />
               </div>
             </div>
 
             <div className="grid gap-4 md:grid-cols-2">
               <div className="space-y-2">
-                <Label htmlFor="customerPhone">Telefon</Label>
-                <Input id="customerPhone" name="customerPhone" placeholder="+47 99 99 99 99" disabled={loading} />
+                <Label htmlFor="customerPhone">Phone</Label>
+                <Input id="customerPhone" name="customerPhone" placeholder="+1 555 000 0000" disabled={loading} />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="customerTicketId">Referanse / saknr.</Label>
+                <Label htmlFor="customerTicketId">Reference / case no.</Label>
                 <Input
                   id="customerTicketId"
                   name="customerTicketId"
-                  placeholder="F.eks. Zendesk #124"
+                  placeholder="E.g. Zendesk #124"
                   disabled={loading}
                 />
               </div>
@@ -270,14 +270,14 @@ export function IncidentForm({ tenantId, userId, risks = [], defaultType }: Inci
 
             <div className="grid gap-4 md:grid-cols-2">
               <div className="space-y-2">
-                <Label htmlFor="responseDeadline">Lovet svarfrist</Label>
+                <Label htmlFor="responseDeadline">Promised response deadline</Label>
                 <Input id="responseDeadline" name="responseDeadline" type="date" disabled={loading} />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="customerSatisfaction">Tilfredshet (1-5)</Label>
+                <Label htmlFor="customerSatisfaction">Satisfaction (1-5)</Label>
                 <Select name="customerSatisfaction" disabled={loading}>
                   <SelectTrigger>
-                    <SelectValue placeholder="Velg vurdering" />
+                    <SelectValue placeholder="Select rating" />
                   </SelectTrigger>
                   <SelectContent>
                     {[1, 2, 3, 4, 5].map((value) => (
@@ -295,33 +295,33 @@ export function IncidentForm({ tenantId, userId, risks = [], defaultType }: Inci
 
       <Card>
         <CardHeader>
-          <CardTitle>Skade og oppfølging</CardTitle>
-          <CardDescription>ISO 45001: dokumenter personskade og koble til risiko</CardDescription>
+          <CardTitle>Injury and follow-up</CardTitle>
+          <CardDescription>ISO 45001: Document personal injury and link to risk</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid gap-4 md:grid-cols-2">
             <div className="space-y-2">
-              <Label htmlFor="injuryType">Type skade</Label>
+              <Label htmlFor="injuryType">Injury type</Label>
               <Input
                 id="injuryType"
                 name="injuryType"
-                placeholder="F.eks. Kuttskade, fallskade, kjemisk eksponering"
+                placeholder="E.g. Cut, fall injury, chemical exposure"
                 disabled={loading}
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="medicalAttentionRequired">Legebehandling</Label>
+              <Label htmlFor="medicalAttentionRequired">Medical attention</Label>
               <Select
                 name="medicalAttentionRequired"
                 defaultValue="no"
                 disabled={loading}
               >
                 <SelectTrigger>
-                  <SelectValue placeholder="Var lege involvert?" />
+                  <SelectValue placeholder="Was a doctor involved?" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="no">Nei</SelectItem>
-                  <SelectItem value="yes">Ja, legebehandling nødvendig</SelectItem>
+                  <SelectItem value="no">No</SelectItem>
+                  <SelectItem value="yes">Yes, medical attention required</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -329,27 +329,27 @@ export function IncidentForm({ tenantId, userId, risks = [], defaultType }: Inci
 
           <div className="grid gap-4 md:grid-cols-2">
             <div className="space-y-2">
-              <Label htmlFor="lostTimeMinutes">Tapt tid (minutter)</Label>
+              <Label htmlFor="lostTimeMinutes">Lost time (minutes)</Label>
               <Input
                 id="lostTimeMinutes"
               name="lostTimeMinutes"
                 type="number"
                 min={0}
-                placeholder="Antall minutter/timer fravær"
+                placeholder="Number of minutes/hours absent"
                 disabled={loading}
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="riskReferenceId">Knytt til risikovurdering</Label>
+              <Label htmlFor="riskReferenceId">Link to risk assessment</Label>
               <Select
                 name="riskReferenceId"
                 disabled={loading || risks.length === 0}
               >
                 <SelectTrigger>
-                  <SelectValue placeholder={risks.length ? "Velg risiko (valgfritt)" : "Ingen risikoer tilgjengelig"} />
+                  <SelectValue placeholder={risks.length ? "Select risk (optional)" : "No risks available"} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value={NO_RISK_REFERENCE_VALUE}>Ingen</SelectItem>
+                  <SelectItem value={NO_RISK_REFERENCE_VALUE}>None</SelectItem>
                   {risks.map((risk) => (
                     <SelectItem key={risk.id} value={risk.id}>
                       {risk.title} · Score {risk.score}
@@ -364,44 +364,44 @@ export function IncidentForm({ tenantId, userId, risks = [], defaultType }: Inci
 
       <Card>
         <CardHeader>
-          <CardTitle>Umiddelbare tiltak</CardTitle>
+          <CardTitle>Immediate actions</CardTitle>
           <CardDescription>
-            ISO 9001: Hva ble gjort umiddelbart for å kontrollere situasjonen?
+            ISO 9001: What was done immediately to control the situation?
           </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="space-y-2">
-            <Label htmlFor="immediateAction">Umiddelbare tiltak</Label>
+            <Label htmlFor="immediateAction">Immediate actions</Label>
             <Textarea
               id="immediateAction"
               name="immediateAction"
-              placeholder="F.eks. Stoppet arbeidet, ryddet området, sikret vitner, varslet leder..."
+              placeholder="E.g. Stopped work, cleared the area, secured witnesses, notified manager..."
               disabled={loading}
               rows={4}
             />
             <p className="text-xs text-muted-foreground">
-              Beskriv hva som ble gjort for å håndtere situasjonen umiddelbart
+              Describe what was done to handle the situation immediately
             </p>
           </div>
         </CardContent>
       </Card>
 
       <div className="rounded-lg bg-blue-50 border border-blue-200 p-6">
-        <h3 className="font-semibold text-blue-900 mb-3">📋 ISO 9001 - Avvikshåndtering</h3>
+        <h3 className="font-semibold text-blue-900 mb-3">📋 ISO 9001 - Incident Management</h3>
         <div className="text-sm text-blue-800 space-y-2">
-          <p><strong>Etter rapportering:</strong></p>
+          <p><strong>After reporting:</strong></p>
           <ul className="space-y-1 list-disc list-inside ml-4">
-            <li>Leder vil utrede årsak (årsaksanalyse)</li>
-            <li>Korrigerende tiltak vil bli planlagt</li>
-            <li>Effektiviteten av tiltak vil bli evaluert</li>
-            <li>Læringspunkter vil bli dokumentert</li>
+            <li>Manager will investigate the cause (root cause analysis)</li>
+            <li>Corrective actions will be planned</li>
+            <li>The effectiveness of actions will be evaluated</li>
+            <li>Lessons learned will be documented</li>
           </ul>
         </div>
       </div>
 
       <div className="flex gap-4">
         <Button type="submit" disabled={loading}>
-          {loading ? "Rapporterer..." : "Rapporter avvik"}
+          {loading ? "Reporting..." : "Report incident"}
         </Button>
         <Button
           type="button"
@@ -409,10 +409,9 @@ export function IncidentForm({ tenantId, userId, risks = [], defaultType }: Inci
           onClick={() => router.back()}
           disabled={loading}
         >
-          Avbryt
+          Cancel
         </Button>
       </div>
     </form>
   );
 }
-

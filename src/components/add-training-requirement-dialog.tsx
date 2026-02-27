@@ -75,8 +75,8 @@ export function AddTrainingRequirementDialog({
     if (!formData.courseKey) {
       toast({
         variant: "destructive",
-        title: "Feil",
-        description: "Velg et kurs",
+        title: "Error",
+        description: "Select a course",
       });
       return;
     }
@@ -90,8 +90,8 @@ export function AddTrainingRequirementDialog({
 
     if (result.success) {
       toast({
-        title: "✅ Opplæringskrav lagt til",
-        description: "Kurset er nå påkrevd for denne risikoen",
+        title: "✅ Training requirement added",
+        description: "The course is now required for this risk",
         className: "bg-green-50 border-green-200",
       });
       setFormData({
@@ -104,8 +104,8 @@ export function AddTrainingRequirementDialog({
     } else {
       toast({
         variant: "destructive",
-        title: "Feil",
-        description: result.error || "Kunne ikke legge til opplæringskrav",
+        title: "Error",
+        description: result.error || "Could not add training requirement",
       });
     }
 
@@ -118,15 +118,15 @@ export function AddTrainingRequirementDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Legg til opplæringskrav</DialogTitle>
+          <DialogTitle>Add training requirement</DialogTitle>
           <DialogDescription>
-            Definer påkrevd opplæring for å håndtere denne risikoen
+            Define required training to handle this risk
           </DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="course">Kurs</Label>
+            <Label htmlFor="course">Course</Label>
             {loadingCourses ? (
               <div className="flex items-center justify-center py-4">
                 <Loader2 className="h-6 w-6 animate-spin" />
@@ -139,7 +139,7 @@ export function AddTrainingRequirementDialog({
                 }
               >
                 <SelectTrigger>
-                  <SelectValue placeholder="Velg kurs" />
+                  <SelectValue placeholder="Select course" />
                 </SelectTrigger>
                 <SelectContent>
                   {courses.map((course) => (
@@ -160,7 +160,7 @@ export function AddTrainingRequirementDialog({
               </p>
               {selectedCourse.duration && (
                 <p className="text-muted-foreground mt-1">
-                  Varighet: {selectedCourse.duration} timer
+                  Duration: {selectedCourse.duration} hours
                 </p>
               )}
             </div>
@@ -175,15 +175,15 @@ export function AddTrainingRequirementDialog({
               }
             />
             <Label htmlFor="isMandatory" className="cursor-pointer">
-              Obligatorisk opplæring
+              Mandatory training
             </Label>
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="reason">Begrunnelse (valgfritt)</Label>
+            <Label htmlFor="reason">Reason (optional)</Label>
             <Textarea
               id="reason"
-              placeholder="F.eks. 'EU REACH Annex XVII - Diisocyanater', 'ISO 45001 krav', etc."
+              placeholder="E.g. 'OSHA 29 CFR 1910 - Diisocyanates', 'ISO 45001 requirement', etc."
               value={formData.reason}
               onChange={(e) =>
                 setFormData({ ...formData, reason: e.target.value })
@@ -199,11 +199,11 @@ export function AddTrainingRequirementDialog({
               onClick={() => onOpenChange(false)}
               disabled={loading}
             >
-              Avbryt
+              Cancel
             </Button>
             <Button type="submit" disabled={loading || loadingCourses}>
               {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              Legg til
+              Add
             </Button>
           </DialogFooter>
         </form>

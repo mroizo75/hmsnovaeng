@@ -28,7 +28,7 @@ export default async function EditRiskPage({ params }: { params: Promise<{ id: s
   });
 
   if (!user || user.tenants.length === 0) {
-    return <div>Ingen tilgang til tenant</div>;
+    return <div>No tenant access</div>;
   }
 
   const tenantId = user.tenants[0].tenantId;
@@ -71,10 +71,10 @@ export default async function EditRiskPage({ params }: { params: Promise<{ id: s
   });
 
   if (!risk) {
-    return <div>Risiko ikke funnet</div>;
+    return <div>Risk not found</div>;
   }
 
-  // Hent alle brukere for tenant (for ansvarlig person)
+  // Fetch all users for tenant (for responsible person)
   const tenantUsers = await prisma.user.findMany({
     where: {
       tenants: {
@@ -125,10 +125,10 @@ export default async function EditRiskPage({ params }: { params: Promise<{ id: s
         <Button variant="ghost" asChild className="mb-4">
           <Link href="/dashboard/risks">
             <ArrowLeft className="mr-2 h-4 w-4" />
-            Tilbake til risikoer
+            Back to Risks
           </Link>
         </Button>
-        <h1 className="text-3xl font-bold">Rediger risikovurdering</h1>
+        <h1 className="text-3xl font-bold">Edit Risk Assessment</h1>
         <p className="text-muted-foreground">{risk.title}</p>
       </div>
 
@@ -145,9 +145,9 @@ export default async function EditRiskPage({ params }: { params: Promise<{ id: s
             <CardHeader>
               <div className="flex items-center justify-between">
                 <div>
-                  <CardTitle>Tiltak for å redusere risiko</CardTitle>
+                  <CardTitle>Actions to Reduce Risk</CardTitle>
                   <CardDescription>
-                    ISO 9001: Planlagte tiltak med ansvarlig person og tidsplan
+                    ISO 9001: Planned actions with responsible person and timeline
                   </CardDescription>
                 </div>
                 <MeasureForm tenantId={tenantId} riskId={risk.id} users={tenantUsers} />
@@ -164,8 +164,8 @@ export default async function EditRiskPage({ params }: { params: Promise<{ id: s
         <CardHeader>
           <div className="flex items-center justify-between">
             <div>
-              <CardTitle>Kontroller</CardTitle>
-              <CardDescription>ISO 31000: dokumenter eierskap og effekt for sentrale kontroller</CardDescription>
+              <CardTitle>Controls</CardTitle>
+              <CardDescription>ISO 31000: document ownership and effectiveness for key controls</CardDescription>
             </div>
             <RiskControlForm riskId={risk.id} users={tenantUsers} documents={documents} />
           </div>
@@ -177,8 +177,8 @@ export default async function EditRiskPage({ params }: { params: Promise<{ id: s
 
       <Card>
         <CardHeader>
-          <CardTitle>Dokumentkoblinger</CardTitle>
-          <CardDescription>Viser prosedyrer, instrukser og rapporter som støtter risikostyringen</CardDescription>
+          <CardTitle>Document Links</CardTitle>
+          <CardDescription>Shows procedures, instructions, and reports supporting risk management</CardDescription>
         </CardHeader>
         <CardContent>
           <RiskDocumentLinks riskId={risk.id} documents={documents} links={risk.documentLinks} />
@@ -187,8 +187,8 @@ export default async function EditRiskPage({ params }: { params: Promise<{ id: s
 
       <Card>
         <CardHeader>
-          <CardTitle>Revisjoner og tester</CardTitle>
-          <CardDescription>Knytt interne revisjoner og kontrolltester til risikoen</CardDescription>
+          <CardTitle>Audits and Tests</CardTitle>
+          <CardDescription>Link internal audits and control tests to the risk</CardDescription>
         </CardHeader>
         <CardContent>
           <RiskAuditLinks riskId={risk.id} audits={audits} links={risk.auditLinks} />

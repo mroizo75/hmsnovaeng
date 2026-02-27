@@ -20,7 +20,7 @@ export default async function CompetenceMatrixPage() {
   });
 
   if (!user || user.tenants.length === 0) {
-    return <div>Ingen tilgang til tenant</div>;
+    return <div>No tenant access</div>;
   }
 
   const tenantId = user.tenants[0].tenantId;
@@ -39,7 +39,7 @@ export default async function CompetenceMatrixPage() {
     },
   });
 
-  // Hent all opplæring for tenanten
+  // Fetch all training for the tenant
   const trainings = await prisma.training.findMany({
     where: { tenantId },
     orderBy: { courseKey: "asc" },
@@ -56,7 +56,7 @@ export default async function CompetenceMatrixPage() {
     orderBy: { title: "asc" },
   });
 
-  // Bygg matrise: Grupperopplæring per bruker
+  // Build matrix: Group training per user
   const matrix = users.map((u) => ({
     user: u,
     trainings: trainings.filter((t) => t.userId === u.id),
@@ -67,12 +67,12 @@ export default async function CompetenceMatrixPage() {
       <div className="print:hidden">
         <Button variant="ghost" asChild className="mb-4">
           <Link href="/dashboard/training">
-            <ArrowLeft className="mr-2 h-4 w-4" /> Tilbake til opplæring
+            <ArrowLeft className="mr-2 h-4 w-4" /> Back to Training
           </Link>
         </Button>
-        <h1 className="text-3xl font-bold">Kompetansematrise</h1>
+        <h1 className="text-3xl font-bold">Competence Matrix</h1>
         <p className="text-muted-foreground">
-          Oversikt over hvilken kompetanse hver ansatt har
+          Overview of competence for each employee
         </p>
       </div>
 

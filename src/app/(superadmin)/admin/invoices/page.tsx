@@ -10,7 +10,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { RefreshCw } from "lucide-react";
 import { SyncInvoicesButton } from "@/components/sync-invoices-button";
 
 export default async function InvoicesPage() {
@@ -40,9 +39,9 @@ export default async function InvoicesPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold">Fakturaer</h1>
+          <h1 className="text-3xl font-bold">Invoices</h1>
           <p className="text-muted-foreground">
-            Oversikt over alle fakturaer og betalingsstatus
+            Overview of all invoices and payment status
           </p>
         </div>
         <SyncInvoicesButton />
@@ -51,7 +50,7 @@ export default async function InvoicesPage() {
       <div className="grid gap-4 md:grid-cols-4">
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">Sendt</CardTitle>
+            <CardTitle className="text-sm font-medium">Sent</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{stats.sent}</div>
@@ -59,7 +58,7 @@ export default async function InvoicesPage() {
         </Card>
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">Betalt</CardTitle>
+            <CardTitle className="text-sm font-medium">Paid</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-green-600">{stats.paid}</div>
@@ -67,22 +66,22 @@ export default async function InvoicesPage() {
         </Card>
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">Forfalt</CardTitle>
+            <CardTitle className="text-sm font-medium">Overdue</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-destructive">{stats.overdue}</div>
             <p className="text-xs text-muted-foreground">
-              {stats.overdueAmount.toLocaleString("no-NO")} kr
+              ${stats.overdueAmount.toLocaleString("en-US")}
             </p>
           </CardContent>
         </Card>
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">Total verdi</CardTitle>
+            <CardTitle className="text-sm font-medium">Total value</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {stats.totalAmount.toLocaleString("no-NO")} kr
+              ${stats.totalAmount.toLocaleString("en-US")}
             </div>
           </CardContent>
         </Card>
@@ -90,22 +89,22 @@ export default async function InvoicesPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Alle fakturaer ({invoices.length})</CardTitle>
+          <CardTitle>All invoices ({invoices.length})</CardTitle>
           <CardDescription>
-            Siste 100 fakturaer
+            Last 100 invoices
           </CardDescription>
         </CardHeader>
         <CardContent>
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Fakturanr</TableHead>
-                <TableHead>Bedrift</TableHead>
-                <TableHead>Beløp</TableHead>
-                <TableHead>Forfallsdato</TableHead>
-                <TableHead>Betalt dato</TableHead>
+                <TableHead>Invoice no.</TableHead>
+                <TableHead>Company</TableHead>
+                <TableHead>Amount</TableHead>
+                <TableHead>Due date</TableHead>
+                <TableHead>Paid date</TableHead>
                 <TableHead>Status</TableHead>
-                <TableHead>Periode</TableHead>
+                <TableHead>Period</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -116,14 +115,14 @@ export default async function InvoicesPage() {
                   </TableCell>
                   <TableCell>{invoice.tenant.name}</TableCell>
                   <TableCell>
-                    {invoice.amount.toLocaleString("no-NO")} kr
+                    ${invoice.amount.toLocaleString("en-US")}
                   </TableCell>
                   <TableCell>
-                    {new Date(invoice.dueDate).toLocaleDateString("no-NO")}
+                    {new Date(invoice.dueDate).toLocaleDateString("en-US")}
                   </TableCell>
                   <TableCell>
                     {invoice.paidDate
-                      ? new Date(invoice.paidDate).toLocaleDateString("no-NO")
+                      ? new Date(invoice.paidDate).toLocaleDateString("en-US")
                       : "-"}
                   </TableCell>
                   <TableCell>
@@ -149,4 +148,3 @@ export default async function InvoicesPage() {
     </div>
   );
 }
-

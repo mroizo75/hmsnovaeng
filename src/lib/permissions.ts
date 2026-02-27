@@ -733,12 +733,12 @@ export function getVisibleNavItems(role: Role) {
 export function getRoleDisplayName(role: Role): string {
   const roleNames: Record<Role, string> = {
     ADMIN: "Administrator",
-    HMS: "HMS-ansvarlig",
-    LEDER: "Leder",
-    VERNEOMBUD: "Verneombud",
-    ANSATT: "Ansatt",
-    BHT: "Bedriftshelsetjeneste",
-    REVISOR: "Revisor",
+    HMS: "H&S Manager",
+    LEDER: "Manager",
+    VERNEOMBUD: "Safety Representative",
+    ANSATT: "Employee",
+    BHT: "Occupational Health Service",
+    REVISOR: "Auditor",
   };
   return roleNames[role];
 }
@@ -748,13 +748,13 @@ export function getRoleDisplayName(role: Role): string {
  */
 export function getRoleDescription(role: Role): string {
   const descriptions: Record<Role, string> = {
-    ADMIN: "Full tilgang til alle funksjoner i bedriften",
-    HMS: "Administrerer HMS-systemet og har full tilgang til HMS-relaterte funksjoner",
-    LEDER: "Kan administrere sin avdeling og håndtere HMS-oppgaver",
-    VERNEOMBUD: "Kan rapportere avvik, risikovurderinger og delta i HMS-arbeid",
-    ANSATT: "Kan rapportere avvik, fylle ut skjemaer og lese dokumenter",
-    BHT: "Lesetilgang til alt og kan rapportere hendelser og risikovurderinger",
-    REVISOR: "Kun lesetilgang til alle HMS-data for revisjonsformål",
+    ADMIN: "Full access to all features in the organization",
+    HMS: "Manages the H&S system with full access to all H&S-related features",
+    LEDER: "Can manage their department and handle H&S tasks",
+    VERNEOMBUD: "Can report incidents, risk assessments, and participate in H&S work",
+    ANSATT: "Can report incidents, fill out forms, and read documents",
+    BHT: "Read access to everything and can report incidents and risk assessments",
+    REVISOR: "Read-only access to all H&S data for audit purposes",
   };
   return descriptions[role];
 }

@@ -34,7 +34,7 @@ export default async function TestNotificationsPage() {
   });
 
   if (!user || user.tenants.length === 0) {
-    return <div>Ingen tilgang til tenant</div>;
+    return <div>No access to tenant</div>;
   }
 
   const tenantId = user.tenants[0].tenantId;
@@ -64,16 +64,16 @@ export default async function TestNotificationsPage() {
     <div className="space-y-6">
       <Button variant="ghost" asChild className="mb-4">
         <Link href="/dashboard/settings">
-          <ArrowLeft className="mr-2 h-4 w-4" /> Tilbake til innstillinger
+          <ArrowLeft className="mr-2 h-4 w-4" /> Back to Settings
         </Link>
       </Button>
 
       <div className="flex items-center gap-3">
         <TestTube className="h-8 w-8 text-primary" />
         <div>
-          <h1 className="text-3xl font-bold">Test E-postvarslinger</h1>
+          <h1 className="text-3xl font-bold">Test Email Notifications</h1>
           <p className="text-muted-foreground">
-            Send test-e-poster for å verifisere at varslingssystemet fungerer
+            Send test emails to verify that the notification system is working
           </p>
         </div>
       </div>
@@ -81,11 +81,11 @@ export default async function TestNotificationsPage() {
       {!isResendConfigured && (
         <Alert variant="destructive">
           <AlertTriangle className="h-4 w-4" />
-          <AlertTitle>Resend ikke konfigurert</AlertTitle>
+          <AlertTitle>Resend not configured</AlertTitle>
           <AlertDescription>
-            RESEND_API_KEY er ikke satt i miljøvariablene. E-poster vil ikke bli sendt.
+            RESEND_API_KEY is not set in the environment variables. Emails will not be sent.
             <br />
-            Legg til <code className="bg-muted px-1 py-0.5 rounded">RESEND_API_KEY=din_api_key</code> i .env-filen.
+            Add <code className="bg-muted px-1 py-0.5 rounded">RESEND_API_KEY=your_api_key</code> to your .env file.
           </AlertDescription>
         </Alert>
       )}
@@ -95,9 +95,9 @@ export default async function TestNotificationsPage() {
           <div className="flex items-center gap-3">
             <Mail className="h-6 w-6 text-primary" />
             <div>
-              <CardTitle>E-postkonfigu rasjon</CardTitle>
+              <CardTitle>Email Configuration</CardTitle>
               <CardDescription>
-                Nåværende e-postoppsett for {tenant.name}
+                Current email setup for {tenant.name}
               </CardDescription>
             </div>
           </div>
@@ -105,7 +105,7 @@ export default async function TestNotificationsPage() {
         <CardContent className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <p className="text-sm font-medium text-muted-foreground">Fra-adresse</p>
+              <p className="text-sm font-medium text-muted-foreground">From Address</p>
               <p className="text-sm font-mono">
                 {process.env.RESEND_FROM_EMAIL ?? "noreply@hmsnova.no"}
               </p>
@@ -114,20 +114,20 @@ export default async function TestNotificationsPage() {
               <p className="text-sm font-medium text-muted-foreground">Status</p>
               <p className="text-sm">
                 {isResendConfigured ? (
-                  <span className="text-green-600 font-medium">✓ Konfigurert</span>
+                  <span className="text-green-600 font-medium">✓ Configured</span>
                 ) : (
-                  <span className="text-red-600 font-medium">✗ Ikke konfigurert</span>
+                  <span className="text-red-600 font-medium">✗ Not configured</span>
                 )}
               </p>
             </div>
             <div>
-              <p className="text-sm font-medium text-muted-foreground">Antall brukere</p>
+              <p className="text-sm font-medium text-muted-foreground">Number of Users</p>
               <p className="text-sm">{tenantUsers.length}</p>
             </div>
             <div>
-              <p className="text-sm font-medium text-muted-foreground">Aktive e-postvarsler</p>
+              <p className="text-sm font-medium text-muted-foreground">Active Email Notifications</p>
               <p className="text-sm">
-                {tenantUsers.filter((u) => u.notifyByEmail).length} av {tenantUsers.length}
+                {tenantUsers.filter((u) => u.notifyByEmail).length} of {tenantUsers.length}
               </p>
             </div>
           </div>

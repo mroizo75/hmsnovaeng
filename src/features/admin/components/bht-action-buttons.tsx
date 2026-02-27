@@ -56,23 +56,23 @@ export function BhtActionButtons({
 
       if (result?.success) {
         toast({
-          title: "✅ Startet",
+          title: "✅ Started",
           description: getSuccessMessage(action),
         });
         router.refresh();
       } else {
         toast({
           variant: "destructive",
-          title: "Feil",
-          description: result?.error || "Kunne ikke starte",
+          title: "Error",
+          description: result?.error || "Could not start",
         });
       }
     } catch (error) {
       console.error(error);
       toast({
         variant: "destructive",
-        title: "Systemfeil",
-        description: "En uventet feil oppstod",
+        title: "System error",
+        description: "An unexpected error occurred",
       });
     } finally {
       setLoading(false);
@@ -82,17 +82,17 @@ export function BhtActionButtons({
   function getSuccessMessage(action: string) {
     switch (action) {
       case "assessment":
-        return "Kartlegging startet med AI-analyse";
+        return "Assessment started with AI analysis";
       case "amo":
-        return "AMO-møte opprettet med AI-agenda";
+        return "AMO meeting created with AI agenda";
       case "inspection":
-        return "Vernerunde opprettet med AI-sjekkliste";
+        return "Safety walk created with AI checklist";
       case "exposure":
-        return "Eksponeringsvurdering startet med AI";
+        return "Exposure assessment started with AI";
       case "report":
-        return "Årsrapport generert med AI";
+        return "Annual report generated with AI";
       default:
-        return "Aktivitet startet";
+        return "Activity started";
     }
   }
 

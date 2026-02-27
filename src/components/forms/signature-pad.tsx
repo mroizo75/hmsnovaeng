@@ -31,11 +31,11 @@ export function SignaturePad({ onSave, initialValue }: SignaturePadProps) {
 
   function handleSave() {
     if (signatureRef.current) {
-      // Sjekk om canvas er tom
+      // Check if canvas is empty
       if (signatureRef.current.isEmpty()) {
         toast({
-          title: "❌ Tom signatur",
-          description: "Du må signere før du kan bekrefte",
+          title: "❌ Empty signature",
+          description: "You must sign before you can confirm",
           variant: "destructive",
         });
         return;
@@ -75,7 +75,7 @@ export function SignaturePad({ onSave, initialValue }: SignaturePadProps) {
           disabled={isEmpty}
         >
           <Trash2 className="h-4 w-4 mr-2" />
-          Tøm
+          Clear
         </Button>
         <Button
           type="button"
@@ -83,11 +83,11 @@ export function SignaturePad({ onSave, initialValue }: SignaturePadProps) {
           className="flex-1 bg-green-600 hover:bg-green-700"
         >
           <Check className="h-4 w-4 mr-2" />
-          Bekreft signatur
+          Confirm signature
         </Button>
       </div>
       <p className="text-xs text-muted-foreground text-center">
-        ✍️ Signer med mus, touchpad eller finger. Trykk "Bekreft signatur" når du er ferdig.
+        ✍️ Sign with mouse, touchpad or finger. Press &quot;Confirm signature&quot; when done.
       </p>
     </div>
   );

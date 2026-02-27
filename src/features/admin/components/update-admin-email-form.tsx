@@ -53,7 +53,7 @@ export function UpdateAdminEmailForm({ tenantId, currentEmail }: UpdateAdminEmai
   return (
     <form onSubmit={onSubmit} className="space-y-4">
       <div>
-        <Label htmlFor="currentEmail">Nåværende e-post</Label>
+        <Label htmlFor="currentEmail">Current email</Label>
         <Input
           id="currentEmail"
           value={currentEmail}

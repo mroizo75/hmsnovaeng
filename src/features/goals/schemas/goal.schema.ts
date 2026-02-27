@@ -22,7 +22,7 @@ import { z } from "zod";
 
 export const createGoalSchema = z.object({
   tenantId: z.string().cuid(),
-  title: z.string().min(5, "Tittel må være minst 5 tegn"),
+  title: z.string().min(5, "Title must be at least 5 characters"),
   description: z.string().optional(),
   category: z.enum([
     "QUALITY",
@@ -93,14 +93,14 @@ export type CreateMeasurementInput = z.infer<typeof createMeasurementSchema>;
  */
 export function getCategoryLabel(category: string): string {
   const labels: Record<string, string> = {
-    QUALITY: "Kvalitet",
-    HMS: "HMS",
-    ENVIRONMENT: "Miljø",
-    CUSTOMER: "Kunde",
-    EFFICIENCY: "Effektivitet",
-    FINANCE: "Økonomi",
-    COMPETENCE: "Kompetanse",
-    OTHER: "Annet",
+    QUALITY: "Quality",
+    HMS: "H&S",
+    ENVIRONMENT: "Environment",
+    CUSTOMER: "Customer",
+    EFFICIENCY: "Efficiency",
+    FINANCE: "Finance",
+    COMPETENCE: "Competency",
+    OTHER: "Other",
   };
   return labels[category] || category;
 }
@@ -127,11 +127,11 @@ export function getCategoryColor(category: string): string {
  */
 export function getStatusLabel(status: string): string {
   const labels: Record<string, string> = {
-    ACTIVE: "Aktivt",
-    ACHIEVED: "Oppnådd",
-    AT_RISK: "I risiko",
-    FAILED: "Ikke oppnådd",
-    ARCHIVED: "Arkivert",
+    ACTIVE: "Active",
+    ACHIEVED: "Achieved",
+    AT_RISK: "At Risk",
+    FAILED: "Not Achieved",
+    ARCHIVED: "Archived",
   };
   return labels[status] || status;
 }
@@ -219,9 +219,9 @@ export function calculateStatus(
  */
 export function getMeasurementTypeLabel(type: string): string {
   const labels: Record<string, string> = {
-    MANUAL: "Manuell",
-    AUTOMATIC: "Automatisk",
-    CALCULATED: "Beregnet",
+    MANUAL: "Manual",
+    AUTOMATIC: "Automatic",
+    CALCULATED: "Calculated",
   };
   return labels[type] || type;
 }

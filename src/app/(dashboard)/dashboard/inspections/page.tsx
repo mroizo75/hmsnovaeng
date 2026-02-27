@@ -8,7 +8,6 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
-import { nb } from "date-fns/locale";
 import { Plus, Calendar, MapPin, User, Smartphone } from "lucide-react";
 import { PageHelpDialog } from "@/components/dashboard/page-help-dialog";
 import { helpContent } from "@/lib/help-content";
@@ -52,22 +51,22 @@ export default async function InspectionsPage() {
 
   const getStatusBadge = (status: string) => {
     const variants: Record<string, { label: string; variant: "default" | "secondary" | "outline" }> = {
-      PLANNED: { label: "Planlagt", variant: "secondary" },
-      IN_PROGRESS: { label: "Pågår", variant: "default" },
-      COMPLETED: { label: "Fullført", variant: "outline" },
-      CANCELLED: { label: "Kansellert", variant: "outline" },
+      PLANNED: { label: "Planned", variant: "secondary" },
+      IN_PROGRESS: { label: "In Progress", variant: "default" },
+      COMPLETED: { label: "Completed", variant: "outline" },
+      CANCELLED: { label: "Cancelled", variant: "outline" },
     };
     return variants[status] || variants.PLANNED;
   };
 
   const getTypeBadge = (type: string) => {
     const labels: Record<string, string> = {
-      VERNERUNDE: "Vernerunde",
-      HMS_INSPEKSJON: "HMS-inspeksjon",
-      BRANNØVELSE: "Brannøvelse",
-      SHA_PLAN: "SHA-plan",
-      SIKKERHETSVANDRING: "Sikkerhetsvandring",
-      ANDRE: "Annen",
+      VERNERUNDE: "Safety Inspection",
+      HMS_INSPEKSJON: "H&S Inspection",
+      BRANNØVELSE: "Fire Drill",
+      SHA_PLAN: "SHA Plan",
+      SIKKERHETSVANDRING: "Safety Walk",
+      ANDRE: "Other",
     };
     return labels[type] || type;
   };
@@ -77,9 +76,9 @@ export default async function InspectionsPage() {
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div>
-            <h1 className="text-3xl font-bold">Vernerunde</h1>
+            <h1 className="text-3xl font-bold">Safety Inspections</h1>
             <p className="text-muted-foreground mt-1">
-              Gjennomfør og administrer vernerunder og HMS-inspeksjoner
+              Conduct and manage safety inspections
             </p>
           </div>
           <PageHelpDialog content={helpContent.inspections} />
@@ -88,7 +87,7 @@ export default async function InspectionsPage() {
           <Link href="/dashboard/inspections/new">
             <Button>
               <Plus className="h-4 w-4 mr-2" />
-              Ny vernerunde
+              New Inspection
             </Button>
           </Link>
         )}
@@ -114,9 +113,7 @@ export default async function InspectionsPage() {
                           {inspection.title}
                         </CardTitle>
                         <CardDescription className="text-xs mt-1">
-                          {format(new Date(inspection.scheduledDate), "d. MMM yyyy", {
-                            locale: nb,
-                          })}
+                          {format(new Date(inspection.scheduledDate), "MMM d, yyyy")}
                         </CardDescription>
                       </div>
                       <Smartphone className="h-5 w-5 text-green-600 ml-2" />
@@ -129,7 +126,7 @@ export default async function InspectionsPage() {
                       </Badge>
                       {inspection.findings.length > 0 && (
                         <span className="text-xs text-orange-600 font-medium">
-                          {inspection.findings.length} åpne funn
+                          {inspection.findings.length} open findings
                         </span>
                       )}
                     </div>
@@ -144,13 +141,13 @@ export default async function InspectionsPage() {
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <Card>
           <CardHeader className="pb-3">
-            <CardDescription>Totalt</CardDescription>
+            <CardDescription>Total</CardDescription>
             <CardTitle className="text-3xl">{inspections.length}</CardTitle>
           </CardHeader>
         </Card>
         <Card>
           <CardHeader className="pb-3">
-            <CardDescription>Planlagt</CardDescription>
+            <CardDescription>Planned</CardDescription>
             <CardTitle className="text-3xl text-blue-600">
               {inspections.filter((i) => i.status === "PLANNED").length}
             </CardTitle>
@@ -158,7 +155,7 @@ export default async function InspectionsPage() {
         </Card>
         <Card>
           <CardHeader className="pb-3">
-            <CardDescription>Pågår</CardDescription>
+            <CardDescription>In Progress</CardDescription>
             <CardTitle className="text-3xl text-orange-600">
               {inspections.filter((i) => i.status === "IN_PROGRESS").length}
             </CardTitle>
@@ -166,7 +163,7 @@ export default async function InspectionsPage() {
         </Card>
         <Card>
           <CardHeader className="pb-3">
-            <CardDescription>Åpne funn</CardDescription>
+            <CardDescription>Open Findings</CardDescription>
             <CardTitle className="text-3xl text-red-600">
               {inspections.reduce((sum, i) => sum + i.findings.length, 0)}
             </CardTitle>
@@ -177,19 +174,19 @@ export default async function InspectionsPage() {
       {/* Inspections Table */}
       <Card>
         <CardHeader>
-          <CardTitle>Alle vernerunder</CardTitle>
-          <CardDescription>Oversikt over gjennomførte og planlagte vernerunder</CardDescription>
+          <CardTitle>All Inspections</CardTitle>
+          <CardDescription>Overview of completed and planned inspections</CardDescription>
         </CardHeader>
         <CardContent>
           {inspections.length === 0 ? (
             <div className="text-center py-12">
               <Calendar className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-              <p className="text-muted-foreground">Ingen vernerunder registrert ennå</p>
+              <p className="text-muted-foreground">No inspections registered yet</p>
               {permissions.canCreateInspections && (
                 <Link href="/dashboard/inspections/new">
                   <Button className="mt-4">
                     <Plus className="h-4 w-4 mr-2" />
-                    Opprett første vernerunde
+                    Create First Inspection
                   </Button>
                 </Link>
               )}
@@ -199,13 +196,13 @@ export default async function InspectionsPage() {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Tittel</TableHead>
+                    <TableHead>Title</TableHead>
                     <TableHead>Type</TableHead>
-                    <TableHead>Planlagt dato</TableHead>
-                    <TableHead>Lokasjon</TableHead>
+                    <TableHead>Scheduled Date</TableHead>
+                    <TableHead>Location</TableHead>
                     <TableHead>Status</TableHead>
-                    <TableHead>Åpne funn</TableHead>
-                    <TableHead className="text-right">Handlinger</TableHead>
+                    <TableHead>Open Findings</TableHead>
+                    <TableHead className="text-right">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -216,9 +213,7 @@ export default async function InspectionsPage() {
                         <TableCell className="font-medium">{inspection.title}</TableCell>
                         <TableCell>{getTypeBadge(inspection.type)}</TableCell>
                         <TableCell>
-                          {format(new Date(inspection.scheduledDate), "d. MMM yyyy", {
-                            locale: nb,
-                          })}
+                          {format(new Date(inspection.scheduledDate), "MMM d, yyyy")}
                         </TableCell>
                         <TableCell>
                           {inspection.location ? (
@@ -245,7 +240,7 @@ export default async function InspectionsPage() {
                         <TableCell className="text-right space-x-2">
                           <Link href={`/dashboard/inspections/${inspection.id}`}>
                             <Button variant="ghost" size="sm">
-                              Detaljer
+                              Details
                             </Button>
                           </Link>
                         </TableCell>

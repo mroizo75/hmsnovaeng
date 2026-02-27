@@ -13,8 +13,8 @@ import {
  */
 export const createRiskSchema = z.object({
   tenantId: z.string().cuid(),
-  title: z.string().min(3, "Tittel må være minst 3 tegn"),
-  context: z.string().min(10, "Beskrivelse må være minst 10 tegn"),
+  title: z.string().min(3, "Title must be at least 3 characters"),
+  context: z.string().min(10, "Description must be at least 10 characters"),
   likelihood: z.number().int().min(1).max(5),
   consequence: z.number().int().min(1).max(5),
   ownerId: z.string().cuid(),
@@ -74,7 +74,7 @@ export const updateRiskSchema = z.object({
 /** Schema for å opprette en risikovurdering (f.eks. for et år) */
 export const createRiskAssessmentSchema = z.object({
   tenantId: z.string().cuid(),
-  title: z.string().min(3, "Tittel må være minst 3 tegn"),
+  title: z.string().min(3, "Title must be at least 3 characters"),
   assessmentYear: z.number().int().min(2000).max(2100),
 });
 

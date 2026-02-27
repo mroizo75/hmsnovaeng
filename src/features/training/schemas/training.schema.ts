@@ -13,9 +13,9 @@ import { z } from "zod";
 export const createTrainingSchema = z.object({
   tenantId: z.string().cuid(),
   userId: z.string().cuid(),
-  courseKey: z.string().min(2, "Kurs ID må være minst 2 tegn"),
-  title: z.string().min(3, "Tittel må være minst 3 tegn"),
-  provider: z.string().min(2, "Leverandør må være minst 2 tegn"),
+  courseKey: z.string().min(2, "Course ID must be at least 2 characters"),
+  title: z.string().min(3, "Title must be at least 3 characters"),
+  provider: z.string().min(2, "Provider must be at least 2 characters"),
   completedAt: z.date().optional(),
   validUntil: z.date().optional(), // For kurs med utløpsdato (f.eks. førstehjelpskurs)
   proofDocKey: z.string().optional(), // ISO 9001: Dokumentert bevis (sertifikat)
@@ -33,7 +33,7 @@ export const updateTrainingSchema = z.object({
 
 export const evaluateTrainingSchema = z.object({
   id: z.string().cuid(),
-  effectiveness: z.string().min(20, "Evalueringen må være minst 20 tegn"),
+  effectiveness: z.string().min(20, "The evaluation must be at least 20 characters"),
   evaluatedBy: z.string().cuid(),
 });
 
@@ -74,11 +74,11 @@ export function getTrainingStatus(training: {
  */
 export function getTrainingStatusLabel(status: string): string {
   const labels: Record<string, string> = {
-    NOT_STARTED: "Ikke startet",
-    COMPLETED: "Fullført",
-    VALID: "Gyldig",
-    EXPIRING_SOON: "Utløper snart",
-    EXPIRED: "Utløpt",
+    NOT_STARTED: "Not Started",
+    COMPLETED: "Completed",
+    VALID: "Valid",
+    EXPIRING_SOON: "Expiring Soon",
+    EXPIRED: "Expired",
   };
   return labels[status] || status;
 }
@@ -103,57 +103,57 @@ export function getTrainingStatusColor(status: string): string {
 export const STANDARD_COURSES = [
   {
     key: "hms-intro",
-    title: "HMS Introduksjon",
-    description: "Grunnleggende HMS-opplæring for alle ansatte",
+    title: "H&S Introduction",
+    description: "Basic H&S training for all employees",
     isRequired: true,
-    validityYears: null, // Ikke utløpsdato
+    validityYears: null,
   },
   {
     key: "working-at-height",
-    title: "Arbeid i høyden",
-    description: "Sikker bruk av stige, stillas og fallutstyr",
+    title: "Working at Height",
+    description: "Safe use of ladders, scaffolding, and fall protection",
     isRequired: false,
     validityYears: 3,
   },
   {
     key: "first-aid",
-    title: "Førstehjelp",
-    description: "Grunnleggende førstehjelp og hjerte-lungeredning",
+    title: "First Aid",
+    description: "Basic first aid and CPR",
     isRequired: false,
     validityYears: 2,
   },
   {
     key: "fire-safety",
-    title: "Brannsikkerhet",
-    description: "Brannvernopplæring og bruk av slokkeutstyr",
+    title: "Fire Safety",
+    description: "Fire prevention training and use of fire-fighting equipment",
     isRequired: true,
     validityYears: 1,
   },
   {
     key: "chemical-handling",
-    title: "Kjemikaliehåndtering",
-    description: "Sikker håndtering og lagring av kjemikalier",
+    title: "Chemical Handling",
+    description: "Safe handling and storage of chemicals",
     isRequired: false,
     validityYears: 3,
   },
   {
     key: "forklift",
-    title: "Truckførerbevis",
-    description: "Godkjent opplæring for truckkjøring",
+    title: "Forklift Operator Certificate",
+    description: "Certified forklift operator training",
     isRequired: false,
     validityYears: 5,
   },
   {
     key: "hot-work",
-    title: "Varmt arbeid",
-    description: "Sertifikat for varmt arbeid (sveising, skjæring)",
+    title: "Hot Work",
+    description: "Certificate for hot work (welding, cutting)",
     isRequired: false,
     validityYears: 3,
   },
   {
     key: "confined-space",
-    title: "Arbeid i trange rom",
-    description: "Sikkerhet ved arbeid i trange/lukkede rom",
+    title: "Confined Space Work",
+    description: "Safety when working in confined/enclosed spaces",
     isRequired: false,
     validityYears: 3,
   },

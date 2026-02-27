@@ -58,8 +58,8 @@ export function BhtConsultationForm({ bhtClientId }: BhtConsultationFormProps) {
     if (!topic || !description || !recommendation) {
       toast({
         variant: "destructive",
-        title: "Mangler informasjon",
-        description: "Fyll ut alle påkrevde felt",
+        title: "Missing information",
+        description: "Fill in all required fields",
       });
       return;
     }
@@ -81,15 +81,15 @@ export function BhtConsultationForm({ bhtClientId }: BhtConsultationFormProps) {
 
       if (result.success) {
         toast({
-          title: "✅ Rådgivning registrert",
-          description: "Rådgivningen er lagret i BHT-loggen",
+          title: "✅ Consultation registered",
+          description: "The consultation has been saved to the OHS log",
         });
         resetForm();
         router.refresh();
       } else {
         toast({
           variant: "destructive",
-          title: "Feil",
+          title: "Error",
           description: result.error,
         });
       }
@@ -97,8 +97,8 @@ export function BhtConsultationForm({ bhtClientId }: BhtConsultationFormProps) {
       console.error(error);
       toast({
         variant: "destructive",
-        title: "Systemfeil",
-        description: "Kunne ikke registrere rådgivning",
+        title: "System error",
+        description: "Could not register consultation",
       });
     } finally {
       setLoading(false);
@@ -109,7 +109,7 @@ export function BhtConsultationForm({ bhtClientId }: BhtConsultationFormProps) {
     return (
       <Button onClick={() => setExpanded(true)} variant="outline" className="w-full">
         <Plus className="h-4 w-4 mr-2" />
-        Registrer ny rådgivning
+        Register new consultation
       </Button>
     );
   }
@@ -118,7 +118,7 @@ export function BhtConsultationForm({ bhtClientId }: BhtConsultationFormProps) {
     <form onSubmit={handleSubmit} className="space-y-4">
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-2">
-          <Label>Type rådgivning *</Label>
+          <Label>Consultation type *</Label>
           <Select
             value={consultationType}
             onValueChange={(v) =>
@@ -129,25 +129,25 @@ export function BhtConsultationForm({ bhtClientId }: BhtConsultationFormProps) {
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="ON_REQUEST">På forespørsel</SelectItem>
-              <SelectItem value="ASSESSMENT_RELATED">I forbindelse med kartlegging</SelectItem>
-              <SelectItem value="OPERATIONAL_CHANGE">Ved endringer i drift</SelectItem>
-              <SelectItem value="FOLLOW_UP">Oppfølging</SelectItem>
+              <SelectItem value="ON_REQUEST">On request</SelectItem>
+              <SelectItem value="ASSESSMENT_RELATED">In connection with assessment</SelectItem>
+              <SelectItem value="OPERATIONAL_CHANGE">Due to operational changes</SelectItem>
+              <SelectItem value="FOLLOW_UP">Follow-up</SelectItem>
             </SelectContent>
           </Select>
         </div>
 
         <div className="space-y-2">
-          <Label>Metode *</Label>
+          <Label>Method *</Label>
           <Select value={method} onValueChange={(v) => setMethod(v as typeof method)}>
             <SelectTrigger>
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="DIGITAL_MEETING">Digitalt møte</SelectItem>
-              <SelectItem value="PHONE">Telefon</SelectItem>
-              <SelectItem value="WRITTEN">Skriftlig i HMS Nova</SelectItem>
-              <SelectItem value="IN_PERSON">Fysisk møte</SelectItem>
+              <SelectItem value="DIGITAL_MEETING">Digital meeting</SelectItem>
+              <SelectItem value="PHONE">Phone</SelectItem>
+              <SelectItem value="WRITTEN">Written in HMS Nova</SelectItem>
+              <SelectItem value="IN_PERSON">In-person meeting</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -155,47 +155,47 @@ export function BhtConsultationForm({ bhtClientId }: BhtConsultationFormProps) {
 
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-2">
-          <Label htmlFor="topic">Tema/emne *</Label>
+          <Label htmlFor="topic">Topic *</Label>
           <Input
             id="topic"
             value={topic}
             onChange={(e) => setTopic(e.target.value)}
-            placeholder="Hva ble spurt om?"
+            placeholder="What was asked about?"
             required
           />
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="duration">Varighet (minutter)</Label>
+          <Label htmlFor="duration">Duration (minutes)</Label>
           <Input
             id="duration"
             type="number"
             value={durationMinutes}
             onChange={(e) => setDurationMinutes(e.target.value)}
-            placeholder="f.eks. 30"
+            placeholder="e.g. 30"
           />
         </div>
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="description">Beskrivelse av henvendelsen *</Label>
+        <Label htmlFor="description">Description of the inquiry *</Label>
         <Textarea
           id="description"
           value={description}
           onChange={(e) => setDescription(e.target.value)}
-          placeholder="Beskriv hva kunden spurte om..."
+          placeholder="Describe what the customer asked about..."
           rows={3}
           required
         />
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="recommendation">Anbefaling/råd gitt *</Label>
+        <Label htmlFor="recommendation">Recommendation/advice given *</Label>
         <Textarea
           id="recommendation"
           value={recommendation}
           onChange={(e) => setRecommendation(e.target.value)}
-          placeholder="Hva ble anbefalt?"
+          placeholder="What was recommended?"
           rows={3}
           required
         />
@@ -209,22 +209,22 @@ export function BhtConsultationForm({ bhtClientId }: BhtConsultationFormProps) {
             onCheckedChange={(c) => setIsWithinScope(c as boolean)}
           />
           <Label htmlFor="isWithinScope" className="font-normal">
-            Innenfor grunnpakke-scope
+            Within base package scope
           </Label>
         </div>
 
         {!isWithinScope && (
           <>
             <p className="text-sm text-muted-foreground">
-              <strong>Avgrensning (viktig):</strong> ❌ Ingen individoppfølging, ❌ Ingen behandling, ❌ Ingen NAV-saker
+              <strong>Scope limitation (important):</strong> ❌ No individual follow-up, ❌ No treatment, ❌ No NAV cases
             </p>
             <div className="space-y-2">
-              <Label htmlFor="outOfScope">Hva ble henvist til?</Label>
+              <Label htmlFor="outOfScope">What was the referral to?</Label>
               <Textarea
                 id="outOfScope"
                 value={outOfScopeNotes}
                 onChange={(e) => setOutOfScopeNotes(e.target.value)}
-                placeholder="Beskriv hva kunden ble henvist til (f.eks. utvidet BHT-pakke, ekstern spesialist)"
+                placeholder="Describe what the customer was referred to (e.g. extended OHS package, external specialist)"
                 rows={2}
               />
             </div>
@@ -239,11 +239,11 @@ export function BhtConsultationForm({ bhtClientId }: BhtConsultationFormProps) {
           onClick={() => setExpanded(false)}
           disabled={loading}
         >
-          Avbryt
+          Cancel
         </Button>
         <Button type="submit" disabled={loading}>
           {loading && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
-          Registrer rådgivning
+          Register consultation
         </Button>
       </div>
     </form>

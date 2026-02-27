@@ -22,7 +22,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { format } from "date-fns";
-import { nb } from "date-fns/locale";
+import { enUS } from "date-fns/locale";
 import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
@@ -95,45 +95,45 @@ interface Message {
 function getStatusBadge(status: WhistleblowStatus) {
   switch (status) {
     case "RECEIVED":
-      return <Badge variant="secondary">Mottatt</Badge>;
+      return <Badge variant="secondary">Received</Badge>;
     case "ACKNOWLEDGED":
-      return <Badge className="bg-blue-500 hover:bg-blue-500">Bekreftet</Badge>;
+      return <Badge className="bg-blue-500 hover:bg-blue-500">Acknowledged</Badge>;
     case "UNDER_INVESTIGATION":
-      return <Badge className="bg-purple-500 hover:bg-purple-500">Under etterforskning</Badge>;
+      return <Badge className="bg-purple-500 hover:bg-purple-500">Under Investigation</Badge>;
     case "ACTION_TAKEN":
-      return <Badge className="bg-yellow-500 hover:bg-yellow-500">Tiltak iverksatt</Badge>;
+      return <Badge className="bg-yellow-500 hover:bg-yellow-500">Action Taken</Badge>;
     case "RESOLVED":
-      return <Badge className="bg-green-600 hover:bg-green-600">Løst</Badge>;
+      return <Badge className="bg-green-600 hover:bg-green-600">Resolved</Badge>;
     case "CLOSED":
-      return <Badge variant="outline">Avsluttet</Badge>;
+      return <Badge variant="outline">Closed</Badge>;
     case "DISMISSED":
-      return <Badge variant="destructive">Avvist</Badge>;
+      return <Badge variant="destructive">Dismissed</Badge>;
   }
 }
 
 function getSeverityBadge(severity: WhistleblowSeverity) {
   switch (severity) {
     case "LOW":
-      return <Badge variant="outline">Lav</Badge>;
+      return <Badge variant="outline">Low</Badge>;
     case "MEDIUM":
       return <Badge className="bg-yellow-500 hover:bg-yellow-500">Medium</Badge>;
     case "HIGH":
-      return <Badge className="bg-orange-500 hover:bg-orange-500">Høy</Badge>;
+      return <Badge className="bg-orange-500 hover:bg-orange-500">High</Badge>;
     case "CRITICAL":
-      return <Badge variant="destructive">Kritisk</Badge>;
+      return <Badge variant="destructive">Critical</Badge>;
   }
 }
 
 function getCategoryLabel(category: WhistleblowCategory) {
   const labels: Record<WhistleblowCategory, string> = {
-    HARASSMENT: "Trakassering",
-    DISCRIMINATION: "Diskriminering",
-    WORK_ENVIRONMENT: "Arbeidsmiljø",
-    SAFETY: "HMS/Sikkerhet",
-    CORRUPTION: "Korrupsjon",
-    ETHICS: "Etikk",
-    LEGAL: "Lovbrudd",
-    OTHER: "Annet",
+    HARASSMENT: "Harassment",
+    DISCRIMINATION: "Discrimination",
+    WORK_ENVIRONMENT: "Work Environment",
+    SAFETY: "EHS/Safety",
+    CORRUPTION: "Corruption",
+    ETHICS: "Ethics",
+    LEGAL: "Legal Violation",
+    OTHER: "Other",
   };
   return labels[category];
 }
@@ -184,13 +184,13 @@ export default function WhistleblowingDetailPage() {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || "Kunne ikke hente sak");
+        throw new Error(data.error || "Could not fetch case");
       }
 
       setCaseData(data.data);
     } catch (error: any) {
       toast({
-        title: "Feil",
+        title: "Error",
         description: error.message,
         variant: "destructive",
       });
@@ -217,14 +217,14 @@ export default function WhistleblowingDetailPage() {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || "Kunne ikke sende melding");
+        throw new Error(data.error || "Could not send message");
       }
 
       toast({
-        title: "Melding sendt",
+        title: "Message sent",
         description: isInternalMessage
-          ? "Intern notat lagt til"
-          : "Melding sendt til varsler",
+          ? "Internal note added"
+          : "Message sent to reporter",
       });
 
       setMessageText("");
@@ -232,7 +232,7 @@ export default function WhistleblowingDetailPage() {
       fetchCase();
     } catch (error: any) {
       toast({
-        title: "Feil",
+        title: "Error",
         description: error.message,
         variant: "destructive",
       });
@@ -253,18 +253,18 @@ export default function WhistleblowingDetailPage() {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || "Kunne ikke oppdatere status");
+        throw new Error(data.error || "Could not update status");
       }
 
       toast({
-        title: "Status oppdatert",
-        description: "Sakens status er oppdatert",
+        title: "Status updated",
+        description: "The case status has been updated",
       });
 
       fetchCase();
     } catch (error: any) {
       toast({
-        title: "Feil",
+        title: "Error",
         description: error.message,
         variant: "destructive",
       });
@@ -285,18 +285,18 @@ export default function WhistleblowingDetailPage() {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || "Kunne ikke oppdatere alvorlighet");
+        throw new Error(data.error || "Could not update severity");
       }
 
       toast({
-        title: "Alvorlighet oppdatert",
-        description: "Sakens alvorlighet er oppdatert",
+        title: "Severity updated",
+        description: "The case severity has been updated",
       });
 
       fetchCase();
     } catch (error: any) {
       toast({
-        title: "Feil",
+        title: "Error",
         description: error.message,
         variant: "destructive",
       });
@@ -318,18 +318,18 @@ export default function WhistleblowingDetailPage() {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || "Kunne ikke tildele sak");
+        throw new Error(data.error || "Could not assign case");
       }
 
       toast({
-        title: actualUserId ? "Sak tildelt" : "Tildeling fjernet",
-        description: actualUserId ? "Saken er tildelt valgt person" : "Saken er ikke lenger tildelt noen",
+        title: actualUserId ? "Case assigned" : "Assignment removed",
+        description: actualUserId ? "The case has been assigned to the selected person" : "The case is no longer assigned to anyone",
       });
 
       fetchCase();
     } catch (error: any) {
       toast({
-        title: "Feil",
+        title: "Error",
         description: error.message,
         variant: "destructive",
       });
@@ -339,7 +339,7 @@ export default function WhistleblowingDetailPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12">
-        <p>Laster...</p>
+        <p>Loading...</p>
       </div>
     );
   }
@@ -360,7 +360,7 @@ export default function WhistleblowingDetailPage() {
           </Link>
           <div>
             <h1 className="text-3xl font-bold tracking-tight">{caseData.title}</h1>
-            <p className="text-muted-foreground">Saksnummer: {caseData.caseNumber}</p>
+            <p className="text-muted-foreground">Case Number: {caseData.caseNumber}</p>
           </div>
         </div>
         <div className="flex items-center gap-2">
@@ -370,16 +370,16 @@ export default function WhistleblowingDetailPage() {
       </div>
 
       <div className="grid gap-6 lg:grid-cols-3">
-        {/* Hovedinnhold */}
+        {/* Main Content */}
         <div className="space-y-6 lg:col-span-2">
-          {/* Saksdetaljer */}
+          {/* Case Details */}
           <Card>
             <CardHeader>
-              <CardTitle>Saksdetaljer</CardTitle>
+              <CardTitle>Case Details</CardTitle>
             </CardHeader>
             <CardContent className="space-y-6">
               <div>
-                <h3 className="mb-2 font-semibold">Beskrivelse</h3>
+                <h3 className="mb-2 font-semibold">Description</h3>
                 <p className="whitespace-pre-wrap text-sm text-muted-foreground">
                   {caseData.description}
                 </p>
@@ -393,10 +393,10 @@ export default function WhistleblowingDetailPage() {
                       <div className="flex items-center gap-3">
                         <Calendar className="h-5 w-5 text-muted-foreground" />
                         <div>
-                          <p className="text-sm font-medium">Når</p>
+                          <p className="text-sm font-medium">When</p>
                           <p className="text-sm text-muted-foreground">
-                            {format(new Date(caseData.occurredAt), "dd. MMMM yyyy HH:mm", {
-                              locale: nb,
+                            {format(new Date(caseData.occurredAt), "MMMM d, yyyy HH:mm", {
+                              locale: enUS,
                             })}
                           </p>
                         </div>
@@ -407,7 +407,7 @@ export default function WhistleblowingDetailPage() {
                       <div className="flex items-center gap-3">
                         <MapPin className="h-5 w-5 text-muted-foreground" />
                         <div>
-                          <p className="text-sm font-medium">Hvor</p>
+                          <p className="text-sm font-medium">Where</p>
                           <p className="text-sm text-muted-foreground">{caseData.location}</p>
                         </div>
                       </div>
@@ -420,7 +420,7 @@ export default function WhistleblowingDetailPage() {
                 <>
                   <Separator />
                   <div>
-                    <h3 className="mb-2 font-semibold">Involverte personer</h3>
+                    <h3 className="mb-2 font-semibold">Involved Persons</h3>
                     <p className="whitespace-pre-wrap text-sm text-muted-foreground">
                       {caseData.involvedPersons}
                     </p>
@@ -432,7 +432,7 @@ export default function WhistleblowingDetailPage() {
                 <>
                   <Separator />
                   <div>
-                    <h3 className="mb-2 font-semibold">Vitner</h3>
+                    <h3 className="mb-2 font-semibold">Witnesses</h3>
                     <p className="whitespace-pre-wrap text-sm text-muted-foreground">
                       {caseData.witnesses}
                     </p>
@@ -444,7 +444,7 @@ export default function WhistleblowingDetailPage() {
                 <>
                   <Separator />
                   <div>
-                    <h3 className="mb-2 font-semibold">Etterforskningsnotater</h3>
+                    <h3 className="mb-2 font-semibold">Investigation Notes</h3>
                     <p className="whitespace-pre-wrap text-sm text-muted-foreground">
                       {caseData.investigationNotes}
                     </p>
@@ -456,7 +456,7 @@ export default function WhistleblowingDetailPage() {
                 <>
                   <Separator />
                   <div>
-                    <h3 className="mb-2 font-semibold">Resultat</h3>
+                    <h3 className="mb-2 font-semibold">Outcome</h3>
                     <p className="whitespace-pre-wrap text-sm text-muted-foreground">
                       {caseData.outcome}
                     </p>
@@ -466,20 +466,20 @@ export default function WhistleblowingDetailPage() {
             </CardContent>
           </Card>
 
-          {/* Meldinger */}
+          {/* Messages */}
           <Card>
             <CardHeader>
               <CardTitle>
                 <div className="flex items-center gap-2">
                   <MessageSquare className="h-5 w-5" />
-                  Kommunikasjon
+                  Communication
                 </div>
               </CardTitle>
-              <CardDescription>Meldinger med varsler og interne notater</CardDescription>
+              <CardDescription>Messages with reporter and internal notes</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               {caseData.messages.length === 0 ? (
-                <p className="text-center text-sm text-muted-foreground">Ingen meldinger ennå</p>
+                <p className="text-center text-sm text-muted-foreground">No messages yet</p>
               ) : (
                 <div className="space-y-4">
                   {caseData.messages.map((message) => (
@@ -497,20 +497,20 @@ export default function WhistleblowingDetailPage() {
                         <div className="flex items-center gap-2">
                           <Badge variant="outline">
                             {message.sender === "REPORTER"
-                              ? "Varsler"
+                              ? "Reporter"
                               : message.sender === "HANDLER"
-                              ? "Saksbehandler"
+                              ? "Case Handler"
                               : "System"}
                           </Badge>
                           {message.isInternal && (
                             <Badge className="bg-yellow-500 hover:bg-yellow-500">
-                              Intern
+                              Internal
                             </Badge>
                           )}
                         </div>
                         <span className="text-xs text-muted-foreground">
-                          {format(new Date(message.createdAt), "dd. MMM yyyy HH:mm", {
-                            locale: nb,
+                          {format(new Date(message.createdAt), "MMM d, yyyy HH:mm", {
+                            locale: enUS,
                           })}
                         </span>
                       </div>
@@ -522,15 +522,15 @@ export default function WhistleblowingDetailPage() {
 
               <Separator />
 
-              {/* Nytt svar */}
+              {/* New Reply */}
               <div className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="message">Ny melding</Label>
+                  <Label htmlFor="message">New Message</Label>
                   <Textarea
                     id="message"
                     value={messageText}
                     onChange={(e) => setMessageText(e.target.value)}
-                    placeholder="Skriv en melding til varsler eller et internt notat..."
+                    placeholder="Write a message to the reporter or an internal note..."
                     rows={4}
                   />
                 </div>
@@ -544,13 +544,13 @@ export default function WhistleblowingDetailPage() {
                     className="h-4 w-4 rounded border-gray-300"
                   />
                   <Label htmlFor="isInternal" className="font-normal">
-                    Intern notat (ikke synlig for varsler)
+                    Internal note (not visible to reporter)
                   </Label>
                 </div>
 
                 <Button onClick={sendMessage} disabled={sendingMessage || !messageText.trim()}>
                   <Send className="mr-2 h-4 w-4" />
-                  {sendingMessage ? "Sender..." : "Send melding"}
+                  {sendingMessage ? "Sending..." : "Send Message"}
                 </Button>
               </div>
             </CardContent>
@@ -559,34 +559,34 @@ export default function WhistleblowingDetailPage() {
 
         {/* Sidebar */}
         <div className="space-y-6">
-          {/* Varsler info */}
+          {/* Reporter Info */}
           <Card>
             <CardHeader>
-              <CardTitle>Varsler</CardTitle>
+              <CardTitle>Reporter</CardTitle>
             </CardHeader>
             <CardContent>
               {caseData.isAnonymous ? (
                 <div className="flex items-center gap-2 rounded-lg bg-gray-100 p-3 dark:bg-gray-800">
                   <Shield className="h-5 w-5 text-muted-foreground" />
-                  <span className="text-sm font-medium">Anonym varsling</span>
+                  <span className="text-sm font-medium">Anonymous report</span>
                 </div>
               ) : (
                 <div className="space-y-2 text-sm">
                   {caseData.reporterName && (
                     <div>
-                      <p className="font-medium">Navn</p>
+                      <p className="font-medium">Name</p>
                       <p className="text-muted-foreground">{caseData.reporterName}</p>
                     </div>
                   )}
                   {caseData.reporterEmail && (
                     <div>
-                      <p className="font-medium">E-post</p>
+                      <p className="font-medium">Email</p>
                       <p className="text-muted-foreground">{caseData.reporterEmail}</p>
                     </div>
                   )}
                   {caseData.reporterPhone && (
                     <div>
-                      <p className="font-medium">Telefon</p>
+                      <p className="font-medium">Phone</p>
                       <p className="text-muted-foreground">{caseData.reporterPhone}</p>
                     </div>
                   )}
@@ -598,7 +598,7 @@ export default function WhistleblowingDetailPage() {
           {/* Status */}
           <Card>
             <CardHeader>
-              <CardTitle>Saksbehandling</CardTitle>
+              <CardTitle>Case Management</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
@@ -612,19 +612,19 @@ export default function WhistleblowingDetailPage() {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="RECEIVED">Mottatt</SelectItem>
-                    <SelectItem value="ACKNOWLEDGED">Bekreftet</SelectItem>
-                    <SelectItem value="UNDER_INVESTIGATION">Under etterforskning</SelectItem>
-                    <SelectItem value="ACTION_TAKEN">Tiltak iverksatt</SelectItem>
-                    <SelectItem value="RESOLVED">Løst</SelectItem>
-                    <SelectItem value="CLOSED">Avsluttet</SelectItem>
-                    <SelectItem value="DISMISSED">Avvist</SelectItem>
+                    <SelectItem value="RECEIVED">Received</SelectItem>
+                    <SelectItem value="ACKNOWLEDGED">Acknowledged</SelectItem>
+                    <SelectItem value="UNDER_INVESTIGATION">Under Investigation</SelectItem>
+                    <SelectItem value="ACTION_TAKEN">Action Taken</SelectItem>
+                    <SelectItem value="RESOLVED">Resolved</SelectItem>
+                    <SelectItem value="CLOSED">Closed</SelectItem>
+                    <SelectItem value="DISMISSED">Dismissed</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="severity">Alvorlighet</Label>
+                <Label htmlFor="severity">Severity</Label>
                 <Select
                   value={caseData.severity}
                   onValueChange={(value: WhistleblowSeverity) => updateSeverity(value)}
@@ -634,26 +634,26 @@ export default function WhistleblowingDetailPage() {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="LOW">Lav</SelectItem>
+                    <SelectItem value="LOW">Low</SelectItem>
                     <SelectItem value="MEDIUM">Medium</SelectItem>
-                    <SelectItem value="HIGH">Høy</SelectItem>
-                    <SelectItem value="CRITICAL">Kritisk</SelectItem>
+                    <SelectItem value="HIGH">High</SelectItem>
+                    <SelectItem value="CRITICAL">Critical</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="assignedTo">Tildelt til</Label>
+                <Label htmlFor="assignedTo">Assigned To</Label>
                 <Select
                   value={caseData.assignedTo || "NONE"}
                   onValueChange={(value) => updateAssignedTo(value)}
                   disabled={loadingUsers}
                 >
                   <SelectTrigger id="assignedTo">
-                    <SelectValue placeholder={loadingUsers ? "Laster brukere..." : "Ingen valgt"} />
+                    <SelectValue placeholder={loadingUsers ? "Loading users..." : "None selected"} />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="NONE">Ingen</SelectItem>
+                    <SelectItem value="NONE">None</SelectItem>
                     {users.map((u) => (
                       <SelectItem key={u.user.id} value={u.user.id}>
                         {u.user.name || u.user.email}
@@ -667,25 +667,25 @@ export default function WhistleblowingDetailPage() {
 
               <div className="space-y-2 text-sm">
                 <div>
-                  <p className="font-medium">Kategori</p>
+                  <p className="font-medium">Category</p>
                   <p className="text-muted-foreground">{getCategoryLabel(caseData.category)}</p>
                 </div>
 
                 <div>
-                  <p className="font-medium">Mottatt</p>
+                  <p className="font-medium">Received</p>
                   <p className="text-muted-foreground">
-                    {format(new Date(caseData.receivedAt), "dd. MMM yyyy HH:mm", {
-                      locale: nb,
+                    {format(new Date(caseData.receivedAt), "MMM d, yyyy HH:mm", {
+                      locale: enUS,
                     })}
                   </p>
                 </div>
 
                 {caseData.acknowledgedAt && (
                   <div>
-                    <p className="font-medium">Bekreftet</p>
+                    <p className="font-medium">Acknowledged</p>
                     <p className="text-muted-foreground">
-                      {format(new Date(caseData.acknowledgedAt), "dd. MMM yyyy HH:mm", {
-                        locale: nb,
+                      {format(new Date(caseData.acknowledgedAt), "MMM d, yyyy HH:mm", {
+                        locale: enUS,
                       })}
                     </p>
                   </div>
@@ -693,10 +693,10 @@ export default function WhistleblowingDetailPage() {
 
                 {caseData.investigatedAt && (
                   <div>
-                    <p className="font-medium">Etterforskning startet</p>
+                    <p className="font-medium">Investigation Started</p>
                     <p className="text-muted-foreground">
-                      {format(new Date(caseData.investigatedAt), "dd. MMM yyyy HH:mm", {
-                        locale: nb,
+                      {format(new Date(caseData.investigatedAt), "MMM d, yyyy HH:mm", {
+                        locale: enUS,
                       })}
                     </p>
                   </div>
@@ -704,10 +704,10 @@ export default function WhistleblowingDetailPage() {
 
                 {caseData.closedAt && (
                   <div>
-                    <p className="font-medium">Avsluttet</p>
+                    <p className="font-medium">Closed</p>
                     <p className="text-muted-foreground">
-                      {format(new Date(caseData.closedAt), "dd. MMM yyyy HH:mm", {
-                        locale: nb,
+                      {format(new Date(caseData.closedAt), "MMM d, yyyy HH:mm", {
+                        locale: enUS,
                       })}
                     </p>
                   </div>

@@ -36,8 +36,8 @@ export function UserProfileForm({ user }: UserProfileFormProps) {
 
     if (result.success) {
       toast({
-        title: "✅ Profil oppdatert",
-        description: "Endringene dine er lagret",
+        title: "✅ Profile updated",
+        description: "Your changes have been saved",
         className: "bg-green-50 border-green-200",
       });
       router.refresh();
@@ -45,7 +45,7 @@ export function UserProfileForm({ user }: UserProfileFormProps) {
       toast({
         variant: "destructive",
         title: "Feil",
-        description: result.error || "Kunne ikke oppdatere profil",
+        description: result.error || "Could not update profile",
       });
     }
 
@@ -65,7 +65,7 @@ export function UserProfileForm({ user }: UserProfileFormProps) {
       toast({
         variant: "destructive",
         title: "Feil",
-        description: "Nye passord stemmer ikke overens",
+        description: "New passwords do not match",
       });
       setLoadingPassword(false);
       return;
@@ -75,7 +75,7 @@ export function UserProfileForm({ user }: UserProfileFormProps) {
       toast({
         variant: "destructive",
         title: "Feil",
-        description: "Passord må være minst 8 tegn",
+        description: "Password must be at least 8 characters",
       });
       setLoadingPassword(false);
       return;
@@ -85,8 +85,8 @@ export function UserProfileForm({ user }: UserProfileFormProps) {
 
     if (result.success) {
       toast({
-        title: "✅ Passord endret",
-        description: "Ditt passord er oppdatert",
+        title: "✅ Password changed",
+        description: "Your password has been updated",
         className: "bg-green-50 border-green-200",
       });
       (e.target as HTMLFormElement).reset();
@@ -94,7 +94,7 @@ export function UserProfileForm({ user }: UserProfileFormProps) {
       toast({
         variant: "destructive",
         title: "Feil",
-        description: result.error || "Kunne ikke endre passord",
+        description: result.error || "Could not change password",
       });
     }
 
@@ -109,43 +109,43 @@ export function UserProfileForm({ user }: UserProfileFormProps) {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <User className="h-5 w-5" />
-              Brukerinformasjon
+              User information
             </CardTitle>
             <CardDescription>
-              Oppdater din personlige informasjon
+              Update your personal information
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="name">Navn</Label>
+              <Label htmlFor="name">Name</Label>
               <Input
                 id="name"
                 name="name"
-                placeholder="Ditt navn"
+                placeholder="Your name"
                 disabled={loadingProfile}
                 defaultValue={user.name || ""}
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="email">E-post (pålogging)</Label>
+              <Label htmlFor="email">Email (login)</Label>
               <Input
                 id="email"
                 name="email"
                 type="email"
-                placeholder="din@epost.no"
+                placeholder="you@email.com"
                 required
                 disabled={loadingProfile}
                 defaultValue={user.email}
               />
               <p className="text-sm text-amber-600">
-                ⚠️ OBS: E-post brukes til pålogging og deles på tvers av alle bedrifter du er med i. Endring av e-post vil påvirke ALLE dine bedrifter.
+                ⚠️ Note: Email is used for login and is shared across all companies you belong to. Changing email will affect ALL your companies.
               </p>
             </div>
 
             <div className="flex justify-end">
               <Button type="submit" disabled={loadingProfile}>
-                {loadingProfile ? "Lagrer..." : "Lagre endringer"}
+                {loadingProfile ? "Saving..." : "Save changes"}
               </Button>
             </div>
           </CardContent>
@@ -160,15 +160,15 @@ export function UserProfileForm({ user }: UserProfileFormProps) {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Lock className="h-5 w-5" />
-              Endre passord
+              Change password
             </CardTitle>
             <CardDescription>
-              Oppdater ditt passord for økt sikkerhet
+              Update your password for increased security
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="currentPassword">Nåværende passord</Label>
+              <Label htmlFor="currentPassword">Current password</Label>
               <Input
                 id="currentPassword"
                 name="currentPassword"
@@ -179,7 +179,7 @@ export function UserProfileForm({ user }: UserProfileFormProps) {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="newPassword">Nytt passord</Label>
+              <Label htmlFor="newPassword">New password</Label>
               <Input
                 id="newPassword"
                 name="newPassword"
@@ -189,12 +189,12 @@ export function UserProfileForm({ user }: UserProfileFormProps) {
                 minLength={8}
               />
               <p className="text-sm text-muted-foreground">
-                Minimum 8 tegn
+                Minimum 8 characters
               </p>
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="confirmPassword">Bekreft nytt passord</Label>
+              <Label htmlFor="confirmPassword">Confirm new password</Label>
               <Input
                 id="confirmPassword"
                 name="confirmPassword"
@@ -207,7 +207,7 @@ export function UserProfileForm({ user }: UserProfileFormProps) {
 
             <div className="flex justify-end">
               <Button type="submit" disabled={loadingPassword}>
-                {loadingPassword ? "Endrer..." : "Endre passord"}
+                {loadingPassword ? "Changing..." : "Change password"}
               </Button>
             </div>
           </CardContent>

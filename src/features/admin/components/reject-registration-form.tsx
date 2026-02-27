@@ -36,7 +36,7 @@ export function RejectRegistrationForm({ tenantId }: RejectRegistrationFormProps
       toast({
         variant: "destructive",
         title: "⚠️ Manglende informasjon",
-        description: "Du må oppgi en grunn for avvisning",
+        description: "You must provide a reason for rejection",
       });
       return;
     }
@@ -49,7 +49,7 @@ export function RejectRegistrationForm({ tenantId }: RejectRegistrationFormProps
       if (result.success) {
         toast({
           title: "✅ Registrering avvist",
-          description: "Kunden har fått beskjed om avvisningen.",
+          description: "The customer has been notified of the rejection.",
         });
         setOpen(false);
         router.push("/admin/registrations");
@@ -96,7 +96,7 @@ export function RejectRegistrationForm({ tenantId }: RejectRegistrationFormProps
             id="reason"
             value={reason}
             onChange={(e) => setReason(e.target.value)}
-            placeholder="F.eks. mangelfull informasjon, utenfor målgruppe, etc."
+            placeholder="E.g. incomplete information, outside target group, etc."
             rows={4}
             required
           />

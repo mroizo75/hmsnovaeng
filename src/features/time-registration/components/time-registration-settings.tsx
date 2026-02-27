@@ -50,7 +50,7 @@ export function TimeRegistrationSettings({
   const handleSave = async () => {
     const lunchVal = parseInt(lunch, 10);
     if (isNaN(lunchVal) || lunchVal < 0 || lunchVal > 480) {
-      toast({ variant: "destructive", title: "Lunsj må være 0–480 minutter" });
+      toast({ variant: "destructive", title: "Lunch break must be 0–480 minutes" });
       return;
     }
     setLoading(true);
@@ -61,7 +61,7 @@ export function TimeRegistrationSettings({
           eveningHour === "__none__" ? null : parseInt(eveningHour, 10),
       });
       if (!res.success) throw new Error(res.error);
-      toast({ title: "Innstillinger lagret" });
+      toast({ title: "Settings saved" });
       router.refresh();
     } catch (err) {
       toast({ variant: "destructive", title: (err as Error).message });
@@ -75,15 +75,15 @@ export function TimeRegistrationSettings({
       <CardHeader>
         <CardTitle className="flex items-center gap-2 text-lg">
           <Settings2 className="h-5 w-5" />
-          Overtidsregler
+          Overtime Rules
         </CardTitle>
         <CardDescription>
-          Definer hvordan overtid beregnes. Ansatt skriver kun timer og reise – systemet regner ut typen.
+          Define how overtime is calculated. Employees only enter hours and travel – the system calculates the type.
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="grid gap-2">
-          <Label className="text-xs">Lunsj (min) – trekkes fra klokketimer</Label>
+          <Label className="text-xs">Lunch (min) – deducted from clock hours</Label>
           <Input
             type="number"
             min={0}
@@ -93,17 +93,17 @@ export function TimeRegistrationSettings({
             className="w-24"
           />
           <p className="text-xs text-muted-foreground">
-            8–16 = 8 t klokke − 30 min lunsj = 7,5 t. 8–20 = 12 t − 30 min = 11,5 t (7,5 ordinær + 4 overtid).
+            8–16 = 8h clock − 30 min lunch = 7.5h. 8–20 = 12h − 30 min = 11.5h (7.5 regular + 4 overtime).
           </p>
         </div>
         <div className="grid gap-2">
-          <Label className="text-xs">Kveldsovertid 100 % fra kl</Label>
+          <Label className="text-xs">Evening overtime 100% from</Label>
           <Select value={eveningHour} onValueChange={setEveningHour}>
             <SelectTrigger className="w-48">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="__none__">Alt overtid 50 %</SelectItem>
+              <SelectItem value="__none__">All overtime 50%</SelectItem>
               <SelectItem value="18">18:00</SelectItem>
               <SelectItem value="19">19:00</SelectItem>
               <SelectItem value="20">20:00</SelectItem>
@@ -113,14 +113,14 @@ export function TimeRegistrationSettings({
             </SelectContent>
           </Select>
           <p className="text-xs text-muted-foreground">
-            Arbeid etter valgt klokkeslett (man–fre) = 100 % overtid. Ellers 50 %. Helg = 100 %.
+            Work after selected time (Mon–Fri) = 100% overtime. Otherwise 50%. Weekend = 100%.
           </p>
         </div>
         <div className="text-xs text-muted-foreground">
-          Daglig norm: {weeklyHoursNorm / 5} t (fra {weeklyHoursNorm} t/uke)
+          Daily norm: {weeklyHoursNorm / 5}h (from {weeklyHoursNorm}h/week)
         </div>
         <Button size="sm" onClick={handleSave} disabled={loading}>
-          {loading ? "..." : "Lagre regler"}
+          {loading ? "..." : "Save rules"}
         </Button>
       </CardContent>
     </Card>

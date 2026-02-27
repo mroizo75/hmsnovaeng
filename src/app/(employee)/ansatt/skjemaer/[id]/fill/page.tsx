@@ -41,7 +41,7 @@ export default async function AnsattFillFormPage({ params }: { params: Promise<{
     redirect("/ansatt/skjemaer");
   }
 
-  // Sjekk at skjemaet enten er globalt eller tilhører tenant
+  // Check that the form is either global or belongs to the tenant
   if (form.tenantId && form.tenantId !== session.user.tenantId) {
     redirect("/ansatt/skjemaer");
   }

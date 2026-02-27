@@ -90,18 +90,18 @@ export default function NewMeetingPage() {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || "Kunne ikke opprette møte");
+        throw new Error(data.error || "Could not create meeting");
       }
 
       toast({
-        title: "Møte opprettet",
-        description: "Møtet er opprettet",
+        title: "Meeting created",
+        description: "The meeting has been created",
       });
 
       router.push(`/dashboard/meetings/${data.data.id}`);
     } catch (error: any) {
       toast({
-        title: "Feil",
+        title: "Error",
         description: error.message,
         variant: "destructive",
       });
@@ -119,9 +119,9 @@ export default function NewMeetingPage() {
           </Button>
         </Link>
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Nytt møte</h1>
+          <h1 className="text-3xl font-bold tracking-tight">New Meeting</h1>
           <p className="text-muted-foreground">
-            Opprett et nytt AMU/VO møte eller HMS-komitémøte
+            Create a new EHS committee, safety rep, or occupational health meeting
           </p>
         </div>
       </div>
@@ -129,14 +129,14 @@ export default function NewMeetingPage() {
       <form onSubmit={handleSubmit} className="space-y-6">
         <Card>
           <CardHeader>
-            <CardTitle>Møtedetaljer</CardTitle>
-            <CardDescription>Fyll inn grunnleggende informasjon om møtet</CardDescription>
+            <CardTitle>Meeting Details</CardTitle>
+            <CardDescription>Fill in basic information about the meeting</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="grid gap-4 md:grid-cols-2">
               <div className="space-y-2">
                 <Label htmlFor="type">
-                  Møtetype <span className="text-destructive">*</span>
+                  Meeting Type <span className="text-destructive">*</span>
                 </Label>
                 <Select
                   value={formData.type}
@@ -146,18 +146,18 @@ export default function NewMeetingPage() {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="AMU">Arbeidsmiljøutvalg (AMU)</SelectItem>
-                    <SelectItem value="VO">Verneombudsmøte</SelectItem>
-                    <SelectItem value="BHT">Bedriftshelsetjeneste</SelectItem>
-                    <SelectItem value="HMS_COMMITTEE">HMS-utvalg</SelectItem>
-                    <SelectItem value="OTHER">Annet</SelectItem>
+                    <SelectItem value="AMU">EHS Committee</SelectItem>
+                    <SelectItem value="VO">Safety Representative Meeting</SelectItem>
+                    <SelectItem value="BHT">Occupational Health Service</SelectItem>
+                    <SelectItem value="HMS_COMMITTEE">EHS Committee</SelectItem>
+                    <SelectItem value="OTHER">Other</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
 
               <div className="space-y-2">
                 <Label htmlFor="organizer">
-                  Møteleder <span className="text-destructive">*</span>
+                  Meeting Chair <span className="text-destructive">*</span>
                 </Label>
                 <Select
                   value={formData.organizer}
@@ -165,7 +165,7 @@ export default function NewMeetingPage() {
                   disabled={loadingUsers}
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder={loadingUsers ? "Laster brukere..." : "Velg møteleder"} />
+                    <SelectValue placeholder={loadingUsers ? "Loading users..." : "Select chair"} />
                   </SelectTrigger>
                   <SelectContent>
                     {users.map((u) => (
@@ -180,7 +180,7 @@ export default function NewMeetingPage() {
 
             <div className="space-y-2">
               <Label htmlFor="title">
-                Møtetittel <span className="text-destructive">*</span>
+                Meeting Title <span className="text-destructive">*</span>
               </Label>
               <Input
                 id="title"
@@ -188,7 +188,7 @@ export default function NewMeetingPage() {
                 onChange={(e) =>
                   setFormData({ ...formData, title: e.target.value })
                 }
-                placeholder="F.eks. AMU-møte Q4 2024"
+                placeholder="e.g. EHS Committee Q4 2024"
                 required
               />
             </div>
@@ -196,7 +196,7 @@ export default function NewMeetingPage() {
             <div className="grid gap-4 md:grid-cols-2">
               <div className="space-y-2">
                 <Label htmlFor="scheduledDate">
-                  Dato og tid <span className="text-destructive">*</span>
+                  Date and Time <span className="text-destructive">*</span>
                 </Label>
                 <Input
                   id="scheduledDate"
@@ -210,20 +210,20 @@ export default function NewMeetingPage() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="location">Sted</Label>
+                <Label htmlFor="location">Location</Label>
                 <Input
                   id="location"
                   value={formData.location}
                   onChange={(e) =>
                     setFormData({ ...formData, location: e.target.value })
                   }
-                  placeholder="F.eks. Møterom A eller Online"
+                  placeholder="e.g. Conference Room A or Online"
                 />
               </div>
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="meetingLink">Møtelenke</Label>
+              <Label htmlFor="meetingLink">Meeting Link</Label>
               <Input
                 id="meetingLink"
                 type="url"
@@ -231,7 +231,7 @@ export default function NewMeetingPage() {
                 onChange={(e) =>
                   setFormData({ ...formData, meetingLink: e.target.value })
                 }
-                placeholder="F.eks. Teams eller Zoom lenke"
+                placeholder="e.g. Teams or Zoom link"
               />
             </div>
 
@@ -243,11 +243,11 @@ export default function NewMeetingPage() {
                 onChange={(e) =>
                   setFormData({ ...formData, agenda: e.target.value })
                 }
-                placeholder="Skriv inn dagsorden for møtet..."
+                placeholder="Enter the meeting agenda..."
                 rows={8}
               />
               <p className="text-xs text-muted-foreground">
-                Tips: Skriv hvert agendapunkt på egen linje
+                Tip: Write each agenda item on its own line
               </p>
             </div>
           </CardContent>
@@ -256,12 +256,12 @@ export default function NewMeetingPage() {
         <div className="flex justify-end gap-4">
           <Link href="/dashboard/meetings">
             <Button type="button" variant="outline">
-              Avbryt
+              Cancel
             </Button>
           </Link>
           <Button type="submit" disabled={loading}>
             <Save className="mr-2 h-4 w-4" />
-            {loading ? "Oppretter..." : "Opprett møte"}
+            {loading ? "Creating..." : "Create Meeting"}
           </Button>
         </div>
       </form>

@@ -61,16 +61,16 @@ export function EditTenantForm({ tenant }: EditTenantFormProps) {
 
     if (result.success) {
       toast({
-        title: "✅ Bedriftsinformasjon oppdatert",
-        description: "Endringene er lagret",
+        title: "✅ Company information updated",
+        description: "Changes have been saved",
       });
       setIsEditing(false);
       router.refresh();
     } else {
       toast({
         variant: "destructive",
-        title: "❌ Feil",
-        description: result.error || "Noe gikk galt",
+        title: "❌ Error",
+        description: result.error || "Something went wrong",
       });
     }
 
@@ -82,7 +82,7 @@ export function EditTenantForm({ tenant }: EditTenantFormProps) {
       <div className="space-y-4">
         <div className="grid md:grid-cols-2 gap-4">
           <div>
-            <Label className="text-muted-foreground">Bedriftsnavn</Label>
+            <Label className="text-muted-foreground">Company name</Label>
             <p className="font-medium mt-1">{tenant.name}</p>
           </div>
           <div>
@@ -90,31 +90,31 @@ export function EditTenantForm({ tenant }: EditTenantFormProps) {
             <p className="font-medium mt-1">{tenant.slug}</p>
           </div>
           <div>
-            <Label className="text-muted-foreground">Org.nummer</Label>
+            <Label className="text-muted-foreground">Org. number</Label>
             <p className="font-medium mt-1">{tenant.orgNumber || "-"}</p>
           </div>
           <div>
-            <Label className="text-muted-foreground">Antall ansatte</Label>
+            <Label className="text-muted-foreground">Number of employees</Label>
             <p className="font-medium mt-1">{tenant.employeeCount || "-"}</p>
           </div>
           <div>
-            <Label className="text-muted-foreground">Bransje</Label>
+            <Label className="text-muted-foreground">Industry</Label>
             <p className="font-medium mt-1">{tenant.industry || "-"}</p>
           </div>
           <div>
-            <Label className="text-muted-foreground">Kontaktperson</Label>
+            <Label className="text-muted-foreground">Contact person</Label>
             <p className="font-medium mt-1">{tenant.contactPerson || "-"}</p>
           </div>
           <div>
-            <Label className="text-muted-foreground">E-post</Label>
+            <Label className="text-muted-foreground">Email</Label>
             <p className="font-medium mt-1">{tenant.contactEmail || "-"}</p>
           </div>
           <div>
-            <Label className="text-muted-foreground">Telefon</Label>
+            <Label className="text-muted-foreground">Phone</Label>
             <p className="font-medium mt-1">{tenant.contactPhone || "-"}</p>
           </div>
           <div className="md:col-span-2">
-            <Label className="text-muted-foreground">Adresse</Label>
+            <Label className="text-muted-foreground">Address</Label>
             <p className="font-medium mt-1">
               {tenant.address ? (
                 <>
@@ -128,13 +128,13 @@ export function EditTenantForm({ tenant }: EditTenantFormProps) {
           </div>
           {tenant.notes && (
             <div className="md:col-span-2">
-              <Label className="text-muted-foreground">Merknader</Label>
+              <Label className="text-muted-foreground">Notes</Label>
               <p className="font-medium mt-1 whitespace-pre-wrap">{tenant.notes}</p>
             </div>
           )}
         </div>
         <Button onClick={() => setIsEditing(true)} className="w-full">
-          Rediger informasjon
+          Edit information
         </Button>
       </div>
     );
@@ -144,7 +144,7 @@ export function EditTenantForm({ tenant }: EditTenantFormProps) {
     <form onSubmit={onSubmit} className="space-y-4">
       <div className="grid md:grid-cols-2 gap-4">
         <div>
-          <Label htmlFor="name">Bedriftsnavn *</Label>
+          <Label htmlFor="name">Company name *</Label>
           <Input
             id="name"
             name="name"
@@ -165,7 +165,7 @@ export function EditTenantForm({ tenant }: EditTenantFormProps) {
           />
         </div>
         <div>
-          <Label htmlFor="orgNumber">Org.nummer</Label>
+          <Label htmlFor="orgNumber">Org. number</Label>
           <Input
             id="orgNumber"
             name="orgNumber"
@@ -231,7 +231,7 @@ export function EditTenantForm({ tenant }: EditTenantFormProps) {
           />
         </div>
         <div>
-          <Label htmlFor="postalCode">Postnummer</Label>
+          <Label htmlFor="postalCode">Postal code</Label>
           <Input
             id="postalCode"
             name="postalCode"
@@ -240,7 +240,7 @@ export function EditTenantForm({ tenant }: EditTenantFormProps) {
           />
         </div>
         <div>
-          <Label htmlFor="city">Poststed</Label>
+          <Label htmlFor="city">City</Label>
           <Input
             id="city"
             name="city"
@@ -263,7 +263,7 @@ export function EditTenantForm({ tenant }: EditTenantFormProps) {
       <div className="flex gap-2">
         <Button type="submit" disabled={isLoading} className="flex-1">
           {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-          Lagre endringer
+          Save changes
         </Button>
         <Button
           type="button"
@@ -271,7 +271,7 @@ export function EditTenantForm({ tenant }: EditTenantFormProps) {
           onClick={() => setIsEditing(false)}
           disabled={isLoading}
         >
-          Avbryt
+          Cancel
         </Button>
       </div>
     </form>

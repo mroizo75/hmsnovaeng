@@ -62,8 +62,8 @@ export function EmailSettingsForm() {
               E-post ikke konfigurert
             </p>
             <p className="text-sm text-yellow-800">
-              Legg til RESEND_API_KEY i .env-filen for å aktivere e-postfunksjonalitet.
-              Registrer deg på{" "}
+              Add RESEND_API_KEY to the .env file to enable email functionality.
+              Sign up at{" "}
               <a
                 href="https://resend.com"
                 target="_blank"
@@ -90,7 +90,7 @@ export function EmailSettingsForm() {
 
       <form onSubmit={handleSubmit} className="space-y-6">
         <div className="space-y-2">
-          <Label htmlFor="resendApiKey">Resend API-nøkkel</Label>
+          <Label htmlFor="resendApiKey">Resend API key</Label>
           <Input
             id="resendApiKey"
             type="password"
@@ -99,7 +99,7 @@ export function EmailSettingsForm() {
             placeholder="re_..."
           />
           <p className="text-sm text-muted-foreground">
-            API-nøkkel fra Resend dashboard
+            API key from Resend dashboard
           </p>
         </div>
 
@@ -137,7 +137,7 @@ export function EmailSettingsForm() {
             disabled={loading}
           />
           <p className="text-sm text-muted-foreground">
-            E-post for svar på systemgenererte e-poster
+            Email for replies to system-generated emails
           </p>
         </div>
 

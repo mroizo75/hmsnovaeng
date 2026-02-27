@@ -27,7 +27,7 @@ export default async function RiskAssessmentPage({
   });
 
   if (!user || user.tenants.length === 0) {
-    return <div>Ingen tilgang til tenant</div>;
+    return <div>No tenant access</div>;
   }
 
   const tenantId = user.tenants[0].tenantId;
@@ -54,12 +54,12 @@ export default async function RiskAssessmentPage({
         <Button variant="ghost" asChild className="mb-4">
           <Link href="/dashboard/risks">
             <ArrowLeft className="mr-2 h-4 w-4" />
-            Tilbake til risikovurdering
+            Back to Risk Assessment
           </Link>
         </Button>
         <h1 className="text-3xl font-bold">{assessment.title}</h1>
         <p className="text-muted-foreground">
-          Legg inn risikopunkter nedover (beskrivelse, nivå, kategori, dato). ISO 45001: systematisk identifikasjon og vurdering.
+          Add risk items (description, level, category, date). ISO 45001: systematic identification and assessment.
         </p>
       </div>
 
@@ -71,7 +71,7 @@ export default async function RiskAssessmentPage({
 
       <Card>
         <CardHeader>
-          <CardTitle>Risikopunkter i denne vurderingen</CardTitle>
+          <CardTitle>Risk Items in This Assessment</CardTitle>
         </CardHeader>
         <CardContent>
           <RiskAssessmentItemList risks={assessment.risks} />

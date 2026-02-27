@@ -15,7 +15,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { formatDistanceToNow, format } from "date-fns";
-import { nb } from "date-fns/locale";
+import { enUS } from "date-fns/locale";
 
 interface ActivityItem {
   id: string;
@@ -62,19 +62,19 @@ export function ActivityFeed({ activities }: ActivityFeedProps) {
   const getLabel = (type: string) => {
     switch (type) {
       case "document":
-        return "Dokument";
+        return "Document";
       case "risk":
-        return "Risiko";
+        return "Risk";
       case "incident":
-        return "Hendelse";
+        return "Incident";
       case "action":
-        return "Tiltak";
+        return "Action";
       case "audit":
-        return "Revisjon";
+        return "Audit";
       case "training":
-        return "Opplæring";
+        return "Training";
       case "goal":
-        return "Mål";
+        return "Goal";
       default:
         return type;
     }
@@ -85,36 +85,36 @@ export function ActivityFeed({ activities }: ActivityFeedProps) {
     
     const statusMap: Record<string, string> = {
       // Document statuses
-      DRAFT: "Utkast",
-      APPROVED: "Godkjent",
-      ARCHIVED: "Arkivert",
+      DRAFT: "Draft",
+      APPROVED: "Approved",
+      ARCHIVED: "Archived",
       
       // Risk statuses
-      OPEN: "Åpen",
-      MITIGATED: "Håndtert",
-      ACCEPTED: "Akseptert",
-      CLOSED: "Lukket",
+      OPEN: "Open",
+      MITIGATED: "Mitigated",
+      ACCEPTED: "Accepted",
+      CLOSED: "Closed",
       
       // Incident statuses
-      REPORTED: "Rapportert",
-      INVESTIGATING: "Under utredning",
-      RESOLVED: "Løst",
+      REPORTED: "Reported",
+      INVESTIGATING: "Under investigation",
+      RESOLVED: "Resolved",
       
       // Action/Measure statuses
-      PENDING: "Venter",
-      IN_PROGRESS: "Pågår",
-      DONE: "Ferdig",
-      CANCELLED: "Kansellert",
+      PENDING: "Pending",
+      IN_PROGRESS: "In progress",
+      DONE: "Done",
+      CANCELLED: "Cancelled",
       
       // Audit statuses
-      PLANNED: "Planlagt",
-      COMPLETED: "Fullført",
+      PLANNED: "Planned",
+      COMPLETED: "Completed",
       
       // Goal statuses
-      ACTIVE: "Aktiv",
-      ACHIEVED: "Oppnådd",
-      AT_RISK: "I risiko",
-      FAILED: "Ikke oppnådd",
+      ACTIVE: "Active",
+      ACHIEVED: "Achieved",
+      AT_RISK: "At risk",
+      FAILED: "Not achieved",
     };
     
     return statusMap[status] || status;
@@ -123,27 +123,27 @@ export function ActivityFeed({ activities }: ActivityFeedProps) {
   const getStatusColor = (status: string | undefined) => {
     if (!status) return "";
     
-    // Grønne statuser (fullført/godkjent)
+    // Green statuses (completed/approved)
     if (["APPROVED", "DONE", "COMPLETED", "RESOLVED", "ACHIEVED", "CLOSED", "MITIGATED"].includes(status)) {
       return "bg-green-100 text-green-800 border-green-200";
     }
     
-    // Blå statuser (pågående/aktiv)
+    // Blue statuses (in progress/active)
     if (["IN_PROGRESS", "INVESTIGATING", "ACTIVE", "PLANNED"].includes(status)) {
       return "bg-blue-100 text-blue-800 border-blue-200";
     }
     
-    // Gule statuser (venter/advarsel)
+    // Yellow statuses (pending/warning)
     if (["PENDING", "DRAFT", "REPORTED", "OPEN", "AT_RISK"].includes(status)) {
       return "bg-yellow-100 text-yellow-800 border-yellow-200";
     }
     
-    // Røde statuser (kansellert/feilet)
+    // Gray statuses (cancelled/failed)
     if (["CANCELLED", "FAILED", "ARCHIVED"].includes(status)) {
       return "bg-gray-100 text-gray-800 border-gray-200";
     }
     
-    // Orange for akseptert risiko
+    // Orange for accepted risk
     if (status === "ACCEPTED") {
       return "bg-orange-100 text-orange-800 border-orange-200";
     }
@@ -155,12 +155,12 @@ export function ActivityFeed({ activities }: ActivityFeedProps) {
     return (
       <Card>
         <CardHeader>
-          <CardTitle>Aktivitet</CardTitle>
-          <CardDescription>Siste aktivitet i systemet</CardDescription>
+          <CardTitle>Activity</CardTitle>
+          <CardDescription>Recent activity in the system</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="text-center text-muted-foreground py-8">
-            Ingen aktivitet registrert ennå
+            No activity recorded yet
           </div>
         </CardContent>
       </Card>
@@ -170,8 +170,8 @@ export function ActivityFeed({ activities }: ActivityFeedProps) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Aktivitet</CardTitle>
-        <CardDescription>Siste aktivitet i systemet</CardDescription>
+        <CardTitle>Activity</CardTitle>
+        <CardDescription>Recent activity in the system</CardDescription>
       </CardHeader>
       <CardContent>
         <ScrollArea className="h-[400px] pr-4">
@@ -216,10 +216,10 @@ export function ActivityFeed({ activities }: ActivityFeedProps) {
                       {mounted
                         ? formatDistanceToNow(new Date(activity.timestamp), {
                             addSuffix: true,
-                            locale: nb,
+                            locale: enUS,
                           })
-                        : format(new Date(activity.timestamp), "d. MMM yyyy HH:mm", {
-                            locale: nb,
+                        : format(new Date(activity.timestamp), "MMM d, yyyy HH:mm", {
+                            locale: enUS,
                           })}
                     </p>
                   </div>

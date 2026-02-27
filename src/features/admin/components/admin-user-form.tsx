@@ -21,9 +21,9 @@ import { createAdminUser, updateAdminUser } from "@/server/actions/admin.actions
 import { Role } from "@prisma/client";
 
 const adminUserSchema = z.object({
-  email: z.string().email("Ugyldig e-postadresse"),
-  name: z.string().min(2, "Navn må være minst 2 tegn"),
-  password: z.string().min(8, "Passord må være minst 8 tegn").optional(),
+  email: z.string().email("Invalid email address"),
+  name: z.string().min(2, "Name must be at least 2 characters"),
+  password: z.string().min(8, "Password must be at least 8 characters").optional(),
   isSuperAdmin: z.boolean(),
   tenantId: z.string().optional(),
   role: z.enum(["ADMIN", "HMS", "LEDER", "VERNEOMBUD", "ANSATT", "BHT", "REVISOR"]).optional(),
@@ -79,10 +79,10 @@ export function AdminUserForm({ tenants, user }: AdminUserFormProps) {
 
       if (result.success) {
         toast({
-          title: user ? "✅ Bruker oppdatert" : "✅ Bruker opprettet",
+          title: user ? "✅ User updated" : "✅ User created",
           description: user
-            ? "Brukerens informasjon er oppdatert"
-            : "Den nye brukeren er lagt til i systemet",
+            ? "User information has been updated"
+            : "The new user has been added to the system",
           className: "bg-green-50 border-green-200",
         });
         router.push("/admin/users");
@@ -90,15 +90,15 @@ export function AdminUserForm({ tenants, user }: AdminUserFormProps) {
       } else {
         toast({
           variant: "destructive",
-          title: "Feil",
-          description: result.error || "Kunne ikke lagre bruker",
+          title: "Error",
+          description: result.error || "Could not save user",
         });
       }
     } catch (error) {
       toast({
         variant: "destructive",
-        title: "Uventet feil",
-        description: "Noe gikk galt",
+        title: "Unexpected error",
+        description: "Something went wrong",
       });
     } finally {
       setLoading(false);
@@ -108,13 +108,13 @@ export function AdminUserForm({ tenants, user }: AdminUserFormProps) {
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
       <div className="space-y-2">
-        <Label htmlFor="email">E-post *</Label>
+        <Label htmlFor="email">Email *</Label>
         <Input
           id="email"
           type="email"
           {...register("email")}
           disabled={loading || !!user}
-          placeholder="bruker@eksempel.no"
+          placeholder="user@example.com"
         />
         {errors.email && (
           <p className="text-sm text-red-600">{errors.email.message}</p>
@@ -122,12 +122,12 @@ export function AdminUserForm({ tenants, user }: AdminUserFormProps) {
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="name">Navn *</Label>
+        <Label htmlFor="name">Name *</Label>
         <Input
           id="name"
           {...register("name")}
           disabled={loading}
-          placeholder="Ola Nordmann"
+          placeholder="John Smith"
         />
         {errors.name && (
           <p className="text-sm text-red-600">{errors.name.message}</p>
@@ -136,13 +136,13 @@ export function AdminUserForm({ tenants, user }: AdminUserFormProps) {
 
       {!user && (
         <div className="space-y-2">
-          <Label htmlFor="password">Passord *</Label>
+          <Label htmlFor="password">Password *</Label>
           <Input
             id="password"
             type="password"
             {...register("password")}
             disabled={loading}
-            placeholder="Minst 8 tegn"
+            placeholder="At least 8 characters"
           />
           {errors.password && (
             <p className="text-sm text-red-600">{errors.password.message}</p>
@@ -160,24 +160,24 @@ export function AdminUserForm({ tenants, user }: AdminUserFormProps) {
           disabled={loading}
         />
         <Label htmlFor="isSuperAdmin" className="font-normal cursor-pointer">
-          Superadmin (full systemtilgang)
+          Superadmin (full system access)
         </Label>
       </div>
 
       {!isSuperAdmin && (
         <>
           <div className="space-y-2">
-            <Label htmlFor="tenantId">Bedrift</Label>
+            <Label htmlFor="tenantId">Company</Label>
             <Select
               onValueChange={(value) => setValue("tenantId", value)}
               defaultValue={user?.tenants[0]?.tenantId}
               disabled={loading}
             >
               <SelectTrigger>
-                <SelectValue placeholder="Velg bedrift..." />
+                <SelectValue placeholder="Select company..." />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="NONE">Ingen bedrift</SelectItem>
+                <SelectItem value="NONE">No company</SelectItem>
                 {tenants.map((tenant) => (
                   <SelectItem key={tenant.id} value={tenant.id}>
                     {tenant.name}
@@ -188,23 +188,23 @@ export function AdminUserForm({ tenants, user }: AdminUserFormProps) {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="role">Rolle</Label>
+            <Label htmlFor="role">Role</Label>
             <Select
               onValueChange={(value) => setValue("role", value as Role)}
               defaultValue={user?.tenants[0]?.role}
               disabled={loading}
             >
               <SelectTrigger>
-                <SelectValue placeholder="Velg rolle..." />
+                <SelectValue placeholder="Select role..." />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="ADMIN">Admin</SelectItem>
-                <SelectItem value="HMS">HMS-ansvarlig</SelectItem>
-                <SelectItem value="LEDER">Leder</SelectItem>
-                <SelectItem value="VERNEOMBUD">Verneombud</SelectItem>
-                <SelectItem value="ANSATT">Ansatt</SelectItem>
-                <SelectItem value="BHT">Bedriftshelsetjeneste</SelectItem>
-                <SelectItem value="REVISOR">Revisor</SelectItem>
+                <SelectItem value="HMS">EHS Manager</SelectItem>
+                <SelectItem value="LEDER">Manager</SelectItem>
+                <SelectItem value="VERNEOMBUD">Safety Representative</SelectItem>
+                <SelectItem value="ANSATT">Employee</SelectItem>
+                <SelectItem value="BHT">Occupational Health Service</SelectItem>
+                <SelectItem value="REVISOR">Auditor</SelectItem>
               </SelectContent>
             </Select>
             {errors.role && (
@@ -216,7 +216,7 @@ export function AdminUserForm({ tenants, user }: AdminUserFormProps) {
 
       <div className="flex gap-3 pt-4">
         <Button type="submit" disabled={loading}>
-          {loading ? "Lagrer..." : user ? "Oppdater bruker" : "Opprett bruker"}
+          {loading ? "Saving..." : user ? "Update User" : "Create User"}
         </Button>
         <Button
           type="button"
@@ -224,7 +224,7 @@ export function AdminUserForm({ tenants, user }: AdminUserFormProps) {
           onClick={() => router.push("/admin/users")}
           disabled={loading}
         >
-          Avbryt
+          Cancel
         </Button>
       </div>
     </form>

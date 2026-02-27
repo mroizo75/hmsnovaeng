@@ -59,8 +59,8 @@ export function FindingForm({ auditId, users, trigger }: FindingFormProps) {
 
     if (result.success) {
       toast({
-        title: "✅ Funn registrert",
-        description: "Revisjonsfunnet er dokumentert",
+        title: "✅ Finding registered",
+        description: "The audit finding has been documented",
         className: "bg-green-50 border-green-200",
       });
       setOpen(false);
@@ -68,8 +68,8 @@ export function FindingForm({ auditId, users, trigger }: FindingFormProps) {
     } else {
       toast({
         variant: "destructive",
-        title: "Feil",
-        description: result.error || "Kunne ikke registrere funn",
+        title: "Error",
+        description: result.error || "Could not register finding",
       });
     }
 
@@ -82,40 +82,40 @@ export function FindingForm({ auditId, users, trigger }: FindingFormProps) {
         {trigger || (
           <Button>
             <Plus className="mr-2 h-4 w-4" />
-            Registrer funn
+            Register finding
           </Button>
         )}
       </DialogTrigger>
       <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Registrer revisjonsfunn</DialogTitle>
+          <DialogTitle>Register audit finding</DialogTitle>
           <DialogDescription>
-            ISO 9001: Dokumenter funn, avvik og observasjoner fra revisjonen
+            ISO 9001: Document findings, nonconformities and observations from the audit
           </DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid gap-4 md:grid-cols-2">
             <div className="space-y-2">
-              <Label htmlFor="findingType">Type funn *</Label>
+              <Label htmlFor="findingType">Finding type *</Label>
               <Select name="findingType" required disabled={loading}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Velg type" />
+                  <SelectValue placeholder="Select type" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="MAJOR_NC">Større avvik (Major NC)</SelectItem>
-                  <SelectItem value="MINOR_NC">Mindre avvik (Minor NC)</SelectItem>
-                  <SelectItem value="OBSERVATION">Observasjon</SelectItem>
-                  <SelectItem value="STRENGTH">Styrke (god praksis)</SelectItem>
+                  <SelectItem value="MAJOR_NC">Major Nonconformity (Major NC)</SelectItem>
+                  <SelectItem value="MINOR_NC">Minor Nonconformity (Minor NC)</SelectItem>
+                  <SelectItem value="OBSERVATION">Observation</SelectItem>
+                  <SelectItem value="STRENGTH">Strength (good practice)</SelectItem>
                 </SelectContent>
               </Select>
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="clause">ISO 9001 Klausul *</Label>
+              <Label htmlFor="clause">ISO 9001 Clause *</Label>
               <Select name="clause" required disabled={loading}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Velg klausul" />
+                  <SelectValue placeholder="Select clause" />
                 </SelectTrigger>
                 <SelectContent>
                   {ISO_9001_CLAUSES.map((c) => (
@@ -129,12 +129,12 @@ export function FindingForm({ auditId, users, trigger }: FindingFormProps) {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="description">Beskrivelse av funn *</Label>
+            <Label htmlFor="description">Finding description *</Label>
             <Textarea
               id="description"
               name="description"
               rows={3}
-              placeholder="Beskriv hva som ble observert..."
+              placeholder="Describe what was observed..."
               required
               disabled={loading}
               minLength={20}
@@ -142,28 +142,28 @@ export function FindingForm({ auditId, users, trigger }: FindingFormProps) {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="evidence">Bevis/Observasjon (ISO 9001) *</Label>
+            <Label htmlFor="evidence">Evidence/Observation (ISO 9001) *</Label>
             <Textarea
               id="evidence"
               name="evidence"
               rows={3}
-              placeholder="Konkret bevis for funnet. F.eks. 'Gjennomgang av opplæringsoversikten viste at 3 av 8 ansatte mangler obligatorisk HMS-opplæring'"
+              placeholder="Concrete evidence for the finding. E.g. 'Review of the training records showed that 3 of 8 employees lack mandatory HSE training'"
               required
               disabled={loading}
               minLength={10}
             />
             <p className="text-sm text-muted-foreground">
-              ISO 9001: Dokumenter objektive observasjoner
+              ISO 9001: Document objective evidence
             </p>
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="requirement">Krav som ikke er oppfylt *</Label>
+            <Label htmlFor="requirement">Requirement not fulfilled *</Label>
             <Textarea
               id="requirement"
               name="requirement"
               rows={2}
-              placeholder="Hvilket krav i ISO 9001 eller interne prosedyrer er ikke oppfylt?"
+              placeholder="Which requirement in ISO 9001 or internal procedures is not fulfilled?"
               required
               disabled={loading}
               minLength={10}
@@ -172,10 +172,10 @@ export function FindingForm({ auditId, users, trigger }: FindingFormProps) {
 
           <div className="grid gap-4 md:grid-cols-2">
             <div className="space-y-2">
-              <Label htmlFor="responsibleId">Ansvarlig for lukking *</Label>
+              <Label htmlFor="responsibleId">Responsible for closure *</Label>
               <Select name="responsibleId" required disabled={loading}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Velg ansvarlig" />
+                  <SelectValue placeholder="Select responsible" />
                 </SelectTrigger>
                 <SelectContent>
                   {users.map((user) => (
@@ -188,7 +188,7 @@ export function FindingForm({ auditId, users, trigger }: FindingFormProps) {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="dueDate">Frist for lukking</Label>
+              <Label htmlFor="dueDate">Closure deadline</Label>
               <Input
                 id="dueDate"
                 name="dueDate"
@@ -202,13 +202,13 @@ export function FindingForm({ auditId, users, trigger }: FindingFormProps) {
           <Card className="bg-amber-50 border-amber-200">
             <CardContent className="pt-4">
               <p className="text-sm font-medium text-amber-900 mb-2">
-                💡 Typer av funn:
+                💡 Types of findings:
               </p>
               <ul className="text-sm text-amber-800 space-y-1">
-                <li><strong>Større avvik:</strong> Kritisk avvik fra ISO 9001 krav</li>
-                <li><strong>Mindre avvik:</strong> Mindre alvorlig avvik som må lukkes</li>
-                <li><strong>Observasjon:</strong> Potensielt problem som bør følges opp</li>
-                <li><strong>Styrke:</strong> God praksis som bør deles</li>
+                <li><strong>Major NC:</strong> Critical nonconformity with ISO 9001 requirements</li>
+                <li><strong>Minor NC:</strong> Less serious nonconformity that must be closed</li>
+                <li><strong>Observation:</strong> Potential issue that should be followed up</li>
+                <li><strong>Strength:</strong> Good practice that should be shared</li>
               </ul>
             </CardContent>
           </Card>
@@ -220,10 +220,10 @@ export function FindingForm({ auditId, users, trigger }: FindingFormProps) {
               onClick={() => setOpen(false)}
               disabled={loading}
             >
-              Avbryt
+              Cancel
             </Button>
             <Button type="submit" disabled={loading}>
-              {loading ? "Registrerer..." : "Registrer funn"}
+              {loading ? "Registering..." : "Register finding"}
             </Button>
           </div>
         </form>
@@ -231,4 +231,3 @@ export function FindingForm({ auditId, users, trigger }: FindingFormProps) {
     </Dialog>
   );
 }
-

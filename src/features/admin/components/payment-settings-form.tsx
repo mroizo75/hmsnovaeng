@@ -30,8 +30,8 @@ export function PaymentSettingsForm() {
     await new Promise((resolve) => setTimeout(resolve, 1000));
 
     toast({
-      title: "✅ Betalingsinnstillinger lagret",
-      description: "Fiken-konfigurasjonen er oppdatert",
+      title: "✅ Payment settings saved",
+      description: "Fiken configuration has been updated",
       className: "bg-green-50 border-green-200",
     });
 
@@ -44,8 +44,8 @@ export function PaymentSettingsForm() {
     await new Promise((resolve) => setTimeout(resolve, 2000));
 
     toast({
-      title: "✅ Tilkobling vellykket",
-      description: "Fiken API responderer korrekt",
+      title: "✅ Connection successful",
+      description: "Fiken API responds correctly",
       className: "bg-green-50 border-green-200",
     });
 
@@ -59,11 +59,11 @@ export function PaymentSettingsForm() {
           <AlertTriangle className="h-5 w-5 text-yellow-600 mt-0.5" />
           <div className="space-y-1">
             <p className="font-medium text-yellow-900">
-              Fiken ikke konfigurert
+              Fiken not configured
             </p>
             <p className="text-sm text-yellow-800">
-              Legg til FIKEN_API_TOKEN og FIKEN_COMPANY_SLUG i .env-filen for å
-              aktivere automatisk fakturering. Registrer deg på{" "}
+              Add FIKEN_API_TOKEN and FIKEN_COMPANY_SLUG to the .env file to
+              enable automatic invoicing. Register at{" "}
               <a
                 href="https://fiken.no"
                 target="_blank"
@@ -82,16 +82,16 @@ export function PaymentSettingsForm() {
         {isConfigured ? (
           <Badge className="bg-green-100 text-green-800 border-green-200">
             <CheckCircle2 className="h-3 w-3 mr-1" />
-            Konfigurert
+            Configured
           </Badge>
         ) : (
-          <Badge variant="secondary">Ikke konfigurert</Badge>
+          <Badge variant="secondary">Not configured</Badge>
         )}
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
         <div className="space-y-2">
-          <Label htmlFor="fikenApiToken">Fiken API-token</Label>
+          <Label htmlFor="fikenApiToken">Fiken API token</Label>
           <Input
             id="fikenApiToken"
             type="password"
@@ -100,12 +100,12 @@ export function PaymentSettingsForm() {
             placeholder="fk_..."
           />
           <p className="text-sm text-muted-foreground">
-            API-token fra Fiken (Innstillinger → Integrasjoner)
+            API token from Fiken (Settings → Integrations)
           </p>
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="fikenCompanySlug">Fiken bedrift-slug</Label>
+          <Label htmlFor="fikenCompanySlug">Fiken company slug</Label>
           <Input
             id="fikenCompanySlug"
             defaultValue={currentSettings.fikenCompanySlug}
@@ -113,44 +113,44 @@ export function PaymentSettingsForm() {
             placeholder="ditt-bedriftsnavn"
           />
           <p className="text-sm text-muted-foreground">
-            Bedrifts-ID fra Fiken URL (fiken.no/firma/
-            <strong>bedrift-slug</strong>)
+            Company ID from Fiken URL (fiken.no/firma/
+            <strong>company-slug</strong>)
           </p>
         </div>
 
         <div className="rounded-lg border p-4 space-y-2">
           <div className="flex items-center justify-between">
-            <Label>Automatisk fakturering</Label>
+            <Label>Automatic invoicing</Label>
             <Badge
               variant={currentSettings.fikenEnabled ? "default" : "secondary"}
             >
-              {currentSettings.fikenEnabled ? "Aktivert" : "Deaktivert"}
+              {currentSettings.fikenEnabled ? "Enabled" : "Disabled"}
             </Badge>
           </div>
           <p className="text-sm text-muted-foreground">
-            Når aktivert, opprettes fakturaer automatisk i Fiken for nye
-            abonnementer
+            When enabled, invoices will automatically be created in Fiken for new
+            subscriptions
           </p>
         </div>
 
         <div className="rounded-lg border p-4 space-y-2 bg-muted/30">
-          <h3 className="font-medium">Fakturainformasjon</h3>
+          <h3 className="font-medium">Invoice information</h3>
           <div className="grid grid-cols-2 gap-4 text-sm">
             <div>
-              <p className="text-muted-foreground">Betalingsbetingelser</p>
-              <p className="font-medium">14 dager netto</p>
+              <p className="text-muted-foreground">Payment terms</p>
+              <p className="font-medium">14 days net</p>
             </div>
             <div>
-              <p className="text-muted-foreground">Standard MVA</p>
+              <p className="text-muted-foreground">Standard VAT</p>
               <p className="font-medium">25%</p>
             </div>
             <div>
-              <p className="text-muted-foreground">Purregebyr</p>
-              <p className="font-medium">250 kr</p>
+              <p className="text-muted-foreground">Reminder fee</p>
+              <p className="font-medium">250 NOK</p>
             </div>
             <div>
-              <p className="text-muted-foreground">Rentefri kredit</p>
-              <p className="font-medium">14 dager</p>
+              <p className="text-muted-foreground">Interest-free credit</p>
+              <p className="font-medium">14 days</p>
             </div>
           </div>
         </div>
@@ -158,7 +158,7 @@ export function PaymentSettingsForm() {
         <div className="flex items-center gap-3 pt-4 border-t">
           <Button type="submit" disabled={loading}>
             <Save className="mr-2 h-4 w-4" />
-            {loading ? "Lagrer..." : "Lagre innstillinger"}
+            {loading ? "Saving..." : "Save settings"}
           </Button>
           <Button
             type="button"
@@ -167,7 +167,7 @@ export function PaymentSettingsForm() {
             onClick={handleTestConnection}
           >
             <RefreshCw className="mr-2 h-4 w-4" />
-            {testLoading ? "Tester..." : "Test tilkobling"}
+            {testLoading ? "Testing..." : "Test connection"}
           </Button>
         </div>
       </form>
@@ -178,11 +178,11 @@ export function PaymentSettingsForm() {
             <CheckCircle2 className="h-5 w-5 text-green-600 mt-0.5" />
             <div className="space-y-1">
               <p className="font-medium text-green-900">
-                Fiken er konfigurert og klar
+                Fiken is configured and ready
               </p>
               <p className="text-sm text-green-800">
-                Fakturaer vil automatisk opprettes i Fiken når bedrifter
-                registrerer seg eller fornyer abonnement.
+                Invoices will automatically be created in Fiken when companies
+                register or renew their subscription.
               </p>
             </div>
           </div>

@@ -25,7 +25,7 @@ export function MeasurementList({ measurements, unit }: MeasurementListProps) {
   const [loading, setLoading] = useState<string | null>(null);
 
   const handleDelete = async (id: string) => {
-    if (!confirm("Er du sikker på at du vil slette denne målingen?\n\nDette kan ikke angres.")) {
+    if (!confirm("Are you sure you want to delete this measurement?\n\nThis cannot be undone.")) {
       return;
     }
 
@@ -33,15 +33,15 @@ export function MeasurementList({ measurements, unit }: MeasurementListProps) {
     const result = await deleteMeasurement(id);
     if (result.success) {
       toast({
-        title: "🗑️ Måling slettet",
-        description: "Målingen er fjernet",
+        title: "🗑️ Measurement deleted",
+        description: "The measurement has been removed",
       });
       router.refresh();
     } else {
       toast({
         variant: "destructive",
-        title: "Sletting feilet",
-        description: result.error || "Kunne ikke slette måling",
+        title: "Delete failed",
+        description: result.error || "Could not delete measurement",
       });
     }
     setLoading(null);
@@ -51,9 +51,9 @@ export function MeasurementList({ measurements, unit }: MeasurementListProps) {
     return (
       <div className="flex flex-col items-center justify-center rounded-lg border border-dashed p-8 text-center">
         <TrendingUp className="mb-4 h-12 w-12 text-muted-foreground" />
-        <h3 className="text-lg font-semibold">Ingen målinger registrert</h3>
+        <h3 className="text-lg font-semibold">No measurements registered</h3>
         <p className="text-muted-foreground">
-          Start med å registrere din første KPI-måling.
+          Start by registering your first KPI measurement.
         </p>
       </div>
     );
@@ -78,7 +78,7 @@ export function MeasurementList({ measurements, unit }: MeasurementListProps) {
                   </div>
 
                   <p className="text-sm text-muted-foreground">
-                    {new Date(measurement.measurementDate).toLocaleDateString("nb-NO", {
+                    {new Date(measurement.measurementDate).toLocaleDateString("en-US", {
                       day: "numeric",
                       month: "long",
                       year: "numeric",
@@ -91,7 +91,7 @@ export function MeasurementList({ measurements, unit }: MeasurementListProps) {
 
                   {measurement.source && (
                     <p className="text-xs text-muted-foreground">
-                      Kilde: {measurement.source}
+                      Source: {measurement.source}
                     </p>
                   )}
                 </div>

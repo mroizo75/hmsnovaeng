@@ -46,15 +46,15 @@ import {
 } from "lucide-react";
 
 const tenantOnboardingSchema = z.object({
-  name: z.string().min(2, "Bedriftsnavn må være minst 2 tegn"),
+  name: z.string().min(2, "Company name must be at least 2 characters"),
   orgNumber: z.string().optional(),
-  contactPerson: z.string().min(2, "Kontaktperson er påkrevd"),
-  contactEmail: z.string().email("Ugyldig e-postadresse"),
+  contactPerson: z.string().min(2, "Contact person is required"),
+  contactEmail: z.string().email("Invalid email address"),
   contactPhone: z.string().optional(),
   address: z.string().optional(),
   city: z.string().optional(),
   postalCode: z.string().optional(),
-  employeeCount: z.number().min(1, "Antall ansatte må være minst 1"),
+  employeeCount: z.number().min(1, "Number of employees must be at least 1"),
   industry: z.string(),
   notes: z.string().optional(),
 });
@@ -104,13 +104,13 @@ export function TenantOnboardingForm({ salesRep }: TenantOnboardingFormProps) {
       if (result.error) {
         toast({
           variant: "destructive",
-          title: "Feil",
+          title: "Error",
           description: result.error,
         });
       } else {
         toast({
-          title: "Bedrift opprettet! 🎉",
-          description: `${data.name} er nå registrert i systemet.`,
+title: "Company created! 🎉",
+        description: `${data.name} has been registered in the system.`,
         });
         router.push("/admin/tenants");
         router.refresh();
@@ -118,8 +118,8 @@ export function TenantOnboardingForm({ salesRep }: TenantOnboardingFormProps) {
     } catch (error) {
       toast({
         variant: "destructive",
-        title: "Feil",
-        description: "Kunne ikke opprette bedrift",
+        title: "Error",
+        description: "Could not create company",
       });
     } finally {
       setIsSubmitting(false);
@@ -132,11 +132,11 @@ export function TenantOnboardingForm({ salesRep }: TenantOnboardingFormProps) {
         <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="company">
             <Building2 className="mr-2 h-4 w-4" />
-            Bedriftsinfo
+            Company info
           </TabsTrigger>
           <TabsTrigger value="pricing">
             <Euro className="mr-2 h-4 w-4" />
-            Pris & Plan
+            Price & Plan
           </TabsTrigger>
           <TabsTrigger value="onboarding">
             <CheckCircle2 className="mr-2 h-4 w-4" />
@@ -144,7 +144,7 @@ export function TenantOnboardingForm({ salesRep }: TenantOnboardingFormProps) {
           </TabsTrigger>
           <TabsTrigger value="advantage">
             <Sparkles className="mr-2 h-4 w-4" />
-            Konkurransefortrinn
+            Competitive advantages
           </TabsTrigger>
         </TabsList>
 
@@ -152,16 +152,16 @@ export function TenantOnboardingForm({ salesRep }: TenantOnboardingFormProps) {
         <TabsContent value="company" className="space-y-6">
           <Card>
             <CardHeader>
-              <CardTitle>Grunnleggende informasjon</CardTitle>
+              <CardTitle>Basic information</CardTitle>
               <CardDescription>
-                Fyll inn bedriftens kontaktinformasjon
+                Fill in the company contact information
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid gap-4 md:grid-cols-2">
                 <div className="space-y-2">
                   <Label htmlFor="name">
-                    Bedriftsnavn <span className="text-red-500">*</span>
+                    Company name <span className="text-red-500">*</span>
                   </Label>
                   <Input
                     id="name"
@@ -174,7 +174,7 @@ export function TenantOnboardingForm({ salesRep }: TenantOnboardingFormProps) {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="orgNumber">Org.nummer</Label>
+                  <Label htmlFor="orgNumber">Org. number</Label>
                   <Input
                     id="orgNumber"
                     {...register("orgNumber")}
@@ -186,7 +186,7 @@ export function TenantOnboardingForm({ salesRep }: TenantOnboardingFormProps) {
               <div className="grid gap-4 md:grid-cols-2">
                 <div className="space-y-2">
                   <Label htmlFor="contactPerson">
-                    Kontaktperson <span className="text-red-500">*</span>
+                    Contact person <span className="text-red-500">*</span>
                   </Label>
                   <Input
                     id="contactPerson"
@@ -202,7 +202,7 @@ export function TenantOnboardingForm({ salesRep }: TenantOnboardingFormProps) {
 
                 <div className="space-y-2">
                   <Label htmlFor="contactEmail">
-                    E-post <span className="text-red-500">*</span>
+                    Email <span className="text-red-500">*</span>
                   </Label>
                   <div className="relative">
                     <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
@@ -210,7 +210,7 @@ export function TenantOnboardingForm({ salesRep }: TenantOnboardingFormProps) {
                       id="contactEmail"
                       type="email"
                       {...register("contactEmail")}
-                      placeholder="post@bedrift.no"
+                      placeholder="info@company.com"
                       className="pl-10"
                     />
                   </div>
@@ -224,7 +224,7 @@ export function TenantOnboardingForm({ salesRep }: TenantOnboardingFormProps) {
 
               <div className="grid gap-4 md:grid-cols-2">
                 <div className="space-y-2">
-                  <Label htmlFor="contactPhone">Telefon</Label>
+                  <Label htmlFor="contactPhone">Phone</Label>
                   <div className="relative">
                     <Phone className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                     <Input
@@ -238,7 +238,7 @@ export function TenantOnboardingForm({ salesRep }: TenantOnboardingFormProps) {
 
                 <div className="space-y-2">
                   <Label htmlFor="employeeCount">
-                    Antall ansatte <span className="text-red-500">*</span>
+                    Number of employees <span className="text-red-500">*</span>
                   </Label>
                   <div className="relative">
                     <Users className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
@@ -265,7 +265,7 @@ export function TenantOnboardingForm({ salesRep }: TenantOnboardingFormProps) {
 
               <div className="grid gap-4 md:grid-cols-3">
                 <div className="space-y-2">
-                  <Label htmlFor="address">Adresse</Label>
+                  <Label htmlFor="address">Address</Label>
                   <div className="relative">
                     <MapPin className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                     <Input
@@ -278,7 +278,7 @@ export function TenantOnboardingForm({ salesRep }: TenantOnboardingFormProps) {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="postalCode">Postnummer</Label>
+                  <Label htmlFor="postalCode">Postal code</Label>
                   <Input
                     id="postalCode"
                     {...register("postalCode")}
@@ -287,14 +287,14 @@ export function TenantOnboardingForm({ salesRep }: TenantOnboardingFormProps) {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="city">Poststed</Label>
+                  <Label htmlFor="city">City</Label>
                   <Input id="city" {...register("city")} placeholder="Oslo" />
                 </div>
               </div>
 
               <div className="space-y-2">
                 <Label htmlFor="industry">
-                  Bransje <span className="text-red-500">*</span>
+                  Industry <span className="text-red-500">*</span>
                 </Label>
                 <Select
                   value={selectedIndustry}
@@ -304,7 +304,7 @@ export function TenantOnboardingForm({ salesRep }: TenantOnboardingFormProps) {
                   }}
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder="Velg bransje" />
+                    <SelectValue placeholder="Select industry" />
                   </SelectTrigger>
                   <SelectContent>
                     {SUPPORTED_INDUSTRIES.map((industry) => (
@@ -312,7 +312,7 @@ export function TenantOnboardingForm({ salesRep }: TenantOnboardingFormProps) {
                         <div className="flex items-center justify-between w-full">
                           <span>{industry.label}</span>
                           <Badge variant="outline" className="ml-2">
-                            {industry.templates} maler
+                            {industry.templates} templates
                           </Badge>
                         </div>
                       </SelectItem>
@@ -322,11 +322,11 @@ export function TenantOnboardingForm({ salesRep }: TenantOnboardingFormProps) {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="notes">CRM-notater (internt)</Label>
+                <Label htmlFor="notes">CRM notes (internal)</Label>
                 <Textarea
                   id="notes"
                   {...register("notes")}
-                  placeholder="Interne notater om kunden, møter, avtaler, osv..."
+                  placeholder="Internal notes about the customer, meetings, agreements, etc..."
                   rows={4}
                 />
               </div>
@@ -339,39 +339,39 @@ export function TenantOnboardingForm({ salesRep }: TenantOnboardingFormProps) {
           <Alert>
             <TrendingUp className="h-4 w-4" />
             <AlertDescription>
-              <strong>Velg prisplan:</strong> Velg ønsket prisplan for kunden. Standard er MICRO (kr 3.300/år).
+              <strong>Select pricing plan:</strong> Choose the desired pricing plan for the customer. Default is MICRO (NOK 3,300/year).
             </AlertDescription>
           </Alert>
 
           {/* Velg Pricing Tier */}
           <Card>
             <CardHeader>
-              <CardTitle>Velg abonnementsplan</CardTitle>
+              <CardTitle>Select subscription plan</CardTitle>
               <CardDescription>
-                Velg hvilken plan kunden skal ha
+                Choose which plan the customer should have
               </CardDescription>
             </CardHeader>
             <CardContent>
               <div className="space-y-2">
                 <Label htmlFor="pricingTier">
-                  Prisplan <span className="text-red-500">*</span>
+                  Pricing plan <span className="text-red-500">*</span>
                 </Label>
                 <Select
                   value={selectedTier}
                   onValueChange={(value) => setSelectedTier(value as PricingTier)}
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder="Velg plan" />
+                    <SelectValue placeholder="Select plan" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="MICRO">MICRO - HMS Nova Software (kr 3.300/år)</SelectItem>
-                    <SelectItem value="SMALL">SMALL - HMS Nova Software (kr 3.300/år)</SelectItem>
-                    <SelectItem value="MEDIUM">MEDIUM - HMS Nova Software (kr 3.300/år)</SelectItem>
-                    <SelectItem value="LARGE">LARGE - Enterprise (kontakt for pris)</SelectItem>
+                    <SelectItem value="MICRO">MICRO - EHS Nova Software ($399/year)</SelectItem>
+                    <SelectItem value="SMALL">SMALL - EHS Nova Software ($399/year)</SelectItem>
+                    <SelectItem value="MEDIUM">MEDIUM - EHS Nova Software ($399/year)</SelectItem>
+                    <SelectItem value="LARGE">LARGE - Enterprise (contact for pricing)</SelectItem>
                   </SelectContent>
                 </Select>
                 <p className="text-xs text-muted-foreground">
-                  Alle planer har samme pris og funksjoner (kr 3.300/år med 1 års binding)
+                  All plans have the same price and features (NOK 3,300/year with 1 year commitment)
                 </p>
               </div>
             </CardContent>
@@ -382,7 +382,7 @@ export function TenantOnboardingForm({ salesRep }: TenantOnboardingFormProps) {
             <Card className="border-primary">
               <CardHeader>
                 <div className="flex items-center justify-between">
-                  <CardTitle>Valgt plan</CardTitle>
+                  <CardTitle>Selected plan</CardTitle>
                   <Badge className="bg-primary">{currentPlan.name}</Badge>
                 </div>
                 <CardDescription>{currentPlan.employeeRange}</CardDescription>
@@ -391,17 +391,17 @@ export function TenantOnboardingForm({ salesRep }: TenantOnboardingFormProps) {
                 <div className="space-y-2">
                   <div className="flex items-baseline gap-2">
                     <span className="text-4xl font-bold">
-                      {currentPlan.yearlyPrice.toLocaleString("no-NO")} kr
+                      {currentPlan.yearlyPrice.toLocaleString("en-US")} NOK
                     </span>
-                    <span className="text-muted-foreground">/år</span>
+                    <span className="text-muted-foreground">/year</span>
                   </div>
                   <p className="text-sm text-muted-foreground">
-                    Eller {currentPlan.monthlyPrice.toLocaleString("no-NO")} kr/måned
+                    Or {currentPlan.monthlyPrice.toLocaleString("en-US")} NOK/month
                   </p>
                 </div>
 
                 <div className="pt-4 space-y-2">
-                  <h4 className="font-semibold">Inkludert i planen:</h4>
+                  <h4 className="font-semibold">Included in plan:</h4>
                   <ul className="space-y-1 text-sm">
                     {currentPlan.features.slice(0, 5).map((feature, i) => (
                       <li key={i} className="flex items-start gap-2">
@@ -411,14 +411,14 @@ export function TenantOnboardingForm({ salesRep }: TenantOnboardingFormProps) {
                     ))}
                     {currentPlan.features.length > 5 && (
                       <li className="text-muted-foreground">
-                        + {currentPlan.features.length - 5} funksjoner til
+                        + {currentPlan.features.length - 5} more features
                       </li>
                     )}
                   </ul>
                 </div>
 
                 <div className="pt-4">
-                  <h4 className="font-semibold mb-2">Populære funksjoner:</h4>
+                  <h4 className="font-semibold mb-2">Popular features:</h4>
                   <div className="flex flex-wrap gap-2">
                     {currentPlan.popularFeatures.map((feature, i) => (
                       <Badge key={i} variant="secondary">
@@ -433,9 +433,9 @@ export function TenantOnboardingForm({ salesRep }: TenantOnboardingFormProps) {
             {/* Alle planer */}
             <Card>
               <CardHeader>
-                <CardTitle>Alle planer</CardTitle>
+                <CardTitle>All plans</CardTitle>
                 <CardDescription>
-                  Oversikt over priser basert på bedriftsstørrelse
+                  Overview of prices based on company size
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
@@ -457,9 +457,9 @@ export function TenantOnboardingForm({ salesRep }: TenantOnboardingFormProps) {
                       </div>
                       <div className="text-right">
                         <p className="text-2xl font-bold">
-                          {plan.yearlyPrice.toLocaleString("no-NO")} kr
+                          {plan.yearlyPrice.toLocaleString("en-US")} NOK
                         </p>
-                        <p className="text-xs text-muted-foreground">/år</p>
+                        <p className="text-xs text-muted-foreground">/year</p>
                       </div>
                     </div>
                   </div>
@@ -473,9 +473,9 @@ export function TenantOnboardingForm({ salesRep }: TenantOnboardingFormProps) {
         <TabsContent value="onboarding" className="space-y-6">
           <Card>
             <CardHeader>
-              <CardTitle>Onboarding-prosess</CardTitle>
+              <CardTitle>Onboarding process</CardTitle>
               <CardDescription>
-                Veiledning for å komme i gang med HMS Nova 2.0
+                Guide for getting started with HMS Nova 2.0
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -503,8 +503,8 @@ export function TenantOnboardingForm({ salesRep }: TenantOnboardingFormProps) {
               <Alert className="mt-6">
                 <CheckCircle2 className="h-4 w-4" />
                 <AlertDescription>
-                  <strong>Total estimert tid:</strong> 5-6 timer fordelt over første uke.
-                  Vi anbefaler å ta det steg for steg!
+                  <strong>Total estimated time:</strong> 5-6 hours spread over the first week.
+                  We recommend taking it step by step!
                 </AlertDescription>
               </Alert>
             </CardContent>
@@ -515,9 +515,9 @@ export function TenantOnboardingForm({ salesRep }: TenantOnboardingFormProps) {
         <TabsContent value="advantage" className="space-y-6">
           <Card>
             <CardHeader>
-              <CardTitle>Hvorfor HMS Nova 2.0 er bedre enn konkurrentene</CardTitle>
+              <CardTitle>Why HMS Nova 2.0 is better than the competition</CardTitle>
               <CardDescription>
-                Sammenligning med andre HMS-systemer
+                Comparison with other EHS systems
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -533,7 +533,7 @@ export function TenantOnboardingForm({ salesRep }: TenantOnboardingFormProps) {
                         <p className="font-medium">{advantage.hmsNova}</p>
                       </div>
                       <div>
-                        <p className="text-muted-foreground mb-1">Andre HMS-systemer:</p>
+                        <p className="text-muted-foreground mb-1">Other EHS systems:</p>
                         <p>{advantage.gronnJobb}</p>
                       </div>
                     </div>
@@ -550,8 +550,8 @@ export function TenantOnboardingForm({ salesRep }: TenantOnboardingFormProps) {
               <Alert className="mt-6 border-primary">
                 <TrendingUp className="h-4 w-4" />
                 <AlertDescription>
-                  <strong>Sammendrag:</strong> HMS Nova 2.0 tilbyr 10+ unike funksjoner som
-                  konkurrentene ikke har, kombinert med bedre UX og lavere pris for små bedrifter.
+                  <strong>Summary:</strong> HMS Nova 2.0 offers 10+ unique features that
+                  competitors don't have, combined with better UX and lower price for small companies.
                 </AlertDescription>
               </Alert>
             </CardContent>
@@ -567,11 +567,11 @@ export function TenantOnboardingForm({ salesRep }: TenantOnboardingFormProps) {
           onClick={() => router.back()}
           disabled={isSubmitting}
         >
-          Avbryt
+          Cancel
         </Button>
 
         <Button type="submit" disabled={isSubmitting} className="min-w-32">
-          {isSubmitting ? "Oppretter..." : "Opprett bedrift"}
+          {isSubmitting ? "Creating..." : "Create company"}
         </Button>
       </div>
     </form>

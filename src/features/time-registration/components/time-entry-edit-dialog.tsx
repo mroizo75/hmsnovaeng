@@ -24,11 +24,11 @@ import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
 
 const TIME_TYPE_OPTIONS = [
-  { value: "NORMAL", label: "Ordinær" },
-  { value: "OVERTIME_50", label: "Overtid 50 %" },
-  { value: "OVERTIME_100", label: "Overtid 100 %" },
-  { value: "WEEKEND", label: "Helg/helligdag" },
-  { value: "TRAVEL", label: "Reise/kjøring" },
+  { value: "NORMAL", label: "Regular" },
+  { value: "OVERTIME_50", label: "Overtime 50%" },
+  { value: "OVERTIME_100", label: "Overtime 100%" },
+  { value: "WEEKEND", label: "Weekend/holiday" },
+  { value: "TRAVEL", label: "Travel/driving" },
 ] as const;
 
 interface TimeEntryEditDialogProps {
@@ -71,7 +71,7 @@ export function TimeEntryEditDialog({
     e.preventDefault();
     const h = parseFloat(hours.replace(",", "."));
     if (isNaN(h) || h <= 0 || h > 24) {
-      toast({ variant: "destructive", title: "Timer må være 0–24" });
+      toast({ variant: "destructive", title: "Hours must be between 0–24" });
       return;
     }
     setLoading(true);
@@ -83,7 +83,7 @@ export function TimeEntryEditDialog({
         comment: comment.trim() || undefined,
       });
       if (!res.success) throw new Error(res.error);
-      toast({ title: "Timer rettet" });
+      toast({ title: "Hours updated" });
       onOpenChange(false);
       onSuccess();
     } catch (err) {
@@ -97,14 +97,14 @@ export function TimeEntryEditDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Retting av timeregistrering</DialogTitle>
+          <DialogTitle>Edit Time Entry</DialogTitle>
           <DialogDescription>
-            Admin kan rette timer for ansatte. Endringer logges.
+            Admin can correct hours for employees. Changes are logged.
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <Label className="text-xs">Dato</Label>
+            <Label className="text-xs">Date</Label>
             <Input
               type="date"
               value={date}
@@ -113,7 +113,7 @@ export function TimeEntryEditDialog({
             />
           </div>
           <div className="space-y-2">
-            <Label className="text-xs">Timer</Label>
+            <Label className="text-xs">Hours</Label>
             <Input
               type="text"
               value={hours}
@@ -138,11 +138,11 @@ export function TimeEntryEditDialog({
             </Select>
           </div>
           <div className="space-y-2">
-            <Label className="text-xs">Kommentar</Label>
+            <Label className="text-xs">Comment</Label>
             <Input
               value={comment}
               onChange={(e) => setComment(e.target.value)}
-              placeholder="Valgfritt"
+              placeholder="Optional"
             />
           </div>
           <DialogFooter>
@@ -151,10 +151,10 @@ export function TimeEntryEditDialog({
               variant="outline"
               onClick={() => onOpenChange(false)}
             >
-              Avbryt
+              Cancel
             </Button>
             <Button type="submit" disabled={loading}>
-              {loading ? "..." : "Lagre"}
+              {loading ? "..." : "Save"}
             </Button>
           </DialogFooter>
         </form>

@@ -15,7 +15,7 @@ export default async function NewDocumentPage() {
 
   const userTenant = user.tenants[0];
   if (!userTenant) {
-    return <div>Ingen tilgang til tenant</div>;
+    return <div>No tenant access</div>;
   }
 
   const tenantUsers = await prisma.userTenant.findMany({
@@ -48,7 +48,7 @@ export default async function NewDocumentPage() {
   const ownerOptions = tenantUsers
     .map((member) => ({
       id: member.user?.id ?? "",
-      name: member.user?.name ?? member.user?.email ?? "Ukjent",
+      name: member.user?.name ?? member.user?.email ?? "Unknown",
       email: member.user?.email ?? "",
       role: member.role,
     }))
@@ -70,21 +70,21 @@ export default async function NewDocumentPage() {
         <Button variant="ghost" asChild className="mb-4">
           <Link href="/dashboard/documents">
             <ArrowLeft className="mr-2 h-4 w-4" />
-            Tilbake til dokumenter
+            Back to Documents
           </Link>
         </Button>
-        <h1 className="text-3xl font-bold">Nytt dokument</h1>
+        <h1 className="text-3xl font-bold">New Document</h1>
         <p className="text-muted-foreground">
-          Last opp et nytt dokument til systemet
+          Upload a new document to the system
         </p>
       </div>
 
       <DocumentForm
         tenantId={userTenant.tenantId}
+        userId={user.id}
         owners={ownerOptions}
         templates={templateOptions}
       />
     </div>
   );
 }
-

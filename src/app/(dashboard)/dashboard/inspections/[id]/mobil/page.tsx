@@ -51,10 +51,10 @@ export default async function InspectionMobilePage({
 
   const getStatusBadge = (status: string) => {
     const variants: Record<string, { label: string; variant: "default" | "secondary" | "outline" }> = {
-      PLANNED: { label: "Planlagt", variant: "secondary" },
-      IN_PROGRESS: { label: "Pågår", variant: "default" },
-      COMPLETED: { label: "Fullført", variant: "outline" },
-      CANCELLED: { label: "Kansellert", variant: "outline" },
+      PLANNED: { label: "Planned", variant: "secondary" },
+      IN_PROGRESS: { label: "In Progress", variant: "default" },
+      COMPLETED: { label: "Completed", variant: "outline" },
+      CANCELLED: { label: "Cancelled", variant: "outline" },
     };
     return variants[status] || variants.PLANNED;
   };
@@ -92,7 +92,7 @@ export default async function InspectionMobilePage({
 
       {/* Content */}
       <div className="container max-w-2xl mx-auto px-4 py-6">
-        {/* Skjema hvis tilgjengelig */}
+        {/* Form if available */}
         {inspection.formTemplate && (
           <div className="bg-white rounded-lg border p-6 mb-6">
             <div className="flex items-center gap-2 mb-4">
@@ -111,11 +111,11 @@ export default async function InspectionMobilePage({
               <div className="space-y-4">
                 <div className="flex items-center gap-2 text-sm text-green-600 bg-green-50 p-3 rounded-md">
                   <CheckCircle className="h-4 w-4" />
-                  <span>Skjema er utfylt</span>
+                  <span>Form completed</span>
                 </div>
                 <Link href={`/dashboard/forms/${inspection.formTemplate.id}/fill?inspectionId=${id}`}>
                   <Button variant="outline" className="w-full">
-                    Se utfylt skjema
+                    View Completed Form
                   </Button>
                 </Link>
               </div>
@@ -123,11 +123,11 @@ export default async function InspectionMobilePage({
               <div className="space-y-4">
                 <div className="flex items-center gap-2 text-sm text-orange-600 bg-orange-50 p-3 rounded-md">
                   <Clock className="h-4 w-4" />
-                  <span>Skjema må fylles ut</span>
+                  <span>Form must be filled out</span>
                 </div>
                 <Link href={`/dashboard/forms/${inspection.formTemplate.id}/fill?inspectionId=${id}`}>
                   <Button className="w-full">
-                    Fyll ut skjema
+                    Fill Out Form
                   </Button>
                 </Link>
               </div>
@@ -141,13 +141,13 @@ export default async function InspectionMobilePage({
             <div className="text-3xl font-bold text-primary">
               {inspection.findings.length}
             </div>
-            <div className="text-sm text-muted-foreground mt-1">Registrerte funn</div>
+            <div className="text-sm text-muted-foreground mt-1">Registered findings</div>
           </div>
           <div className="bg-white rounded-lg border p-4 text-center">
             <div className="text-3xl font-bold text-orange-600">
               {inspection.findings.filter((f) => f.status === "OPEN").length}
             </div>
-            <div className="text-sm text-muted-foreground mt-1">Åpne funn</div>
+            <div className="text-sm text-muted-foreground mt-1">Open findings</div>
           </div>
         </div>
 

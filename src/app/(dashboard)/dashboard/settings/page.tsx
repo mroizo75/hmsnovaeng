@@ -41,7 +41,7 @@ export default async function SettingsPage() {
   });
 
   if (!user || user.tenants.length === 0) {
-    return <div>Du er ikke tilknyttet en tenant.</div>;
+    return <div>You are not associated with a tenant.</div>;
   }
 
   const tenantId = user.tenants[0].tenantId;
@@ -65,7 +65,7 @@ export default async function SettingsPage() {
     orderBy: { createdAt: "desc" },
   });
 
-  // Hent brukergrense basert på pricing tier
+  // Get user limit based on pricing tier
   const { getSubscriptionLimits } = await import("@/lib/subscription");
   const limits = getSubscriptionLimits(tenant.pricingTier as any);
 
@@ -74,9 +74,9 @@ export default async function SettingsPage() {
       {/* Header */}
       <div className="flex items-center gap-3">
         <div>
-          <h1 className="text-3xl font-bold">Innstillinger</h1>
+          <h1 className="text-3xl font-bold">Settings</h1>
           <p className="text-muted-foreground">
-            Administrer bedrift, brukere og system
+            Manage company, users and system
           </p>
         </div>
         <PageHelpDialog content={helpContent.settings} />
@@ -87,23 +87,23 @@ export default async function SettingsPage() {
         <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 lg:grid-cols-7">
           <TabsTrigger value="company" className="flex items-center gap-2">
             <Building2 className="h-4 w-4" />
-            <span className="hidden sm:inline">Bedrift</span>
+            <span className="hidden sm:inline">Company</span>
           </TabsTrigger>
           <TabsTrigger value="menu" className="flex items-center gap-2">
             <PanelLeft className="h-4 w-4" />
-            <span className="hidden sm:inline">Enkel meny</span>
+            <span className="hidden sm:inline">Simple Menu</span>
           </TabsTrigger>
           <TabsTrigger value="profile" className="flex items-center gap-2">
             <User className="h-4 w-4" />
-            <span className="hidden sm:inline">Profil</span>
+            <span className="hidden sm:inline">Profile</span>
           </TabsTrigger>
           <TabsTrigger value="notifications" className="flex items-center gap-2">
             <Bell className="h-4 w-4" />
-            <span className="hidden sm:inline">Varsler</span>
+            <span className="hidden sm:inline">Notifications</span>
           </TabsTrigger>
           <TabsTrigger value="users" className="flex items-center gap-2">
             <Users className="h-4 w-4" />
-            <span className="hidden sm:inline">Brukere</span>
+            <span className="hidden sm:inline">Users</span>
           </TabsTrigger>
           <TabsTrigger value="sso" className="flex items-center gap-2">
             <Cloud className="h-4 w-4" />
@@ -111,7 +111,7 @@ export default async function SettingsPage() {
           </TabsTrigger>
           <TabsTrigger value="subscription" className="flex items-center gap-2">
             <CreditCard className="h-4 w-4" />
-            <span className="hidden sm:inline">Abonnement</span>
+            <span className="hidden sm:inline">Subscription</span>
           </TabsTrigger>
         </TabsList>
 

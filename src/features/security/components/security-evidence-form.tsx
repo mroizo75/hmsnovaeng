@@ -34,13 +34,13 @@ export function SecurityEvidenceForm({ controls }: SecurityEvidenceFormProps) {
       });
 
       if (result.success) {
-        toast({ title: "Evidens registrert" });
+        toast({ title: "Evidence registered" });
         setOpen(false);
       } else {
         toast({
           variant: "destructive",
-          title: "Feil",
-          description: result.error || "Kunne ikke registrere evidens",
+          title: "Error",
+          description: result.error || "Could not register evidence",
         });
       }
     });
@@ -51,20 +51,20 @@ export function SecurityEvidenceForm({ controls }: SecurityEvidenceFormProps) {
       <DialogTrigger asChild>
         <Button size="sm" variant="outline">
           <Plus className="mr-2 h-4 w-4" />
-          Registrer evidens
+          Register Evidence
         </Button>
       </DialogTrigger>
       <DialogContent className="max-w-lg">
         <DialogHeader>
-          <DialogTitle>Legg til kontroll-evidens</DialogTitle>
+          <DialogTitle>Add Control Evidence</DialogTitle>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <Label>Kontroll *</Label>
+            <Label>Control *</Label>
             <Select name="controlId" disabled={isPending}>
               <SelectTrigger>
-                <SelectValue placeholder="Velg kontroll" />
+                <SelectValue placeholder="Select control" />
               </SelectTrigger>
               <SelectContent>
                 {controls.map((control) => (
@@ -77,31 +77,31 @@ export function SecurityEvidenceForm({ controls }: SecurityEvidenceFormProps) {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="title">Tittel *</Label>
-            <Input id="title" name="title" required disabled={isPending} placeholder="F.eks. Rapport fra logg-gjennomgang" />
+            <Label htmlFor="title">Title *</Label>
+            <Input id="title" name="title" required disabled={isPending} placeholder="e.g. Log review report" />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="description">Beskrivelse</Label>
+            <Label htmlFor="description">Description</Label>
             <Textarea id="description" name="description" rows={3} disabled={isPending} />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="reviewResult">Revisjonsnotat</Label>
+            <Label htmlFor="reviewResult">Review Notes</Label>
             <Textarea id="reviewResult" name="reviewResult" rows={2} disabled={isPending} />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="attachmentKey">Vedlegg (R2-key/URL)</Label>
-            <Input id="attachmentKey" name="attachmentKey" disabled={isPending} placeholder="f.eks. r2://evidens/logg.pdf" />
+            <Label htmlFor="attachmentKey">Attachment (R2-key/URL)</Label>
+            <Input id="attachmentKey" name="attachmentKey" disabled={isPending} placeholder="e.g. r2://evidence/log.pdf" />
           </div>
 
           <div className="flex justify-end gap-2">
             <Button type="button" variant="outline" onClick={() => setOpen(false)} disabled={isPending}>
-              Avbryt
+              Cancel
             </Button>
             <Button type="submit" disabled={isPending}>
-              {isPending ? "Lagrer..." : "Lagre evidens"}
+              {isPending ? "Saving..." : "Save Evidence"}
             </Button>
           </div>
         </form>
@@ -109,4 +109,3 @@ export function SecurityEvidenceForm({ controls }: SecurityEvidenceFormProps) {
     </Dialog>
   );
 }
-

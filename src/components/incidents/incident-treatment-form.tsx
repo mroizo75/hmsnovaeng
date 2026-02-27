@@ -49,15 +49,15 @@ export function IncidentTreatmentForm({
       }
 
       toast({
-        title: "✅ Oppdatert",
-        description: "Avviket er oppdatert",
+        title: "✅ Updated",
+        description: "The incident has been updated",
       });
 
       router.refresh();
     } catch (error) {
       toast({
-        title: "❌ Feil",
-        description: "Kunne ikke oppdatere avvik. Prøv igjen.",
+        title: "❌ Error",
+        description: "Could not update incident. Please try again.",
         variant: "destructive",
       });
     } finally {
@@ -80,38 +80,38 @@ export function IncidentTreatmentForm({
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="OPEN">Åpen</SelectItem>
-              <SelectItem value="INVESTIGATING">Under utredning</SelectItem>
-              <SelectItem value="ACTION_TAKEN">Tiltak igangsatt</SelectItem>
+              <SelectItem value="OPEN">Open</SelectItem>
+              <SelectItem value="INVESTIGATING">Under investigation</SelectItem>
+              <SelectItem value="ACTION_TAKEN">Action taken</SelectItem>
             </SelectContent>
           </Select>
         </div>
 
         <div>
-          <Label className="mb-2 block">Alvorlighet</Label>
+          <Label className="mb-2 block">Severity</Label>
           <Select value={severity} onValueChange={setSeverity}>
             <SelectTrigger>
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="1">1 - Ubetydelig</SelectItem>
-              <SelectItem value="2">2 - Liten</SelectItem>
-              <SelectItem value="3">3 - Moderat</SelectItem>
-              <SelectItem value="4">4 - Alvorlig</SelectItem>
-              <SelectItem value="5">5 - Kritisk</SelectItem>
+              <SelectItem value="1">1 - Negligible</SelectItem>
+              <SelectItem value="2">2 - Minor</SelectItem>
+              <SelectItem value="3">3 - Moderate</SelectItem>
+              <SelectItem value="4">4 - Serious</SelectItem>
+              <SelectItem value="5">5 - Critical</SelectItem>
             </SelectContent>
           </Select>
         </div>
       </div>
 
       <div>
-        <Label className="mb-2 block">Ansvarlig for oppfølging</Label>
+        <Label className="mb-2 block">Responsible for follow-up</Label>
         <Select value={responsibleId} onValueChange={setResponsibleId}>
           <SelectTrigger>
-            <SelectValue placeholder="Velg ansvarlig..." />
+            <SelectValue placeholder="Select responsible..." />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="NONE">Ingen tildelt</SelectItem>
+            <SelectItem value="NONE">None assigned</SelectItem>
             {users.map((user) => (
               <SelectItem key={user.id} value={user.id}>
                 {user.name || user.email}
@@ -126,10 +126,10 @@ export function IncidentTreatmentForm({
           {isUpdating ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Oppdaterer...
+              Updating...
             </>
           ) : (
-            "💾 Lagre endringer"
+            "💾 Save changes"
           )}
         </Button>
       )}

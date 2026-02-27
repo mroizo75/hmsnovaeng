@@ -64,9 +64,9 @@ export function IncidentPDFExport({ incident, typeLabel, severityLabel, statusLa
 
   const getMeasureStatusLabel = (status: string) => {
     switch (status) {
-      case "PENDING": return "Planlagt";
-      case "IN_PROGRESS": return "Pågår";
-      case "DONE": return "Ferdig";
+      case "PENDING": return "Planned";
+      case "IN_PROGRESS": return "In progress";
+      case "DONE": return "Done";
       default: return status;
     }
   };
@@ -254,12 +254,12 @@ export function IncidentPDFExport({ incident, typeLabel, severityLabel, statusLa
         checkPageBreak(30);
         doc.setFontSize(12);
         doc.setFont("helvetica", "bold");
-        doc.text("Årsaksanalyse", margin, yPos);
+        doc.text("Root cause analysis", margin, yPos);
         yPos += 6;
 
         doc.setFontSize(10);
         doc.setFont("helvetica", "bold");
-        doc.text("Grunnårsak:", margin, yPos);
+        doc.text("Root cause:", margin, yPos);
         yPos += 5;
 
         doc.setFont("helvetica", "normal");
@@ -270,7 +270,7 @@ export function IncidentPDFExport({ incident, typeLabel, severityLabel, statusLa
         if (incident.contributingFactors) {
           checkPageBreak(20);
           doc.setFont("helvetica", "bold");
-          doc.text("Medvirkende faktorer:", margin, yPos);
+          doc.text("Contributing factors:", margin, yPos);
           yPos += 5;
 
           doc.setFont("helvetica", "normal");
@@ -341,7 +341,7 @@ export function IncidentPDFExport({ incident, typeLabel, severityLabel, statusLa
         if (incident.lessonsLearned) {
           checkPageBreak(20);
           doc.setFont("helvetica", "bold");
-          doc.text("Læringspunkter:", margin, yPos);
+          doc.text("Lessons learned:", margin, yPos);
           yPos += 5;
 
           doc.setFont("helvetica", "normal");
@@ -353,7 +353,7 @@ export function IncidentPDFExport({ incident, typeLabel, severityLabel, statusLa
         if (incident.closedAt) {
           doc.setTextColor(100);
           doc.setFontSize(9);
-          doc.text(`Lukket: ${formatDate(incident.closedAt)}`, margin, yPos);
+          doc.text(`Closed: ${formatDate(incident.closedAt)}`, margin, yPos);
           doc.setTextColor(0);
         }
       }
@@ -361,15 +361,15 @@ export function IncidentPDFExport({ incident, typeLabel, severityLabel, statusLa
       // Footer on last page
       doc.setFontSize(8);
       doc.setTextColor(150);
-      const footerText = `Generert: ${formatDate(new Date())} | HMS Nova`;
+      const footerText = `Generated: ${formatDate(new Date())} | EHS Nova`;
       doc.text(footerText, pageWidth / 2, pageHeight - 10, { align: "center" });
 
       // Save
-      const fileName = `avvik-${incident.title.substring(0, 30).replace(/[^a-z0-9]/gi, '_')}-${new Date().toISOString().split("T")[0]}.pdf`;
+      const fileName = `incident-${incident.title.substring(0, 30).replace(/[^a-z0-9]/gi, '_')}-${new Date().toISOString().split("T")[0]}.pdf`;
       doc.save(fileName);
     } catch (error) {
       console.error("Failed to generate PDF:", error);
-      alert("Kunne ikke generere PDF. Vennligst prøv igjen.");
+      alert("Could not generate PDF. Please try again.");
     } finally {
       setGenerating(false);
     }

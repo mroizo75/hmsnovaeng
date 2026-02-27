@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
-import { nb } from "date-fns/locale";
+import { enUS } from "date-fns/locale";
 import { PlusCircle, Calendar, Users, FileText, Video } from "lucide-react";
 import {
   Table,
@@ -36,13 +36,13 @@ async function getMeetings(tenantId: string) {
 function getStatusBadge(status: MeetingStatus) {
   switch (status) {
     case "PLANNED":
-      return <Badge variant="secondary">Planlagt</Badge>;
+      return <Badge variant="secondary">Planned</Badge>;
     case "IN_PROGRESS":
-      return <Badge className="bg-blue-500 hover:bg-blue-500">Pågår</Badge>;
+      return <Badge className="bg-blue-500 hover:bg-blue-500">In Progress</Badge>;
     case "COMPLETED":
-      return <Badge className="bg-green-600 hover:bg-green-600">Fullført</Badge>;
+      return <Badge className="bg-green-600 hover:bg-green-600">Completed</Badge>;
     case "CANCELLED":
-      return <Badge variant="destructive">Avlyst</Badge>;
+      return <Badge variant="destructive">Cancelled</Badge>;
     default:
       return <Badge variant="secondary">{status}</Badge>;
   }
@@ -51,15 +51,15 @@ function getStatusBadge(status: MeetingStatus) {
 function getTypeBadge(type: MeetingType) {
   switch (type) {
     case "AMU":
-      return <Badge variant="outline">AMU</Badge>;
+      return <Badge variant="outline">EHS Committee</Badge>;
     case "VO":
-      return <Badge variant="outline">Verneombud</Badge>;
+      return <Badge variant="outline">Safety Rep</Badge>;
     case "BHT":
-      return <Badge variant="outline">BHT</Badge>;
+      return <Badge variant="outline">Occupational Health</Badge>;
     case "HMS_COMMITTEE":
-      return <Badge variant="outline">HMS-utvalg</Badge>;
+      return <Badge variant="outline">EHS Committee</Badge>;
     case "OTHER":
-      return <Badge variant="outline">Annet</Badge>;
+      return <Badge variant="outline">Other</Badge>;
     default:
       return <Badge variant="outline">{type}</Badge>;
   }
@@ -85,9 +85,9 @@ export default async function MeetingsPage() {
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">Møter (AMU/VO)</h1>
+            <h1 className="text-3xl font-bold tracking-tight">Meetings (EHS/Safety)</h1>
             <p className="text-muted-foreground">
-              Arbeidsmiljøutvalg, verneombudsmøter og HMS-komitéer
+              EHS committees, safety representative meetings, and occupational health
             </p>
           </div>
           <PageHelpDialog content={helpContent.meetings} />
@@ -96,17 +96,17 @@ export default async function MeetingsPage() {
           <Link href="/dashboard/meetings/new">
             <Button>
               <PlusCircle className="mr-2 h-4 w-4" />
-              Nytt møte
+              New Meeting
             </Button>
           </Link>
         )}
       </div>
 
-      {/* Statistikk */}
+      {/* Statistics */}
       <div className="grid gap-4 md:grid-cols-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Totalt</CardTitle>
+            <CardTitle className="text-sm font-medium">Total</CardTitle>
             <Calendar className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -116,7 +116,7 @@ export default async function MeetingsPage() {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Planlagt</CardTitle>
+            <CardTitle className="text-sm font-medium">Planned</CardTitle>
             <Calendar className="h-4 w-4 text-blue-500" />
           </CardHeader>
           <CardContent>
@@ -128,7 +128,7 @@ export default async function MeetingsPage() {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Fullført</CardTitle>
+            <CardTitle className="text-sm font-medium">Completed</CardTitle>
             <FileText className="h-4 w-4 text-green-600" />
           </CardHeader>
           <CardContent>
@@ -140,7 +140,7 @@ export default async function MeetingsPage() {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Vedtak</CardTitle>
+            <CardTitle className="text-sm font-medium">Decisions</CardTitle>
             <Users className="h-4 w-4 text-purple-500" />
           </CardHeader>
           <CardContent>
@@ -154,13 +154,13 @@ export default async function MeetingsPage() {
       {meetings.length === 0 ? (
         <div className="flex flex-col items-center justify-center rounded-lg border border-dashed p-12 text-center">
           <Calendar className="mb-4 h-12 w-12 text-muted-foreground" />
-          <h3 className="mb-2 text-lg font-semibold">Ingen møter</h3>
+          <h3 className="mb-2 text-lg font-semibold">No meetings</h3>
           <p className="mb-4 text-sm text-muted-foreground">
-            Opprett ditt første møte for å komme i gang.
+            Create your first meeting to get started.
           </p>
           {permissions.canCreateMeetings && (
             <Button asChild>
-              <Link href="/dashboard/meetings/new">Opprett møte</Link>
+              <Link href="/dashboard/meetings/new">Create Meeting</Link>
             </Button>
           )}
         </div>
@@ -169,13 +169,13 @@ export default async function MeetingsPage() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Tittel</TableHead>
+                <TableHead>Title</TableHead>
                 <TableHead>Type</TableHead>
-                <TableHead>Dato</TableHead>
-                <TableHead>Deltakere</TableHead>
-                <TableHead>Vedtak</TableHead>
+                <TableHead>Date</TableHead>
+                <TableHead>Participants</TableHead>
+                <TableHead>Decisions</TableHead>
                 <TableHead>Status</TableHead>
-                <TableHead className="text-right">Handlinger</TableHead>
+                <TableHead className="text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -184,7 +184,7 @@ export default async function MeetingsPage() {
                   <TableCell className="font-medium">{meeting.title}</TableCell>
                   <TableCell>{getTypeBadge(meeting.type)}</TableCell>
                   <TableCell>
-                    {format(new Date(meeting.scheduledDate), "dd. MMM yyyy HH:mm", { locale: nb })}
+                    {format(new Date(meeting.scheduledDate), "MMM d, yyyy HH:mm", { locale: enUS })}
                   </TableCell>
                   <TableCell>
                     <div className="flex items-center gap-1">
@@ -202,7 +202,7 @@ export default async function MeetingsPage() {
                   <TableCell className="text-right">
                     <Link href={`/dashboard/meetings/${meeting.id}`}>
                       <Button variant="ghost" size="sm">
-                        Detaljer
+                        Details
                       </Button>
                     </Link>
                   </TableCell>

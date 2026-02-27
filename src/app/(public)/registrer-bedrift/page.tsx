@@ -39,10 +39,10 @@ export default function RegistrerBedriftPage() {
       if (result.success) {
         router.push("/registrer-bedrift/takk");
       } else {
-        setError(result.error || "Noe gikk galt. Prøv igjen.");
+        setError(result.error || "Something went wrong. Please try again.");
       }
     } catch (err) {
-      setError("En uventet feil oppstod. Prøv igjen senere.");
+      setError("An unexpected error occurred. Please try again later.");
     } finally {
       setIsSubmitting(false);
     }
@@ -56,32 +56,32 @@ export default function RegistrerBedriftPage() {
           <div className="mb-8">
             <Link href="/" className="inline-flex items-center text-sm text-muted-foreground hover:text-foreground mb-4">
               <ArrowLeft className="h-4 w-4 mr-2" />
-              Tilbake til forsiden
+              Back to home
             </Link>
             <Badge variant="secondary" className="mb-4">
-              Registrer bedrift
+              Register company
             </Badge>
-            <h1 className="text-4xl font-bold mb-4">Søk om tilgang til HMS Nova</h1>
+            <h1 className="text-4xl font-bold mb-4">Request access to EHS Nova</h1>
             <p className="text-lg text-muted-foreground">
-              Fyll ut skjemaet under, så tar vi kontakt med deg innen 24 timer for å aktivere din konto.
-              Alle planer inkluderer 14 dagers gratis prøveperiode.
+              Fill out the form below and we will contact you within 24 hours to activate your account.
+              All plans include a 14-day free trial period.
             </p>
           </div>
 
           {/* Form */}
           <Card>
             <CardHeader>
-              <CardTitle>Bedriftsinformasjon</CardTitle>
+              <CardTitle>Company information</CardTitle>
               <CardDescription>
-                Vi trenger denne informasjonen for å sette opp din konto og fakturering.
+                We need this information to set up your account and billing.
               </CardDescription>
             </CardHeader>
             <CardContent>
               <form onSubmit={handleSubmit} className="space-y-6">
-                {/* Bedriftsnavn */}
+                {/* Company name */}
                 <div className="space-y-2">
                   <Label htmlFor="companyName">
-                    Bedriftsnavn <span className="text-destructive">*</span>
+                    Company name <span className="text-destructive">*</span>
                   </Label>
                   <div className="relative">
                     <Building2 className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
@@ -90,76 +90,76 @@ export default function RegistrerBedriftPage() {
                       name="companyName"
                       type="text"
                       required
-                      placeholder="Bedrift AS"
+                      placeholder="Acme Inc."
                       className="pl-10"
                     />
                   </div>
                 </div>
 
-                {/* Organisasjonsnummer */}
+                {/* EIN/Tax ID */}
                 <div className="space-y-2">
                   <Label htmlFor="orgNumber">
-                    Organisasjonsnummer <span className="text-destructive">*</span>
+                    EIN / Tax ID <span className="text-destructive">*</span>
                   </Label>
                   <Input
                     id="orgNumber"
                     name="orgNumber"
                     type="text"
                     required
-                    placeholder="123 456 789"
-                    pattern="[0-9\s]{9,11}"
+                    placeholder="12-3456789"
+                    pattern="[0-9\-]{9,11}"
                   />
-                  <p className="text-xs text-muted-foreground">9 siffer</p>
+                  <p className="text-xs text-muted-foreground">9 digits (XX-XXXXXXX format)</p>
                 </div>
 
-                {/* Antall ansatte */}
+                {/* Number of employees */}
                 <div className="space-y-2">
                   <Label htmlFor="employeeCount">
-                    Antall ansatte <span className="text-destructive">*</span>
+                    Number of employees <span className="text-destructive">*</span>
                   </Label>
                   <Select name="employeeCount" required>
                     <SelectTrigger>
-                      <SelectValue placeholder="Velg antall ansatte" />
+                      <SelectValue placeholder="Select number of employees" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="1-20">1-20 ansatte</SelectItem>
-                      <SelectItem value="21-50">21-50 ansatte</SelectItem>
-                      <SelectItem value="51+">51+ ansatte</SelectItem>
+                      <SelectItem value="1-20">1–20 employees</SelectItem>
+                      <SelectItem value="21-50">21–50 employees</SelectItem>
+                      <SelectItem value="51+">51+ employees</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
 
-                {/* Bransje */}
+                {/* Industry */}
                 <div className="space-y-2">
                   <Label htmlFor="industry">
-                    Bransje <span className="text-destructive">*</span>
+                    Industry <span className="text-destructive">*</span>
                   </Label>
                   <Select name="industry" required>
                     <SelectTrigger>
-                      <SelectValue placeholder="Velg bransje" />
+                      <SelectValue placeholder="Select industry" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="Bygg og anlegg">Bygg og anlegg</SelectItem>
-                      <SelectItem value="Helsevesen">Helsevesen</SelectItem>
-                      <SelectItem value="Transport og logistikk">Transport og logistikk</SelectItem>
-                      <SelectItem value="Industri og produksjon">Industri og produksjon</SelectItem>
-                      <SelectItem value="Handel og service">Handel og service</SelectItem>
-                      <SelectItem value="Hotell og restaurant">Hotell og restaurant</SelectItem>
-                      <SelectItem value="Utdanning">Utdanning</SelectItem>
-                      <SelectItem value="Teknologi og IT">Teknologi og IT</SelectItem>
-                      <SelectItem value="Landbruk">Landbruk</SelectItem>
-                      <SelectItem value="Annet">Annet</SelectItem>
+                      <SelectItem value="Construction">Construction</SelectItem>
+                      <SelectItem value="Healthcare">Healthcare</SelectItem>
+                      <SelectItem value="Transport and logistics">Transport and logistics</SelectItem>
+                      <SelectItem value="Manufacturing">Manufacturing</SelectItem>
+                      <SelectItem value="Retail and services">Retail and services</SelectItem>
+                      <SelectItem value="Hospitality">Hospitality</SelectItem>
+                      <SelectItem value="Education">Education</SelectItem>
+                      <SelectItem value="Technology and IT">Technology and IT</SelectItem>
+                      <SelectItem value="Agriculture">Agriculture</SelectItem>
+                      <SelectItem value="Other">Other</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
 
                 <div className="border-t pt-6">
-                  <h3 className="font-semibold mb-4">Kontaktperson</h3>
+                  <h3 className="font-semibold mb-4">Contact person</h3>
 
-                  {/* Kontaktperson navn */}
+                  {/* Contact person name */}
                   <div className="space-y-2 mb-4">
                     <Label htmlFor="contactPerson">
-                      Navn <span className="text-destructive">*</span>
+                      Name <span className="text-destructive">*</span>
                     </Label>
                     <div className="relative">
                       <User className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
@@ -168,16 +168,16 @@ export default function RegistrerBedriftPage() {
                         name="contactPerson"
                         type="text"
                         required
-                        placeholder="Ola Nordmann"
+                        placeholder="John Smith"
                         className="pl-10"
                       />
                     </div>
                   </div>
 
-                  {/* E-post */}
+                  {/* Email */}
                   <div className="space-y-2 mb-4">
                     <Label htmlFor="contactEmail">
-                      E-post <span className="text-destructive">*</span>
+                      Email <span className="text-destructive">*</span>
                     </Label>
                     <div className="relative">
                       <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
@@ -186,19 +186,19 @@ export default function RegistrerBedriftPage() {
                         name="contactEmail"
                         type="email"
                         required
-                        placeholder="ola@bedrift.no"
+                        placeholder="john@company.com"
                         className="pl-10"
                       />
                     </div>
                     <p className="text-xs text-muted-foreground">
-                      Brukes til innlogging og viktige varsler
+                      Used for login and important notifications
                     </p>
                   </div>
 
-                  {/* Telefon */}
+                  {/* Phone */}
                   <div className="space-y-2">
                     <Label htmlFor="contactPhone">
-                      Telefon <span className="text-destructive">*</span>
+                      Phone <span className="text-destructive">*</span>
                     </Label>
                     <div className="relative">
                       <Phone className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
@@ -207,7 +207,7 @@ export default function RegistrerBedriftPage() {
                         name="contactPhone"
                         type="tel"
                         required
-                        placeholder="+47 123 45 678"
+                        placeholder="+1 (555) 123-4567"
                         className="pl-10"
                       />
                     </div>
@@ -215,9 +215,9 @@ export default function RegistrerBedriftPage() {
                 </div>
 
                 <div className="border-t pt-6">
-                  <h3 className="font-semibold mb-4">Fakturaadresse</h3>
+                  <h3 className="font-semibold mb-4">Billing address</h3>
 
-                  {/* EHF Toggle */}
+                  {/* E-invoice Toggle */}
                   <div className="flex items-center space-x-2 mb-4 p-4 bg-muted/50 rounded-lg">
                     <Checkbox
                       id="useEHF"
@@ -226,18 +226,18 @@ export default function RegistrerBedriftPage() {
                     />
                     <div className="flex-1">
                       <Label htmlFor="useEHF" className="cursor-pointer font-medium">
-                        Vi mottar EHF-fakturaer
+                        We receive electronic invoices
                       </Label>
                       <p className="text-xs text-muted-foreground mt-1">
-                        Elektronisk faktura direkte i regnskapssystemet (anbefalt)
+                        Electronic invoice directly in accounting system (recommended)
                       </p>
                     </div>
                   </div>
 
-                  {/* Faktura e-post (alltid synlig som backup) */}
+                  {/* Invoice email (always visible as backup) */}
                   <div className="space-y-2 mb-4">
                     <Label htmlFor="invoiceEmail">
-                      E-post for faktura {!useEHF && <span className="text-destructive">*</span>}
+                      Email for invoice {!useEHF && <span className="text-destructive">*</span>}
                     </Label>
                     <div className="relative">
                       <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
@@ -246,23 +246,23 @@ export default function RegistrerBedriftPage() {
                         name="invoiceEmail"
                         type="email"
                         required={!useEHF}
-                        placeholder="regnsap@bedrift.no"
+                        placeholder="accounting@company.com"
                         className="pl-10"
                       />
                     </div>
                     {useEHF && (
                       <p className="text-xs text-muted-foreground">
-                        Brukes som backup hvis EHF feiler
+                        Used as backup if electronic invoice fails
                       </p>
                     )}
                   </div>
 
-                  {/* Postadresse (kun hvis ikke EHF) */}
+                  {/* Address (only if not electronic invoice) */}
                   {!useEHF && (
                     <>
                       <div className="space-y-2 mb-4">
                         <Label htmlFor="address">
-                          Gateadresse <span className="text-destructive">*</span>
+                          Street address <span className="text-destructive">*</span>
                         </Label>
                         <div className="relative">
                           <MapPin className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
@@ -271,7 +271,7 @@ export default function RegistrerBedriftPage() {
                             name="address"
                             type="text"
                             required={!useEHF}
-                            placeholder="Storgata 1"
+                            placeholder="123 Main St"
                             className="pl-10"
                           />
                         </div>
@@ -280,28 +280,28 @@ export default function RegistrerBedriftPage() {
                       <div className="grid grid-cols-2 gap-4">
                         <div className="space-y-2">
                           <Label htmlFor="postalCode">
-                            Postnummer <span className="text-destructive">*</span>
+                            ZIP code <span className="text-destructive">*</span>
                           </Label>
                           <Input
                             id="postalCode"
                             name="postalCode"
                             type="text"
                             required={!useEHF}
-                            placeholder="0123"
-                            pattern="[0-9]{4}"
+                            placeholder="12345"
+                            pattern="[0-9]{5}(-[0-9]{4})?"
                           />
                         </div>
 
                         <div className="space-y-2">
                           <Label htmlFor="city">
-                            Poststed <span className="text-destructive">*</span>
+                            City <span className="text-destructive">*</span>
                           </Label>
                           <Input
                             id="city"
                             name="city"
                             type="text"
                             required={!useEHF}
-                            placeholder="Oslo"
+                            placeholder="New York"
                           />
                         </div>
                       </div>
@@ -309,13 +309,13 @@ export default function RegistrerBedriftPage() {
                   )}
                 </div>
 
-                {/* Melding/Kommentar */}
+                {/* Message/Comment */}
                 <div className="space-y-2">
-                  <Label htmlFor="notes">Har du noen spørsmål eller ønsker? (valgfritt)</Label>
+                  <Label htmlFor="notes">Any questions or requests? (optional)</Label>
                   <Textarea
                     id="notes"
                     name="notes"
-                    placeholder="F.eks. ønsker om demo, spesielle behov, etc."
+                    placeholder="E.g. demo request, special needs, etc."
                     rows={4}
                   />
                 </div>
@@ -335,23 +335,23 @@ export default function RegistrerBedriftPage() {
                     className="flex-1"
                     disabled={isSubmitting}
                   >
-                    {isSubmitting ? "Sender..." : "Send søknad"}
+                    {isSubmitting ? "Submitting..." : "Submit application"}
                   </Button>
                   <Link href="/" className="flex-1">
                     <Button type="button" variant="outline" size="lg" className="w-full">
-                      Avbryt
+                      Cancel
                     </Button>
                   </Link>
                 </div>
 
                 <p className="text-xs text-center text-muted-foreground">
-                  Ved å sende inn dette skjemaet godtar du våre{" "}
+                  By submitting this form you agree to our{" "}
                   <Link href="/vilkar" className="underline">
-                    vilkår
+                    terms
                   </Link>{" "}
-                  og{" "}
+                  and{" "}
                   <Link href="/personvern" className="underline">
-                    personvernserklæring
+                    privacy policy
                   </Link>
                   .
                 </p>
@@ -364,9 +364,9 @@ export default function RegistrerBedriftPage() {
             <Card>
               <CardContent className="pt-6 text-center">
                 <CheckCircle2 className="h-8 w-8 text-primary mx-auto mb-2" />
-                <h3 className="font-semibold text-sm mb-1">Rask aktivering</h3>
+                <h3 className="font-semibold text-sm mb-1">Fast activation</h3>
                 <p className="text-xs text-muted-foreground">
-                  Vi setter opp din konto innen 24 timer
+                  We set up your account within 24 hours
                 </p>
               </CardContent>
             </Card>
@@ -374,9 +374,9 @@ export default function RegistrerBedriftPage() {
             <Card>
               <CardContent className="pt-6 text-center">
                 <CheckCircle2 className="h-8 w-8 text-primary mx-auto mb-2" />
-                <h3 className="font-semibold text-sm mb-1">14 dagers prøveperiode</h3>
+                <h3 className="font-semibold text-sm mb-1">14-day trial period</h3>
                 <p className="text-xs text-muted-foreground">
-                  Test alle funksjoner uten forpliktelser
+                  Test all features with no commitment
                 </p>
               </CardContent>
             </Card>
@@ -384,9 +384,9 @@ export default function RegistrerBedriftPage() {
             <Card>
               <CardContent className="pt-6 text-center">
                 <CheckCircle2 className="h-8 w-8 text-primary mx-auto mb-2" />
-                <h3 className="font-semibold text-sm mb-1">Personlig oppfølging</h3>
+                <h3 className="font-semibold text-sm mb-1">Personal follow-up</h3>
                 <p className="text-xs text-muted-foreground">
-                  Vi hjelper deg med å komme i gang
+                  We help you get started
                 </p>
               </CardContent>
             </Card>
@@ -396,4 +396,3 @@ export default function RegistrerBedriftPage() {
     </div>
   );
 }
-

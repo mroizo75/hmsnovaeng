@@ -51,8 +51,8 @@ export function DeleteTenantDialog({
     if (!isConfirmed) {
       toast({
         variant: "destructive",
-        title: "❌ Bekreftelse mangler",
-        description: `Skriv inn bedriftsnavnet nøyaktig: "${tenantName}"`,
+        title: "❌ Confirmation required",
+        description: `Enter the company name exactly: "${tenantName}"`,
       });
       return;
     }
@@ -63,7 +63,7 @@ export function DeleteTenantDialog({
 
     if (result.success) {
       toast({
-        title: "✅ Bedrift slettet",
+        title: "✅ Company deleted",
         description: result.message,
       });
       setIsOpen(false);
@@ -72,7 +72,7 @@ export function DeleteTenantDialog({
     } else {
       toast({
         variant: "destructive",
-        title: "❌ Kunne ikke slette bedrift",
+        title: "❌ Could not delete company",
         description: result.error,
       });
       setIsDeleting(false);
@@ -88,41 +88,41 @@ export function DeleteTenantDialog({
           className="w-full"
         >
           <Trash2 className="h-4 w-4 mr-2" />
-          Slett bedrift permanent
+          Delete company permanently
         </Button>
       </AlertDialogTrigger>
       <AlertDialogContent className="max-w-2xl">
         <AlertDialogHeader>
           <AlertDialogTitle className="flex items-center gap-2 text-destructive">
             <AlertTriangle className="h-5 w-5" />
-            Slett bedrift permanent
+            Delete company permanently
           </AlertDialogTitle>
           <AlertDialogDescription className="space-y-4">
             <div className="text-base font-semibold text-foreground">
-              Er du helt sikker på at du vil slette "{tenantName}"?
+              Are you absolutely sure you want to delete "{tenantName}"?
             </div>
 
             <div className="bg-destructive/10 border border-destructive/20 rounded-lg p-4 space-y-2">
-              <p className="font-semibold text-destructive">⚠️ ADVARSEL: Denne handlingen kan ikke angres!</p>
-              <p className="text-sm">Dette vil permanent slette:</p>
+              <p className="font-semibold text-destructive">⚠️ WARNING: This action cannot be undone!</p>
+              <p className="text-sm">This will permanently delete:</p>
               <ul className="text-sm list-disc list-inside space-y-1 ml-2">
-                <li><strong>{counts.users}</strong> brukere</li>
-                <li><strong>{counts.documents}</strong> dokumenter</li>
-                <li><strong>{counts.incidents}</strong> avvik</li>
-                <li><strong>{counts.risks}</strong> risikovurderinger</li>
-                <li>Alle skjemaer, opplæring, revisjoner og mål</li>
-                <li>Alle fakturaer og betalingshistorikk</li>
-                <li><strong>Alle filer lagret i R2 Cloud</strong></li>
+                <li><strong>{counts.users}</strong> users</li>
+                <li><strong>{counts.documents}</strong> documents</li>
+                <li><strong>{counts.incidents}</strong> incidents</li>
+                <li><strong>{counts.risks}</strong> risk assessments</li>
+                <li>All forms, training, audits and goals</li>
+                <li>All invoices and payment history</li>
+                <li><strong>All files stored in R2 Cloud</strong></li>
               </ul>
             </div>
 
             {!canDelete && (
               <div className="bg-yellow-500/10 border border-yellow-500/20 rounded-lg p-4">
                 <p className="text-sm font-semibold">
-                  ⚠️ Kan ikke slette aktive bedrifter
+                  ⚠️ Cannot delete active companies
                 </p>
                 <p className="text-sm mt-1">
-                  Endre status til "SUSPENDED" eller "CANCELLED" før sletting.
+                  Change status to "SUSPENDED" or "CANCELLED" before deleting.
                 </p>
               </div>
             )}
@@ -130,7 +130,7 @@ export function DeleteTenantDialog({
             {canDelete && (
               <div className="space-y-2 pt-4">
                 <Label htmlFor="confirmText" className="text-base">
-                  Skriv inn bedriftsnavnet for å bekrefte sletting:
+                  Enter the company name to confirm deletion:
                 </Label>
                 <Input
                   id="confirmText"
@@ -141,7 +141,7 @@ export function DeleteTenantDialog({
                   className="font-mono"
                 />
                 <p className="text-xs text-muted-foreground">
-                  Skriv inn: <code className="bg-muted px-1 py-0.5 rounded">{tenantName}</code>
+                  Enter: <code className="bg-muted px-1 py-0.5 rounded">{tenantName}</code>
                 </p>
               </div>
             )}
@@ -149,7 +149,7 @@ export function DeleteTenantDialog({
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel disabled={isDeleting}>
-            Avbryt
+            Cancel
           </AlertDialogCancel>
           <AlertDialogAction
             onClick={(e) => {
@@ -160,7 +160,7 @@ export function DeleteTenantDialog({
             className="bg-destructive hover:bg-destructive/90"
           >
             {isDeleting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            Ja, slett permanent
+            Yes, delete permanently
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

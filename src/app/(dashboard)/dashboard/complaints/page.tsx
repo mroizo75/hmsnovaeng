@@ -12,7 +12,7 @@ import { helpContent } from "@/lib/help-content";
 
 function formatDate(date?: Date | null) {
   if (!date) return "—";
-  return new Date(date).toLocaleDateString("nb-NO", {
+  return new Date(date).toLocaleDateString("en-US", {
     day: "2-digit",
     month: "short",
     year: "numeric",
@@ -65,23 +65,23 @@ export default async function ComplaintsPage() {
       <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
         <div className="flex items-center gap-3">
           <div>
-            <h1 className="text-3xl font-bold">Kunde- og brukerklager</h1>
+            <h1 className="text-3xl font-bold">Customer Complaints</h1>
             <p className="text-muted-foreground">
-              ISO 10002: Samle inn, vurder og lukk kundetilbakemeldinger på en strukturert måte
+              ISO 10002: Collect, assess, and close customer feedback in a structured manner
             </p>
           </div>
           <PageHelpDialog content={helpContent.complaints} />
         </div>
         <Button asChild>
-          <Link href="/dashboard/incidents/new?type=CUSTOMER">Registrer klage</Link>
+          <Link href="/dashboard/incidents/new?type=CUSTOMER">Register Complaint</Link>
         </Button>
       </div>
 
       <div className="grid gap-4 md:grid-cols-4">
         <Card>
           <CardHeader>
-            <CardTitle>Åpne klager</CardTitle>
-            <CardDescription>Som krever oppfølging</CardDescription>
+            <CardTitle>Open Complaints</CardTitle>
+            <CardDescription>Requiring follow-up</CardDescription>
           </CardHeader>
           <CardContent>
             <p className="text-4xl font-bold">{openComplaints.length}</p>
@@ -89,8 +89,8 @@ export default async function ComplaintsPage() {
         </Card>
         <Card>
           <CardHeader>
-            <CardTitle>Snitt tilfredshet</CardTitle>
-            <CardDescription>Rapportert av kundene</CardDescription>
+            <CardTitle>Avg. Satisfaction</CardTitle>
+            <CardDescription>Reported by customers</CardDescription>
           </CardHeader>
           <CardContent>
             <p className="text-4xl font-bold">{avgSatisfaction ?? "—"}</p>
@@ -98,8 +98,8 @@ export default async function ComplaintsPage() {
         </Card>
         <Card>
           <CardHeader>
-            <CardTitle>Over frist</CardTitle>
-            <CardDescription>Krever rask respons</CardDescription>
+            <CardTitle>Overdue</CardTitle>
+            <CardDescription>Requires quick response</CardDescription>
           </CardHeader>
           <CardContent>
             <p className="text-4xl font-bold text-red-600">{overdue.length}</p>
@@ -107,8 +107,8 @@ export default async function ComplaintsPage() {
         </Card>
         <Card>
           <CardHeader>
-            <CardTitle>Totalt siste 12 mnd</CardTitle>
-            <CardDescription>Alle registrerte klager</CardDescription>
+            <CardTitle>Total last 12 months</CardTitle>
+            <CardDescription>All registered complaints</CardDescription>
           </CardHeader>
           <CardContent>
             <p className="text-4xl font-bold">{complaints.length}</p>
@@ -118,12 +118,12 @@ export default async function ComplaintsPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Aktive kundeklager</CardTitle>
-          <CardDescription>Sorter etter status og svarfrist</CardDescription>
+          <CardTitle>Active Customer Complaints</CardTitle>
+          <CardDescription>Sort by status and response deadline</CardDescription>
         </CardHeader>
         <CardContent className="space-y-3">
           {complaints.length === 0 && (
-            <p className="text-sm text-muted-foreground">Ingen kundeklager registrert.</p>
+            <p className="text-sm text-muted-foreground">No customer complaints registered.</p>
           )}
           {complaints.map((complaint) => {
             const statusColor = getIncidentStatusColor(complaint.status);
@@ -135,7 +135,7 @@ export default async function ComplaintsPage() {
                     <p className="font-semibold">{complaint.title}</p>
                     <p className="text-sm text-muted-foreground line-clamp-2">{complaint.description}</p>
                     <p className="text-xs text-purple-800 mt-2">
-                      Kunde: {complaint.customerName || "Ukjent"}{" "}
+                      Customer: {complaint.customerName || "Unknown"}{" "}
                       {complaint.customerEmail && `• ${complaint.customerEmail}`}
                       {complaint.customerPhone && ` • ${complaint.customerPhone}`}
                     </p>
@@ -144,23 +144,23 @@ export default async function ComplaintsPage() {
                     <Badge className={statusColor}>{statusLabel}</Badge>
                     {complaint.customerSatisfaction && (
                       <p className="text-xs text-muted-foreground">
-                        Tilfredshet: {complaint.customerSatisfaction}/5
+                        Satisfaction: {complaint.customerSatisfaction}/5
                       </p>
                     )}
                   </div>
                 </div>
                 <div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
-                  <span>Registrert {formatDate(complaint.occurredAt)}</span>
-                  <span>Frist {formatDate(complaint.responseDeadline)}</span>
-                  {complaint.customerTicketId && <span>Sak: {complaint.customerTicketId}</span>}
+                  <span>Registered {formatDate(complaint.occurredAt)}</span>
+                  <span>Due {formatDate(complaint.responseDeadline)}</span>
+                  {complaint.customerTicketId && <span>Case: {complaint.customerTicketId}</span>}
                   <span>
-                    Tiltak: {complaint.measures.filter((measure) => measure.status === "DONE").length}/
+                    Actions: {complaint.measures.filter((measure) => measure.status === "DONE").length}/
                     {complaint.measures.length}
                   </span>
                 </div>
                 <div className="flex justify-end">
                   <Button variant="outline" size="sm" asChild>
-                    <Link href={`/dashboard/incidents/${complaint.id}`}>Åpne sak</Link>
+                    <Link href={`/dashboard/incidents/${complaint.id}`}>Open case</Link>
                   </Button>
                 </div>
               </div>
@@ -171,4 +171,3 @@ export default async function ComplaintsPage() {
     </div>
   );
 }
-

@@ -20,31 +20,31 @@ import type { ActionEffectiveness, ActionStatus, ControlFrequency, MeasureCatego
 import type { Measure } from "@prisma/client";
 
 const categoryOptions: Array<{ value: MeasureCategory; label: string }> = [
-  { value: "CORRECTIVE", label: "Korrigerende" },
-  { value: "PREVENTIVE", label: "Forebyggende" },
-  { value: "IMPROVEMENT", label: "Forbedring" },
-  { value: "MITIGATION", label: "Risikoreduserende" },
+  { value: "CORRECTIVE", label: "Corrective" },
+  { value: "PREVENTIVE", label: "Preventive" },
+  { value: "IMPROVEMENT", label: "Improvement" },
+  { value: "MITIGATION", label: "Risk Mitigation" },
 ];
 
 const frequencyOptions: Array<{ value: ControlFrequency; label: string }> = [
-  { value: "WEEKLY", label: "Ukentlig" },
-  { value: "MONTHLY", label: "Månedlig" },
-  { value: "QUARTERLY", label: "Kvartalsvis" },
-  { value: "ANNUAL", label: "Årlig" },
-  { value: "BIENNIAL", label: "Annet hvert år" },
+  { value: "WEEKLY", label: "Weekly" },
+  { value: "MONTHLY", label: "Monthly" },
+  { value: "QUARTERLY", label: "Quarterly" },
+  { value: "ANNUAL", label: "Annual" },
+  { value: "BIENNIAL", label: "Every Two Years" },
 ];
 
 const statusOptions: Array<{ value: ActionStatus; label: string }> = [
-  { value: "PENDING", label: "Ikke startet" },
-  { value: "IN_PROGRESS", label: "Pågår" },
-  { value: "DONE", label: "Fullført" },
+  { value: "PENDING", label: "Not Started" },
+  { value: "IN_PROGRESS", label: "In Progress" },
+  { value: "DONE", label: "Completed" },
 ];
 
 const effectivenessOptions: Array<{ value: ActionEffectiveness; label: string }> = [
-  { value: "EFFECTIVE", label: "Effektivt" },
-  { value: "PARTIALLY_EFFECTIVE", label: "Delvis effektivt" },
-  { value: "INEFFECTIVE", label: "Ikke effektivt" },
-  { value: "NOT_EVALUATED", label: "Ikke evaluert" },
+  { value: "EFFECTIVE", label: "Effective" },
+  { value: "PARTIALLY_EFFECTIVE", label: "Partially Effective" },
+  { value: "INEFFECTIVE", label: "Ineffective" },
+  { value: "NOT_EVALUATED", label: "Not Evaluated" },
 ];
 
 interface MeasureEditFormProps {
@@ -112,23 +112,23 @@ export function MeasureEditForm({ measure, users }: MeasureEditFormProps) {
 
       if (result.success) {
         toast({
-          title: "✅ Tiltak oppdatert",
-          description: "Endringene er lagret",
+          title: "✅ Action updated",
+          description: "Changes have been saved",
           className: "bg-green-50 border-green-200",
         });
         router.refresh();
       } else {
         toast({
           variant: "destructive",
-          title: "Feil",
-          description: result.error || "Kunne ikke oppdatere tiltak",
+          title: "Error",
+          description: result.error || "Could not update action",
         });
       }
     } catch {
       toast({
         variant: "destructive",
-        title: "Uventet feil",
-        description: "Noe gikk galt",
+        title: "Unexpected error",
+        description: "Something went wrong",
       });
     } finally {
       setLoading(false);
@@ -139,14 +139,14 @@ export function MeasureEditForm({ measure, users }: MeasureEditFormProps) {
     <form onSubmit={handleSubmit} className="space-y-6">
       <Card>
         <CardHeader>
-          <CardTitle>Grunnleggende</CardTitle>
+          <CardTitle>Basic Information</CardTitle>
           <CardDescription>
-            Tittel, beskrivelse og ansvarlig person
+            Title, description, and responsible person
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="title">Tittel *</Label>
+            <Label htmlFor="title">Title *</Label>
             <Input
               id="title"
               value={title}
@@ -157,19 +157,19 @@ export function MeasureEditForm({ measure, users }: MeasureEditFormProps) {
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="description">Beskrivelse</Label>
+            <Label htmlFor="description">Description</Label>
             <Textarea
               id="description"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               rows={4}
               disabled={loading}
-              placeholder="Beskriv tiltaket og hva som skal gjøres"
+              placeholder="Describe the action and what needs to be done"
             />
           </div>
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="space-y-2">
-              <Label htmlFor="responsibleId">Ansvarlig person *</Label>
+              <Label htmlFor="responsibleId">Responsible Person *</Label>
               <Select
                 value={responsibleId}
                 onValueChange={setResponsibleId}
@@ -177,7 +177,7 @@ export function MeasureEditForm({ measure, users }: MeasureEditFormProps) {
                 disabled={loading}
               >
                 <SelectTrigger>
-                  <SelectValue placeholder="Velg ansvarlig" />
+                  <SelectValue placeholder="Select responsible" />
                 </SelectTrigger>
                 <SelectContent>
                   {users.map((user) => (
@@ -189,7 +189,7 @@ export function MeasureEditForm({ measure, users }: MeasureEditFormProps) {
               </Select>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="dueAt">Frist *</Label>
+              <Label htmlFor="dueAt">Due Date *</Label>
               <Input
                 id="dueAt"
                 type="date"
@@ -205,9 +205,9 @@ export function MeasureEditForm({ measure, users }: MeasureEditFormProps) {
 
       <Card>
         <CardHeader>
-          <CardTitle>Status og oppfølging</CardTitle>
+          <CardTitle>Status and Follow-up</CardTitle>
           <CardDescription>
-            Oppdater status og dokumenter fremgang
+            Update status and document progress
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -232,7 +232,7 @@ export function MeasureEditForm({ measure, users }: MeasureEditFormProps) {
           </div>
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="space-y-2">
-              <Label htmlFor="category">Tiltakstype</Label>
+              <Label htmlFor="category">Action Type</Label>
               <Select
                 value={category}
                 onValueChange={(v: MeasureCategory) => setCategory(v)}
@@ -251,7 +251,7 @@ export function MeasureEditForm({ measure, users }: MeasureEditFormProps) {
               </Select>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="followUpFrequency">Oppfølgingsfrekvens</Label>
+              <Label htmlFor="followUpFrequency">Follow-up Frequency</Label>
               <Select
                 value={followUpFrequency}
                 onValueChange={(v: ControlFrequency) => setFollowUpFrequency(v)}
@@ -272,7 +272,7 @@ export function MeasureEditForm({ measure, users }: MeasureEditFormProps) {
           </div>
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="space-y-2">
-              <Label htmlFor="costEstimate">Kostnadsestimat (NOK)</Label>
+              <Label htmlFor="costEstimate">Cost Estimate (USD)</Label>
               <Input
                 id="costEstimate"
                 type="number"
@@ -283,7 +283,7 @@ export function MeasureEditForm({ measure, users }: MeasureEditFormProps) {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="benefitEstimate">Forventet effekt (poeng)</Label>
+              <Label htmlFor="benefitEstimate">Expected Benefit (points)</Label>
               <Input
                 id="benefitEstimate"
                 type="number"
@@ -300,14 +300,14 @@ export function MeasureEditForm({ measure, users }: MeasureEditFormProps) {
       {status === "DONE" && (
         <Card>
           <CardHeader>
-            <CardTitle>Evaluering</CardTitle>
+            <CardTitle>Evaluation</CardTitle>
             <CardDescription>
-              Dokumenter effekt og resultat når tiltaket er fullført
+              Document the effect and outcome when the action is completed
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="effectiveness">Effekt av tiltak</Label>
+              <Label htmlFor="effectiveness">Action Effectiveness</Label>
               <Select
                 value={effectiveness}
                 onValueChange={(v: ActionEffectiveness) => setEffectiveness(v)}
@@ -326,14 +326,14 @@ export function MeasureEditForm({ measure, users }: MeasureEditFormProps) {
               </Select>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="effectivenessNote">Evaluering / notater</Label>
+              <Label htmlFor="effectivenessNote">Evaluation / Notes</Label>
               <Textarea
                 id="effectivenessNote"
                 value={effectivenessNote}
                 onChange={(e) => setEffectivenessNote(e.target.value)}
                 rows={3}
                 disabled={loading}
-                placeholder="Beskriv resultat, læringspunkter eller behov for oppfølging"
+                placeholder="Describe results, lessons learned, or need for follow-up"
               />
             </div>
           </CardContent>
@@ -342,7 +342,7 @@ export function MeasureEditForm({ measure, users }: MeasureEditFormProps) {
 
       <div className="flex justify-end gap-2">
         <Button type="submit" disabled={loading}>
-          {loading ? "Lagrer..." : "Lagre endringer"}
+          {loading ? "Saving..." : "Save Changes"}
         </Button>
       </div>
     </form>

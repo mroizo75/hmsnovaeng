@@ -40,51 +40,51 @@ interface RiskFormProps {
   owners: Array<{ id: string; name?: string | null; email?: string | null }>;
   goalOptions?: Array<{ id: string; title: string }>;
   templateOptions?: Array<{ id: string; name: string }>;
-  /** Kort som vises mellom Risikonivå og Rest-risiko (f.eks. Tiltak for å redusere risiko). Kun i edit-mode. */
+  /** Slot displayed between Risk Level and Residual Risk (e.g. Actions to reduce risk). Edit mode only. */
   slotBetweenRisikonivaAndResidual?: React.ReactNode;
 }
 
-// ISO 45001/31000 – status for risikovurdering
+// ISO 45001/31000 – status for risk assessment
 const statusOptions = [
-  { value: "OPEN", label: "Identifisert" },
-  { value: "MITIGATING", label: "Tiltak iverksatt" },
-  { value: "ACCEPTED", label: "Akseptert" },
-  { value: "CLOSED", label: "Lukket" },
+  { value: "OPEN", label: "Identified" },
+  { value: "MITIGATING", label: "Actions implemented" },
+  { value: "ACCEPTED", label: "Accepted" },
+  { value: "CLOSED", label: "Closed" },
 ];
 
 const categoryOptions: Array<{ value: RiskCategory; label: string }> = [
-  { value: "OPERATIONAL", label: "Operasjonell" },
-  { value: "SAFETY", label: "Sikkerhet" },
-  { value: "HEALTH", label: "Helse" },
-  { value: "ENVIRONMENTAL", label: "Miljø" },
-  { value: "INFORMATION_SECURITY", label: "Informasjonssikkerhet" },
-  { value: "LEGAL", label: "Juridisk/Compliance" },
-  { value: "STRATEGIC", label: "Strategisk" },
-  { value: "PSYCHOSOCIAL", label: "Psykososialt" },
-  { value: "ERGONOMIC", label: "Ergonomisk" },
-  { value: "ORGANISATIONAL", label: "Organisatorisk" },
-  { value: "PHYSICAL", label: "Fysisk" },
+  { value: "OPERATIONAL", label: "Operational" },
+  { value: "SAFETY", label: "Safety" },
+  { value: "HEALTH", label: "Health" },
+  { value: "ENVIRONMENTAL", label: "Environmental" },
+  { value: "INFORMATION_SECURITY", label: "Information Security" },
+  { value: "LEGAL", label: "Legal/Compliance" },
+  { value: "STRATEGIC", label: "Strategic" },
+  { value: "PSYCHOSOCIAL", label: "Psychosocial" },
+  { value: "ERGONOMIC", label: "Ergonomic" },
+  { value: "ORGANISATIONAL", label: "Organizational" },
+  { value: "PHYSICAL", label: "Physical" },
 ];
 
 const frequencyOptions: Array<{ value: ControlFrequency; label: string }> = [
-  { value: "WEEKLY", label: "Ukentlig" },
-  { value: "MONTHLY", label: "Månedlig" },
-  { value: "QUARTERLY", label: "Kvartalsvis" },
-  { value: "ANNUAL", label: "Årlig" },
-  { value: "BIENNIAL", label: "Annet hvert år" },
+  { value: "WEEKLY", label: "Weekly" },
+  { value: "MONTHLY", label: "Monthly" },
+  { value: "QUARTERLY", label: "Quarterly" },
+  { value: "ANNUAL", label: "Annual" },
+  { value: "BIENNIAL", label: "Every other year" },
 ];
 
 const responseOptions: Array<{ value: RiskResponseStrategy; label: string; description: string }> = [
-  { value: "AVOID", label: "Unngå", description: "Stopp aktiviteten eller endre prosess for å fjerne risikoen" },
-  { value: "REDUCE", label: "Reduser", description: "Implementer kontroller for å senke sannsynlighet eller konsekvens" },
-  { value: "TRANSFER", label: "Overfør", description: "Flytt risiko via forsikring, kontrakter eller leverandører" },
-  { value: "ACCEPT", label: "Aksepter", description: "Aksepter risikoen innenfor definert toleranse" },
+  { value: "AVOID", label: "Avoid", description: "Stop the activity or change the process to eliminate the risk" },
+  { value: "REDUCE", label: "Reduce", description: "Implement controls to lower likelihood or consequence" },
+  { value: "TRANSFER", label: "Transfer", description: "Shift risk via insurance, contracts, or suppliers" },
+  { value: "ACCEPT", label: "Accept", description: "Accept the risk within defined tolerance" },
 ];
 
 const trendOptions: Array<{ value: RiskTrend; label: string }> = [
-  { value: "INCREASING", label: "Økende" },
-  { value: "STABLE", label: "Stabil" },
-  { value: "DECREASING", label: "Synkende" },
+  { value: "INCREASING", label: "Increasing" },
+  { value: "STABLE", label: "Stable" },
+  { value: "DECREASING", label: "Decreasing" },
 ];
 
 const NO_GOAL_VALUE = "__none_goal__";
@@ -212,8 +212,8 @@ export function RiskForm({
 
       if (result.success) {
         toast({
-          title: mode === "create" ? "✅ Risiko opprettet" : "✅ Risiko oppdatert",
-          description: `Risikonivå: ${level} (${score})`,
+          title: mode === "create" ? "✅ Risk created" : "✅ Risk updated",
+          description: `Risk level: ${level} (${score})`,
           className: "bg-green-50 border-green-200",
         });
         router.push("/dashboard/risks");
@@ -221,15 +221,15 @@ export function RiskForm({
       } else {
         toast({
           variant: "destructive",
-          title: "Feil",
-          description: result.error || "Kunne ikke lagre risiko",
+          title: "Error",
+          description: result.error || "Could not save risk",
         });
       }
     } catch (error) {
       toast({
         variant: "destructive",
-        title: "Uventet feil",
-        description: "Noe gikk galt",
+        title: "Unexpected error",
+        description: "Something went wrong",
       });
     } finally {
       setLoading(false);
@@ -240,27 +240,27 @@ export function RiskForm({
     <form onSubmit={handleSubmit} className="space-y-6">
       <Card>
         <CardHeader>
-          <CardTitle>Grunnleggende informasjon</CardTitle>
-          <CardDescription>Beskriv risikoen og hvem som eier den</CardDescription>
+          <CardTitle>Basic information</CardTitle>
+          <CardDescription>Describe the risk and who owns it</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid gap-4 md:grid-cols-2">
             <div className="space-y-2">
-              <Label htmlFor="title">Tittel *</Label>
+              <Label htmlFor="title">Title *</Label>
               <Input
                 id="title"
                 name="title"
-                placeholder="F.eks. Fall fra høyde ved arbeid på tak"
+                placeholder="E.g. Fall from height while working on roof"
                 defaultValue={risk?.title}
                 required
                 disabled={loading}
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="category">Kategori *</Label>
+              <Label htmlFor="category">Category *</Label>
               <Select value={category} onValueChange={(val: RiskCategory) => setCategory(val)} disabled={loading}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Velg kategori" />
+                  <SelectValue placeholder="Select category" />
                 </SelectTrigger>
                 <SelectContent>
                   {categoryOptions.map((option) => (
@@ -275,10 +275,10 @@ export function RiskForm({
 
           <div className="grid gap-4 md:grid-cols-2">
             <div className="space-y-2">
-              <Label htmlFor="ownerId">Risiko-eier *</Label>
+              <Label htmlFor="ownerId">Risk owner *</Label>
               <Select value={ownerId} onValueChange={setOwnerId} disabled={loading}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Velg risiko-eier" />
+                  <SelectValue placeholder="Select risk owner" />
                 </SelectTrigger>
                 <SelectContent>
                   {owners.map((owner) => (
@@ -293,7 +293,7 @@ export function RiskForm({
               <Label htmlFor="status">Status</Label>
               <Select name="status" defaultValue={risk?.status || "OPEN"} disabled={loading}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Velg status" />
+                  <SelectValue placeholder="Select status" />
                 </SelectTrigger>
                 <SelectContent>
                   {statusOptions.map((option) => (
@@ -308,31 +308,31 @@ export function RiskForm({
 
           <div className="grid gap-4 md:grid-cols-3">
             <div className="space-y-2">
-              <Label htmlFor="location">Lokasjon</Label>
+              <Label htmlFor="location">Location</Label>
               <Input
                 id="location"
                 name="location"
-                placeholder="F.eks. Produksjonshall A"
+                placeholder="E.g. Production Hall A"
                 defaultValue={risk?.location ?? ""}
                 disabled={loading}
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="area">Område / Prosess</Label>
+              <Label htmlFor="area">Area / Process</Label>
               <Input
                 id="area"
                 name="area"
-                placeholder="Byggeplass, lager, etc."
+                placeholder="Construction site, warehouse, etc."
                 defaultValue={risk?.area ?? ""}
                 disabled={loading}
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="linkedProcess">Knyttet til prosess</Label>
+              <Label htmlFor="linkedProcess">Linked to process</Label>
               <Input
                 id="linkedProcess"
                 name="linkedProcess"
-                placeholder="F.eks. Vedlikehold, Montasje"
+                placeholder="E.g. Maintenance, Assembly"
                 defaultValue={risk?.linkedProcess ?? ""}
                 disabled={loading}
               />
@@ -343,18 +343,18 @@ export function RiskForm({
 
       <Card>
         <CardHeader>
-          <CardTitle>Beskrivelse og konsekvens</CardTitle>
+          <CardTitle>Description and consequence</CardTitle>
           <CardDescription>
-            Beskriv situasjonen og hva som kan skje (konsekvens). Eksisterende kontroller og notater under.
+            Describe the situation and what can happen (consequence). Existing controls and notes below.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="context">Beskrivelse *</Label>
+            <Label htmlFor="context">Description *</Label>
             <Textarea
               id="context"
               name="context"
-              placeholder="Beskriv situasjonen, hvor det kan skje, hvem som er utsatt, etc."
+              placeholder="Describe the situation, where it can occur, who is at risk, etc."
               defaultValue={risk?.context}
               required
               disabled={loading}
@@ -362,33 +362,33 @@ export function RiskForm({
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="riskStatement">Konsekvens</Label>
+            <Label htmlFor="riskStatement">Consequence</Label>
             <Textarea
               id="riskStatement"
               name="riskStatement"
-              placeholder="Hva kan skje dersom risikoscenarioet inntreffer? Beskriv konsekvensen."
+              placeholder="What could happen if the risk scenario occurs? Describe the consequence."
               defaultValue={risk?.riskStatement ?? ""}
               disabled={loading}
               rows={3}
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="existingControls">Eksisterende kontroller</Label>
+            <Label htmlFor="existingControls">Existing controls</Label>
             <Textarea
               id="existingControls"
               name="existingControls"
-              placeholder="Hvilke barrierer eller kontroller finnes i dag?"
+              placeholder="What barriers or controls exist today?"
               defaultValue={risk?.existingControls ?? ""}
               disabled={loading}
               rows={2}
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="description">Tilleggsnotater</Label>
+            <Label htmlFor="description">Additional notes</Label>
             <Textarea
               id="description"
               name="description"
-              placeholder="Andre relevante detaljer, referanser eller observasjoner"
+              placeholder="Other relevant details, references, or observations"
               defaultValue={risk?.description ?? ""}
               disabled={loading}
               rows={2}
@@ -400,7 +400,7 @@ export function RiskForm({
       <Card>
         <CardHeader>
           <div className="flex items-center gap-2">
-            <CardTitle>Risikonivå</CardTitle>
+            <CardTitle>Risk level</CardTitle>
             {(level === "MEDIUM" || level === "HIGH" || level === "CRITICAL") && (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -419,12 +419,12 @@ export function RiskForm({
                   sideOffset={8}
                 >
                   <p className="text-sm font-medium text-amber-900 mb-1">
-                    Tips for {level === "CRITICAL" ? "kritisk" : level === "HIGH" ? "høy" : "medium"} risiko
+                    Tips for {level === "CRITICAL" ? "critical" : level === "HIGH" ? "high" : "medium"} risk
                   </p>
                   <p className="text-sm text-muted-foreground">
                     {mode === "edit"
-                      ? "ISO 45001 anbefaler tiltak for å redusere risikoen. Scroll ned til «Tiltak for å redusere risiko» og legg til konkrete tiltak med ansvarlig person og frist."
-                      : "Etter lagring kan du legge til tiltak for å redusere risikoen. ISO 45001 krever planlagte tiltak ved medium og høy risiko."}
+                      ? "ISO 45001 recommends actions to reduce the risk. Scroll down to 'Actions to reduce risk' and add concrete actions with a responsible person and deadline."
+                      : "After saving, you can add actions to reduce the risk. ISO 45001 requires planned actions for medium and high risk."}
                   </p>
                 </DropdownMenuContent>
               </DropdownMenu>
@@ -432,8 +432,8 @@ export function RiskForm({
           </div>
           <CardDescription>
             {risk?.riskAssessmentId
-              ? "Satt da risikopunktet ble lagt inn. Endres på oversiktssiden ved behov."
-              : "Sannsynlighet og konsekvens (1–5). Risikomatrisen vises på oversiktssiden /dashboard/risks"}
+              ? "Set when the risk item was added. Change on the overview page if needed."
+              : "Likelihood and consequence (1–5). The risk matrix is shown on the overview page /dashboard/risks"}
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -443,7 +443,7 @@ export function RiskForm({
                 <div>
                   <div className={`text-xl font-bold ${color}`}>{level}</div>
                   <div className="text-sm text-muted-foreground mt-1">
-                    Sannsynlighet: {likelihood} × Konsekvens: {consequence} = {score}
+                    Likelihood: {likelihood} × Consequence: {consequence} = {score}
                   </div>
                 </div>
                 <div className={`text-4xl font-bold ${color}`}>{score}</div>
@@ -453,7 +453,7 @@ export function RiskForm({
             <>
               <div className="grid gap-4 md:grid-cols-2">
                 <div className="space-y-2">
-                  <Label>Sannsynlighet (1–5)</Label>
+                  <Label>Likelihood (1–5)</Label>
                   <Select
                     value={String(likelihood)}
                     onValueChange={(v) => setLikelihood(Number(v))}
@@ -472,7 +472,7 @@ export function RiskForm({
                   </Select>
                 </div>
                 <div className="space-y-2">
-                  <Label>Konsekvens (1–5)</Label>
+                  <Label>Consequence (1–5)</Label>
                   <Select
                     value={String(consequence)}
                     onValueChange={(v) => setConsequence(Number(v))}
@@ -496,7 +496,7 @@ export function RiskForm({
                   <div>
                     <div className={`text-xl font-bold ${color}`}>{level}</div>
                     <div className="text-sm text-muted-foreground mt-1">
-                      Sannsynlighet: {likelihood} × Konsekvens: {consequence} = {score}
+                      Likelihood: {likelihood} × Consequence: {consequence} = {score}
                     </div>
                   </div>
                   <div className={`text-4xl font-bold ${color}`}>{score}</div>
@@ -511,15 +511,15 @@ export function RiskForm({
 
       <Card>
         <CardHeader>
-          <CardTitle>Rest-risiko etter tiltak</CardTitle>
+          <CardTitle>Residual risk after actions</CardTitle>
           <CardDescription>
-            Vurder restrisiko når tiltak er gjennomført – skal bli lavere etter innførte tiltak (ISO 45001).
+            Assess residual risk after actions are implemented — should be lower after controls are in place (ISO 45001).
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid gap-4 md:grid-cols-2">
             <div>
-              <Label>Residual Sannsynlighet</Label>
+              <Label>Residual Likelihood</Label>
               <Slider
                 min={1}
                 max={5}
@@ -529,11 +529,11 @@ export function RiskForm({
                 disabled={loading}
               />
               <p className="text-sm text-muted-foreground mt-1">
-                {residualLikelihood ? `Verdi: ${residualLikelihood}` : "Velg en verdi 1-5"}
+                {residualLikelihood ? `Value: ${residualLikelihood}` : "Select a value 1-5"}
               </p>
             </div>
             <div>
-              <Label>Residual Konsekvens</Label>
+              <Label>Residual Consequence</Label>
               <Slider
                 min={1}
                 max={5}
@@ -543,14 +543,14 @@ export function RiskForm({
                 disabled={loading}
               />
               <p className="text-sm text-muted-foreground mt-1">
-                {residualConsequence ? `Verdi: ${residualConsequence}` : "Velg en verdi 1-5"}
+                {residualConsequence ? `Value: ${residualConsequence}` : "Select a value 1-5"}
               </p>
             </div>
           </div>
           {residualScore && (
             <div className={`p-4 rounded-lg border ${residualScore.bgColor}`}>
               <p className={`font-semibold ${residualScore.color}`}>
-                Residual nivå: {residualScore.level} ({residualScore.score})
+                Residual level: {residualScore.level} ({residualScore.score})
               </p>
             </div>
           )}
@@ -559,13 +559,13 @@ export function RiskForm({
 
       <Card>
         <CardHeader>
-          <CardTitle>Oppfølging og koblinger</CardTitle>
-          <CardDescription>Koble risikoen mot KPIer og inspeksjonsmaler</CardDescription>
+          <CardTitle>Follow-up and links</CardTitle>
+          <CardDescription>Link the risk to KPIs and inspection templates</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid gap-4 md:grid-cols-2">
             <div className="space-y-2">
-              <Label htmlFor="controlFrequency">Oppfølgingsfrekvens *</Label>
+              <Label htmlFor="controlFrequency">Review frequency *</Label>
               <Select
                 value={controlFrequency}
                 onValueChange={(value: ControlFrequency) => {
@@ -574,7 +574,7 @@ export function RiskForm({
                 disabled={loading}
               >
                 <SelectTrigger>
-                  <SelectValue placeholder="Velg frekvens" />
+                  <SelectValue placeholder="Select frequency" />
                 </SelectTrigger>
                 <SelectContent>
                   {frequencyOptions.map((option) => (
@@ -586,7 +586,7 @@ export function RiskForm({
               </Select>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="nextReviewDate">Neste gjennomgang *</Label>
+              <Label htmlFor="nextReviewDate">Next review *</Label>
               <Input
                 id="nextReviewDate"
                 name="nextReviewDate"
@@ -603,17 +603,17 @@ export function RiskForm({
 
           <div className="grid gap-4 md:grid-cols-2">
             <div className="space-y-2">
-              <Label htmlFor="kpiId">Koble til mål/KPI</Label>
+              <Label htmlFor="kpiId">Link to goal/KPI</Label>
               <Select
                 value={selectedGoal}
                 onValueChange={setSelectedGoal}
                 disabled={goalOptions.length === 0 || loading}
               >
                 <SelectTrigger>
-                  <SelectValue placeholder={goalOptions.length ? "Velg mål (valgfritt)" : "Ingen mål tilgjengelig"} />
+                  <SelectValue placeholder={goalOptions.length ? "Select goal (optional)" : "No goals available"} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value={NO_GOAL_VALUE}>Ingen</SelectItem>
+                  <SelectItem value={NO_GOAL_VALUE}>None</SelectItem>
                   {goalOptions.map((goal) => (
                     <SelectItem key={goal.id} value={goal.id}>
                       {goal.title}
@@ -623,7 +623,7 @@ export function RiskForm({
               </Select>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="inspectionTemplateId">Inspeksjonsmal</Label>
+              <Label htmlFor="inspectionTemplateId">Inspection template</Label>
               <Select
                 value={selectedTemplate}
                 onValueChange={setSelectedTemplate}
@@ -631,11 +631,11 @@ export function RiskForm({
               >
                 <SelectTrigger>
                   <SelectValue
-                    placeholder={templateOptions.length ? "Velg mal (valgfritt)" : "Ingen maler tilgjengelig"}
+                    placeholder={templateOptions.length ? "Select template (optional)" : "No templates available"}
                   />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value={NO_TEMPLATE_VALUE}>Ingen</SelectItem>
+                  <SelectItem value={NO_TEMPLATE_VALUE}>None</SelectItem>
                   {templateOptions.map((template) => (
                     <SelectItem key={template.id} value={template.id}>
                       {template.name}
@@ -650,17 +650,17 @@ export function RiskForm({
 
       <Card>
         <CardHeader>
-          <CardTitle>Risikoappetitt og strategi</CardTitle>
-          <CardDescription>ISO 31000: dokumenter toleransegrenser og valgt respons</CardDescription>
+          <CardTitle>Risk appetite and strategy</CardTitle>
+          <CardDescription>ISO 31000: Document tolerance limits and chosen response</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid gap-4 md:grid-cols-2">
             <div className="space-y-2">
-              <Label htmlFor="riskAppetite">Risikoappetitt</Label>
+              <Label htmlFor="riskAppetite">Risk appetite</Label>
               <Textarea
                 id="riskAppetite"
                 name="riskAppetite"
-                placeholder="Beskriv hvilket nivå av risiko virksomheten aksepterer"
+                placeholder="Describe what level of risk the organization accepts"
                 value={riskAppetite}
                 onChange={(event) => setRiskAppetite(event.target.value)}
                 disabled={loading}
@@ -668,11 +668,11 @@ export function RiskForm({
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="riskTolerance">Risiko-toleranse</Label>
+              <Label htmlFor="riskTolerance">Risk tolerance</Label>
               <Textarea
                 id="riskTolerance"
                 name="riskTolerance"
-                placeholder="Beskriv hvilke avvik/indikatorer som utløser tiltak"
+                placeholder="Describe what deviations/indicators trigger actions"
                 value={riskTolerance}
                 onChange={(event) => setRiskTolerance(event.target.value)}
                 disabled={loading}
@@ -683,14 +683,14 @@ export function RiskForm({
 
           <div className="grid gap-4 md:grid-cols-3">
             <div className="space-y-2">
-              <Label>Responsstrategi *</Label>
+              <Label>Response strategy *</Label>
               <Select
                 value={responseStrategy}
                 onValueChange={(value: RiskResponseStrategy) => setResponseStrategy(value)}
                 disabled={loading}
               >
                 <SelectTrigger>
-                  <SelectValue placeholder="Velg strategi" />
+                  <SelectValue placeholder="Select strategy" />
                 </SelectTrigger>
                 <SelectContent>
                   {responseOptions.map((option) => (
@@ -708,7 +708,7 @@ export function RiskForm({
               <Label>Trend *</Label>
               <Select value={trend} onValueChange={(value: RiskTrend) => setTrend(value)} disabled={loading}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Velg trend" />
+                  <SelectValue placeholder="Select trend" />
                 </SelectTrigger>
                 <SelectContent>
                   {trendOptions.map((option) => (
@@ -720,7 +720,7 @@ export function RiskForm({
               </Select>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="reviewedAt">Sist gjennomgått</Label>
+              <Label htmlFor="reviewedAt">Last reviewed</Label>
               <Input
                 id="reviewedAt"
                 name="reviewedAt"
@@ -732,14 +732,14 @@ export function RiskForm({
             </div>
           </div>
           <p className="text-xs text-muted-foreground">
-            Hold appetitt, toleranse og strategi oppdatert – brukes i ledelsens gjennomgang, revisjoner og rapporter.
+            Keep appetite, tolerance and strategy up to date — used in management reviews, audits and reports.
           </p>
         </CardContent>
       </Card>
 
       <div className="flex gap-4">
         <Button type="submit" disabled={loading}>
-          {loading ? "Lagrer..." : mode === "create" ? "Opprett risiko" : "Lagre endringer"}
+          {loading ? "Saving..." : mode === "create" ? "Create risk" : "Save changes"}
         </Button>
         <Button
           type="button"
@@ -747,7 +747,7 @@ export function RiskForm({
           onClick={() => router.back()}
           disabled={loading}
         >
-          Avbryt
+          Cancel
         </Button>
       </div>
     </form>

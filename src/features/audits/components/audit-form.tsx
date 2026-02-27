@@ -16,7 +16,6 @@ import {
 import { Card, CardContent } from "@/components/ui/card";
 import { createAudit, updateAudit } from "@/server/actions/audit.actions";
 import { useToast } from "@/hooks/use-toast";
-import { ClipboardCheck } from "lucide-react";
 import type { Audit } from "@prisma/client";
 
 interface AuditFormProps {
@@ -40,7 +39,7 @@ export function AuditForm({ tenantId, users, audit, mode = "create" }: AuditForm
 
     const formData = new FormData(e.currentTarget);
     const status = formData.get("status") as string;
-    
+
     const data = {
       tenantId,
       title: formData.get("title") as string,
@@ -53,7 +52,6 @@ export function AuditForm({ tenantId, users, audit, mode = "create" }: AuditForm
       area: formData.get("area") as string,
       department: formData.get("department") as string || undefined,
       status,
-      // Sett completedAt automatisk når status endres til COMPLETED
       ...(status === "COMPLETED" && !audit?.completedAt ? { completedAt: new Date() } : {}),
       summary: formData.get("summary") as string || undefined,
       conclusion: formData.get("conclusion") as string || undefined,
@@ -67,8 +65,8 @@ export function AuditForm({ tenantId, users, audit, mode = "create" }: AuditForm
 
       if (result.success) {
         toast({
-          title: mode === "edit" ? "✅ Revisjon oppdatert" : "✅ Revisjon opprettet",
-          description: mode === "edit" ? "Endringene er lagret" : "Revisjonen er planlagt",
+          title: mode === "edit" ? "✅ Audit updated" : "✅ Audit created",
+          description: mode === "edit" ? "Changes have been saved" : "The audit has been planned",
           className: "bg-green-50 border-green-200",
         });
         router.push("/dashboard/audits");
@@ -76,15 +74,15 @@ export function AuditForm({ tenantId, users, audit, mode = "create" }: AuditForm
       } else {
         toast({
           variant: "destructive",
-          title: "Feil",
-          description: result.error || "Kunne ikke lagre revisjon",
+          title: "Error",
+          description: result.error || "Could not save audit",
         });
       }
     } catch (error) {
       toast({
         variant: "destructive",
-        title: "Uventet feil",
-        description: "Noe gikk galt",
+        title: "Unexpected error",
+        description: "Something went wrong",
       });
     } finally {
       setLoading(false);
@@ -96,11 +94,11 @@ export function AuditForm({ tenantId, users, audit, mode = "create" }: AuditForm
       <Card>
         <CardContent className="pt-6 space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="title">Tittel *</Label>
+            <Label htmlFor="title">Title *</Label>
             <Input
               id="title"
               name="title"
-              placeholder="F.eks. Q1 2025 Internrevisjon HMS"
+              placeholder="E.g. Q1 2025 Internal HSE Audit"
               required
               disabled={loading}
               defaultValue={audit?.title}
@@ -109,7 +107,7 @@ export function AuditForm({ tenantId, users, audit, mode = "create" }: AuditForm
 
           <div className="grid gap-4 md:grid-cols-2">
             <div className="space-y-2">
-              <Label htmlFor="auditType">Type revisjon *</Label>
+              <Label htmlFor="auditType">Audit type *</Label>
               <Select
                 name="auditType"
                 required
@@ -117,13 +115,13 @@ export function AuditForm({ tenantId, users, audit, mode = "create" }: AuditForm
                 defaultValue={audit?.auditType || "INTERNAL"}
               >
                 <SelectTrigger>
-                  <SelectValue placeholder="Velg type" />
+                  <SelectValue placeholder="Select type" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="INTERNAL">Internrevisjon</SelectItem>
-                  <SelectItem value="EXTERNAL">Ekstern revisjon</SelectItem>
-                  <SelectItem value="SUPPLIER">Leverandørrevisjon</SelectItem>
-                  <SelectItem value="CERTIFICATION">Sertifiseringsrevisjon</SelectItem>
+                  <SelectItem value="INTERNAL">Internal Audit</SelectItem>
+                  <SelectItem value="EXTERNAL">External Audit</SelectItem>
+                  <SelectItem value="SUPPLIER">Supplier Audit</SelectItem>
+                  <SelectItem value="CERTIFICATION">Certification Audit</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -137,59 +135,59 @@ export function AuditForm({ tenantId, users, audit, mode = "create" }: AuditForm
                 defaultValue={audit?.status || "PLANNED"}
               >
                 <SelectTrigger>
-                  <SelectValue placeholder="Velg status" />
+                  <SelectValue placeholder="Select status" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="PLANNED">Planlagt</SelectItem>
-                  <SelectItem value="IN_PROGRESS">Pågår</SelectItem>
-                  <SelectItem value="COMPLETED">Fullført</SelectItem>
-                  <SelectItem value="CANCELLED">Avbrutt</SelectItem>
+                  <SelectItem value="PLANNED">Planned</SelectItem>
+                  <SelectItem value="IN_PROGRESS">In Progress</SelectItem>
+                  <SelectItem value="COMPLETED">Completed</SelectItem>
+                  <SelectItem value="CANCELLED">Cancelled</SelectItem>
                 </SelectContent>
               </Select>
             </div>
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="scope">Omfang (ISO 9001) *</Label>
+            <Label htmlFor="scope">Scope (ISO 9001) *</Label>
             <Textarea
               id="scope"
               name="scope"
               rows={3}
-              placeholder="Beskriv hva som skal revideres. F.eks. 'HMS-system og prosedyrer for avdeling A og B, med fokus på risikovurderinger og opplæring'"
+              placeholder="Describe what is to be audited. E.g. 'HSE system and procedures for departments A and B, with focus on risk assessments and training'"
               required
               disabled={loading}
               minLength={20}
               defaultValue={audit?.scope}
             />
             <p className="text-sm text-muted-foreground">
-              ISO 9001: Definer tydelig hva som skal dekkes av revisjonen
+              ISO 9001: Clearly define what will be covered by the audit
             </p>
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="criteria">Revisjonskriterier (ISO 9001) *</Label>
+            <Label htmlFor="criteria">Audit criteria (ISO 9001) *</Label>
             <Textarea
               id="criteria"
               name="criteria"
               rows={3}
-              placeholder="Hvilke krav og standarder skal revisjonen vurderes mot? F.eks. 'ISO 9001:2015 kapittel 7.2 (Kompetanse), 8.5 (Produksjon), interne HMS-prosedyrer'"
+              placeholder="What requirements and standards will the audit be assessed against? E.g. 'ISO 9001:2015 clause 7.2 (Competence), 8.5 (Production), internal HSE procedures'"
               required
               disabled={loading}
               minLength={20}
               defaultValue={audit?.criteria}
             />
             <p className="text-sm text-muted-foreground">
-              ISO 9001: Spesifiser hvilke krav og standarder som skal brukes
+              ISO 9001: Specify which requirements and standards will be used
             </p>
           </div>
 
           <div className="grid gap-4 md:grid-cols-2">
             <div className="space-y-2">
-              <Label htmlFor="area">Område *</Label>
+              <Label htmlFor="area">Area *</Label>
               <Input
                 id="area"
                 name="area"
-                placeholder="F.eks. HMS, Kvalitet, Miljø"
+                placeholder="E.g. HSE, Quality, Environment"
                 required
                 disabled={loading}
                 defaultValue={audit?.area}
@@ -197,11 +195,11 @@ export function AuditForm({ tenantId, users, audit, mode = "create" }: AuditForm
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="department">Avdeling (valgfritt)</Label>
+              <Label htmlFor="department">Department (optional)</Label>
               <Input
                 id="department"
                 name="department"
-                placeholder="F.eks. Produksjon, Lager"
+                placeholder="E.g. Production, Warehouse"
                 disabled={loading}
                 defaultValue={audit?.department || ""}
               />
@@ -210,7 +208,7 @@ export function AuditForm({ tenantId, users, audit, mode = "create" }: AuditForm
 
           <div className="grid gap-4 md:grid-cols-2">
             <div className="space-y-2">
-              <Label htmlFor="leadAuditorId">Hovedrevisor (ISO 9001) *</Label>
+              <Label htmlFor="leadAuditorId">Lead Auditor (ISO 9001) *</Label>
               <Select
                 name="leadAuditorId"
                 required
@@ -218,7 +216,7 @@ export function AuditForm({ tenantId, users, audit, mode = "create" }: AuditForm
                 defaultValue={audit?.leadAuditorId}
               >
                 <SelectTrigger>
-                  <SelectValue placeholder="Velg hovedrevisor" />
+                  <SelectValue placeholder="Select lead auditor" />
                 </SelectTrigger>
                 <SelectContent>
                   {users.map((user) => (
@@ -229,12 +227,12 @@ export function AuditForm({ tenantId, users, audit, mode = "create" }: AuditForm
                 </SelectContent>
               </Select>
               <p className="text-sm text-muted-foreground">
-                ISO 9001: Sikre objektivitet og upartiskhet
+                ISO 9001: Ensure objectivity and impartiality
               </p>
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="scheduledDate">Planlagt dato *</Label>
+              <Label htmlFor="scheduledDate">Scheduled date *</Label>
               <Input
                 id="scheduledDate"
                 name="scheduledDate"
@@ -251,7 +249,7 @@ export function AuditForm({ tenantId, users, audit, mode = "create" }: AuditForm
           </div>
 
           <div className="space-y-2">
-            <Label>Revisjonsteam (valgfritt)</Label>
+            <Label>Audit team (optional)</Label>
             <div className="border rounded-lg p-4 space-y-2">
               {users.map((user) => (
                 <div key={user.id} className="flex items-center space-x-2">
@@ -278,39 +276,39 @@ export function AuditForm({ tenantId, users, audit, mode = "create" }: AuditForm
               ))}
             </div>
             <p className="text-sm text-muted-foreground">
-              Velg flere personer som skal delta i revisjonen
+              Select multiple people to participate in the audit
             </p>
           </div>
 
           {mode === "edit" && (
             <>
               <div className="space-y-2">
-                <Label htmlFor="summary">Oppsummering (valgfritt)</Label>
+                <Label htmlFor="summary">Summary (optional)</Label>
                 <Textarea
                   id="summary"
                   name="summary"
                   rows={4}
-                  placeholder="Oppsummer revisjonen når den er fullført..."
+                  placeholder="Summarize the audit when it is completed..."
                   disabled={loading}
                   defaultValue={audit?.summary || ""}
                 />
                 <p className="text-sm text-muted-foreground">
-                  Kan også legges til via "Fullfør revisjon"-knappen
+                  Can also be added using the "Complete audit" button
                 </p>
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="conclusion">Konklusjon (valgfritt)</Label>
+                <Label htmlFor="conclusion">Conclusion (optional)</Label>
                 <Textarea
                   id="conclusion"
                   name="conclusion"
                   rows={4}
-                  placeholder="Konklusjon og anbefalinger..."
+                  placeholder="Conclusion and recommendations..."
                   disabled={loading}
                   defaultValue={audit?.conclusion || ""}
                 />
                 <p className="text-sm text-muted-foreground">
-                  Kan også legges til via "Fullfør revisjon"-knappen
+                  Can also be added using the "Complete audit" button
                 </p>
               </div>
             </>
@@ -321,15 +319,15 @@ export function AuditForm({ tenantId, users, audit, mode = "create" }: AuditForm
       <Card className="bg-blue-50 border-blue-200">
         <CardContent className="pt-4">
           <p className="text-sm font-medium text-blue-900 mb-2">
-            📋 ISO 9001 - 9.2 Internrevisjon
+            📋 ISO 9001 - 9.2 Internal Audit
           </p>
           <ul className="text-sm text-blue-800 space-y-1 list-disc list-inside">
-            <li>Definer tydelig omfang og kriterier</li>
-            <li>Velg objektive og upartiske revisorer</li>
-            <li>Planlegg revisjoner med jevne intervaller</li>
-            <li>Dokumenter alle funn og observasjoner</li>
-            <li>Rapporter resultatene til relevant ledelse</li>
-            <li>Ta korrigerende tiltak uten unødig forsinkelse</li>
+            <li>Clearly define scope and criteria</li>
+            <li>Select objective and impartial auditors</li>
+            <li>Schedule audits at regular intervals</li>
+            <li>Document all findings and observations</li>
+            <li>Report results to relevant management</li>
+            <li>Take corrective actions without undue delay</li>
           </ul>
         </CardContent>
       </Card>
@@ -341,13 +339,12 @@ export function AuditForm({ tenantId, users, audit, mode = "create" }: AuditForm
           onClick={() => router.back()}
           disabled={loading}
         >
-          Avbryt
+          Cancel
         </Button>
         <Button type="submit" disabled={loading}>
-          {loading ? "Lagrer..." : mode === "edit" ? "Lagre endringer" : "Opprett revisjon"}
+          {loading ? "Saving..." : mode === "edit" ? "Save changes" : "Create audit"}
         </Button>
       </div>
     </form>
   );
 }
-

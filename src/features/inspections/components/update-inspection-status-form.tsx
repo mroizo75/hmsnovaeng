@@ -45,7 +45,6 @@ export function UpdateInspectionStatusForm({
     
     const data: any = { status };
     
-    // Hvis status endres til COMPLETED, sett completedDate
     if (status === "COMPLETED") {
       data.completedDate = new Date().toISOString();
     }
@@ -60,19 +59,19 @@ export function UpdateInspectionStatusForm({
       const result = await response.json();
 
       if (!response.ok) {
-        throw new Error(result.message || "Kunne ikke oppdatere status");
+        throw new Error(result.message || "Could not update status");
       }
 
       toast({
-        title: "Status oppdatert",
-        description: "Inspeksjonsstatus er nå endret",
+        title: "Status updated",
+        description: "Inspection status has been changed",
       });
 
       setOpen(false);
       router.refresh();
     } catch (error: any) {
       toast({
-        title: "Feil",
+        title: "Error",
         description: error.message,
         variant: "destructive",
       });
@@ -86,13 +85,13 @@ export function UpdateInspectionStatusForm({
       <DialogTrigger asChild>
         <Button variant="outline" size="sm">
           <RefreshCw className="mr-2 h-4 w-4" />
-          Endre status
+          Update Status
         </Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Endre inspeksjonsstatus</DialogTitle>
-          <DialogDescription>Oppdater status for inspeksjonen</DialogDescription>
+          <DialogTitle>Update Inspection Status</DialogTitle>
+          <DialogDescription>Update the status of this inspection</DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
@@ -102,10 +101,10 @@ export function UpdateInspectionStatusForm({
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="PLANNED">Planlagt</SelectItem>
-                <SelectItem value="IN_PROGRESS">Pågår</SelectItem>
-                <SelectItem value="COMPLETED">Fullført</SelectItem>
-                <SelectItem value="CANCELLED">Avbrutt</SelectItem>
+                <SelectItem value="PLANNED">Planned</SelectItem>
+                <SelectItem value="IN_PROGRESS">In Progress</SelectItem>
+                <SelectItem value="COMPLETED">Completed</SelectItem>
+                <SelectItem value="CANCELLED">Cancelled</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -117,10 +116,10 @@ export function UpdateInspectionStatusForm({
               onClick={() => setOpen(false)}
               disabled={loading}
             >
-              Avbryt
+              Cancel
             </Button>
             <Button type="submit" disabled={loading}>
-              {loading ? "Lagrer..." : "Lagre"}
+              {loading ? "Saving..." : "Save"}
             </Button>
           </div>
         </form>
@@ -128,4 +127,3 @@ export function UpdateInspectionStatusForm({
     </Dialog>
   );
 }
-

@@ -9,16 +9,7 @@ import { AlertCircle, Plus, Trash2, TestTube, Shield, AlertTriangle } from "luci
 import { useToast } from "@/hooks/use-toast";
 import {
   unlinkChemicalFromRisk,
-  getRiskLinksForChemical,
 } from "@/server/actions/risk-chemical.actions";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
 import { AddChemicalToRiskDialog } from "./add-chemical-to-risk-dialog";
 
 interface RiskChemicalLinksProps {
@@ -34,7 +25,7 @@ export function RiskChemicalLinks({ riskId, links, canEdit = true }: RiskChemica
   const [showAddDialog, setShowAddDialog] = useState(false);
 
   const handleUnlink = async (linkId: string, chemicalName: string) => {
-    if (!confirm(`Er du sikker på at du vil fjerne koblingen til "${chemicalName}"?`)) {
+    if (!confirm(`Are you sure you want to remove the link to "${chemicalName}"?`)) {
       return;
     }
 
@@ -43,16 +34,16 @@ export function RiskChemicalLinks({ riskId, links, canEdit = true }: RiskChemica
 
     if (result.success) {
       toast({
-        title: "✅ Kobling fjernet",
-        description: `Kjemikalie "${chemicalName}" er ikke lenger knyttet til denne risikoen`,
+        title: "✅ Link removed",
+        description: `Chemical "${chemicalName}" is no longer linked to this risk`,
         className: "bg-green-50 border-green-200",
       });
       router.refresh();
     } else {
       toast({
         variant: "destructive",
-        title: "Feil",
-        description: result.error || "Kunne ikke fjerne kobling",
+        title: "Error",
+        description: result.error || "Could not remove link",
       });
     }
 
@@ -61,10 +52,10 @@ export function RiskChemicalLinks({ riskId, links, canEdit = true }: RiskChemica
 
   const getExposureBadge = (exposure: string) => {
     const config = {
-      LOW: { color: "bg-green-100 text-green-800", label: "Lav" },
-      MEDIUM: { color: "bg-yellow-100 text-yellow-800", label: "Moderat" },
-      HIGH: { color: "bg-orange-100 text-orange-800", label: "Høy" },
-      CRITICAL: { color: "bg-red-100 text-red-800", label: "Kritisk" },
+      LOW: { color: "bg-green-100 text-green-800", label: "Low" },
+      MEDIUM: { color: "bg-yellow-100 text-yellow-800", label: "Moderate" },
+      HIGH: { color: "bg-orange-100 text-orange-800", label: "High" },
+      CRITICAL: { color: "bg-red-100 text-red-800", label: "Critical" },
     };
 
     const { color, label } = config[exposure as keyof typeof config] || config.MEDIUM;
@@ -83,16 +74,16 @@ export function RiskChemicalLinks({ riskId, links, canEdit = true }: RiskChemica
           <div className="flex items-center gap-2">
             <TestTube className="h-5 w-5 text-purple-600" />
             <div>
-              <CardTitle>Kjemikalier</CardTitle>
+              <CardTitle>Chemicals</CardTitle>
               <CardDescription>
-                Farlige stoffer knyttet til denne risikoen
+                Hazardous substances linked to this risk
               </CardDescription>
             </div>
           </div>
           {canEdit && (
             <Button onClick={() => setShowAddDialog(true)} size="sm">
               <Plus className="h-4 w-4 mr-2" />
-              Legg til kjemikalie
+              Add chemical
             </Button>
           )}
         </div>
@@ -101,10 +92,10 @@ export function RiskChemicalLinks({ riskId, links, canEdit = true }: RiskChemica
         {links.length === 0 ? (
           <div className="text-center py-8 text-muted-foreground">
             <TestTube className="h-12 w-12 mx-auto mb-3 opacity-20" />
-            <p>Ingen kjemikalier knyttet til denne risikoen</p>
+            <p>No chemicals linked to this risk</p>
             {canEdit && (
               <p className="text-sm mt-2">
-                Klikk &quot;Legg til kjemikalie&quot; for å koble et farlig stoff
+                Click &quot;Add chemical&quot; to link a hazardous substance
               </p>
             )}
           </div>
@@ -122,14 +113,14 @@ export function RiskChemicalLinks({ riskId, links, canEdit = true }: RiskChemica
                     {link.ppRequired && (
                       <Badge variant="outline" className="bg-blue-50">
                         <Shield className="h-3 w-3 mr-1" />
-                        Verneutstyr påkrevd
+                        PPE required
                       </Badge>
                     )}
                   </div>
 
                   {link.chemical.supplier && (
                     <p className="text-sm text-muted-foreground">
-                      Leverandør: {link.chemical.supplier}
+                      Supplier: {link.chemical.supplier}
                     </p>
                   )}
 
@@ -153,7 +144,7 @@ export function RiskChemicalLinks({ riskId, links, canEdit = true }: RiskChemica
                         <Badge variant="destructive">SVHC</Badge>
                       )}
                       {link.chemical.containsIsocyanates && (
-                        <Badge variant="destructive">Diisocyanater</Badge>
+                        <Badge variant="destructive">Diisocyanates</Badge>
                       )}
                     </div>
                   )}

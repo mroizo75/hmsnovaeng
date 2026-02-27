@@ -12,24 +12,24 @@ export default function TakkPage() {
             <CheckCircle2 className="h-12 w-12 text-primary" />
           </div>
 
-          <h1 className="text-4xl font-bold mb-4">Takk for din søknad!</h1>
+          <h1 className="text-4xl font-bold mb-4">Thank you for your application!</h1>
           <p className="text-lg text-muted-foreground mb-8">
-            Vi har mottatt søknaden din og vil behandle den så raskt som mulig. 
-            Du vil motta en e-post fra oss innen 24 timer med innloggingsinformasjon og videre instruksjoner.
+            We have received your application and will process it as quickly as possible. 
+            You will receive an email from us within 24 hours with login credentials and further instructions.
           </p>
 
           <Card className="mb-8">
             <CardContent className="pt-6">
-              <h2 className="font-semibold mb-4">Hva skjer nå?</h2>
+              <h2 className="font-semibold mb-4">What happens next?</h2>
               <div className="space-y-4 text-left">
                 <div className="flex items-start gap-3">
                   <div className="flex h-6 w-6 items-center justify-center rounded-full bg-primary/10 text-xs font-semibold text-primary flex-shrink-0">
                     1
                   </div>
                   <div>
-                    <p className="font-medium">Vi behandler søknaden din</p>
+                    <p className="font-medium">We process your application</p>
                     <p className="text-sm text-muted-foreground">
-                      Vi setter opp din bedrift i systemet med alle nødvendige moduler
+                      We set up your company in the system with all necessary modules
                     </p>
                   </div>
                 </div>
@@ -39,9 +39,9 @@ export default function TakkPage() {
                     2
                   </div>
                   <div>
-                    <p className="font-medium">Du mottar innloggingsinformasjon</p>
+                    <p className="font-medium">You receive login credentials</p>
                     <p className="text-sm text-muted-foreground">
-                      Vi sender deg e-post med lenke for å sette passord og logge inn
+                      We send you an email with a link to set your password and log in
                     </p>
                   </div>
                 </div>
@@ -51,9 +51,9 @@ export default function TakkPage() {
                     3
                   </div>
                   <div>
-                    <p className="font-medium">Personlig onboarding-samtale</p>
+                    <p className="font-medium">Personal onboarding call</p>
                     <p className="text-sm text-muted-foreground">
-                      Vi tar kontakt for å hjelpe deg i gang (15-30 min)
+                      We reach out to help you get started (15–30 min)
                     </p>
                   </div>
                 </div>
@@ -63,9 +63,9 @@ export default function TakkPage() {
                     4
                   </div>
                   <div>
-                    <p className="font-medium">Du er i gang!</p>
+                    <p className="font-medium">You&apos;re all set!</p>
                     <p className="text-sm text-muted-foreground">
-                      14 dagers gratis prøveperiode starter når du logger inn første gang
+                      Your 14-day free trial starts when you log in for the first time
                     </p>
                   </div>
                 </div>
@@ -76,12 +76,12 @@ export default function TakkPage() {
           <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8">
             <Link href="/">
               <Button size="lg" variant="outline">
-                Tilbake til forsiden
+                Back to home
               </Button>
             </Link>
             <Link href="/priser">
               <Button size="lg">
-                Se priser
+                View pricing
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
             </Link>
@@ -89,14 +89,14 @@ export default function TakkPage() {
 
           <Card className="bg-muted/50 border-0">
             <CardContent className="pt-6">
-              <h3 className="font-semibold mb-3">Har du spørsmål i mellomtiden?</h3>
+              <h3 className="font-semibold mb-3">Have questions in the meantime?</h3>
               <div className="flex flex-col sm:flex-row gap-4 justify-center text-sm">
                 <a
-                  href="mailto:support@hmsnova.com"
+                  href="mailto:support@ehsnova.com"
                   className="inline-flex items-center justify-center gap-2 text-muted-foreground hover:text-foreground"
                 >
                   <Mail className="h-4 w-4" />
-                  support@hmsnova.com
+                  support@ehsnova.com
                 </a>
                 <a
                   href="tel:+4799112916"
@@ -113,4 +113,3 @@ export default function TakkPage() {
     </div>
   );
 }
-

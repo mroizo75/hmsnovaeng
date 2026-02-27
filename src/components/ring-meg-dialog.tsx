@@ -39,7 +39,7 @@ export function RingMegDialog({ trigger, children }: RingMegDialogProps) {
       });
       const data = await res.json();
       if (!res.ok) {
-        setError(data.error ?? "Noe gikk galt");
+        setError(data.error ?? "Something went wrong");
         return;
       }
       setSent(true);
@@ -47,7 +47,7 @@ export function RingMegDialog({ trigger, children }: RingMegDialogProps) {
       setPhone("");
       setTimeout(() => setOpen(false), 1500);
     } catch {
-      setError("Kunne ikke sende. Prøv igjen.");
+      setError("Could not submit request. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -67,47 +67,47 @@ export function RingMegDialog({ trigger, children }: RingMegDialogProps) {
         {trigger ?? (
           <Button size="lg" variant="outline" className="text-lg px-8">
             <Phone className="mr-2 h-5 w-5" aria-hidden="true" />
-            Ring meg
+            Request a Demo
           </Button>
         )}
       </DialogTrigger>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Ring meg</DialogTitle>
+          <DialogTitle>Request a Demo</DialogTitle>
           <DialogDescription>
-            Fyll inn navn og telefonnummer. Salgsavdelingen vår tar kontakt så snart vi kan.
+            Enter your name and phone number. Our sales team will reach out within one business day.
           </DialogDescription>
         </DialogHeader>
         {sent ? (
           <div className="flex flex-col items-center justify-center py-6 text-center">
             <CheckCircle2 className="h-12 w-12 text-green-600 mb-4" aria-hidden="true" />
-            <p className="font-medium">Takk for henvendelsen!</p>
+            <p className="font-medium">Request received!</p>
             <p className="text-sm text-muted-foreground mt-1">
-              Vi ringer deg så snart vi kan.
+              We will be in touch shortly.
             </p>
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="ring-meg-name">Navn</Label>
+              <Label htmlFor="ring-meg-name">Full Name</Label>
               <Input
                 id="ring-meg-name"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                placeholder="Ditt navn"
+                placeholder="Your full name"
                 required
                 minLength={2}
                 disabled={loading}
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="ring-meg-phone">Telefonnummer</Label>
+              <Label htmlFor="ring-meg-phone">Phone Number</Label>
               <Input
                 id="ring-meg-phone"
                 type="tel"
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
-                placeholder="+47 xxx xx xxx"
+                placeholder="+1 (555) 000-0000"
                 required
                 minLength={8}
                 disabled={loading}
@@ -120,10 +120,10 @@ export function RingMegDialog({ trigger, children }: RingMegDialogProps) {
               {loading ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden="true" />
-                  Sender...
+                  Submitting...
                 </>
               ) : (
-                "Send – vi ringer deg"
+                "Submit — We'll call you"
               )}
             </Button>
           </form>

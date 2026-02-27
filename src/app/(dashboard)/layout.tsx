@@ -19,13 +19,13 @@ export default async function DashboardLayout({
     redirect("/login");
   }
 
-  // Redirect superadmin og support til admin dashboard
+  // Redirect superadmin and support to admin dashboard
   const user = session.user as SessionUser;
   if (user.isSuperAdmin || user.isSupport) {
     redirect("/admin");
   }
 
-  // VIKTIG: Redirect ANSATT til employee dashboard
+  // IMPORTANT: Redirect ANSATT to employee dashboard
   if (user.role === "ANSATT") {
     redirect("/ansatt");
   }
@@ -40,7 +40,7 @@ export default async function DashboardLayout({
       });
       simpleMenuItems = (tenant?.simpleMenuItems as string[] | null) ?? null;
     } catch {
-      // Kolonnen simpleMenuItems finnes kanskje ikke ennå (migrering ikke kjørt) – bruk standard meny
+      // The simpleMenuItems column may not exist yet (migration not run) – use default menu
     }
   }
 

@@ -22,19 +22,19 @@ export function FeedbackSummary({
     <div className="grid gap-4 md:grid-cols-4">
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">Registrerte</CardTitle>
+          <CardTitle className="text-sm font-medium">Registered</CardTitle>
           <ClipboardList className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
           <div className="text-2xl font-bold">{total}</div>
           <p className="text-xs text-muted-foreground">
-            Tilbakemeldinger registrert siste periode
+            Feedback registered this period
           </p>
         </CardContent>
       </Card>
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">Positiv andel</CardTitle>
+          <CardTitle className="text-sm font-medium">Positive Share</CardTitle>
           <ThumbsUp className="h-4 w-4 text-green-600" />
         </CardHeader>
         <CardContent>
@@ -42,31 +42,31 @@ export function FeedbackSummary({
             {total > 0 ? Math.round((positiveCount / total) * 100) : 0}%
           </div>
           <p className="text-xs text-muted-foreground">
-            {positiveCount} av {total} er positive
+            {positiveCount} of {total} are positive
           </p>
         </CardContent>
       </Card>
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">Snittscore</CardTitle>
+          <CardTitle className="text-sm font-medium">Average Score</CardTitle>
           <TrendingUp className="h-4 w-4 text-blue-600" />
         </CardHeader>
         <CardContent>
           <div className="text-2xl font-bold">
             {averageRating ? averageRating.toFixed(1) : "—"}
           </div>
-          <p className="text-xs text-muted-foreground">Gjennomsnittlig vurdering (1-5)</p>
+          <p className="text-xs text-muted-foreground">Average rating (1–5)</p>
         </CardContent>
       </Card>
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">Under oppfølging</CardTitle>
+          <CardTitle className="text-sm font-medium">Under review</CardTitle>
           <Users className="h-4 w-4 text-amber-600" />
         </CardHeader>
         <CardContent>
           <div className="text-2xl font-bold">{followUpCount}</div>
           <p className="text-xs text-muted-foreground">
-            {sharedCount} delt med organisasjonen
+            {sharedCount} shared with the organization
           </p>
         </CardContent>
       </Card>

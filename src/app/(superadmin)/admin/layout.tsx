@@ -19,7 +19,7 @@ export default async function SuperAdminLayout({
     where: { email: session.user.email },
   });
 
-  // Tillat både superadmin og support
+  // Allow both superadmin and support
   if (!user?.isSuperAdmin && !user?.isSupport) {
     redirect("/dashboard");
   }

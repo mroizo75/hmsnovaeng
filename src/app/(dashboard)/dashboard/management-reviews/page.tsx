@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
 import { format } from "date-fns";
-import { nb } from "date-fns/locale";
+import { enUS } from "date-fns/locale";
 import { Plus, Calendar, CheckCircle, Clock, FileText } from "lucide-react";
 import {
   Table,
@@ -45,10 +45,10 @@ export default async function ManagementReviewsPage() {
 
   const getStatusBadge = (status: string) => {
     const variants: Record<string, { label: string; variant: "default" | "secondary" | "outline"; color: string }> = {
-      PLANNED: { label: "Planlagt", variant: "secondary", color: "bg-blue-100 text-blue-900" },
-      IN_PROGRESS: { label: "Pågår", variant: "default", color: "bg-yellow-100 text-yellow-900" },
-      COMPLETED: { label: "Fullført", variant: "outline", color: "bg-green-100 text-green-900" },
-      APPROVED: { label: "Godkjent", variant: "default", color: "bg-green-600 text-white" },
+      PLANNED: { label: "Planned", variant: "secondary", color: "bg-blue-100 text-blue-900" },
+      IN_PROGRESS: { label: "In Progress", variant: "default", color: "bg-yellow-100 text-yellow-900" },
+      COMPLETED: { label: "Completed", variant: "outline", color: "bg-green-100 text-green-900" },
+      APPROVED: { label: "Approved", variant: "default", color: "bg-green-600 text-white" },
     };
     return variants[status] || variants.PLANNED;
   };
@@ -65,9 +65,9 @@ export default async function ManagementReviewsPage() {
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div>
-            <h1 className="text-3xl font-bold">Ledelsens Gjennomgang</h1>
+            <h1 className="text-3xl font-bold">Management Review</h1>
             <p className="text-muted-foreground mt-1">
-              Årlig/periodisk gjennomgang av HMS-systemet
+              Annual/periodic review of the EHS management system
             </p>
           </div>
           <PageHelpDialog content={helpContent["management-reviews"]} />
@@ -76,7 +76,7 @@ export default async function ManagementReviewsPage() {
           <Link href="/dashboard/management-reviews/new">
             <Button>
               <Plus className="h-4 w-4 mr-2" />
-              Ny gjennomgang
+              New Review
             </Button>
           </Link>
         )}
@@ -86,25 +86,25 @@ export default async function ManagementReviewsPage() {
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <Card>
           <CardHeader className="pb-3">
-            <CardDescription>Totalt</CardDescription>
+            <CardDescription>Total</CardDescription>
             <CardTitle className="text-3xl">{stats.total}</CardTitle>
           </CardHeader>
         </Card>
         <Card>
           <CardHeader className="pb-3">
-            <CardDescription>Planlagt</CardDescription>
+            <CardDescription>Planned</CardDescription>
             <CardTitle className="text-3xl text-blue-600">{stats.planned}</CardTitle>
           </CardHeader>
         </Card>
         <Card>
           <CardHeader className="pb-3">
-            <CardDescription>Pågår</CardDescription>
+            <CardDescription>In Progress</CardDescription>
             <CardTitle className="text-3xl text-yellow-600">{stats.inProgress}</CardTitle>
           </CardHeader>
         </Card>
         <Card>
           <CardHeader className="pb-3">
-            <CardDescription>Fullført</CardDescription>
+            <CardDescription>Completed</CardDescription>
             <CardTitle className="text-3xl text-green-600">{stats.completed}</CardTitle>
           </CardHeader>
         </Card>
@@ -113,21 +113,21 @@ export default async function ManagementReviewsPage() {
       {/* Reviews Table */}
       <Card>
         <CardHeader>
-          <CardTitle>Alle gjennomganger</CardTitle>
+          <CardTitle>All Reviews</CardTitle>
           <CardDescription>
-            Oversikt over gjennomførte og planlagte ledelsesgjennomganger
+            Overview of completed and planned management reviews
           </CardDescription>
         </CardHeader>
         <CardContent>
           {reviews.length === 0 ? (
             <div className="text-center py-12">
               <FileText className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-              <p className="text-muted-foreground">Ingen gjennomganger registrert ennå</p>
+              <p className="text-muted-foreground">No reviews registered yet</p>
               {permissions.canCreateManagementReviews && (
                 <Link href="/dashboard/management-reviews/new">
                   <Button className="mt-4">
                     <Plus className="h-4 w-4 mr-2" />
-                    Opprett første gjennomgang
+                    Create First Review
                   </Button>
                 </Link>
               )}
@@ -139,12 +139,12 @@ export default async function ManagementReviewsPage() {
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead>Tittel</TableHead>
-                      <TableHead>Periode</TableHead>
-                      <TableHead>Dato</TableHead>
+                      <TableHead>Title</TableHead>
+                      <TableHead>Period</TableHead>
+                      <TableHead>Date</TableHead>
                       <TableHead>Status</TableHead>
-                      <TableHead>Godkjent</TableHead>
-                      <TableHead className="text-right">Handlinger</TableHead>
+                      <TableHead>Approved</TableHead>
+                      <TableHead className="text-right">Actions</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -157,7 +157,7 @@ export default async function ManagementReviewsPage() {
                           <TableCell>
                             <div className="flex items-center gap-1">
                               <Calendar className="h-3 w-3 text-muted-foreground" />
-                              {format(new Date(review.reviewDate), "d. MMM yyyy", { locale: nb })}
+                              {format(new Date(review.reviewDate), "MMM d, yyyy", { locale: enUS })}
                             </div>
                           </TableCell>
                           <TableCell>
@@ -168,7 +168,7 @@ export default async function ManagementReviewsPage() {
                               <div className="flex items-center gap-1 text-green-600">
                                 <CheckCircle className="h-4 w-4" />
                                 <span className="text-sm">
-                                  {format(new Date(review.approvedAt), "d. MMM yyyy", { locale: nb })}
+                                  {format(new Date(review.approvedAt), "MMM d, yyyy", { locale: enUS })}
                                 </span>
                               </div>
                             ) : (
@@ -178,10 +178,10 @@ export default async function ManagementReviewsPage() {
                           <TableCell className="text-right">
                             <Link href={`/dashboard/management-reviews/${review.id}`}>
                               <Button variant="ghost" size="sm">
-                                Se detaljer
-                              </Button>
-                            </Link>
-                          </TableCell>
+                              View Details
+                            </Button>
+                          </Link>
+                        </TableCell>
                         </TableRow>
                       );
                     })}
@@ -208,19 +208,19 @@ export default async function ManagementReviewsPage() {
                           <div className="flex items-center gap-4 text-sm text-muted-foreground">
                             <div className="flex items-center gap-1">
                               <Calendar className="h-3 w-3" />
-                              {format(new Date(review.reviewDate), "d. MMM yyyy", { locale: nb })}
+                              {format(new Date(review.reviewDate), "MMM d, yyyy", { locale: enUS })}
                             </div>
                             {review.approvedAt && (
                               <div className="flex items-center gap-1 text-green-600">
                                 <CheckCircle className="h-3 w-3" />
-                                Godkjent
+                                Approved
                               </div>
                             )}
                           </div>
 
                           <Link href={`/dashboard/management-reviews/${review.id}`}>
                             <Button variant="outline" size="sm" className="w-full">
-                              Se detaljer
+                              View Details
                             </Button>
                           </Link>
                         </div>

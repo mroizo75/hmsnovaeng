@@ -146,9 +146,9 @@ export default async function WellbeingPage() {
       {/* Header */}
       <div className="flex items-center gap-3">
         <div>
-          <h1 className="text-3xl font-bold">Psykososialt arbeidsmiljø</h1>
+          <h1 className="text-3xl font-bold">Psychosocial Work Environment</h1>
           <p className="text-muted-foreground mt-1">
-            Kartlegging og oppfølging av psykososialt arbeidsmiljø i henhold til Arbeidsmiljøloven § 4-3
+            Mapping and follow-up of psychosocial work environment in accordance with OSHA requirements
           </p>
         </div>
         <PageHelpDialog content={helpContent.wellbeing} />
@@ -158,11 +158,11 @@ export default async function WellbeingPage() {
         <TabsList>
           <TabsTrigger value="overview">
             <Heart className="h-4 w-4 mr-2" />
-            Oversikt
+            Overview
           </TabsTrigger>
           <TabsTrigger value="report">
             <BarChart3 className="h-4 w-4 mr-2" />
-            Årsrapport
+            Annual Report
           </TabsTrigger>
         </TabsList>
 
@@ -174,13 +174,12 @@ export default async function WellbeingPage() {
             <Heart className="h-5 w-5 text-blue-700 mt-0.5" />
             <div>
               <p className="text-sm text-blue-900">
-                <strong>Om psykososial kartlegging:</strong> Arbeidsgivere er pålagt å kartlegge psykososialt arbeidsmiljø årlig
-                (Arbeidsmiljøloven § 4-3). Skjemaene nedenfor er utarbeidet i tråd med ISO 45003 og Arbeidstilsynets anbefalinger.
+                <strong>About psychosocial mapping:</strong> Employers are required to assess the psychosocial work environment annually (OSHA 29 CFR 1904). The forms below are developed in accordance with ISO 45003 and OSHA guidelines.
               </p>
               {(userRole === "ADMIN" || userRole === "LEDER") && (
                 <p className="text-sm text-blue-900 mt-2">
-                  💡 <strong>Ledelse:</strong> Du kan sende ut skjemaer til ansatte og følge opp resultatene her.
-                  Alle svar behandles konfidensielt.
+                  💡 <strong>Management:</strong> You can send forms to employees and follow up on the results here.
+                  All responses are treated confidentially.
                 </p>
               )}
             </div>
@@ -194,14 +193,14 @@ export default async function WellbeingPage() {
           <CardHeader className="pb-3">
             <div className="flex items-center justify-between">
               <CardTitle className="text-sm font-medium text-muted-foreground">
-                Totalt svar
+                Total responses
               </CardTitle>
               <FileText className="h-4 w-4 text-muted-foreground" />
             </div>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{totalSubmissions}</div>
-            <p className="text-xs text-muted-foreground mt-1">Alle kartlegginger</p>
+            <p className="text-xs text-muted-foreground mt-1">All assessments</p>
           </CardContent>
         </Card>
 
@@ -209,14 +208,14 @@ export default async function WellbeingPage() {
           <CardHeader className="pb-3">
             <div className="flex items-center justify-between">
               <CardTitle className="text-sm font-medium text-muted-foreground">
-                Denne måneden
+                This month
               </CardTitle>
               <Calendar className="h-4 w-4 text-muted-foreground" />
             </div>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{submissionsThisMonth}</div>
-            <p className="text-xs text-muted-foreground mt-1">Siste 30 dager</p>
+            <p className="text-xs text-muted-foreground mt-1">Last 30 days</p>
           </CardContent>
         </Card>
 
@@ -224,7 +223,7 @@ export default async function WellbeingPage() {
           <CardHeader className="pb-3">
             <div className="flex items-center justify-between">
               <CardTitle className="text-sm font-medium text-muted-foreground">
-                Gjennomsnittscore
+                Average score
               </CardTitle>
               <BarChart3 className="h-4 w-4 text-muted-foreground" />
             </div>
@@ -234,7 +233,7 @@ export default async function WellbeingPage() {
               {averageScore || "—"}
             </div>
             <p className="text-xs text-muted-foreground mt-1">
-              {averageScore ? (parseFloat(averageScore) >= 3.5 ? "God score" : parseFloat(averageScore) >= 2.5 ? "Middels" : "Lav score") : "Ingen data"}
+              {averageScore ? (parseFloat(averageScore) >= 3.5 ? "Good score" : parseFloat(averageScore) >= 2.5 ? "Moderate" : "Low score") : "No data"}
             </p>
           </CardContent>
         </Card>
@@ -243,7 +242,7 @@ export default async function WellbeingPage() {
           <CardHeader className="pb-3">
             <div className="flex items-center justify-between">
               <CardTitle className="text-sm font-medium text-muted-foreground">
-                Kritiske hendelser
+                Critical incidents
               </CardTitle>
               <AlertTriangle className={`h-4 w-4 ${criticalIncidents > 0 ? "text-red-600" : "text-muted-foreground"}`} />
             </div>
@@ -253,39 +252,39 @@ export default async function WellbeingPage() {
               {criticalIncidents}
             </div>
             <p className="text-xs text-muted-foreground mt-1">
-              {criticalIncidents > 0 ? "Krever oppfølging" : "Ingen rapportert"}
+              {criticalIncidents > 0 ? "Requires follow-up" : "None reported"}
             </p>
           </CardContent>
         </Card>
       </div>
 
-      {/* Tilgjengelige skjemaer */}
+      {/* Available forms */}
       <Card>
         <CardHeader>
-          <CardTitle>Tilgjengelige kartleggingsskjemaer</CardTitle>
+          <CardTitle>Available Assessment Forms</CardTitle>
           <CardDescription>
-            Velg riktig skjema basert på type stilling. Alle skjemaer er i tråd med Arbeidstilsynets anbefalinger.
+            Select the appropriate form based on position type. All forms are aligned with OSHA guidelines.
           </CardDescription>
         </CardHeader>
         <CardContent>
           {wellbeingForms.length === 0 ? (
             <div className="text-center py-12">
               <Heart className="h-12 w-12 text-gray-300 mx-auto mb-3" />
-              <p className="text-muted-foreground">Ingen psykososiale skjemaer tilgjengelig</p>
+              <p className="text-muted-foreground">No psychosocial forms available</p>
               <p className="text-sm text-muted-foreground mt-1">
-                Kontakt systemadministrator for å aktivere standardskjemaer
+                Contact system administrator to activate standard forms
               </p>
             </div>
           ) : (
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Skjemanavn</TableHead>
+                  <TableHead>Form name</TableHead>
                   <TableHead>Type</TableHead>
-                  <TableHead>Antall felt</TableHead>
-                  <TableHead className="text-right">Utfyllinger</TableHead>
-                  <TableHead>Sist brukt</TableHead>
-                  <TableHead className="text-right">Handlinger</TableHead>
+                  <TableHead>Field count</TableHead>
+                  <TableHead className="text-right">Completions</TableHead>
+                  <TableHead>Last used</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -307,7 +306,7 @@ export default async function WellbeingPage() {
                           Global
                         </Badge>
                       ) : (
-                        <Badge variant="outline">Egendefinert</Badge>
+                        <Badge variant="outline">Custom</Badge>
                       )}
                     </TableCell>
                     <TableCell>
@@ -324,20 +323,20 @@ export default async function WellbeingPage() {
                     <TableCell>
                       {form.submissions.length > 0 ? (
                         <span className="text-sm text-muted-foreground">
-                          {new Date(form.submissions[0].createdAt).toLocaleDateString("nb-NO", {
+                          {new Date(form.submissions[0].createdAt).toLocaleDateString("en-US", {
                             day: "2-digit",
                             month: "short",
                             year: "numeric",
                           })}
                         </span>
                       ) : (
-                        <span className="text-sm text-muted-foreground">Aldri</span>
+                        <span className="text-sm text-muted-foreground">Never</span>
                       )}
                     </TableCell>
                     <TableCell>
                       <div className="flex items-center justify-end gap-2">
                         <Link href={`/dashboard/forms/${form.id}`}>
-                          <Button variant="ghost" size="sm" title="Se detaljer">
+                          <Button variant="ghost" size="sm" title="View details">
                             <Eye className="h-4 w-4" />
                           </Button>
                         </Link>
@@ -345,7 +344,7 @@ export default async function WellbeingPage() {
                           <CopyFormButton formId={form.id} formTitle={form.title} />
                         ) : (
                           <Link href={`/dashboard/forms/${form.id}/edit`}>
-                            <Button variant="ghost" size="sm" title="Rediger">
+                            <Button variant="ghost" size="sm" title="Edit">
                               <Eye className="h-4 w-4" />
                             </Button>
                           </Link>
@@ -353,7 +352,7 @@ export default async function WellbeingPage() {
                         <Link href={`/dashboard/forms/${form.id}/fill`}>
                           <Button size="sm" className="bg-green-600 hover:bg-green-700">
                             <FileText className="h-4 w-4 mr-1" />
-                            Fyll ut
+                            Fill Out
                           </Button>
                         </Link>
                       </div>
@@ -366,19 +365,19 @@ export default async function WellbeingPage() {
         </CardContent>
       </Card>
 
-      {/* Siste innsendelser og risikoer */}
+      {/* Latest submissions and risks */}
       <div className="grid md:grid-cols-2 gap-6">
-        {/* Siste kartlegginger */}
+        {/* Latest assessments */}
         <Card>
           <CardHeader>
-            <CardTitle>Siste kartlegginger</CardTitle>
-            <CardDescription>Nylig innsendte psykososiale skjemaer</CardDescription>
+            <CardTitle>Latest Assessments</CardTitle>
+            <CardDescription>Recently submitted psychosocial forms</CardDescription>
           </CardHeader>
           <CardContent>
             {allSubmissions.length === 0 ? (
               <div className="text-center py-8">
                 <MessageSquare className="h-8 w-8 text-gray-300 mx-auto mb-2" />
-                <p className="text-sm text-muted-foreground">Ingen kartlegginger ennå</p>
+                <p className="text-sm text-muted-foreground">No assessments yet</p>
               </div>
             ) : (
               <div className="space-y-3">
@@ -390,7 +389,7 @@ export default async function WellbeingPage() {
                     <div className="flex-1">
                       <p className="text-sm font-medium">{submission.formTemplate.title}</p>
                       <p className="text-xs text-muted-foreground">
-                        {new Date(submission.createdAt).toLocaleDateString("nb-NO", {
+                        {new Date(submission.createdAt).toLocaleDateString("en-US", {
                           day: "2-digit",
                           month: "short",
                           year: "numeric",
@@ -406,9 +405,9 @@ export default async function WellbeingPage() {
                           : "secondary"
                       }
                     >
-                      {submission.status === "SUBMITTED" ? "Innsendt" : 
-                       submission.status === "APPROVED" ? "Godkjent" : 
-                       submission.status === "DRAFT" ? "Kladd" : "Avvist"}
+                      {submission.status === "SUBMITTED" ? "Submitted" : 
+                       submission.status === "APPROVED" ? "Approved" : 
+                       submission.status === "DRAFT" ? "Draft" : "Rejected"}
                     </Badge>
                   </div>
                 ))}
@@ -417,19 +416,19 @@ export default async function WellbeingPage() {
           </CardContent>
         </Card>
 
-        {/* Genererte risikoer */}
+        {/* Generated risks */}
         <Card>
           <CardHeader>
-            <CardTitle>Identifiserte risikoer</CardTitle>
-            <CardDescription>Automatisk genererte risikoer fra kartlegginger</CardDescription>
+            <CardTitle>Identified Risks</CardTitle>
+            <CardDescription>Automatically generated risks from assessments</CardDescription>
           </CardHeader>
           <CardContent>
             {wellbeingRisks.length === 0 ? (
               <div className="text-center py-8">
                 <Heart className="h-8 w-8 text-gray-300 mx-auto mb-2" />
-                <p className="text-sm text-muted-foreground">Ingen risikoer identifisert</p>
+                <p className="text-sm text-muted-foreground">No risks identified</p>
                 <p className="text-xs text-muted-foreground mt-1">
-                  Risikoer genereres automatisk ved lav score eller kritiske hendelser
+                  Risks are automatically generated for low scores or critical incidents
                 </p>
               </div>
             ) : (
@@ -448,10 +447,10 @@ export default async function WellbeingPage() {
                         </p>
                         <div className="flex items-center gap-2 mt-2">
                           <Badge variant="destructive" className="text-xs">
-                            Risiko: {risk.score}
+                            Risk: {risk.score}
                           </Badge>
                           <span className="text-xs text-muted-foreground">
-                            {new Date(risk.createdAt).toLocaleDateString("nb-NO")}
+                            {new Date(risk.createdAt).toLocaleDateString("en-US")}
                           </span>
                         </div>
                       </div>

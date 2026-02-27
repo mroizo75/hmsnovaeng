@@ -16,23 +16,23 @@ export default async function AnsattAvvik() {
     redirect("/login");
   }
 
-  // Hent ansattes egne avviksrapporter
+  // Fetch employee's own incident reports
   const myIncidents = await prisma.incident.findMany({
     where: {
       tenantId: session.user.tenantId,
-      reportedBy: session.user.name || session.user.email || "Ansatt",
+      reportedBy: session.user.name || session.user.email || "Employee",
     },
     orderBy: {
       occurredAt: "desc",
     },
-    take: 50, // Siste 50 rapporter
+    take: 50, // Last 50 reports
   });
 
   const resolveStage = (incident: (typeof myIncidents)[number]) => {
     if (incident.stage) {
       return incident.stage;
     }
-    // Fallback for eldre data som ikke har stage
+    // Fallback for older data without stage
     if (incident.status === "CLOSED") {
       return "VERIFIED";
     }
@@ -64,27 +64,27 @@ export default async function AnsattAvvik() {
         <div>
           <h1 className="text-2xl font-bold mb-2 flex items-center gap-2">
             <AlertCircle className="h-7 w-7 text-red-600" />
-            Mine avvik
+            My Incidents
           </h1>
           <p className="text-muted-foreground">
-            Oversikt over dine rapporterte avvik
+            Overview of your reported incidents
           </p>
         </div>
         <Link href="/ansatt/avvik/ny">
           <Button size="lg" className="h-12">
             <Plus className="h-5 w-5 mr-2" />
-            Rapporter nytt
+            Report new
           </Button>
         </Link>
       </div>
 
-      {/* Statistikk */}
+      {/* Statistics */}
       <div className="grid grid-cols-3 gap-4">
         <Card className="border-l-4 border-l-yellow-500">
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-xs text-muted-foreground">Rapportert</p>
+                <p className="text-xs text-muted-foreground">Reported</p>
                 <p className="text-2xl font-bold">{openCount}</p>
               </div>
               <Clock className="h-8 w-8 text-yellow-500" />
@@ -96,7 +96,7 @@ export default async function AnsattAvvik() {
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-xs text-muted-foreground">Undersøkes</p>
+                <p className="text-xs text-muted-foreground">Under review</p>
                 <p className="text-2xl font-bold">{investigatingCount}</p>
               </div>
               <AlertCircle className="h-8 w-8 text-blue-500" />
@@ -108,7 +108,7 @@ export default async function AnsattAvvik() {
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-xs text-muted-foreground">Lukket</p>
+                <p className="text-xs text-muted-foreground">Closed</p>
                 <p className="text-2xl font-bold">{closedCount}</p>
               </div>
               <CheckCircle className="h-8 w-8 text-green-500" />
@@ -117,33 +117,33 @@ export default async function AnsattAvvik() {
         </Card>
       </div>
 
-      {/* Hjelp-melding */}
+      {/* Help message */}
       <Card className="border-l-4 border-l-blue-500 bg-blue-50">
         <CardContent className="p-4">
           <p className="text-sm text-blue-900">
-            <strong>💡 Tips:</strong> Du kan se status på dine rapporter her. 
-            HMS-ansvarlig vil behandle avviket. Avvik skal lukkes når tiltak er gjennomført og effekt er verifisert (ISO 9001/45001 kap. 10.2). Du får beskjed når avviket er lukket.
+            <strong>💡 Tips:</strong> You can track the status of your reports here.
+            The EHS coordinator will process the incident. Incidents should be closed when corrective actions have been completed and their effectiveness verified (ISO 9001/45001 section 10.2). You will be notified when the incident is closed.
           </p>
         </CardContent>
       </Card>
 
-      {/* Avviksliste */}
+      {/* Incident list */}
       <Card>
         <CardHeader>
-          <CardTitle>Mine rapporter ({myIncidents.length})</CardTitle>
+          <CardTitle>My Reports ({myIncidents.length})</CardTitle>
         </CardHeader>
         <CardContent>
           {myIncidents.length === 0 ? (
             <div className="text-center py-12">
               <AlertCircle className="h-16 w-16 text-gray-300 mx-auto mb-4" />
-              <h3 className="text-lg font-semibold mb-2">Ingen rapporter ennå</h3>
+              <h3 className="text-lg font-semibold mb-2">No reports yet</h3>
               <p className="text-muted-foreground mb-4">
-                Du har ikke rapportert noen avvik ennå.
+                You have not reported any incidents yet.
               </p>
               <Link href="/ansatt/avvik/ny">
                 <Button>
                   <Plus className="h-4 w-4 mr-2" />
-                  Rapporter første avvik
+                  Report first incident
                 </Button>
               </Link>
             </div>
@@ -156,7 +156,7 @@ export default async function AnsattAvvik() {
                   case "REPORTED":
                     statusBadge = (
                       <Badge variant="outline" className="bg-yellow-50 text-yellow-700 border-yellow-300">
-                        🕐 Rapportert
+                        🕐 Reported
                       </Badge>
                     );
                     break;
@@ -164,7 +164,7 @@ export default async function AnsattAvvik() {
                   case "ROOT_CAUSE":
                     statusBadge = (
                       <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-300">
-                        🔍 Undersøkes
+                        🔍 Under review
                       </Badge>
                     );
                     break;
@@ -172,14 +172,14 @@ export default async function AnsattAvvik() {
                   case "ACTIONS_COMPLETE":
                     statusBadge = (
                       <Badge variant="outline" className="bg-indigo-50 text-indigo-700 border-indigo-300">
-                        🛠 Tiltak
+                        🛠 Actions in progress
                       </Badge>
                     );
                     break;
                   case "VERIFIED":
                     statusBadge = (
                       <Badge variant="outline" className="bg-green-50 text-green-700 border-green-300">
-                        ✓ Lukket
+                        ✓ Closed
                       </Badge>
                     );
                     break;
@@ -195,19 +195,19 @@ export default async function AnsattAvvik() {
                 let typeBadge;
                 switch (incident.type) {
                   case "AVVIK":
-                    typeBadge = "⚠️ Avvik";
+                    typeBadge = "⚠️ Deviation";
                     break;
                   case "NESTEN":
-                    typeBadge = "🟡 Nestenulykke";
+                    typeBadge = "🟡 Near miss";
                     break;
                   case "SKADE":
-                    typeBadge = "🔴 Skade";
+                    typeBadge = "🔴 Injury";
                     break;
                   case "MILJO":
-                    typeBadge = "🌍 Miljø";
+                    typeBadge = "🌍 Environmental";
                     break;
                   case "KVALITET":
-                    typeBadge = "📋 Kvalitet";
+                    typeBadge = "📋 Quality";
                     break;
                   default:
                     typeBadge = incident.type;
@@ -230,7 +230,7 @@ export default async function AnsattAvvik() {
                   >
                     <div className="flex items-start justify-between gap-4">
                       <div className="flex-1 min-w-0">
-                        {/* Tittel */}
+                        {/* Title */}
                         <h3 className="font-semibold mb-2 truncate">{incident.title}</h3>
 
                         {/* Badges */}
@@ -240,17 +240,17 @@ export default async function AnsattAvvik() {
                             {typeBadge}
                           </Badge>
                           <Badge variant="secondary" className={`text-xs ${severityColor}`}>
-                            Alvorlighet: {incident.severity}
+                            Severity: {incident.severity}
                           </Badge>
                         </div>
 
                         {/* Info */}
                         <div className="text-xs text-muted-foreground space-y-1">
                           {incident.location && (
-                            <p>📍 Sted: {incident.location}</p>
+                            <p>📍 Location: {incident.location}</p>
                           )}
                           <p>
-                            🕐 Rapportert: {new Date(incident.occurredAt).toLocaleDateString("nb-NO", {
+                            🕐 Reported: {new Date(incident.occurredAt).toLocaleDateString("en-US", {
                               day: "numeric",
                               month: "short",
                               year: "numeric",
@@ -260,13 +260,13 @@ export default async function AnsattAvvik() {
                           </p>
                         </div>
 
-                        {/* Beskrivelse (første 100 tegn) */}
+                        {/* Description (first 100 chars) */}
                         <p className="text-sm text-muted-foreground mt-2 line-clamp-2">
                           {incident.description}
                         </p>
                       </div>
 
-                      {/* Status ikon */}
+                      {/* Status icon */}
                       <div className="flex-shrink-0">
                         {incident.status === "CLOSED" ? (
                           <div className="h-10 w-10 rounded-full bg-green-100 flex items-center justify-center">
@@ -291,36 +291,36 @@ export default async function AnsattAvvik() {
         </CardContent>
       </Card>
 
-      {/* Hjelp */}
+      {/* Status explanation */}
       <Card className="border-l-4 border-l-blue-500 bg-blue-50">
         <CardHeader className="pb-3">
-          <CardTitle className="text-lg">📚 Status-forklaring</CardTitle>
+          <CardTitle className="text-lg">📚 Status guide</CardTitle>
         </CardHeader>
         <CardContent className="space-y-2 text-sm text-blue-900">
           <div>
-            <strong>🕐 Rapportert:</strong> Avviket er mottatt og venter på behandling.
+            <strong>🕐 Reported:</strong> The incident has been received and is awaiting processing.
           </div>
           <div>
-            <strong>🔍 Undersøkes:</strong> HMS-ansvarlig jobber med saken.
+            <strong>🔍 Under review:</strong> The EHS coordinator is working on the case.
           </div>
           <div>
-            <strong>✓ Lukket:</strong> Avviket er behandlet og tiltak er gjennomført.
+            <strong>✓ Closed:</strong> The incident has been processed and corrective actions have been implemented.
           </div>
         </CardContent>
       </Card>
 
-      {/* Nødknapp */}
+      {/* Emergency button */}
       <Card className="border-l-4 border-l-red-500 bg-red-50">
         <CardContent className="p-4">
           <div className="flex items-center gap-3">
             <AlertCircle className="h-8 w-8 text-red-600 flex-shrink-0" />
             <div>
               <p className="text-sm font-semibold text-red-900 mb-1">
-                🚨 Ved akutt fare
+                🚨 In case of immediate danger
               </p>
               <p className="text-xs text-red-800">
-                Ring 110 (brann), 112 (politi) eller 113 (ambulanse) FØRST!
-                Rapporter deretter avviket her.
+                Call 911 (fire, police, or ambulance) FIRST!
+                Then report the incident here.
               </p>
             </div>
           </div>
@@ -329,4 +329,3 @@ export default async function AnsattAvvik() {
     </div>
   );
 }
-

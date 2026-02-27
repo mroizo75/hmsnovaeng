@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { AlertTriangle, Clock, AlertCircle } from "lucide-react";
 import Link from "next/link";
 import { format } from "date-fns";
-import { nb } from "date-fns/locale";
+import { enUS } from "date-fns/locale";
 
 interface Alert {
   id: string;
@@ -55,7 +55,7 @@ export function CriticalAlerts({ alerts }: CriticalAlertsProps) {
       <CardHeader className="pb-3">
         <CardTitle className="text-base font-semibold flex items-center gap-2 text-red-900">
           <AlertTriangle className="h-5 w-5" />
-          Krever handling
+          Requires action
         </CardTitle>
       </CardHeader>
       <CardContent>
@@ -71,7 +71,7 @@ export function CriticalAlerts({ alerts }: CriticalAlertsProps) {
                     </p>
                     {alert.date && (
                       <p className="text-xs text-muted-foreground">
-                        {format(alert.date, "d. MMM yyyy", { locale: nb })}
+                        {format(alert.date, "MMM d, yyyy", { locale: enUS })}
                       </p>
                     )}
                   </div>
@@ -85,7 +85,7 @@ export function CriticalAlerts({ alerts }: CriticalAlertsProps) {
         </div>
         {alerts.length > 5 && (
           <p className="text-xs text-muted-foreground mt-3 text-center">
-            +{alerts.length - 5} flere varsler
+            +{alerts.length - 5} more alerts
           </p>
         )}
       </CardContent>

@@ -25,7 +25,7 @@ import {
 import { MapPin, Calendar, CheckCircle2, Edit, Trash2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
-import { nb } from "date-fns/locale";
+import { enUS } from "date-fns/locale";
 
 interface Finding {
   id: string;
@@ -46,11 +46,11 @@ interface InspectionFindingListProps {
 
 function getSeverityBadge(severity: number) {
   const config: Record<number, { className: string; label: string }> = {
-    1: { className: "bg-blue-100 text-blue-900 border-blue-200", label: "Lav" },
-    2: { className: "bg-green-100 text-green-900 border-green-200", label: "Moderat" },
-    3: { className: "bg-yellow-100 text-yellow-900 border-yellow-200", label: "Betydelig" },
-    4: { className: "bg-orange-100 text-orange-900 border-orange-200", label: "Alvorlig" },
-    5: { className: "bg-red-100 text-red-900 border-red-200", label: "Kritisk" },
+    1: { className: "bg-blue-100 text-blue-900 border-blue-200", label: "Low" },
+    2: { className: "bg-green-100 text-green-900 border-green-200", label: "Moderate" },
+    3: { className: "bg-yellow-100 text-yellow-900 border-yellow-200", label: "Significant" },
+    4: { className: "bg-orange-100 text-orange-900 border-orange-200", label: "High" },
+    5: { className: "bg-red-100 text-red-900 border-red-200", label: "Critical" },
   };
   const severityConfig = config[severity] || config[1];
   return <Badge className={severityConfig.className}>{severityConfig.label}</Badge>;
@@ -58,10 +58,10 @@ function getSeverityBadge(severity: number) {
 
 function getStatusBadge(status: string) {
   const config: Record<string, { className: string; label: string }> = {
-    OPEN: { className: "bg-red-100 text-red-900 border-red-200", label: "Åpen" },
-    IN_PROGRESS: { className: "bg-yellow-100 text-yellow-900 border-yellow-200", label: "Pågår" },
-    RESOLVED: { className: "bg-green-100 text-green-900 border-green-200", label: "Løst" },
-    CLOSED: { className: "bg-gray-100 text-gray-900 border-gray-200", label: "Lukket" },
+    OPEN: { className: "bg-red-100 text-red-900 border-red-200", label: "Open" },
+    IN_PROGRESS: { className: "bg-yellow-100 text-yellow-900 border-yellow-200", label: "In Progress" },
+    RESOLVED: { className: "bg-green-100 text-green-900 border-green-200", label: "Resolved" },
+    CLOSED: { className: "bg-gray-100 text-gray-900 border-gray-200", label: "Closed" },
   };
   return <Badge className={config[status]?.className || config.OPEN.className}>
     {config[status]?.label || status}
@@ -94,19 +94,19 @@ function UpdateFindingStatusDialog({ finding }: { finding: Finding }) {
       const result = await response.json();
 
       if (!response.ok) {
-        throw new Error(result.message || "Kunne ikke oppdatere funn");
+        throw new Error(result.message || "Could not update finding");
       }
 
       toast({
-        title: "Funn oppdatert",
-        description: "Status er nå endret",
+        title: "Finding updated",
+        description: "Status has been changed",
       });
 
       setOpen(false);
       router.refresh();
     } catch (error: any) {
       toast({
-        title: "Feil",
+        title: "Error",
         description: error.message,
         variant: "destructive",
       });
@@ -120,13 +120,13 @@ function UpdateFindingStatusDialog({ finding }: { finding: Finding }) {
       <DialogTrigger asChild>
         <Button variant="outline" size="sm">
           <Edit className="mr-2 h-4 w-4" />
-          Oppdater
+          Update
         </Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Oppdater funn</DialogTitle>
-          <DialogDescription>Endre status og legg til løsningsnotat</DialogDescription>
+          <DialogTitle>Update Finding</DialogTitle>
+          <DialogDescription>Change status and add resolution notes</DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
@@ -136,21 +136,21 @@ function UpdateFindingStatusDialog({ finding }: { finding: Finding }) {
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="OPEN">Åpen</SelectItem>
-                <SelectItem value="IN_PROGRESS">Pågår</SelectItem>
-                <SelectItem value="RESOLVED">Løst</SelectItem>
-                <SelectItem value="CLOSED">Lukket</SelectItem>
+                <SelectItem value="OPEN">Open</SelectItem>
+                <SelectItem value="IN_PROGRESS">In Progress</SelectItem>
+                <SelectItem value="RESOLVED">Resolved</SelectItem>
+                <SelectItem value="CLOSED">Closed</SelectItem>
               </SelectContent>
             </Select>
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="resolutionNotes">Løsningsnotat</Label>
+            <Label htmlFor="resolutionNotes">Resolution Notes</Label>
             <Textarea
               id="resolutionNotes"
               name="resolutionNotes"
               defaultValue={finding.resolutionNotes || ""}
-              placeholder="Beskriv hvordan funnet er håndtert..."
+              placeholder="Describe how the finding was handled..."
               rows={4}
             />
           </div>
@@ -162,10 +162,10 @@ function UpdateFindingStatusDialog({ finding }: { finding: Finding }) {
               onClick={() => setOpen(false)}
               disabled={loading}
             >
-              Avbryt
+              Cancel
             </Button>
             <Button type="submit" disabled={loading}>
-              {loading ? "Lagrer..." : "Lagre"}
+              {loading ? "Saving..." : "Save"}
             </Button>
           </div>
         </form>
@@ -180,7 +180,7 @@ export function InspectionFindingList({ findings }: InspectionFindingListProps) 
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
   const handleDelete = async (id: string, title: string) => {
-    if (!confirm(`Er du sikker på at du vil slette "${title}"?`)) {
+    if (!confirm(`Are you sure you want to delete "${title}"?`)) {
       return;
     }
 
@@ -192,17 +192,17 @@ export function InspectionFindingList({ findings }: InspectionFindingListProps) 
       });
 
       if (!response.ok) {
-        throw new Error("Kunne ikke slette funn");
+        throw new Error("Could not delete finding");
       }
 
       toast({
-        title: "Funn slettet",
+        title: "Finding deleted",
       });
 
       router.refresh();
     } catch (error: any) {
       toast({
-        title: "Feil",
+        title: "Error",
         description: error.message,
         variant: "destructive",
       });
@@ -241,7 +241,7 @@ export function InspectionFindingList({ findings }: InspectionFindingListProps) 
             </CardHeader>
             <CardContent className="space-y-3">
               <div>
-                <p className="text-sm font-medium text-muted-foreground mb-1">Beskrivelse:</p>
+                <p className="text-sm font-medium text-muted-foreground mb-1">Description:</p>
                 <p className="text-sm whitespace-pre-wrap">{finding.description}</p>
               </div>
 
@@ -251,7 +251,7 @@ export function InspectionFindingList({ findings }: InspectionFindingListProps) 
                     <img
                       key={idx}
                       src={`/api/inspections/images/${imageKey}`}
-                      alt="Bilde fra funn"
+                      alt="Finding image"
                       className="w-full h-24 object-cover rounded border"
                     />
                   ))}
@@ -260,7 +260,7 @@ export function InspectionFindingList({ findings }: InspectionFindingListProps) 
 
               {finding.resolutionNotes && (
                 <div className="pt-3 border-t">
-                  <p className="text-sm font-medium text-muted-foreground mb-1">Løsning:</p>
+                  <p className="text-sm font-medium text-muted-foreground mb-1">Resolution:</p>
                   <p className="text-sm whitespace-pre-wrap text-green-800">
                     {finding.resolutionNotes}
                   </p>
@@ -272,14 +272,14 @@ export function InspectionFindingList({ findings }: InspectionFindingListProps) 
                   {finding.dueDate && (
                     <div className="flex items-center gap-2">
                       <Calendar className="h-4 w-4" />
-                      <span>Frist: {format(new Date(finding.dueDate), "d. MMM yyyy", { locale: nb })}</span>
+                      <span>Due: {format(new Date(finding.dueDate), "MMM d, yyyy", { locale: enUS })}</span>
                     </div>
                   )}
 
                   {finding.resolvedAt && (
                     <div className="flex items-center gap-2 text-green-600">
                       <CheckCircle2 className="h-4 w-4" />
-                      <span>Løst: {format(new Date(finding.resolvedAt), "d. MMM yyyy", { locale: nb })}</span>
+                      <span>Resolved: {format(new Date(finding.resolvedAt), "MMM d, yyyy", { locale: enUS })}</span>
                     </div>
                   )}
                 </div>
@@ -293,7 +293,7 @@ export function InspectionFindingList({ findings }: InspectionFindingListProps) 
                     disabled={deletingId === finding.id}
                   >
                     <Trash2 className="mr-2 h-4 w-4" />
-                    Slett
+                    Delete
                   </Button>
                 </div>
               </div>
@@ -304,4 +304,3 @@ export function InspectionFindingList({ findings }: InspectionFindingListProps) 
     </div>
   );
 }
-

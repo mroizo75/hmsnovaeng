@@ -31,32 +31,32 @@ import type {
 import { createRiskControl } from "@/server/actions/risk-register.actions";
 
 const controlTypeOptions: Array<{ value: RiskControlType; label: string }> = [
-  { value: "PREVENTIVE", label: "Forebyggende" },
-  { value: "DETECTIVE", label: "Detekterende" },
-  { value: "CORRECTIVE", label: "Korrigerende" },
-  { value: "DIRECTIONAL", label: "Styrende" },
-  { value: "COMPENSATING", label: "Kompenserende" },
+  { value: "PREVENTIVE", label: "Preventive" },
+  { value: "DETECTIVE", label: "Detective" },
+  { value: "CORRECTIVE", label: "Corrective" },
+  { value: "DIRECTIONAL", label: "Directive" },
+  { value: "COMPENSATING", label: "Compensating" },
 ];
 
 const frequencyOptions: Array<{ value: ControlFrequency; label: string }> = [
-  { value: "WEEKLY", label: "Ukentlig" },
-  { value: "MONTHLY", label: "Månedlig" },
-  { value: "QUARTERLY", label: "Kvartalsvis" },
-  { value: "ANNUAL", label: "Årlig" },
-  { value: "BIENNIAL", label: "Annet hvert år" },
+  { value: "WEEKLY", label: "Weekly" },
+  { value: "MONTHLY", label: "Monthly" },
+  { value: "QUARTERLY", label: "Quarterly" },
+  { value: "ANNUAL", label: "Annual" },
+  { value: "BIENNIAL", label: "Every other year" },
 ];
 
 const statusOptions: Array<{ value: RiskControlStatus; label: string }> = [
-  { value: "ACTIVE", label: "Aktiv" },
-  { value: "NEEDS_IMPROVEMENT", label: "Trenger forbedring" },
-  { value: "RETIRED", label: "Avviklet" },
+  { value: "ACTIVE", label: "Active" },
+  { value: "NEEDS_IMPROVEMENT", label: "Needs improvement" },
+  { value: "RETIRED", label: "Retired" },
 ];
 
 const effectivenessOptions: Array<{ value: RiskControlEffectiveness; label: string }> = [
-  { value: "EFFECTIVE", label: "Effektiv" },
-  { value: "PARTIAL", label: "Delvis effektiv" },
-  { value: "INEFFECTIVE", label: "Ikke effektiv" },
-  { value: "NOT_TESTED", label: "Ikke testet" },
+  { value: "EFFECTIVE", label: "Effective" },
+  { value: "PARTIAL", label: "Partially effective" },
+  { value: "INEFFECTIVE", label: "Not effective" },
+  { value: "NOT_TESTED", label: "Not tested" },
 ];
 
 interface RiskControlFormProps {
@@ -92,16 +92,16 @@ export function RiskControlForm({ riskId, users, documents }: RiskControlFormPro
 
       if (result.success) {
         toast({
-          title: "✅ Kontroll opprettet",
-          description: "Kontrollen er lagt til i risikoregisteret",
+          title: "✅ Control created",
+          description: "The control has been added to the risk register",
           className: "bg-green-50 border-green-200",
         });
         setOpen(false);
       } else {
         toast({
           variant: "destructive",
-          title: "Feil",
-          description: result.error || "Kunne ikke opprette kontroll",
+          title: "Error",
+          description: result.error || "Could not create control",
         });
       }
     });
@@ -112,29 +112,29 @@ export function RiskControlForm({ riskId, users, documents }: RiskControlFormPro
       <DialogTrigger asChild>
         <Button size="sm">
           <Plus className="mr-2 h-4 w-4" />
-          Ny kontroll
+          New control
         </Button>
       </DialogTrigger>
       <DialogContent className="max-w-2xl">
         <DialogHeader>
-          <DialogTitle>Legg til kontroll</DialogTitle>
+          <DialogTitle>Add control</DialogTitle>
           <DialogDescription>
-            ISO 31000: dokumenter eier, type, frekvens og effekt for viktige kontroller
+            ISO 31000: Document owner, type, frequency and effectiveness for key controls
           </DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="title">Navn på kontroll *</Label>
-            <Input id="title" name="title" placeholder="F.eks. Daglig stillaskontroll" required disabled={isPending} />
+            <Label htmlFor="title">Control name *</Label>
+            <Input id="title" name="title" placeholder="E.g. Daily scaffolding inspection" required disabled={isPending} />
           </div>
 
           <div className="grid gap-4 md:grid-cols-2">
             <div className="space-y-2">
-              <Label htmlFor="controlType">Kontrolltype *</Label>
+              <Label htmlFor="controlType">Control type *</Label>
               <Select name="controlType" defaultValue="PREVENTIVE" disabled={isPending}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Velg type" />
+                  <SelectValue placeholder="Select type" />
                 </SelectTrigger>
                 <SelectContent>
                   {controlTypeOptions.map((option) => (
@@ -146,10 +146,10 @@ export function RiskControlForm({ riskId, users, documents }: RiskControlFormPro
               </Select>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="ownerId">Eier</Label>
+              <Label htmlFor="ownerId">Owner</Label>
               <Select name="ownerId" disabled={isPending}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Velg ansvarlig (valgfritt)" />
+                  <SelectValue placeholder="Select responsible (optional)" />
                 </SelectTrigger>
                 <SelectContent>
                   {users.map((user) => (
@@ -164,10 +164,10 @@ export function RiskControlForm({ riskId, users, documents }: RiskControlFormPro
 
           <div className="grid gap-4 md:grid-cols-2">
             <div className="space-y-2">
-              <Label htmlFor="frequency">Revisjonsfrekvens</Label>
+              <Label htmlFor="frequency">Review frequency</Label>
               <Select name="frequency" disabled={isPending}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Velg frekvens (valgfritt)" />
+                  <SelectValue placeholder="Select frequency (optional)" />
                 </SelectTrigger>
                 <SelectContent>
                   {frequencyOptions.map((option) => (
@@ -179,11 +179,11 @@ export function RiskControlForm({ riskId, users, documents }: RiskControlFormPro
               </Select>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="monitoringMethod">Test-/overvåkingsmetode</Label>
+              <Label htmlFor="monitoringMethod">Testing/monitoring method</Label>
               <Input
                 id="monitoringMethod"
                 name="monitoringMethod"
-                placeholder="F.eks. Visuell inspeksjon, loggkontroll"
+                placeholder="E.g. Visual inspection, log review"
                 disabled={isPending}
               />
             </div>
@@ -194,7 +194,7 @@ export function RiskControlForm({ riskId, users, documents }: RiskControlFormPro
               <Label htmlFor="status">Status</Label>
               <Select name="status" defaultValue="ACTIVE" disabled={isPending}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Velg status" />
+                  <SelectValue placeholder="Select status" />
                 </SelectTrigger>
                 <SelectContent>
                   {statusOptions.map((option) => (
@@ -206,10 +206,10 @@ export function RiskControlForm({ riskId, users, documents }: RiskControlFormPro
               </Select>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="effectiveness">Effekt</Label>
+              <Label htmlFor="effectiveness">Effectiveness</Label>
               <Select name="effectiveness" defaultValue="NOT_TESTED" disabled={isPending}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Velg vurdering" />
+                  <SelectValue placeholder="Select assessment" />
                 </SelectTrigger>
                 <SelectContent>
                   {effectivenessOptions.map((option) => (
@@ -221,26 +221,26 @@ export function RiskControlForm({ riskId, users, documents }: RiskControlFormPro
               </Select>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="nextTestDate">Neste testdato</Label>
+              <Label htmlFor="nextTestDate">Next test date</Label>
               <Input id="nextTestDate" name="nextTestDate" type="date" disabled={isPending} />
             </div>
           </div>
 
           <div className="grid gap-4 md:grid-cols-2">
             <div className="space-y-2">
-              <Label htmlFor="lastTestedAt">Sist testet</Label>
+              <Label htmlFor="lastTestedAt">Last tested</Label>
               <Input id="lastTestedAt" name="lastTestedAt" type="date" disabled={isPending} />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="evidenceDocumentId">Evidens (dokument)</Label>
+              <Label htmlFor="evidenceDocumentId">Evidence (document)</Label>
               {documents.length === 0 ? (
                 <div className="rounded-md border border-dashed px-3 py-2 text-sm text-muted-foreground">
-                  Ingen dokumenter tilgjengelig. Opprett dokumenter først.
+                  No documents available. Create documents first.
                 </div>
               ) : (
                 <Select name="evidenceDocumentId" disabled={isPending}>
                   <SelectTrigger>
-                    <SelectValue placeholder="Velg dokument (valgfritt)" />
+                    <SelectValue placeholder="Select document (optional)" />
                   </SelectTrigger>
                   <SelectContent>
                     {documents.map((doc) => (
@@ -255,11 +255,11 @@ export function RiskControlForm({ riskId, users, documents }: RiskControlFormPro
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="description">Beskrivelse</Label>
+            <Label htmlFor="description">Description</Label>
             <Textarea
               id="description"
               name="description"
-              placeholder="Hva gjør kontrollen, og hvordan utføres den?"
+              placeholder="What does the control do, and how is it carried out?"
               rows={3}
               disabled={isPending}
             />
@@ -267,10 +267,10 @@ export function RiskControlForm({ riskId, users, documents }: RiskControlFormPro
 
           <div className="flex justify-end gap-2">
             <Button type="button" variant="outline" onClick={() => setOpen(false)} disabled={isPending}>
-              Avbryt
+              Cancel
             </Button>
             <Button type="submit" disabled={isPending}>
-              {isPending ? "Lagrer..." : "Lagre kontroll"}
+              {isPending ? "Saving..." : "Save control"}
             </Button>
           </div>
         </form>
@@ -278,4 +278,3 @@ export function RiskControlForm({ riskId, users, documents }: RiskControlFormPro
     </Dialog>
   );
 }
-

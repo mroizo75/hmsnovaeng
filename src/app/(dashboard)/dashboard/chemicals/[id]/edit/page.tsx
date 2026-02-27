@@ -27,7 +27,7 @@ export default async function EditChemicalPage({ params }: { params: Promise<{ i
   });
 
   if (!user || user.tenants.length === 0) {
-    return <div>Du er ikke tilknyttet en tenant.</div>;
+    return <div>You are not associated with a tenant.</div>;
   }
 
   const tenantId = user.tenants[0].tenantId;
@@ -47,10 +47,10 @@ export default async function EditChemicalPage({ params }: { params: Promise<{ i
         <Link href={`/dashboard/chemicals/${chemical.id}`}>
           <Button variant="ghost" size="sm" className="mb-4">
             <ArrowLeft className="mr-2 h-4 w-4" />
-            Tilbake til kjemikalie
+            Back to chemical
           </Button>
         </Link>
-        <h1 className="text-3xl font-bold">Rediger kjemikalie</h1>
+        <h1 className="text-3xl font-bold">Edit Chemical</h1>
         <p className="text-muted-foreground">{chemical.productName}</p>
       </div>
 

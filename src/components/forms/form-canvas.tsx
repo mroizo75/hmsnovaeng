@@ -36,7 +36,7 @@ export function FormCanvas({ fields, selectedField, onSelectField, onDeleteField
               <FileText className="h-16 w-16 text-gray-300 mx-auto mb-4" />
               <h3 className="text-lg font-semibold mb-2">Tomt skjema</h3>
               <p className="text-muted-foreground max-w-xs mx-auto">
-                Dra felt fra biblioteket til venstre for å bygge skjemaet
+                Drag fields from the library on the left to build the form
               </p>
             </div>
           ) : (

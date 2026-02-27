@@ -38,7 +38,6 @@ export function GoalForm({ tenantId, users, goal, mode = "create" }: GoalFormPro
 
     const formData = new FormData(e.currentTarget);
     
-    // Parse numbers safely
     const targetValueStr = formData.get("targetValue") as string;
     const targetValue = targetValueStr && targetValueStr.trim() !== "" 
       ? parseFloat(targetValueStr) 
@@ -88,8 +87,8 @@ export function GoalForm({ tenantId, users, goal, mode = "create" }: GoalFormPro
 
       if (result.success) {
         toast({
-          title: mode === "edit" ? "✅ Mål oppdatert" : "✅ Mål opprettet",
-          description: mode === "edit" ? "Endringene er lagret" : "Målet er opprettet",
+          title: mode === "edit" ? "✅ Goal updated" : "✅ Goal created",
+          description: mode === "edit" ? "Changes have been saved" : "The goal has been created",
           className: "bg-green-50 border-green-200",
         });
         router.push("/dashboard/goals");
@@ -97,15 +96,15 @@ export function GoalForm({ tenantId, users, goal, mode = "create" }: GoalFormPro
       } else {
         toast({
           variant: "destructive",
-          title: "Feil",
-          description: result.error || "Kunne ikke lagre mål",
+          title: "Error",
+          description: result.error || "Could not save goal",
         });
       }
     } catch (error) {
       toast({
         variant: "destructive",
-        title: "Uventet feil",
-        description: "Noe gikk galt",
+        title: "Unexpected error",
+        description: "Something went wrong",
       });
     } finally {
       setLoading(false);
@@ -117,11 +116,11 @@ export function GoalForm({ tenantId, users, goal, mode = "create" }: GoalFormPro
       <Card>
         <CardContent className="pt-6 space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="title">Måltittel *</Label>
+            <Label htmlFor="title">Goal Title *</Label>
             <Input
               id="title"
               name="title"
-              placeholder="F.eks. Reduser arbeidsskader med 50%"
+              placeholder="e.g. Reduce workplace injuries by 50%"
               required
               disabled={loading}
               defaultValue={goal?.title}
@@ -129,12 +128,12 @@ export function GoalForm({ tenantId, users, goal, mode = "create" }: GoalFormPro
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="description">Beskrivelse</Label>
+            <Label htmlFor="description">Description</Label>
             <Textarea
               id="description"
               name="description"
               rows={3}
-              placeholder="Beskriv målet i detalj..."
+              placeholder="Describe the goal in detail..."
               disabled={loading}
               defaultValue={goal?.description || ""}
             />
@@ -142,20 +141,20 @@ export function GoalForm({ tenantId, users, goal, mode = "create" }: GoalFormPro
 
           <div className="grid gap-4 md:grid-cols-2">
             <div className="space-y-2">
-              <Label htmlFor="category">Kategori *</Label>
+              <Label htmlFor="category">Category *</Label>
               <Select name="category" required disabled={loading} defaultValue={goal?.category || "QUALITY"}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Velg kategori" />
+                  <SelectValue placeholder="Select category" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="QUALITY">Kvalitet</SelectItem>
-                  <SelectItem value="HMS">HMS</SelectItem>
-                  <SelectItem value="ENVIRONMENT">Miljø</SelectItem>
-                  <SelectItem value="CUSTOMER">Kunde</SelectItem>
-                  <SelectItem value="EFFICIENCY">Effektivitet</SelectItem>
-                  <SelectItem value="FINANCE">Økonomi</SelectItem>
-                  <SelectItem value="COMPETENCE">Kompetanse</SelectItem>
-                  <SelectItem value="OTHER">Annet</SelectItem>
+                  <SelectItem value="QUALITY">Quality</SelectItem>
+                  <SelectItem value="HMS">EHS</SelectItem>
+                  <SelectItem value="ENVIRONMENT">Environment</SelectItem>
+                  <SelectItem value="CUSTOMER">Customer</SelectItem>
+                  <SelectItem value="EFFICIENCY">Efficiency</SelectItem>
+                  <SelectItem value="FINANCE">Finance</SelectItem>
+                  <SelectItem value="COMPETENCE">Competence</SelectItem>
+                  <SelectItem value="OTHER">Other</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -164,14 +163,14 @@ export function GoalForm({ tenantId, users, goal, mode = "create" }: GoalFormPro
               <Label htmlFor="status">Status *</Label>
               <Select name="status" required disabled={loading} defaultValue={goal?.status || "ACTIVE"}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Velg status" />
+                  <SelectValue placeholder="Select status" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="ACTIVE">Aktivt</SelectItem>
-                  <SelectItem value="ACHIEVED">Oppnådd</SelectItem>
-                  <SelectItem value="AT_RISK">I risiko</SelectItem>
-                  <SelectItem value="FAILED">Ikke oppnådd</SelectItem>
-                  <SelectItem value="ARCHIVED">Arkivert</SelectItem>
+                  <SelectItem value="ACTIVE">Active</SelectItem>
+                  <SelectItem value="ACHIEVED">Achieved</SelectItem>
+                  <SelectItem value="AT_RISK">At Risk</SelectItem>
+                  <SelectItem value="FAILED">Not Achieved</SelectItem>
+                  <SelectItem value="ARCHIVED">Archived</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -185,37 +184,37 @@ export function GoalForm({ tenantId, users, goal, mode = "create" }: GoalFormPro
                 name="baseline"
                 type="number"
                 step="0.01"
-                placeholder="Utgangspunkt"
+                placeholder="Starting point"
                 disabled={loading}
                 defaultValue={goal?.baseline || ""}
               />
               <p className="text-sm text-muted-foreground">
-                Nåværende verdi før forbedring
+                Current value before improvement
               </p>
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="targetValue">Målverdi</Label>
+              <Label htmlFor="targetValue">Target Value</Label>
               <Input
                 id="targetValue"
                 name="targetValue"
                 type="number"
                 step="0.01"
-                placeholder="Ønsket verdi"
+                placeholder="Desired value"
                 disabled={loading}
                 defaultValue={goal?.targetValue || ""}
               />
               <p className="text-sm text-muted-foreground">
-                Verdi vi skal oppnå
+                Value we want to achieve
               </p>
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="unit">Enhet</Label>
+              <Label htmlFor="unit">Unit</Label>
               <Input
                 id="unit"
                 name="unit"
-                placeholder="%, antall, NOK, etc"
+                placeholder="%, count, USD, etc"
                 disabled={loading}
                 defaultValue={goal?.unit || ""}
               />
@@ -224,25 +223,25 @@ export function GoalForm({ tenantId, users, goal, mode = "create" }: GoalFormPro
 
           {mode === "edit" && (
             <div className="space-y-2">
-              <Label htmlFor="currentValue">Nåværende verdi</Label>
+              <Label htmlFor="currentValue">Current Value</Label>
               <Input
                 id="currentValue"
                 name="currentValue"
                 type="number"
                 step="0.01"
-                placeholder="Oppdateres ved målinger"
+                placeholder="Updated by measurements"
                 disabled={loading}
                 defaultValue={goal?.currentValue || ""}
               />
               <p className="text-sm text-muted-foreground">
-                Oppdateres automatisk ved målinger
+                Automatically updated by measurements
               </p>
             </div>
           )}
 
           <div className="grid gap-4 md:grid-cols-3">
             <div className="space-y-2">
-              <Label htmlFor="year">År *</Label>
+              <Label htmlFor="year">Year *</Label>
               <Input
                 id="year"
                 name="year"
@@ -256,13 +255,13 @@ export function GoalForm({ tenantId, users, goal, mode = "create" }: GoalFormPro
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="quarter">Kvartal (valgfritt)</Label>
+              <Label htmlFor="quarter">Quarter (optional)</Label>
               <Select name="quarter" disabled={loading} defaultValue={goal?.quarter?.toString() || "NONE"}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Helt år" />
+                  <SelectValue placeholder="Full year" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="NONE">Helt år</SelectItem>
+                  <SelectItem value="NONE">Full Year</SelectItem>
                   <SelectItem value="1">Q1</SelectItem>
                   <SelectItem value="2">Q2</SelectItem>
                   <SelectItem value="3">Q3</SelectItem>
@@ -272,10 +271,10 @@ export function GoalForm({ tenantId, users, goal, mode = "create" }: GoalFormPro
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="ownerId">Ansvarlig *</Label>
+              <Label htmlFor="ownerId">Owner *</Label>
               <Select name="ownerId" required disabled={loading} defaultValue={goal?.ownerId}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Velg ansvarlig" />
+                  <SelectValue placeholder="Select responsible" />
                 </SelectTrigger>
                 <SelectContent>
                   {users.map((user) => (
@@ -290,7 +289,7 @@ export function GoalForm({ tenantId, users, goal, mode = "create" }: GoalFormPro
 
           <div className="grid gap-4 md:grid-cols-2">
             <div className="space-y-2">
-              <Label htmlFor="startDate">Startdato</Label>
+              <Label htmlFor="startDate">Start Date</Label>
               <Input
                 id="startDate"
                 name="startDate"
@@ -303,7 +302,7 @@ export function GoalForm({ tenantId, users, goal, mode = "create" }: GoalFormPro
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="deadline">Frist</Label>
+              <Label htmlFor="deadline">Deadline</Label>
               <Input
                 id="deadline"
                 name="deadline"
@@ -321,13 +320,13 @@ export function GoalForm({ tenantId, users, goal, mode = "create" }: GoalFormPro
       <Card className="bg-blue-50 border-blue-200">
         <CardContent className="pt-4">
           <p className="text-sm font-medium text-blue-900 mb-2">
-            📋 ISO 9001 - 6.2 Kvalitetsmål
+            📋 ISO 9001 - 6.2 Quality Objectives
           </p>
           <ul className="text-sm text-blue-800 space-y-1 list-disc list-inside">
-            <li>Mål skal være målbare</li>
-            <li>Mål skal være relevante for organisasjonen</li>
-            <li>Mål skal overvåkes og måles regelmessig</li>
-            <li>Mål skal kommuniseres til relevant personell</li>
+            <li>Goals must be measurable</li>
+            <li>Goals must be relevant to the organization</li>
+            <li>Goals must be monitored and measured regularly</li>
+            <li>Goals must be communicated to relevant personnel</li>
           </ul>
         </CardContent>
       </Card>
@@ -339,13 +338,12 @@ export function GoalForm({ tenantId, users, goal, mode = "create" }: GoalFormPro
           onClick={() => router.back()}
           disabled={loading}
         >
-          Avbryt
+          Cancel
         </Button>
         <Button type="submit" disabled={loading}>
-          {loading ? "Lagrer..." : mode === "edit" ? "Lagre endringer" : "Opprett mål"}
+          {loading ? "Saving..." : mode === "edit" ? "Save Changes" : "Create Goal"}
         </Button>
       </div>
     </form>
   );
 }
-

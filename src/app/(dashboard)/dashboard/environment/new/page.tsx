@@ -21,7 +21,7 @@ export default async function NewEnvironmentAspectPage() {
   });
 
   if (!user || user.tenants.length === 0) {
-    return <div>Ingen tilgang til tenant</div>;
+    return <div>No tenant access</div>;
   }
 
   const tenantId = user.tenants[0].tenantId;
@@ -56,16 +56,16 @@ export default async function NewEnvironmentAspectPage() {
           </Link>
         </Button>
         <div>
-          <h1 className="text-3xl font-bold">Nytt miljøaspekt</h1>
+          <h1 className="text-3xl font-bold">New Environmental Aspect</h1>
           <p className="text-muted-foreground">
-            Registrer miljøpåvirkning i henhold til ISO 14001
+            Register environmental impact in accordance with ISO 14001
           </p>
         </div>
       </div>
 
       <Card>
         <CardHeader>
-          <CardTitle>Detaljer</CardTitle>
+          <CardTitle>Details</CardTitle>
         </CardHeader>
         <CardContent>
           <EnvironmentAspectForm
@@ -79,4 +79,3 @@ export default async function NewEnvironmentAspectPage() {
     </div>
   );
 }
-

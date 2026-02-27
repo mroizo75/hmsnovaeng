@@ -60,7 +60,7 @@ export function ImageUploader({
     // Validate file type
     const allowedTypes = ["image/jpeg", "image/jpg", "image/png", "image/webp", "image/gif"];
     if (!allowedTypes.includes(file.type)) {
-      setError("Ugyldig filtype. Kun JPEG, PNG, WebP og GIF er tillatt.");
+      setError("Invalid file type. Only JPEG, PNG, WebP and GIF are allowed.");
       setIsUploading(false);
       return;
     }
@@ -68,7 +68,7 @@ export function ImageUploader({
     // Validate file size (max 5MB)
     const maxSize = 5 * 1024 * 1024;
     if (file.size > maxSize) {
-      setError("Filen er for stor. Maksimal størrelse er 5MB.");
+      setError("File is too large. Maximum size is 5MB.");
       setIsUploading(false);
       return;
     }
@@ -156,7 +156,7 @@ export function ImageUploader({
               <>
                 <Loader2 className="h-12 w-12 text-primary animate-spin mb-4" />
                 <p className="text-sm text-muted-foreground mb-2">
-                  Laster opp bilde...
+                  Uploading image...
                 </p>
                 <Progress value={uploadProgress} className="w-full max-w-xs" />
               </>
@@ -164,10 +164,10 @@ export function ImageUploader({
               <>
                 <Upload className="h-12 w-12 text-muted-foreground mb-4" />
                 <p className="text-sm font-medium mb-1">
-                  Dra og slipp bilde her, eller klikk for å velge
+                  Drag and drop image here, or click to select
                 </p>
                 <p className="text-xs text-muted-foreground">
-                  JPEG, PNG, WebP eller GIF (maks 5MB)
+                  JPEG, PNG, WebP or GIF (max 5MB)
                 </p>
               </>
             )}

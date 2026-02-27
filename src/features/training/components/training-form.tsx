@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
   SelectContent,
@@ -24,7 +23,7 @@ import {
 import { Card, CardContent } from "@/components/ui/card";
 import { createTraining } from "@/server/actions/training.actions";
 import { useToast } from "@/hooks/use-toast";
-import { Plus, Upload } from "lucide-react";
+import { Plus } from "lucide-react";
 import type { CourseTemplate } from "@prisma/client";
 
 interface TrainingFormProps {
@@ -59,15 +58,12 @@ export function TrainingForm({ tenantId, users, courseTemplates, trigger }: Trai
     };
 
     try {
-      // TODO: Last opp sertifikat til R2 hvis fil er valgt
-      // const proofDocKey = selectedFile ? await uploadCertificate(selectedFile) : undefined;
-
       const result = await createTraining(data);
 
       if (result.success) {
         toast({
-          title: "✅ Opplæring registrert",
-          description: "Kompetansen er dokumentert i systemet",
+          title: "✅ Training registered",
+          description: "The competence has been documented in the system",
           className: "bg-green-50 border-green-200",
         });
         setOpen(false);
@@ -75,15 +71,15 @@ export function TrainingForm({ tenantId, users, courseTemplates, trigger }: Trai
       } else {
         toast({
           variant: "destructive",
-          title: "Feil",
-          description: result.error || "Kunne ikke registrere opplæring",
+          title: "Error",
+          description: result.error || "Could not register training",
         });
       }
     } catch (error) {
       toast({
         variant: "destructive",
-        title: "Uventet feil",
-        description: "Noe gikk galt",
+        title: "Unexpected error",
+        description: "Something went wrong",
       });
     } finally {
       setLoading(false);
@@ -98,25 +94,25 @@ export function TrainingForm({ tenantId, users, courseTemplates, trigger }: Trai
         {trigger || (
           <Button>
             <Plus className="mr-2 h-4 w-4" />
-            Registrer opplæring
+            Register training
           </Button>
         )}
       </DialogTrigger>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Registrer opplæring</DialogTitle>
+          <DialogTitle>Register training</DialogTitle>
           <DialogDescription>
-            ISO 9001: Dokumenter kompetanse basert på utdanning, opplæring eller erfaring
+            ISO 9001: Document competence based on education, training or experience
           </DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid gap-4 md:grid-cols-2">
             <div className="space-y-2">
-              <Label htmlFor="userId">Ansatt *</Label>
+              <Label htmlFor="userId">Employee *</Label>
               <Select name="userId" required disabled={loading}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Velg ansatt" />
+                  <SelectValue placeholder="Select employee" />
                 </SelectTrigger>
                 <SelectContent>
                   {users.map((user) => (
@@ -129,7 +125,7 @@ export function TrainingForm({ tenantId, users, courseTemplates, trigger }: Trai
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="courseKey">Kurs *</Label>
+              <Label htmlFor="courseKey">Course *</Label>
               <Select
                 name="courseKey"
                 required
@@ -146,16 +142,16 @@ export function TrainingForm({ tenantId, users, courseTemplates, trigger }: Trai
                 }}
               >
                 <SelectTrigger>
-                  <SelectValue placeholder="Velg kurs" />
+                  <SelectValue placeholder="Select course" />
                 </SelectTrigger>
                 <SelectContent>
                   {courseTemplates.map((course) => (
                     <SelectItem key={course.id} value={course.courseKey}>
                       {course.title}
-                      {course.isGlobal && " (Standard HMS)"}
+                      {course.isGlobal && " (Standard HSE)"}
                     </SelectItem>
                   ))}
-                  <SelectItem value="custom">Egendefinert kurs</SelectItem>
+                  <SelectItem value="custom">Custom course</SelectItem>
                 </SelectContent>
               </Select>
               {selectedCourseInfo && (
@@ -165,22 +161,22 @@ export function TrainingForm({ tenantId, users, courseTemplates, trigger }: Trai
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="title">Kurstittel *</Label>
+            <Label htmlFor="title">Course title *</Label>
             <Input
               id="title"
               name="title"
-              placeholder="F.eks. Førstehjelp grunnkurs"
+              placeholder="E.g. First Aid Basic Course"
               required
               disabled={loading}
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="provider">Kursleverandør *</Label>
+            <Label htmlFor="provider">Course provider *</Label>
             <Input
               id="provider"
               name="provider"
-              placeholder="F.eks. Røde Kors, BHT, Internt"
+              placeholder="E.g. Red Cross, OHS, Internal"
               required
               disabled={loading}
             />
@@ -188,7 +184,7 @@ export function TrainingForm({ tenantId, users, courseTemplates, trigger }: Trai
 
           <div className="grid gap-4 md:grid-cols-2">
             <div className="space-y-2">
-              <Label htmlFor="completedAt">Gjennomført dato</Label>
+              <Label htmlFor="completedAt">Completion date</Label>
               <Input
                 id="completedAt"
                 name="completedAt"
@@ -199,7 +195,7 @@ export function TrainingForm({ tenantId, users, courseTemplates, trigger }: Trai
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="validUntil">Gyldig til</Label>
+              <Label htmlFor="validUntil">Valid until</Label>
               <Input
                 id="validUntil"
                 name="validUntil"
@@ -208,13 +204,13 @@ export function TrainingForm({ tenantId, users, courseTemplates, trigger }: Trai
                 min={new Date().toISOString().split("T")[0]}
               />
               <p className="text-xs text-muted-foreground">
-                La stå tom hvis kurset ikke utløper
+                Leave blank if the course does not expire
               </p>
             </div>
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="proofDoc">Dokumentert bevis (sertifikat)</Label>
+            <Label htmlFor="proofDoc">Certificate / proof of completion</Label>
             <Input
               id="proofDoc"
               name="proofDoc"
@@ -225,11 +221,11 @@ export function TrainingForm({ tenantId, users, courseTemplates, trigger }: Trai
             />
             {selectedFile && (
               <p className="text-sm text-muted-foreground">
-                Valgt: {selectedFile.name}
+                Selected: {selectedFile.name}
               </p>
             )}
             <p className="text-xs text-muted-foreground">
-              Last opp sertifikat, kursbevis eller annet dokumentert bevis
+              Upload certificate, course diploma or other documented proof
             </p>
           </div>
 
@@ -243,18 +239,18 @@ export function TrainingForm({ tenantId, users, courseTemplates, trigger }: Trai
               className="h-4 w-4"
             />
             <Label htmlFor="isRequired" className="font-normal">
-              Obligatorisk kurs for alle ansatte
+              Mandatory course for all employees
             </Label>
           </div>
 
           <Card className="bg-blue-50 border-blue-200">
             <CardContent className="pt-4">
-              <p className="text-sm font-medium text-blue-900 mb-2">📋 ISO 9001 - 7.2 Kompetanse</p>
+              <p className="text-sm font-medium text-blue-900 mb-2">📋 ISO 9001 - 7.2 Competence</p>
               <ul className="text-sm text-blue-800 space-y-1 list-disc list-inside">
-                <li>Dokumenter kompetanse basert på opplæring</li>
-                <li>Last opp sertifikat som bevis</li>
-                <li>Sett utløpsdato for kurs som må fornyes</li>
-                <li>System varsler når kurs skal fornyes</li>
+                <li>Document competence based on training</li>
+                <li>Upload certificate as proof</li>
+                <li>Set expiry date for courses that must be renewed</li>
+                <li>System alerts when courses are due for renewal</li>
               </ul>
             </CardContent>
           </Card>
@@ -266,10 +262,10 @@ export function TrainingForm({ tenantId, users, courseTemplates, trigger }: Trai
               onClick={() => setOpen(false)}
               disabled={loading}
             >
-              Avbryt
+              Cancel
             </Button>
             <Button type="submit" disabled={loading}>
-              {loading ? "Registrerer..." : "Registrer opplæring"}
+              {loading ? "Registering..." : "Register training"}
             </Button>
           </div>
         </form>
@@ -277,4 +273,3 @@ export function TrainingForm({ tenantId, users, courseTemplates, trigger }: Trai
     </Dialog>
   );
 }
-

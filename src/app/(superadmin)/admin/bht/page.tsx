@@ -18,8 +18,8 @@ import {
 import Link from "next/link";
 
 export const metadata = {
-  title: "BHT-administrasjon | HMS Nova",
-  description: "Administrer bedriftshelsetjeneste-kunder",
+  title: "OHS Administration | EHS Nova",
+  description: "Manage occupational health service clients",
 };
 
 export default async function BhtAdminPage() {
@@ -36,7 +36,7 @@ export default async function BhtAdminPage() {
     redirect("/dashboard");
   }
 
-  // Hent alle BHT-kunder med relatert data
+  // Fetch all OHS clients with related data
   const bhtClients = await prisma.bhtClient.findMany({
     include: {
       tenant: {
@@ -80,7 +80,7 @@ export default async function BhtAdminPage() {
     orderBy: { createdAt: "desc" },
   });
 
-  // Statistikk
+  // Statistics
   const currentYear = new Date().getFullYear();
   const activeClients = bhtClients.filter((c) => c.status === "ACTIVE").length;
   const completedAssessments = bhtClients.filter(
@@ -90,7 +90,7 @@ export default async function BhtAdminPage() {
     (c) => c.annualReports[0]?.status === "COMPLETED"
   ).length;
 
-  // Kunder som mangler leveranser i år
+  // Clients missing deliverables this year
   const clientsNeedingAction = bhtClients.filter((c) => {
     if (c.status !== "ACTIVE") return false;
     const hasAssessment = c.assessments[0]?.status === "COMPLETED";
@@ -105,11 +105,11 @@ export default async function BhtAdminPage() {
   function getStatusBadge(status: string) {
     switch (status) {
       case "ACTIVE":
-        return <Badge className="bg-green-500">Aktiv</Badge>;
+        return <Badge className="bg-green-500">Active</Badge>;
       case "PAUSED":
-        return <Badge variant="secondary">Pauset</Badge>;
+        return <Badge variant="secondary">Paused</Badge>;
       case "TERMINATED":
-        return <Badge variant="destructive">Avsluttet</Badge>;
+        return <Badge variant="destructive">Terminated</Badge>;
       default:
         return <Badge variant="outline">{status}</Badge>;
     }
@@ -117,15 +117,15 @@ export default async function BhtAdminPage() {
 
   function getDeliveryStatus(client: (typeof bhtClients)[0]) {
     const items = [
-      { name: "Kartlegging", done: client.assessments[0]?.status === "COMPLETED" },
+      { name: "Assessment", done: client.assessments[0]?.status === "COMPLETED" },
       {
-        name: "AMO/Vernerunde",
+        name: "EHS Committee/Inspection",
         done:
           client.amoMeetings[0]?.status === "COMPLETED" ||
           client.inspections[0]?.status === "COMPLETED",
       },
-      { name: "Eksponering", done: client.exposureAssessments[0]?.status === "COMPLETED" },
-      { name: "Årsrapport", done: client.annualReports[0]?.status === "COMPLETED" },
+      { name: "Exposure", done: client.exposureAssessments[0]?.status === "COMPLETED" },
+      { name: "Annual report", done: client.annualReports[0]?.status === "COMPLETED" },
     ];
     const completed = items.filter((i) => i.done).length;
     return { items, completed, total: items.length };
@@ -138,64 +138,64 @@ export default async function BhtAdminPage() {
         <div>
           <h1 className="text-3xl font-bold tracking-tight flex items-center gap-2">
             <Stethoscope className="h-8 w-8 text-primary" />
-            BHT-administrasjon
+            OHS Administration
           </h1>
           <p className="text-muted-foreground mt-1">
-            Administrer bedriftshelsetjeneste-kunder og leveranser
+            Manage occupational health service clients and deliverables
           </p>
         </div>
         <Button asChild>
           <Link href="/admin/bht/new">
             <Plus className="h-4 w-4 mr-2" />
-            Ny BHT-kunde
+            New OHS client
           </Link>
         </Button>
       </div>
 
-      {/* Statistikk-kort */}
+      {/* Statistics cards */}
       <div className="grid gap-4 md:grid-cols-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Aktive kunder</CardTitle>
+            <CardTitle className="text-sm font-medium">Active clients</CardTitle>
             <Building2 className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{activeClients}</div>
             <p className="text-xs text-muted-foreground">
-              av {bhtClients.length} totalt
+              of {bhtClients.length} total
             </p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Kartlegginger {currentYear}</CardTitle>
+            <CardTitle className="text-sm font-medium">Assessments {currentYear}</CardTitle>
             <ClipboardList className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{completedAssessments}</div>
             <p className="text-xs text-muted-foreground">
-              av {activeClients} fullført
+              of {activeClients} completed
             </p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Årsrapporter {currentYear}</CardTitle>
+            <CardTitle className="text-sm font-medium">Annual reports {currentYear}</CardTitle>
             <FileText className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{completedReports}</div>
             <p className="text-xs text-muted-foreground">
-              av {activeClients} fullført
+              of {activeClients} completed
             </p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Trenger oppfølging</CardTitle>
+            <CardTitle className="text-sm font-medium">Needs follow-up</CardTitle>
             <Calendar className="h-4 w-4 text-orange-500" />
           </CardHeader>
           <CardContent>
@@ -203,32 +203,32 @@ export default async function BhtAdminPage() {
               {clientsNeedingAction.length}
             </div>
             <p className="text-xs text-muted-foreground">
-              kunder mangler leveranser
+              clients missing deliverables
             </p>
           </CardContent>
         </Card>
       </div>
 
-      {/* Intern formulering */}
+      {/* Internal disclaimer */}
       <Card className="bg-blue-50 border-blue-200 dark:bg-blue-950 dark:border-blue-800">
         <CardContent className="pt-4">
           <p className="text-sm text-blue-800 dark:text-blue-200 italic">
-            <strong>Fast intern formulering:</strong> AI benyttes som beslutningsstøtte. 
-            Endelige vurderinger og anbefalinger er faglig vurdert og godkjent av bedriftshelsetjenesten.
+            <strong>Standard internal disclaimer:</strong> AI is used as decision support.
+            Final assessments and recommendations have been professionally reviewed and approved by the occupational health service.
           </p>
         </CardContent>
       </Card>
 
-      {/* Kunder som trenger oppfølging */}
+      {/* Clients needing follow-up */}
       {clientsNeedingAction.length > 0 && (
         <Card className="border-orange-200 dark:border-orange-800">
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-orange-600">
               <Calendar className="h-5 w-5" />
-              Kunder som trenger oppfølging i {currentYear}
+              Clients needing follow-up in {currentYear}
             </CardTitle>
             <CardDescription>
-              Disse kundene har ikke fullført alle leveranser for grunnpakken
+              These clients have not completed all deliverables for the base package
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -245,7 +245,7 @@ export default async function BhtAdminPage() {
                       <div>
                         <p className="font-medium">{client.tenant.name}</p>
                         <p className="text-sm text-muted-foreground">
-                          {client.tenant.industry || "Ukjent bransje"}
+                          {client.tenant.industry || "Unknown industry"}
                         </p>
                       </div>
                     </div>
@@ -257,7 +257,7 @@ export default async function BhtAdminPage() {
                             className={`w-2 h-2 rounded-full ${
                               item.done ? "bg-green-500" : "bg-gray-300"
                             }`}
-                            title={`${item.name}: ${item.done ? "Fullført" : "Mangler"}`}
+                            title={`${item.name}: ${item.done ? "Completed" : "Missing"}`}
                           />
                         ))}
                       </div>
@@ -265,7 +265,7 @@ export default async function BhtAdminPage() {
                         {delivery.completed}/{delivery.total}
                       </span>
                       <Button variant="outline" size="sm" asChild>
-                        <Link href={`/admin/bht/${client.id}`}>Åpne</Link>
+                        <Link href={`/admin/bht/${client.id}`}>Open</Link>
                       </Button>
                     </div>
                   </div>
@@ -276,26 +276,26 @@ export default async function BhtAdminPage() {
         </Card>
       )}
 
-      {/* Alle BHT-kunder */}
+      {/* All OHS clients */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Users className="h-5 w-5" />
-            Alle BHT-kunder
+            All OHS clients
           </CardTitle>
           <CardDescription>
-            Oversikt over alle kunder med BHT-avtale
+            Overview of all clients with OHS agreement
           </CardDescription>
         </CardHeader>
         <CardContent>
           {bhtClients.length === 0 ? (
             <div className="text-center py-8 text-muted-foreground">
               <Stethoscope className="h-12 w-12 mx-auto mb-4 opacity-50" />
-              <p>Ingen BHT-kunder registrert ennå</p>
+              <p>No OHS clients registered yet</p>
               <Button className="mt-4" asChild>
                 <Link href="/admin/bht/new">
                   <Plus className="h-4 w-4 mr-2" />
-                  Legg til første kunde
+                  Add first client
                 </Link>
               </Button>
             </div>
@@ -315,20 +315,20 @@ export default async function BhtAdminPage() {
                           <p className="font-medium">{client.tenant.name}</p>
                           {getStatusBadge(client.status)}
                           <Badge variant="outline">
-                            {client.packageType === "BASIC" ? "Grunnpakke" : "Utvidet"}
+                            {client.packageType === "BASIC" ? "Base package" : "Extended"}
                           </Badge>
                         </div>
                         <div className="flex items-center gap-4 text-sm text-muted-foreground mt-1">
-                          <span>{client.tenant.industry || "Ukjent bransje"}</span>
+                          <span>{client.tenant.industry || "Unknown industry"}</span>
                           {client.tenant.employeeCount && (
-                            <span>{client.tenant.employeeCount} ansatte</span>
+                            <span>{client.tenant.employeeCount} employees</span>
                           )}
-                          <span>Avtale: {new Date(client.contractStartDate).toLocaleDateString("nb-NO")}</span>
+                          <span>Contract: {new Date(client.contractStartDate).toLocaleDateString("en-US")}</span>
                         </div>
                       </div>
                     </div>
                     <div className="flex items-center gap-6">
-                      {/* Leveransestatus */}
+                      {/* Delivery status */}
                       <div className="hidden md:flex items-center gap-2">
                         {delivery.items.map((item, i) => (
                           <div key={i} className="flex items-center gap-1" title={item.name}>
@@ -341,14 +341,14 @@ export default async function BhtAdminPage() {
                         ))}
                       </div>
                       
-                      {/* Rådgivninger i år */}
+                      {/* Consultations this year */}
                       <div className="text-center">
                         <p className="text-lg font-bold">{client.consultations.length}</p>
-                        <p className="text-xs text-muted-foreground">rådgivninger</p>
+                        <p className="text-xs text-muted-foreground">consultations</p>
                       </div>
 
                       <Button variant="outline" asChild>
-                        <Link href={`/admin/bht/${client.id}`}>Administrer</Link>
+                        <Link href={`/admin/bht/${client.id}`}>Manage</Link>
                       </Button>
                     </div>
                   </div>
@@ -361,4 +361,3 @@ export default async function BhtAdminPage() {
     </div>
   );
 }
-

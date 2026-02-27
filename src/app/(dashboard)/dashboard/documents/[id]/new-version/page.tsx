@@ -19,21 +19,15 @@ export default async function NewVersionPage({ params }: { params: Promise<{ id:
 
   const userTenant = user.tenants[0];
   if (!userTenant) {
-    return <div>Ingen tilgang til tenant</div>;
+    return <div>No tenant access</div>;
   }
 
   const document = await prisma.document.findUnique({
     where: { id },
-    include: {
-      versions: {
-        orderBy: { createdAt: "desc" },
-        take: 5,
-      },
-    },
   });
 
   if (!document) {
-    return <div>Dokument ikke funnet</div>;
+    return <div>Document not found</div>;
   }
 
   return (
@@ -42,17 +36,20 @@ export default async function NewVersionPage({ params }: { params: Promise<{ id:
         <Button variant="ghost" asChild className="mb-4">
           <Link href="/dashboard/documents">
             <ArrowLeft className="mr-2 h-4 w-4" />
-            Tilbake til dokumenter
+            Back to Documents
           </Link>
         </Button>
-        <h1 className="text-3xl font-bold">Last opp ny versjon</h1>
+        <h1 className="text-3xl font-bold">Upload New Version</h1>
         <p className="text-muted-foreground">
-          {document.title} - Gjeldende versjon: {document.version}
+          {document.title} - Current version: {document.version}
         </p>
       </div>
 
-      <NewVersionForm document={document} />
+      <NewVersionForm
+        documentId={document.id}
+        currentVersion={document.version}
+        userId={user.id}
+      />
     </div>
   );
 }
-

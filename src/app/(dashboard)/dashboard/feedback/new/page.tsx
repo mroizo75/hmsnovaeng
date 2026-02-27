@@ -45,13 +45,13 @@ export default async function NewFeedbackPage() {
         <Button variant="ghost" asChild className="w-fit">
           <Link href="/dashboard/feedback">
             <ArrowLeft className="mr-2 h-4 w-4" />
-            Tilbake til oversikten
+            Back to overview
           </Link>
         </Button>
         <div>
-          <h1 className="text-3xl font-bold">Registrer kunde-ros</h1>
+          <h1 className="text-3xl font-bold">Register Customer Compliment</h1>
           <p className="text-muted-foreground">
-            Dokumenter positive tilbakemeldinger og koble dem mot mål eller oppfølging.
+            Document positive feedback and link it to goals or follow-up.
           </p>
         </div>
       </div>

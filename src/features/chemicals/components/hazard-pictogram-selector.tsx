@@ -36,7 +36,7 @@ export function HazardPictogramSelector({ defaultValue, onChange }: HazardPictog
 
   return (
     <div className="space-y-4">
-      <Label>Faresymboler (GHS/CLP)</Label>
+      <Label>Hazard Pictograms (GHS/CLP)</Label>
       <input type="hidden" name="warningPictograms" value={JSON.stringify(selected)} />
       
       <div className="grid grid-cols-3 md:grid-cols-5 gap-4">
@@ -70,7 +70,7 @@ export function HazardPictogramSelector({ defaultValue, onChange }: HazardPictog
 
       {selected.length > 0 && (
         <div className="text-sm text-muted-foreground">
-          Valgte: {selected.length} faresymbol{selected.length !== 1 ? "er" : ""}
+          Selected: {selected.length} hazard pictogram{selected.length !== 1 ? "s" : ""}
         </div>
       )}
     </div>

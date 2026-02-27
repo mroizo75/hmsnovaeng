@@ -52,9 +52,9 @@ export default async function TimeRegistrationPage() {
     return (
       <div className="space-y-6">
         <div>
-          <h1 className="text-3xl font-bold">Timeregistrering</h1>
+          <h1 className="text-3xl font-bold">Time Tracking</h1>
           <p className="text-muted-foreground">
-            Prosjekter, timer og kjøring – eksporter til Excel og PDF
+            Projects, hours, and mileage – export to Excel and PDF
           </p>
         </div>
         <TimeRegistrationEnableCard
@@ -76,11 +76,11 @@ export default async function TimeRegistrationPage() {
   if (!overviewData) {
     return (
       <div className="space-y-6">
-        <h1 className="text-3xl font-bold">Timeregistrering</h1>
+        <h1 className="text-3xl font-bold">Time Tracking</h1>
         <Card>
           <CardContent className="py-8">
             <p className="text-muted-foreground text-center">
-              Kunne ikke laste oversikt. Prøv igjen senere.
+              Could not load overview. Please try again later.
             </p>
           </CardContent>
         </Card>
@@ -92,9 +92,9 @@ export default async function TimeRegistrationPage() {
     <div className="space-y-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-3xl font-bold">Timeregistrering</h1>
+          <h1 className="text-3xl font-bold">Time Tracking</h1>
           <p className="text-muted-foreground">
-            Prosjekter, timer og kjøring – eksporter til Excel og PDF for regnskap
+            Projects, hours, and mileage – export to Excel and PDF for accounting
           </p>
         </div>
         <ReportExportDropdown />
@@ -104,9 +104,9 @@ export default async function TimeRegistrationPage() {
         <>
           <Card>
             <CardHeader>
-              <CardTitle className="text-lg">Prosjekter</CardTitle>
+              <CardTitle className="text-lg">Projects</CardTitle>
               <CardDescription>
-                Admin kan opprette og redigere prosjekter. Ansatte registrerer timer og kjøring.
+                Admin can create and edit projects. Employees register hours and mileage.
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -129,10 +129,10 @@ export default async function TimeRegistrationPage() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Clock className="h-5 w-5" />
-            Registrer timer
+            Register Hours
           </CardTitle>
           <CardDescription>
-            Skriv kun timer og reise – ordinær og overtid beregnes automatisk
+            Enter hours and travel only – regular and overtime are calculated automatically
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -149,10 +149,10 @@ export default async function TimeRegistrationPage() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Car className="h-5 w-5" />
-            Km godtgjørelse
+            Mileage Reimbursement
           </CardTitle>
           <CardDescription>
-            Kilometer og sats – beløp beregnes automatisk for refusjon
+            Miles and rate – amount calculated automatically for reimbursement
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -166,9 +166,9 @@ export default async function TimeRegistrationPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Oversikt</CardTitle>
+          <CardTitle>Overview</CardTitle>
           <CardDescription>
-            Alle registreringer – filter på periode, prosjekt og ansatt
+            All entries – filter by period, project, and employee
           </CardDescription>
         </CardHeader>
         <CardContent>

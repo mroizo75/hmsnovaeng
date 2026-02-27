@@ -65,7 +65,7 @@ export default async function MeasureDetailPage({
         <Button variant="ghost" asChild className="mb-4">
           <Link href={backUrl}>
             <ArrowLeft className="mr-2 h-4 w-4" />
-            {measure.riskId ? "Tilbake til risikovurdering" : "Tilbake til tiltak"}
+            {measure.riskId ? "Back to risk assessment" : "Back to actions"}
           </Link>
         </Button>
         <div className="flex flex-wrap items-center gap-3">
@@ -76,7 +76,7 @@ export default async function MeasureDetailPage({
         </div>
         {measure.risk && (
           <p className="text-muted-foreground mt-1">
-            Knyttet til risiko: {measure.risk.title}
+            Linked to risk: {measure.risk.title}
           </p>
         )}
       </div>

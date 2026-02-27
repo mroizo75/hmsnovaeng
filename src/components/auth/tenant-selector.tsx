@@ -27,12 +27,12 @@ interface TenantSelectorProps {
 function getRoleLabel(role: string): string {
   const labels: Record<string, string> = {
     ADMIN: "Administrator",
-    HMS: "HMS-ansvarlig",
-    LEDER: "Leder",
-    VERNEOMBUD: "Verneombud",
-    ANSATT: "Ansatt",
-    BHT: "Bedriftshelsetjeneste",
-    REVISOR: "Revisor",
+    HMS: "EHS Coordinator",
+    LEDER: "Manager",
+    VERNEOMBUD: "Safety Representative",
+    ANSATT: "Employee",
+    BHT: "Occupational Health Service",
+    REVISOR: "Auditor",
   };
   return labels[role] || role;
 }
@@ -49,10 +49,10 @@ function getStatusColor(status: string): string {
 
 function getStatusLabel(status: string): string {
   const labels: Record<string, string> = {
-    ACTIVE: "Aktiv",
-    TRIAL: "Prøveperiode",
-    SUSPENDED: "Suspendert",
-    CANCELLED: "Kansellert",
+    ACTIVE: "Active",
+    TRIAL: "Trial period",
+    SUSPENDED: "Suspended",
+    CANCELLED: "Cancelled",
   };
   return labels[status] || status;
 }
@@ -75,15 +75,15 @@ export function TenantSelector({ userId, tenants, lastTenantId }: TenantSelector
       });
 
       if (!response.ok) {
-        throw new Error("Kunne ikke bytte bedrift");
+        throw new Error("Could not switch company");
       }
 
-      // Refresh session og redirect
+      // Refresh session and redirect
       window.location.href = "/dashboard";
     } catch (error) {
       toast({
-        title: "Feil",
-        description: error instanceof Error ? error.message : "Kunne ikke bytte bedrift",
+        title: "Error",
+        description: error instanceof Error ? error.message : "Could not switch company",
         variant: "destructive",
       });
       setLoading(false);
@@ -94,9 +94,9 @@ export function TenantSelector({ userId, tenants, lastTenantId }: TenantSelector
   return (
     <Card className="w-full max-w-3xl">
       <CardHeader>
-        <CardTitle className="text-2xl">Velg bedrift</CardTitle>
+        <CardTitle className="text-2xl">Select company</CardTitle>
         <CardDescription>
-          Du har tilgang til flere bedrifter. Velg hvilken bedrift du vil jobbe med.
+          You have access to multiple companies. Select which company you want to work with.
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -123,7 +123,7 @@ export function TenantSelector({ userId, tenants, lastTenantId }: TenantSelector
                       {lastTenantId === tenant.id && (
                         <Badge variant="outline" className="text-xs">
                           <CheckCircle2 className="h-3 w-3 mr-1" />
-                          Sist brukt
+                          Last used
                         </Badge>
                       )}
                     </div>
@@ -138,7 +138,7 @@ export function TenantSelector({ userId, tenants, lastTenantId }: TenantSelector
                       {tenant.employeeCount && (
                         <Badge variant="outline" className="text-xs">
                           <Users className="h-3 w-3 mr-1" />
-                          {tenant.employeeCount} ansatte
+                          {tenant.employeeCount} employees
                         </Badge>
                       )}
                       {tenant.industry && (
