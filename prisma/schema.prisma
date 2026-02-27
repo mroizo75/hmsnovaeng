@@ -244,6 +244,33 @@ model Tenant {
   navigationItems  NavigationItem[] // Meny-konfigurasjoner
   simpleMenuItems  Json?            // Hrefs som vises i enkel meny (null = standard)
   hmsAnnualPlanCompletions HmsAnnualPlanCompletion[] // Avkryssing av årlig HMS-plan (sjekkliste)
+
+  // ---- USA Market (EHS / OSHA) ----
+  market                   Market    @default(NO)
+  usState                  String?   // Two-letter state code: "CA", "TX", "NY"
+  naicsCode                String?   // NAICS industry code for OSHA standard mapping
+  osha300Enabled           Boolean   @default(false) // Required for employers with >10 employees
+  totalHoursWorkedYtd      Float?    // Year-to-date total hours worked (TRIR denominator)
+  avgEmployeeCount         Float?    // Average employee count this year (for 300A)
+  oshaLogs                 OshaLog[]
+  ppeAssessments           PpeAssessment[]
+  ppeAssignments           PpeAssignment[]
+  emergencyActionPlans     EmergencyActionPlan[]
+  toolboxTalks             ToolboxTalk[]
+  lotoPrograms             LotoProgram[]
+  fallProtectionPrograms   FallProtectionProgram[]
+  competentPersons         CompetentPerson[]
+  confinedSpaces           ConfinedSpace[]
+  bloodbornePrograms       BloodbornePathogenProgram[]
+  workersCompClaims        WorkersCompClaim[]
+  emrHistory               EmrHistory[]
+  // Phase 3 — Enterprise & Industry
+  dotDrivers               DotDriver[]
+  dotVehicleInspections    DotVehicleInspection[]
+  dotDrugTests             DotDrugTest[]
+  dotViolations            DotViolation[]
+  ihPrograms               IhMonitoringProgram[]
+  insurancePolicies        InsurancePolicy[]
   // Timeregistrering (prosjekter, timer, kjøring)
   timeRegistrationEnabled Boolean   @default(false) // Aktiver modul per tenant
   weeklyHoursNorm         Float     @default(37.5)  // Ordinær uke (timer)
@@ -1455,6 +1482,21 @@ model Incident {
   lostTimeMinutes     Int?
   riskReferenceId     String?
   measureEffectiveness ActionEffectiveness? @default(NOT_EVALUATED)
+
+  // ---- OSHA Recordkeeping (29 CFR 1904) ----
+  oshaRecordable        Boolean              @default(false)
+  oshaClassification    OshaClassification?
+  daysAwayFromWork      Int?
+  daysOnRestriction     Int?
+  daysOnTransfer        Int?
+  bodyPartAffected      String?
+  natureOfInjury        String?
+  eventType             OshaEventType?
+  illnessType           OshaIllnessType?
+  privacyCaseFlag       Boolean              @default(false)
+  osha300LogYear        Int?
+  osha301CompletedAt    DateTime?
+
   createdAt           DateTime     @default(now())
   updatedAt           DateTime     @updatedAt
 
@@ -1472,6 +1514,8 @@ model Incident {
   @@index([severity])
   @@index([responsibleId])
   @@index([riskReferenceId])
+  @@index([oshaRecordable])
+  @@index([osha300LogYear])
 }
 
 enum IncidentType {
@@ -1519,6 +1563,14 @@ model Training {
   effectiveness   String?   @db.Text // ISO 9001: Evaluering av effektivitet
   evaluatedBy     String?
   evaluatedAt     DateTime?
+
+  // ---- OSHA Training fields ----
+  certificationBody    String?   // "OSHA", "NFPA", "ANSI", "Red Cross"
+  oshaStandard         String?   // e.g. "29 CFR 1926.503"
+  instructorName       String?
+  instructorCredential String?
+  digitalSignature     String?   @db.Text // Signature blob (base64)
+
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
 
@@ -1771,7 +1823,13 @@ model Chemical {
   autoSuggestedAlternatives String? @db.Text // JSON array av foreslåtte alternativer
   lastEchaSync     DateTime?       // Sist synkronisert med ECHA
   aiExtractedData  String?         @db.Text // JSON med AI-ekstraherte data fra SDS
-  
+
+  // ---- HazCom 2012 / GHS (29 CFR 1910.1200) ----
+  ghsSignalWord              GhsSignalWord?
+  sdsAccessLocation          String?         // Physical SDS access point at worksite
+  employeeExposureDocumented Boolean         @default(false)
+  hazcomTrainingRequired     Boolean         @default(false)
+
   createdAt        DateTime        @default(now())
   updatedAt        DateTime        @updatedAt
 
@@ -3084,4 +3142,738 @@ model NavigationItem {
   @@index([tenantId])
   @@index([isActive])
   @@index([order])
+}
+
+// ============================================
+// USA EHS / OSHA Compliance Models
+// ============================================
+
+/// OSHA 300 Annual Log Summary (29 CFR 1904.32)
+model OshaLog {
+  id                   String    @id @default(cuid())
+  tenantId             String
+  year                 Int
+  totalHoursWorked     Float
+  avgEmployeeCount     Float
+  totalDeaths          Int       @default(0)
+  totalDaysAway        Int       @default(0)
+  totalRestricted      Int       @default(0)
+  totalTransfer        Int       @default(0)
+  totalOtherRecordable Int       @default(0)
+  totalInjuries        Int       @default(0)
+  totalSkinDisorders   Int       @default(0)
+  totalRespiratoryConditions Int @default(0)
+  totalPoisonings      Int       @default(0)
+  totalHearingLoss     Int       @default(0)
+  totalOtherIllnesses  Int       @default(0)
+  trir                 Float?
+  dartRate             Float?
+  ltir                 Float?
+  severityRate         Float?
+  postedAt             DateTime?
+  postedBy             String?
+  certifiedAt          DateTime?
+  certifiedBy          String?
+  certifiedTitle       String?
+  createdAt            DateTime  @default(now())
+  updatedAt            DateTime  @updatedAt
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@unique([tenantId, year])
+  @@index([tenantId])
+  @@index([year])
+}
+
+/// PPE Hazard Assessment per work area/job title (29 CFR 1910.132)
+model PpeAssessment {
+  id            String    @id @default(cuid())
+  tenantId      String
+  workArea      String
+  jobTitle      String?
+  hazardsFound  Json      // Array of { hazard: string, type: string }
+  ppeRequired   Json      // Array of { type: string, spec: string }
+  assessedBy    String    // userId
+  assessedAt    DateTime
+  reviewDue     DateTime?
+  signature     String?   @db.Text
+  notes         String?   @db.Text
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  tenant      Tenant          @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  assignments PpeAssignment[]
+
+  @@index([tenantId])
+  @@index([assessedAt])
+  @@index([reviewDue])
+}
+
+/// PPE issuance and inspection record per employee (29 CFR 1910.132)
+model PpeAssignment {
+  id             String            @id @default(cuid())
+  tenantId       String
+  assessmentId   String?
+  userId         String
+  ppeType        String            // "Hard Hat", "Safety Glasses", "Harness", etc.
+  manufacturer   String?
+  model          String?
+  serialNumber   String?
+  size           String?
+  issuedDate     DateTime
+  issuedBy       String
+  lastInspected  DateTime?
+  inspectedBy    String?
+  condition      PpeItemCondition  @default(GOOD)
+  removedDate    DateTime?
+  removedReason  String?
+  signedAt       DateTime?
+  signature      String?           @db.Text
+  notes          String?
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
+
+  tenant     Tenant         @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  assessment PpeAssessment? @relation(fields: [assessmentId], references: [id], onDelete: SetNull)
+
+  @@index([tenantId])
+  @@index([userId])
+  @@index([assessmentId])
+  @@index([condition])
+  @@index([lastInspected])
+}
+
+/// Emergency Action Plan (29 CFR 1910.38)
+model EmergencyActionPlan {
+  id                String          @id @default(cuid())
+  tenantId          String
+  locationName      String
+  effectiveDate     DateTime
+  reviewedAt        DateTime?
+  reviewedBy        String?
+  alarmSystem       String?
+  evacuationRoutes  Json            // Array of { route: string, mapKey?: string }
+  assemblyPoints    Json            // Array of { name: string, description: string }
+  emergencyContacts Json            // Array of { name, role, phone, agency? }
+  roles             Json            // Array of { role: string, userId?: string, name: string, responsibilities: string }
+  equipment         Json            // Array of { type: string, location: string, lastInspected?: date }
+  medicalFacility   String?
+  notes             String?         @db.Text
+  drills            EmergencyDrill[]
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId])
+  @@index([effectiveDate])
+}
+
+/// Emergency drill / exercise log (29 CFR 1910.38(e))
+model EmergencyDrill {
+  id            String              @id @default(cuid())
+  planId        String
+  drillType     String              // "Fire Evacuation", "Shelter-in-Place", "Active Threat"
+  conductedAt   DateTime
+  durationMin   Int?
+  participantCount Int?
+  conductedBy   String
+  findings      String?             @db.Text
+  correctiveActions String?         @db.Text
+  createdAt     DateTime            @default(now())
+
+  plan EmergencyActionPlan @relation(fields: [planId], references: [id], onDelete: Cascade)
+
+  @@index([planId])
+  @@index([conductedAt])
+}
+
+/// Toolbox Talk daily/weekly safety meeting record
+model ToolboxTalk {
+  id           String              @id @default(cuid())
+  tenantId     String
+  title        String
+  topic        String
+  content      String              @db.Text
+  conductedAt  DateTime
+  conductedBy  String              // userId
+  location     String?
+  projectId    String?
+  notes        String?             @db.Text
+  createdAt    DateTime            @default(now())
+  updatedAt    DateTime            @updatedAt
+
+  tenant      Tenant               @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  attendances ToolboxAttendance[]
+
+  @@index([tenantId])
+  @@index([conductedAt])
+  @@index([conductedBy])
+}
+
+/// Attendee sign-in record for a Toolbox Talk
+model ToolboxAttendance {
+  id        String      @id @default(cuid())
+  talkId    String
+  userId    String?     // Registered user (nullable for guests)
+  guestName String?     // Name for non-system users
+  signedAt  DateTime?
+  signature String?     @db.Text
+
+  talk ToolboxTalk @relation(fields: [talkId], references: [id], onDelete: Cascade)
+
+  @@index([talkId])
+  @@index([userId])
+}
+
+// ============================================
+// USA EHS Enums
+// ============================================
+
+enum Market {
+  NO  // Norwegian market (default)
+  US  // United States market
+}
+
+enum OshaClassification {
+  FATALITY
+  DAYS_AWAY
+  RESTRICTED_WORK
+  JOB_TRANSFER
+  OTHER_RECORDABLE
+  FIRST_AID_ONLY
+}
+
+enum OshaEventType {
+  INJURY
+  ILLNESS
+}
+
+enum OshaIllnessType {
+  SKIN_DISORDER
+  RESPIRATORY_CONDITION
+  POISONING
+  HEARING_LOSS
+  ALL_OTHER_ILLNESSES
+}
+
+enum GhsSignalWord {
+  DANGER
+  WARNING
+}
+
+enum PpeItemCondition {
+  GOOD
+  NEEDS_SERVICE
+  REMOVED_FROM_SERVICE
+}
+
+// ============================================
+// USA EHS Phase 2 Models
+// ============================================
+
+/// Lockout / Tagout Energy Control Program (29 CFR 1910.147)
+model LotoProgram {
+  id            String          @id @default(cuid())
+  tenantId      String
+  programName   String
+  effectiveDate DateTime
+  scope         String          @db.Text
+  reviewedAt    DateTime?
+  reviewedBy    String?
+  reviewedTitle String?
+  notes         String?         @db.Text
+  procedures    LotoProcedure[]
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId])
+  @@index([effectiveDate])
+}
+
+/// Machine-specific LOTO procedure (29 CFR 1910.147(c)(4))
+model LotoProcedure {
+  id               String      @id @default(cuid())
+  programId        String
+  equipmentName    String
+  equipmentId      String?
+  location         String?
+  energySources    Json        // Array of { type: string, magnitude: string, location: string }
+  steps            Json        // Array of { stepNumber: int, action: string, responsible: string }
+  authorizedUsers  Json        // Array of userId strings
+  annualReviewAt   DateTime?
+  annualReviewedBy String?
+  notes            String?     @db.Text
+  createdAt        DateTime    @default(now())
+  updatedAt        DateTime    @updatedAt
+
+  program LotoProgram @relation(fields: [programId], references: [id], onDelete: Cascade)
+
+  @@index([programId])
+  @@index([equipmentName])
+  @@index([annualReviewAt])
+}
+
+/// Fall Protection Program (29 CFR 1926.502 / 29 CFR 1910.28)
+model FallProtectionProgram {
+  id            String             @id @default(cuid())
+  tenantId      String
+  effectiveDate DateTime
+  reviewedAt    DateTime?
+  reviewedBy    String?
+  hazards       Json               // Array of { hazard: string, location: string, height: string }
+  controls      Json               // Array of { type: string, description: string }
+  rescuePlan    String?            @db.Text
+  notes         String?            @db.Text
+  equipmentLogs FallEquipmentLog[]
+  createdAt     DateTime           @default(now())
+  updatedAt     DateTime           @updatedAt
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId])
+  @@index([effectiveDate])
+}
+
+/// Fall protection equipment inspection log (29 CFR 1926.502(d))
+model FallEquipmentLog {
+  id            String                @id @default(cuid())
+  programId     String
+  equipmentType String                // "Full Body Harness", "Lanyard", "Self-Retracting Lifeline", "Anchor Point"
+  manufacturer  String?
+  serialNumber  String?
+  lastInspected DateTime
+  inspectedBy   String
+  condition     PpeItemCondition      @default(GOOD)
+  removalDate   DateTime?
+  notes         String?
+  createdAt     DateTime              @default(now())
+
+  program FallProtectionProgram @relation(fields: [programId], references: [id], onDelete: Cascade)
+
+  @@index([programId])
+  @@index([lastInspected])
+  @@index([condition])
+}
+
+/// Competent Person designation register (required by multiple OSHA standards)
+model CompetentPerson {
+  id              String    @id @default(cuid())
+  tenantId        String
+  userId          String
+  designation     String    // e.g. "Excavation Competent Person", "Scaffold Competent Person"
+  oshaStandard    String    // e.g. "29 CFR 1926.650", "29 CFR 1926.451"
+  qualifications  Json      // Array of { type: string, description: string, dateObtained?: date }
+  effectiveDate   DateTime
+  expiresAt       DateTime?
+  designatedBy    String
+  isActive        Boolean   @default(true)
+  notes           String?   @db.Text
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId])
+  @@index([userId])
+  @@index([isActive])
+  @@index([expiresAt])
+}
+
+/// Confined Space inventory (29 CFR 1910.146)
+model ConfinedSpace {
+  id             String               @id @default(cuid())
+  tenantId       String
+  spaceName      String
+  location       String
+  permitRequired Boolean              @default(true)
+  hazards        Json                 // Array of { type: string, description: string }
+  dimensions     String?
+  entryPoints    String?
+  lastEvaluated  DateTime?
+  evaluatedBy    String?
+  notes          String?              @db.Text
+  isActive       Boolean              @default(true)
+  createdAt      DateTime             @default(now())
+  updatedAt      DateTime             @updatedAt
+
+  tenant       Tenant                @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  entryPermits ConfinedSpacePermit[]
+
+  @@index([tenantId])
+  @@index([permitRequired])
+  @@index([isActive])
+}
+
+/// Confined Space Entry Permit (29 CFR 1910.146(f))
+model ConfinedSpacePermit {
+  id                 String       @id @default(cuid())
+  spaceId            String
+  permitNumber       String
+  status             PermitStatus @default(OPEN)
+  issuedAt           DateTime
+  expiresAt          DateTime
+  closedAt           DateTime?
+  cancelledReason    String?
+  authorizedEntrants Json         // Array of { name: string, userId?: string }
+  attendants         Json         // Array of { name: string, userId?: string }
+  supervisors        Json         // Array of { name: string, userId?: string }
+  hazardsIdentified  Json         // Array of { hazard: string, control: string }
+  atmosphericTests   Json         // Array of { gas: string, reading: string, acceptable: string, testedAt: DateTime, testedBy: string }
+  equipmentRequired  Json         // Array of { item: string, checked: boolean }
+  rescueProcedures   String?      @db.Text
+  notes              String?      @db.Text
+  createdAt          DateTime     @default(now())
+  updatedAt          DateTime     @updatedAt
+
+  space ConfinedSpace @relation(fields: [spaceId], references: [id], onDelete: Cascade)
+
+  @@index([spaceId])
+  @@index([status])
+  @@index([issuedAt])
+  @@index([permitNumber])
+}
+
+/// Bloodborne Pathogen Exposure Control Plan (29 CFR 1910.1030)
+model BloodbornePathogenProgram {
+  id                   String                  @id @default(cuid())
+  tenantId             String
+  effectiveDate        DateTime
+  reviewedAt           DateTime?
+  reviewedBy           String?
+  exposedPositions     Json                    // Array of { jobTitle: string, tasks: string[] }
+  engineeringControls  Json                    // Array of { control: string, location: string }
+  workPracticeControls Json                    // Array of string
+  ppe                  Json                    // Array of { item: string, when: string }
+  decontaminationPlan  String?                 @db.Text
+  wasteDisposalPlan    String?                 @db.Text
+  notes                String?                 @db.Text
+  vaccinationRecords   BbpVaccinationRecord[]
+  createdAt            DateTime                @default(now())
+  updatedAt            DateTime                @updatedAt
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId])
+  @@index([effectiveDate])
+}
+
+/// Hepatitis B vaccination record per employee (29 CFR 1910.1030(f))
+model BbpVaccinationRecord {
+  id          String              @id @default(cuid())
+  programId   String
+  userId      String
+  status      HepBVaccineStatus
+  offeredAt   DateTime
+  respondedAt DateTime?
+  notes       String?
+  createdAt   DateTime            @default(now())
+  updatedAt   DateTime            @updatedAt
+
+  program BloodbornePathogenProgram @relation(fields: [programId], references: [id], onDelete: Cascade)
+
+  @@index([programId])
+  @@index([userId])
+  @@index([status])
+}
+
+/// Workers' Compensation claim record
+model WorkersCompClaim {
+  id               String           @id @default(cuid())
+  tenantId         String
+  incidentId       String?
+  claimNumber      String
+  carrierName      String
+  claimantName     String
+  injuryDate       DateTime
+  reportedDate     DateTime
+  status           WorkersCompStatus @default(OPEN)
+  reserveAmount    Float?
+  paidAmount       Float?
+  lostWorkDays     Int?
+  returnToWorkDate DateTime?
+  closedAt         DateTime?
+  adjusterName     String?
+  adjusterPhone    String?
+  notes            String?          @db.Text
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId])
+  @@index([status])
+  @@index([injuryDate])
+  @@index([claimNumber])
+  @@index([incidentId])
+}
+
+/// Experience Modification Rate (EMR) history for insurance tracking
+model EmrHistory {
+  id         String   @id @default(cuid())
+  tenantId   String
+  year       Int
+  emrValue   Float
+  carrier    String?
+  notes      String?
+  recordedAt DateTime @default(now())
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@unique([tenantId, year])
+  @@index([tenantId])
+  @@index([year])
+}
+
+// ============================================
+// USA EHS Phase 2 Enums
+// ============================================
+
+enum WorkersCompStatus {
+  OPEN
+  CLOSED
+  DISPUTED
+  SETTLED
+}
+
+enum PermitStatus {
+  OPEN
+  CLOSED
+  CANCELLED
+}
+
+enum HepBVaccineStatus {
+  OFFERED
+  ACCEPTED
+  DECLINED
+  COMPLETED
+}
+
+// ============================================
+// USA EHS Phase 3 — Enterprise & Industry
+// ============================================
+
+/// DOT driver qualification file (49 CFR 391)
+model DotDriver {
+  id                     String    @id @default(cuid())
+  tenantId               String
+  employeeName           String
+  employeeId             String?
+  cdlNumber              String?
+  cdlClass               String?   // A, B, C
+  cdlState               String?
+  cdlExpires             DateTime?
+  medicalCertExpires     DateTime?
+  hireDate               DateTime?
+  terminatedAt           DateTime?
+  isActive               Boolean   @default(true)
+  drugTestingEnrolled    Boolean   @default(true)
+  hazmatEndorsement      Boolean   @default(false)
+  notes                  String?   @db.Text
+  createdAt              DateTime  @default(now())
+  updatedAt              DateTime  @updatedAt
+
+  tenant     Tenant         @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  drugTests  DotDrugTest[]
+  violations DotViolation[]
+
+  @@index([tenantId])
+  @@index([cdlExpires])
+  @@index([medicalCertExpires])
+  @@index([isActive])
+}
+
+/// DOT vehicle inspection record (49 CFR 396)
+model DotVehicleInspection {
+  id          String            @id @default(cuid())
+  tenantId    String
+  vehicleUnit String
+  vin         String?
+  inspType    DotInspectionType
+  inspectedAt DateTime
+  inspectedBy String
+  passed      Boolean
+  defects     Json?
+  odometer    Int?
+  nextDue     DateTime?
+  notes       String?           @db.Text
+  documentKey String?           // R2 key for inspection report
+  createdAt   DateTime          @default(now())
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId])
+  @@index([vehicleUnit])
+  @@index([nextDue])
+  @@index([inspType])
+}
+
+/// DOT drug & alcohol test record (49 CFR 382)
+model DotDrugTest {
+  id              String        @id @default(cuid())
+  tenantId        String
+  driverId        String
+  testType        DotTestType
+  testedAt        DateTime
+  result          DotTestResult
+  substanceTested String?
+  specimenId      String?
+  mroName         String?
+  collectionSite  String?
+  notes           String?       @db.Text
+  createdAt       DateTime      @default(now())
+
+  tenant Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  driver DotDriver @relation(fields: [driverId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId])
+  @@index([driverId])
+  @@index([testType])
+  @@index([testedAt])
+  @@index([result])
+}
+
+/// DOT violation / out-of-service record
+model DotViolation {
+  id              String    @id @default(cuid())
+  tenantId        String
+  driverId        String?
+  vehicleUnit     String?
+  violationDate   DateTime
+  violationType   String
+  regulationCited String?
+  severity        String?
+  fineAmount      Decimal?  @db.Decimal(10, 2)
+  resolvedAt      DateTime?
+  notes           String?   @db.Text
+  createdAt       DateTime  @default(now())
+
+  tenant Tenant     @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  driver DotDriver? @relation(fields: [driverId], references: [id])
+
+  @@index([tenantId])
+  @@index([driverId])
+  @@index([violationDate])
+}
+
+/// Industrial Hygiene monitoring program (tracks a specific agent/hazard)
+model IhMonitoringProgram {
+  id           String       @id @default(cuid())
+  tenantId     String
+  programName  String
+  hazardType   IhHazardType
+  agentName    String
+  oshaStandard String?
+  pel          Float?       // Permissible Exposure Limit
+  al           Float?       // Action Level
+  stel         Float?       // Short-Term Exposure Limit
+  unit         String?      // mg/m3, ppm, dBA, etc.
+  frequency    String?      // quarterly, annual, etc.
+  isActive     Boolean      @default(true)
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+
+  tenant  Tenant             @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  samples IhExposureSample[]
+
+  @@index([tenantId])
+  @@index([hazardType])
+  @@index([isActive])
+}
+
+/// Individual exposure measurement / sample
+model IhExposureSample {
+  id           String   @id @default(cuid())
+  programId    String
+  sampledAt    DateTime
+  sampledBy    String
+  employeeName String?
+  jobTitle     String?
+  workArea     String
+  sampleType   String   // personal, area, bulk
+  result       Float
+  exceedsPel   Boolean  @default(false)
+  exceedsAl    Boolean  @default(false)
+  labName      String?
+  labSampleId  String?
+  reportKey    String?  // R2 key for lab report
+  notes        String?  @db.Text
+  createdAt    DateTime @default(now())
+
+  program IhMonitoringProgram @relation(fields: [programId], references: [id], onDelete: Cascade)
+
+  @@index([programId])
+  @@index([sampledAt])
+  @@index([exceedsPel])
+}
+
+/// Insurance policy record
+model InsurancePolicy {
+  id             String    @id @default(cuid())
+  tenantId       String
+  carrier        String
+  policyNumber   String
+  policyType     String    // workers_comp, general_liability, property, umbrella, auto
+  effectiveDate  DateTime
+  expirationDate DateTime
+  premiumAmount  Decimal?  @db.Decimal(12, 2)
+  deductible     Decimal?  @db.Decimal(12, 2)
+  coverageLimit  Decimal?  @db.Decimal(15, 2)
+  agentName      String?
+  agentPhone     String?
+  agentEmail     String?
+  isActive       Boolean   @default(true)
+  documentKey    String?   // R2 key for policy document
+  notes          String?   @db.Text
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId])
+  @@index([expirationDate])
+  @@index([policyType])
+  @@index([isActive])
+}
+
+// ============================================
+// Phase 3 Enums
+// ============================================
+
+enum DotInspectionType {
+  PRE_TRIP
+  POST_TRIP
+  ANNUAL
+  ROADSIDE
+  MAINTENANCE
+}
+
+enum DotTestType {
+  PRE_EMPLOYMENT
+  RANDOM
+  POST_ACCIDENT
+  REASONABLE_SUSPICION
+  RETURN_TO_DUTY
+  FOLLOW_UP
+}
+
+enum DotTestResult {
+  NEGATIVE
+  POSITIVE
+  REFUSED
+  CANCELLED
+  INVALID
+}
+
+enum IhHazardType {
+  CHEMICAL
+  NOISE
+  HEAT
+  RADIATION
+  BIOLOGICAL
+  ERGONOMIC
+  DUST
+  VIBRATION
 }

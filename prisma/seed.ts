@@ -1733,6 +1733,805 @@ async function main() {
     console.log("ℹ️  Database already has data — demo records skipped to protect existing data");
   }
 
+  // ============================================================
+  // PHASE 1 — OSHA Recordkeeping
+  // ============================================================
+  const oshaLogExists = await prisma.oshaLog.count({ where: { tenantId: tenant.id } });
+  if (oshaLogExists === 0) {
+    const oshaLog = await prisma.oshaLog.create({
+      data: {
+        tenantId: tenant.id,
+        year: new Date().getFullYear(),
+        totalHoursWorked: 48000,
+        avgEmployeeCount: 24,
+        totalDeaths: 0,
+        totalDaysAway: 3,
+        totalRestricted: 2,
+        totalTransfer: 1,
+        totalOtherRecordable: 1,
+        totalInjuries: 5,
+        totalSkinDisorders: 0,
+        totalRespiratoryConditions: 1,
+        totalPoisonings: 0,
+        totalHearingLoss: 0,
+        totalOtherIllnesses: 0,
+        trir: 2.08,
+        dartRate: 2.50,
+        ltir: 1.25,
+        severityRate: 12.5,
+      },
+    });
+    console.log("✅ OSHA Log created:", oshaLog.year);
+  } else {
+    console.log("ℹ️  OSHA Log already exists — skipping");
+  }
+
+  // ============================================================
+  // PHASE 1 — Emergency Action Plan
+  // ============================================================
+  const eapExists = await prisma.emergencyActionPlan.count({ where: { tenantId: tenant.id } });
+  if (eapExists === 0) {
+    const eap = await prisma.emergencyActionPlan.create({
+      data: {
+        tenantId: tenant.id,
+        locationName: "Denver Production Facility",
+        effectiveDate: new Date(`${new Date().getFullYear()}-01-01`),
+        reviewedAt: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
+        reviewedBy: ehs.id,
+        alarmSystem: "Honeywell fire/evacuation alarm system — audible horn + strobe lights throughout facility",
+        medicalFacility: "St. Joseph Hospital, 1375 E 19th Ave, Denver, CO — 4 min drive",
+        evacuationRoutes: [
+          { route: "Production Floor → Emergency Exit A → Assembly Point 1", mapKey: "Route A" },
+          { route: "Office Area → Main Entrance → Assembly Point 2", mapKey: "Route B" },
+          { route: "Warehouse → Loading Dock Exit → Assembly Point 1", mapKey: "Route C" },
+        ],
+        assemblyPoints: [
+          { name: "Assembly Point 1 — North Parking Lot", description: "Primary assembly point for production and warehouse staff. Marked with green assembly sign." },
+          { name: "Assembly Point 2 — Front Entrance", description: "Secondary assembly for office personnel. At least 300 ft from building." },
+        ],
+        emergencyContacts: [
+          { name: "Michael Torres", role: "Emergency Coordinator / EHS Manager", phone: "720-555-0201", agency: "Internal" },
+          { name: "Jennifer Walker", role: "Backup Emergency Coordinator", phone: "720-555-0202", agency: "Internal" },
+          { name: "Denver Fire Dept.", role: "Fire Emergency", phone: "911", agency: "City of Denver" },
+          { name: "Poison Control Center", role: "Chemical Exposure", phone: "1-800-222-1222", agency: "National" },
+        ],
+        roles: [
+          { role: "Emergency Coordinator", name: "Michael Torres", responsibilities: "Activate EAP, coordinate evacuation, communicate with emergency services" },
+          { role: "Floor Warden — Production", name: "David Chen", responsibilities: "Direct production floor evacuation, confirm headcount at assembly point" },
+          { role: "Floor Warden — Office", name: "Sarah Mitchell", responsibilities: "Sweep office area, confirm evacuation complete" },
+        ],
+        equipment: [
+          { type: "Fire Extinguisher", location: "Every 75 ft per OSHA 1910.157", lastInspected: new Date(Date.now() - 14 * 24 * 60 * 60 * 1000).toISOString() },
+          { type: "First Aid Kit", location: "Break Room, Production Floor, Warehouse", lastInspected: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString() },
+          { type: "AED", location: "Main lobby wall near front entrance" },
+          { type: "Eye Wash Station", location: "Chemical Storage Area and Maintenance Shop" },
+        ],
+        notes: "All employees must participate in at least one evacuation drill per year. Contractor personnel must be briefed on EAP before beginning work.",
+      },
+    });
+
+    await prisma.emergencyDrill.create({
+      data: {
+        planId: eap.id,
+        drillType: "fire",
+        conductedAt: new Date(Date.now() - 60 * 24 * 60 * 60 * 1000),
+        durationMin: 7,
+        participantCount: 22,
+        conductedBy: ehs.id,
+        findings: "All employees evacuated successfully. Two employees initially used an incorrect exit — additional signage installed. Assembly point headcount completed in 4 min.",
+        correctiveActions: "Added additional exit direction signage in Aisle C. Updated floor warden contact list.",
+      },
+    });
+
+    console.log("✅ Emergency Action Plan created:", eap.locationName);
+  } else {
+    console.log("ℹ️  Emergency Action Plan already exists — skipping");
+  }
+
+  // ============================================================
+  // PHASE 1 — PPE Assessment + Assignments
+  // ============================================================
+  const ppeExists = await prisma.ppeAssessment.count({ where: { tenantId: tenant.id } });
+  if (ppeExists === 0) {
+    const ppeAssessment = await prisma.ppeAssessment.create({
+      data: {
+        tenantId: tenant.id,
+        workArea: "Production Floor",
+        jobTitle: "Machine Operator",
+        assessedBy: ehs.id,
+        assessedAt: new Date(Date.now() - 90 * 24 * 60 * 60 * 1000),
+        reviewDue: new Date(Date.now() + 275 * 24 * 60 * 60 * 1000),
+        hazardsFound: [
+          { hazard: "Flying debris from machining operations", type: "PHYSICAL" },
+          { hazard: "Noise levels exceeding 85 dBA", type: "PHYSICAL" },
+          { hazard: "Chemical solvent exposure during cleaning", type: "CHEMICAL" },
+          { hazard: "Hand contact with sharp metal parts", type: "PHYSICAL" },
+        ],
+        ppeRequired: [
+          { type: "Safety Glasses / Face Shield", spec: "ANSI Z87.1" },
+          { type: "Hearing Protection", spec: "NRR 25+ earmuffs or plugs" },
+          { type: "Nitrile Gloves", spec: "Chemical resistant, 8 mil minimum" },
+          { type: "Cut-Resistant Gloves", spec: "ANSI A4 for tooling changes" },
+          { type: "Steel-Toe Boots", spec: "ASTM F2413" },
+        ],
+        notes: "Assessment conducted per 29 CFR 1910.132(d). Written certification on file.",
+      },
+    });
+
+    await prisma.ppeAssignment.create({
+      data: {
+        tenantId: tenant.id,
+        assessmentId: ppeAssessment.id,
+        userId: employee.id,
+        ppeType: "Full Body Harness",
+        manufacturer: "3M DBI-SALA",
+        model: "ExoFit NEX",
+        serialNumber: "FBH-20240115-001",
+        size: "Large",
+        issuedDate: new Date(Date.now() - 45 * 24 * 60 * 60 * 1000),
+        issuedBy: ehs.id,
+        lastInspected: new Date(Date.now() - 14 * 24 * 60 * 60 * 1000),
+        inspectedBy: ehs.id,
+        condition: "GOOD",
+        notes: "Issued for elevated work tasks above 4 ft",
+      },
+    });
+
+    await prisma.ppeAssignment.create({
+      data: {
+        tenantId: tenant.id,
+        assessmentId: ppeAssessment.id,
+        userId: safety.id,
+        ppeType: "Hard Hat",
+        manufacturer: "MSA Safety",
+        model: "V-Gard",
+        serialNumber: "HH-20240210-004",
+        size: "One Size",
+        issuedDate: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
+        issuedBy: ehs.id,
+        condition: "GOOD",
+      },
+    });
+
+    console.log("✅ PPE Assessment and Assignments created");
+  } else {
+    console.log("ℹ️  PPE Assessments already exist — skipping");
+  }
+
+  // ============================================================
+  // PHASE 1 — Toolbox Talks
+  // ============================================================
+  const talkExists = await prisma.toolboxTalk.count({ where: { tenantId: tenant.id } });
+  if (talkExists === 0) {
+    const talk1 = await prisma.toolboxTalk.create({
+      data: {
+        tenantId: tenant.id,
+        title: "Fall Protection — Harness Inspection",
+        topic: "Fall Protection",
+        content: "Reviewed proper full-body harness inspection procedure before each use. Key points: inspect D-ring for damage, check webbing for cuts/abrasions/chemical exposure, verify buckles function correctly, confirm harness is properly fitted. Demonstrated donning and doffing. Emphasized: never use a harness that has arrested a fall — remove from service immediately.",
+        conductedAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000),
+        conductedBy: ehs.id,
+        location: "Production Floor Break Room",
+        notes: "Handout distributed: Harness inspection checklist",
+      },
+    });
+
+    await prisma.toolboxAttendance.createMany({
+      data: [
+        { talkId: talk1.id, userId: employee.id, signedAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000) },
+        { talkId: talk1.id, userId: safety.id, signedAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000) },
+        { talkId: talk1.id, guestName: "James Rivera (Contractor)", signedAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000) },
+        { talkId: talk1.id, guestName: "Kevin Park (Contractor)" },
+      ],
+    });
+
+    await prisma.toolboxTalk.create({
+      data: {
+        tenantId: tenant.id,
+        title: "Hazard Communication (HazCom) Refresher",
+        topic: "Chemical Safety & SDS",
+        content: "Reviewed GHS label elements: product identifier, signal word (DANGER/WARNING), hazard pictograms, precautionary statements. Discussed how to read a Safety Data Sheet — focus on sections 2 (hazard ID), 4 (first aid), 7 (handling/storage), 8 (exposure controls/PPE). Reminded staff of SDS binder location in Break Room and online portal access.",
+        conductedAt: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000),
+        conductedBy: ehs.id,
+        location: "Warehouse Office",
+      },
+    });
+
+    console.log("✅ Toolbox Talks created (2)");
+  } else {
+    console.log("ℹ️  Toolbox Talks already exist — skipping");
+  }
+
+  // ============================================================
+  // PHASE 2 — LOTO Program + Procedure
+  // ============================================================
+  const lotoExists = await prisma.lotoProgram.count({ where: { tenantId: tenant.id } });
+  if (lotoExists === 0) {
+    const lotoProgram = await prisma.lotoProgram.create({
+      data: {
+        tenantId: tenant.id,
+        programName: "Apex Industrial — Energy Control Program",
+        effectiveDate: new Date(`${new Date().getFullYear()}-01-01`),
+        scope: "This program applies to all servicing and maintenance activities on machines and equipment where unexpected energization, startup, or release of stored energy could cause injury. Covers electrical, hydraulic, pneumatic, thermal, and gravitational energy sources.",
+        reviewedBy: ehs.id,
+        reviewedTitle: "EHS Manager",
+        notes: "Annual review required per 29 CFR 1910.147(c)(6). Next review due January 2026.",
+      },
+    });
+
+    await prisma.lotoProcedure.create({
+      data: {
+        programId: lotoProgram.id,
+        equipmentName: "CNC Press Machine #3",
+        equipmentId: "EQ-PRESS-003",
+        location: "Production Floor — Bay C",
+        energySources: [
+          { type: "ELECTRICAL", magnitude: "480V / 3-phase", location: "MCC Panel 3C — Breaker 14" },
+          { type: "PNEUMATIC", magnitude: "90 PSI shop air", location: "Air supply valve on right side of machine" },
+          { type: "MECHANICAL", magnitude: "Stored energy — ram gravity drop", location: "Ram must be supported with block before work" },
+        ],
+        steps: [
+          { stepNumber: 1, action: "Notify affected employees that machine will be de-energized", responsible: "Authorized Employee" },
+          { stepNumber: 2, action: "Press emergency stop button on machine operator panel", responsible: "Authorized Employee" },
+          { stepNumber: 3, action: "Turn main disconnect switch at MCC Panel 3C Breaker 14 to OFF", responsible: "Authorized Employee" },
+          { stepNumber: 4, action: "Apply personal lock and tag to main disconnect", responsible: "Authorized Employee" },
+          { stepNumber: 5, action: "Close and lock pneumatic supply valve — drain residual air", responsible: "Authorized Employee" },
+          { stepNumber: 6, action: "Insert ram support block before placing hands under ram", responsible: "Authorized Employee" },
+          { stepNumber: 7, action: "Verify zero energy state — push power button (should not energize)", responsible: "Authorized Employee" },
+        ],
+        authorizedUsers: [employee.id, safety.id],
+        annualReviewAt: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
+        annualReviewedBy: ehs.id,
+      },
+    });
+
+    await prisma.lotoProcedure.create({
+      data: {
+        programId: lotoProgram.id,
+        equipmentName: "Conveyor Belt — Assembly Line 2",
+        equipmentId: "EQ-CONV-002",
+        location: "Production Floor — Assembly Line 2",
+        energySources: [
+          { type: "ELECTRICAL", magnitude: "240V / single-phase", location: "Dedicated disconnect at assembly line panel" },
+        ],
+        steps: [
+          { stepNumber: 1, action: "Notify all personnel in the area of lockout", responsible: "Authorized Employee" },
+          { stepNumber: 2, action: "Stop conveyor using operator stop button", responsible: "Authorized Employee" },
+          { stepNumber: 3, action: "Turn dedicated disconnect at panel to OFF", responsible: "Authorized Employee" },
+          { stepNumber: 4, action: "Apply personal lock and tag to disconnect", responsible: "Authorized Employee" },
+          { stepNumber: 5, action: "Verify zero energy — attempt to start using control panel button", responsible: "Authorized Employee" },
+        ],
+        authorizedUsers: [employee.id],
+      },
+    });
+
+    console.log("✅ LOTO Program created:", lotoProgram.programName);
+  } else {
+    console.log("ℹ️  LOTO Program already exists — skipping");
+  }
+
+  // ============================================================
+  // PHASE 2 — Fall Protection Program + Equipment Log
+  // ============================================================
+  const fallExists = await prisma.fallProtectionProgram.count({ where: { tenantId: tenant.id } });
+  if (fallExists === 0) {
+    const fallProgram = await prisma.fallProtectionProgram.create({
+      data: {
+        tenantId: tenant.id,
+        effectiveDate: new Date(`${new Date().getFullYear()}-01-01`),
+        reviewedAt: new Date(Date.now() - 45 * 24 * 60 * 60 * 1000),
+        reviewedBy: ehs.id,
+        hazards: [
+          { hazard: "Falls from warehouse racking above 6 ft", location: "Warehouse — Racking Section A & B", height: "Up to 18 ft" },
+          { hazard: "Falls from elevated work platforms during maintenance", location: "Production Floor Mezzanine", height: "8–12 ft" },
+          { hazard: "Falls through skylights", location: "Rooftop", height: "24 ft" },
+        ],
+        controls: [
+          { type: "PERSONAL_FALL_ARREST", description: "Full body harness with shock-absorbing lanyard required for all work above 4 ft where guardrails are not present" },
+          { type: "GUARDRAIL", description: "Fixed guardrails (42 inch top rail, 21 inch mid rail, 4 inch toeboard) on all permanent elevated platforms" },
+          { type: "SAFETY_NET", description: "Safety net system used during rooftop maintenance when PFAS not feasible" },
+        ],
+        rescuePlan: "In the event of a fall arrest, immediately call 911. Do not lower or move the suspended worker unless trained to do so. Maintain voice contact with the worker. Rescue team designation: EHS Manager (primary), Operations Manager (backup). Rescue equipment stored in EHS cage — Mechanical SRL rescue device (model: DBI-SALA Lad-Saf).",
+        notes: "Annual refresher training for all employees working at heights. Harness inspections required before each use per manufacturer instructions.",
+      },
+    });
+
+    await prisma.fallEquipmentLog.create({
+      data: {
+        programId: fallProgram.id,
+        equipmentType: "Full Body Harness",
+        manufacturer: "3M DBI-SALA",
+        serialNumber: "FBH-20240115-001",
+        lastInspected: new Date(Date.now() - 14 * 24 * 60 * 60 * 1000),
+        inspectedBy: ehs.id,
+        condition: "GOOD",
+        notes: "No defects found. Next inspection due in 90 days.",
+      },
+    });
+
+    await prisma.fallEquipmentLog.create({
+      data: {
+        programId: fallProgram.id,
+        equipmentType: "Shock-Absorbing Lanyard",
+        manufacturer: "3M DBI-SALA",
+        serialNumber: "SAL-20230901-003",
+        lastInspected: new Date(Date.now() - 100 * 24 * 60 * 60 * 1000),
+        inspectedBy: safety.id,
+        condition: "NEEDS_SERVICE",
+        notes: "Minor abrasion on snap hook gate — flagged for detailed re-inspection before next use.",
+      },
+    });
+
+    console.log("✅ Fall Protection Program created:", fallProgram.id);
+  } else {
+    console.log("ℹ️  Fall Protection Program already exists — skipping");
+  }
+
+  // ============================================================
+  // PHASE 2 — Competent Persons
+  // ============================================================
+  const cpExists = await prisma.competentPerson.count({ where: { tenantId: tenant.id } });
+  if (cpExists === 0) {
+    await prisma.competentPerson.create({
+      data: {
+        tenantId: tenant.id,
+        userId: ehs.id,
+        designation: "Fall Protection Competent Person (29 CFR 1926.502)",
+        oshaStandard: "29 CFR 1926.502",
+        qualifications: [
+          { type: "Training", description: "Fall Protection Competent Person Training — Completed", dateObtained: `${new Date().getFullYear() - 1}-06-15` },
+          { type: "Experience", description: "5+ years EHS experience with fall protection programs" },
+          { type: "Certification", description: "OSHA 30-Hour General Industry Certificate" },
+        ],
+        effectiveDate: new Date(`${new Date().getFullYear() - 1}-06-15`),
+        expiresAt: new Date(`${new Date().getFullYear() + 2}-06-15`),
+        designatedBy: adminUser.id,
+        isActive: true,
+        notes: "Authorized to inspect fall protection equipment and approve work at heights.",
+      },
+    });
+
+    await prisma.competentPerson.create({
+      data: {
+        tenantId: tenant.id,
+        userId: safety.id,
+        designation: "Confined Space Entry Supervisor (29 CFR 1910.146)",
+        oshaStandard: "29 CFR 1910.146",
+        qualifications: [
+          { type: "Training", description: "Permit-Required Confined Space Entry Supervisor Training", dateObtained: `${new Date().getFullYear() - 1}-03-10` },
+          { type: "Experience", description: "2 years as Confined Space Attendant prior to promotion" },
+        ],
+        effectiveDate: new Date(`${new Date().getFullYear() - 1}-03-10`),
+        expiresAt: new Date(`${new Date().getFullYear() + 1}-03-10`),
+        designatedBy: adminUser.id,
+        isActive: true,
+      },
+    });
+
+    console.log("✅ Competent Persons registered (2)");
+  } else {
+    console.log("ℹ️  Competent Persons already exist — skipping");
+  }
+
+  // ============================================================
+  // PHASE 2 — Confined Space + Entry Permit
+  // ============================================================
+  const csExists = await prisma.confinedSpace.count({ where: { tenantId: tenant.id } });
+  if (csExists === 0) {
+    const confinedSpace = await prisma.confinedSpace.create({
+      data: {
+        tenantId: tenant.id,
+        spaceName: "CS-001 — Underground Utility Vault",
+        location: "North Parking Lot — Manhole Cover NP-01",
+        permitRequired: true,
+        hazards: [
+          { type: "Atmospheric", description: "Potential oxygen deficiency and H2S accumulation from sewer proximity" },
+          { type: "Engulfment", description: "Potential water ingress during heavy rain events" },
+          { type: "Physical", description: "Limited egress — single entry/exit point" },
+        ],
+        dimensions: "8 ft deep × 6 ft diameter",
+        entryPoints: "Single 24-inch manhole cover at surface level",
+        lastEvaluated: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
+        evaluatedBy: ehs.id,
+        isActive: true,
+        notes: "Posted with DANGER: Permit Required Confined Space signs per 29 CFR 1910.146(c)(2).",
+      },
+    });
+
+    await prisma.confinedSpacePermit.create({
+      data: {
+        spaceId: confinedSpace.id,
+        permitNumber: `CSP-${new Date().getFullYear()}-001`,
+        status: "CLOSED",
+        issuedAt: new Date(Date.now() - 14 * 24 * 60 * 60 * 1000),
+        expiresAt: new Date(Date.now() - 14 * 24 * 60 * 60 * 1000 + 8 * 60 * 60 * 1000),
+        closedAt: new Date(Date.now() - 14 * 24 * 60 * 60 * 1000 + 6 * 60 * 60 * 1000),
+        authorizedEntrants: [{ name: "Thomas Brown", userId: employee.id }],
+        attendants: [{ name: "David Chen", userId: safety.id }],
+        supervisors: [{ name: "Michael Torres", userId: ehs.id }],
+        hazardsIdentified: [
+          { hazard: "Oxygen deficiency", control: "Continuous atmospheric monitoring — MSA ALTAIR 4X multi-gas detector" },
+          { hazard: "H2S", control: "Continuous monitoring, escape-type respirator available" },
+        ],
+        atmosphericTests: [
+          { gas: "O₂", reading: "20.9%", acceptable: "19.5%–23.5%", testedAt: new Date(Date.now() - 14 * 24 * 60 * 60 * 1000).toISOString(), testedBy: "Michael Torres" },
+          { gas: "H₂S", reading: "0 ppm", acceptable: "<1 ppm", testedAt: new Date(Date.now() - 14 * 24 * 60 * 60 * 1000).toISOString(), testedBy: "Michael Torres" },
+          { gas: "CO", reading: "0 ppm", acceptable: "<25 ppm", testedAt: new Date(Date.now() - 14 * 24 * 60 * 60 * 1000).toISOString(), testedBy: "Michael Torres" },
+          { gas: "LEL", reading: "0%", acceptable: "<10% LEL", testedAt: new Date(Date.now() - 14 * 24 * 60 * 60 * 1000).toISOString(), testedBy: "Michael Torres" },
+        ],
+        equipmentRequired: [
+          { item: "Multi-gas detector (ALTAIR 4X)", checked: true },
+          { item: "Tripod and retrieval system", checked: true },
+          { item: "Escape-type SCBA", checked: true },
+          { item: "Non-sparking tools", checked: true },
+          { item: "Explosion-proof lighting", checked: true },
+        ],
+        rescueProcedures: "Non-entry rescue via tripod and retrieval system is the primary method. Call 911 for emergency rescue if non-entry rescue is not feasible.",
+        notes: "Permit completed successfully. Work duration: 6 hours. Inspection of electrical conduit connections.",
+      },
+    });
+
+    console.log("✅ Confined Space and Entry Permit created");
+  } else {
+    console.log("ℹ️  Confined Space already exists — skipping");
+  }
+
+  // ============================================================
+  // PHASE 2 — Bloodborne Pathogen Program
+  // ============================================================
+  const bbpExists = await prisma.bloodbornePathogenProgram.count({ where: { tenantId: tenant.id } });
+  if (bbpExists === 0) {
+    const bbpProgram = await prisma.bloodbornePathogenProgram.create({
+      data: {
+        tenantId: tenant.id,
+        effectiveDate: new Date(`${new Date().getFullYear()}-01-01`),
+        reviewedAt: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
+        reviewedBy: ehs.id,
+        exposedPositions: [
+          { jobTitle: "First Aid Responder / EHS Manager", tasks: ["Administering first aid", "Handling blood or OPIM (Other Potentially Infectious Materials)"] },
+          { jobTitle: "Safety Representative", tasks: ["First aid assistance", "Incident site clean-up"] },
+        ],
+        engineeringControls: [
+          { control: "Sharps disposal containers", location: "First Aid Room and Break Room" },
+          { control: "Puncture-resistant gloves in first aid kits", location: "All first aid stations" },
+          { control: "Biohazard-labeled leak-proof containers", location: "First Aid Room" },
+        ],
+        workPracticeControls: [
+          "Wash hands immediately after removing gloves",
+          "Do not recap used needles",
+          "Minimize splashing and spraying of blood or OPIM",
+          "Decontaminate work surfaces after any exposure incident",
+        ],
+        ppe: [
+          { item: "Nitrile examination gloves (non-latex)", when: "Any contact with blood or OPIM" },
+          { item: "Face shield / safety goggles", when: "Risk of splashing blood or OPIM" },
+          { item: "Disposable gown", when: "Potential for clothing contamination" },
+        ],
+        decontaminationPlan: "Contaminated surfaces must be cleaned with an EPA-registered disinfectant. Contaminated PPE must be disposed of as regulated waste or sent to laundry service.",
+        wasteDisposalPlan: "Regulated waste is collected in red biohazard bags and disposed of via licensed medical waste vendor (Stericycle — contract #SW-2025-047). Manifest maintained on file.",
+        notes: "Annual review and employee training required per 29 CFR 1910.1030. Training records maintained in LMS.",
+      },
+    });
+
+    await prisma.bbpVaccinationRecord.createMany({
+      data: [
+        {
+          programId: bbpProgram.id,
+          userId: ehs.id,
+          status: "COMPLETED",
+          offeredAt: new Date(Date.now() - 365 * 24 * 60 * 60 * 1000),
+          respondedAt: new Date(Date.now() - 360 * 24 * 60 * 60 * 1000),
+          notes: "Full 3-dose series completed. Record on file.",
+        },
+        {
+          programId: bbpProgram.id,
+          userId: safety.id,
+          status: "ACCEPTED",
+          offeredAt: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
+          respondedAt: new Date(Date.now() - 28 * 24 * 60 * 60 * 1000),
+          notes: "First dose administered. Series in progress.",
+        },
+        {
+          programId: bbpProgram.id,
+          userId: employee.id,
+          status: "DECLINED",
+          offeredAt: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
+          respondedAt: new Date(Date.now() - 29 * 24 * 60 * 60 * 1000),
+          notes: "Employee signed declination form (retained on file per 29 CFR 1910.1030(f)(2)).",
+        },
+      ],
+    });
+
+    console.log("✅ Bloodborne Pathogen Program created");
+  } else {
+    console.log("ℹ️  BBP Program already exists — skipping");
+  }
+
+  // ============================================================
+  // PHASE 2 — Workers' Compensation Claims + EMR
+  // ============================================================
+  const wcExists = await prisma.workersCompClaim.count({ where: { tenantId: tenant.id } });
+  if (wcExists === 0) {
+    const firstIncident = await prisma.incident.findFirst({ where: { tenantId: tenant.id }, orderBy: { createdAt: "asc" } });
+    await prisma.workersCompClaim.create({
+      data: {
+        tenantId: tenant.id,
+        incidentId: firstIncident?.id ?? undefined,
+        claimNumber: "WC-2025-0147",
+        carrierName: "Travelers Insurance",
+        claimantName: "Thomas Brown",
+        injuryDate: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000),
+        reportedDate: new Date(Date.now() - 6 * 24 * 60 * 60 * 1000),
+        status: "OPEN",
+        reserveAmount: 12500,
+        paidAmount: 1850,
+        lostWorkDays: 2,
+        adjusterName: "Karen Lee",
+        adjusterPhone: "303-555-0188",
+        notes: "Employee treated at Concentra Occupational Health. Returned to modified duty on day 3.",
+      },
+    });
+
+    await prisma.workersCompClaim.create({
+      data: {
+        tenantId: tenant.id,
+        claimNumber: "WC-2024-0089",
+        carrierName: "Travelers Insurance",
+        claimantName: "Marcus Johnson",
+        injuryDate: new Date(Date.now() - 180 * 24 * 60 * 60 * 1000),
+        reportedDate: new Date(Date.now() - 179 * 24 * 60 * 60 * 1000),
+        status: "CLOSED",
+        reserveAmount: 8000,
+        paidAmount: 6200,
+        lostWorkDays: 5,
+        returnToWorkDate: new Date(Date.now() - 165 * 24 * 60 * 60 * 1000),
+        closedAt: new Date(Date.now() - 60 * 24 * 60 * 60 * 1000),
+        adjusterName: "Karen Lee",
+        adjusterPhone: "303-555-0188",
+      },
+    });
+
+    await prisma.emrHistory.createMany({
+      data: [
+        { tenantId: tenant.id, year: new Date().getFullYear() - 2, emrValue: 1.28, carrier: "Travelers Insurance", notes: "Above industry average — PPE and LOTO improvements initiated" },
+        { tenantId: tenant.id, year: new Date().getFullYear() - 1, emrValue: 1.05, carrier: "Travelers Insurance", notes: "Improving trend following EHS program investments in H1" },
+        { tenantId: tenant.id, year: new Date().getFullYear(), emrValue: 0.92, carrier: "Travelers Insurance", notes: "Below 1.0 for the first time — premium discount applied" },
+      ],
+    });
+
+    console.log("✅ Workers Comp claims and EMR history created");
+  } else {
+    console.log("ℹ️  Workers Comp claims already exist — skipping");
+  }
+
+  // ============================================================
+  // PHASE 3 — DOT Compliance
+  // ============================================================
+  const dotExists = await prisma.dotDriver.count({ where: { tenantId: tenant.id } });
+  if (dotExists === 0) {
+    const dotDriver = await prisma.dotDriver.create({
+      data: {
+        tenantId: tenant.id,
+        employeeName: "James Rivera",
+        employeeId: "EMP-0042",
+        cdlNumber: "C12345678",
+        cdlClass: "A",
+        cdlState: "CO",
+        cdlExpires: new Date(Date.now() + 400 * 24 * 60 * 60 * 1000),
+        medicalCertExpires: new Date(Date.now() + 300 * 24 * 60 * 60 * 1000),
+        hireDate: new Date(Date.now() - 3 * 365 * 24 * 60 * 60 * 1000),
+        isActive: true,
+        drugTestingEnrolled: true,
+        hazmatEndorsement: true,
+        notes: "HAZMAT endorsement — annual background check current",
+      },
+    });
+
+    await prisma.dotDrugTest.create({
+      data: {
+        tenantId: tenant.id,
+        driverId: dotDriver.id,
+        testType: "RANDOM",
+        testedAt: new Date(Date.now() - 45 * 24 * 60 * 60 * 1000),
+        result: "NEGATIVE",
+        substanceTested: "DOT 5-Panel (THC, Cocaine, Opioids, PCP, Amphetamines)",
+        specimenId: "SP-20250115-042",
+        mroName: "Dr. Sandra Kim, MRO",
+        collectionSite: "Quest Diagnostics — 1600 Glenarm Place, Denver",
+      },
+    });
+
+    await prisma.dotVehicleInspection.create({
+      data: {
+        tenantId: tenant.id,
+        vehicleUnit: "UNIT-07 — 2021 Freightliner Cascadia",
+        vin: "1FUJGHDV5MLHQ4321",
+        inspType: "PRE_TRIP",
+        inspectedAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000),
+        inspectedBy: dotDriver.id,
+        passed: true,
+        defects: [],
+        odometer: 142580,
+        nextDue: new Date(Date.now() + 1 * 24 * 60 * 60 * 1000),
+        notes: "No defects noted. Vehicle cleared for dispatch.",
+      },
+    });
+
+    await prisma.dotVehicleInspection.create({
+      data: {
+        tenantId: tenant.id,
+        vehicleUnit: "UNIT-07 — 2021 Freightliner Cascadia",
+        vin: "1FUJGHDV5MLHQ4321",
+        inspType: "ANNUAL",
+        inspectedAt: new Date(Date.now() - 60 * 24 * 60 * 60 * 1000),
+        inspectedBy: ehs.id,
+        passed: true,
+        defects: [{ item: "Left front tire — minor wear indicator approaching limit", correctedAt: new Date(Date.now() - 59 * 24 * 60 * 60 * 1000).toISOString() }],
+        odometer: 138200,
+        nextDue: new Date(Date.now() + 305 * 24 * 60 * 60 * 1000),
+        notes: "Annual FMCSA inspection. Tire defect corrected same day.",
+      },
+    });
+
+    console.log("✅ DOT Compliance data created");
+  } else {
+    console.log("ℹ️  DOT data already exists — skipping");
+  }
+
+  // ============================================================
+  // PHASE 3 — Industrial Hygiene Monitoring
+  // ============================================================
+  const ihExists = await prisma.ihMonitoringProgram.count({ where: { tenantId: tenant.id } });
+  if (ihExists === 0) {
+    const ihProgram = await prisma.ihMonitoringProgram.create({
+      data: {
+        tenantId: tenant.id,
+        programName: "Noise Monitoring — Production Floor",
+        hazardType: "NOISE",
+        agentName: "Occupational Noise",
+        oshaStandard: "29 CFR 1910.95",
+        pel: 90.0,
+        al: 85.0,
+        stel: null,
+        unit: "dBA TWA",
+        frequency: "annual",
+        isActive: true,
+      },
+    });
+
+    await prisma.ihExposureSample.create({
+      data: {
+        programId: ihProgram.id,
+        sampledAt: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
+        sampledBy: ehs.id,
+        employeeName: "Thomas Brown",
+        jobTitle: "Machine Operator",
+        workArea: "Production Floor — Bay C",
+        sampleType: "personal",
+        result: 87.5,
+        exceedsPel: false,
+        exceedsAl: true,
+        labName: "Industrial Hygiene Analytics LLC",
+        labSampleId: "IHA-2025-0441",
+        notes: "Exceeds Action Level (85 dBA). Employee enrolled in Hearing Conservation Program. Annual audiometric testing scheduled.",
+      },
+    });
+
+    await prisma.ihExposureSample.create({
+      data: {
+        programId: ihProgram.id,
+        sampledAt: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
+        sampledBy: ehs.id,
+        employeeName: "Kevin Martinez",
+        jobTitle: "Machine Operator",
+        workArea: "Production Floor — Bay A",
+        sampleType: "personal",
+        result: 82.1,
+        exceedsPel: false,
+        exceedsAl: false,
+        labName: "Industrial Hygiene Analytics LLC",
+        labSampleId: "IHA-2025-0442",
+        notes: "Below Action Level. Continue annual monitoring.",
+      },
+    });
+
+    const silicaProgram = await prisma.ihMonitoringProgram.create({
+      data: {
+        tenantId: tenant.id,
+        programName: "Respirable Crystalline Silica — Cutting Operations",
+        hazardType: "DUST",
+        agentName: "Respirable Crystalline Silica (Quartz)",
+        oshaStandard: "29 CFR 1926.1153",
+        pel: 50.0,
+        al: 25.0,
+        unit: "μg/m³",
+        frequency: "semi-annual",
+        isActive: true,
+      },
+    });
+
+    await prisma.ihExposureSample.create({
+      data: {
+        programId: silicaProgram.id,
+        sampledAt: new Date(Date.now() - 45 * 24 * 60 * 60 * 1000),
+        sampledBy: ehs.id,
+        employeeName: "David Chen",
+        jobTitle: "Safety Representative",
+        workArea: "Maintenance Shop — Grinding Station",
+        sampleType: "personal",
+        result: 18.3,
+        exceedsPel: false,
+        exceedsAl: false,
+        labName: "Industrial Hygiene Analytics LLC",
+        labSampleId: "IHA-2025-0388",
+        notes: "Below action level. Wet methods and LEV in use. Continue monitoring schedule.",
+      },
+    });
+
+    console.log("✅ Industrial Hygiene programs and samples created");
+  } else {
+    console.log("ℹ️  Industrial Hygiene programs already exist — skipping");
+  }
+
+  // ============================================================
+  // PHASE 3 — Insurance Policies
+  // ============================================================
+  const insuranceExists = await prisma.insurancePolicy.count({ where: { tenantId: tenant.id } });
+  if (insuranceExists === 0) {
+    await prisma.insurancePolicy.createMany({
+      data: [
+        {
+          tenantId: tenant.id,
+          carrier: "Travelers Insurance",
+          policyNumber: "WC-2025-481920",
+          policyType: "workers_comp",
+          effectiveDate: new Date(`${new Date().getFullYear()}-01-01`),
+          expirationDate: new Date(`${new Date().getFullYear() + 1}-01-01`),
+          premiumAmount: 48500,
+          deductible: 2500,
+          coverageLimit: 1000000,
+          agentName: "Brian O'Connor",
+          agentPhone: "303-555-0210",
+          agentEmail: "boconnor@travelersagent.com",
+          isActive: true,
+          notes: "EMR of 0.92 resulted in 8% premium reduction vs. prior year.",
+        },
+        {
+          tenantId: tenant.id,
+          carrier: "Liberty Mutual",
+          policyNumber: "GL-LM-2025-77403",
+          policyType: "general_liability",
+          effectiveDate: new Date(`${new Date().getFullYear()}-01-01`),
+          expirationDate: new Date(`${new Date().getFullYear() + 1}-01-01`),
+          premiumAmount: 24200,
+          deductible: 10000,
+          coverageLimit: 2000000,
+          agentName: "Diane Foster",
+          agentPhone: "303-555-0215",
+          agentEmail: "dfoster@libertymutual.com",
+          isActive: true,
+        },
+        {
+          tenantId: tenant.id,
+          carrier: "Zurich NA",
+          policyNumber: "PROP-ZNA-2025-00321",
+          policyType: "property",
+          effectiveDate: new Date(`${new Date().getFullYear()}-01-01`),
+          expirationDate: new Date(`${new Date().getFullYear() + 1}-01-01`),
+          premiumAmount: 18750,
+          deductible: 25000,
+          coverageLimit: 5000000,
+          isActive: true,
+          notes: "Building and contents coverage for Denver Production Facility.",
+        },
+      ],
+    });
+
+    console.log("✅ Insurance Policies created (3)");
+  } else {
+    console.log("ℹ️  Insurance Policies already exist — skipping");
+  }
+
   console.log("\n🎉 Seeding complete!");
   console.log("\n📊 DEMO DATA SUMMARY:");
   console.log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
@@ -1750,6 +2549,22 @@ async function main() {
   console.log("🤝 Safety Committee Mtg:     1 (with 4 participants)");
   console.log("🔒 Whistleblowing:           1 (with 4 messages)");
   console.log("💬 Customer Feedback:        3");
+  console.log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+  console.log("--- OSHA/EHS Phase 1-3 ---");
+  console.log("📋 OSHA Log:                 1 (YTD)");
+  console.log("🚨 Emergency Action Plan:    1 (with 1 drill)");
+  console.log("🦺 PPE Assessment:           1 (with 2 assignments)");
+  console.log("💬 Toolbox Talks:            2 (with attendees)");
+  console.log("🔒 LOTO Program:             1 (with 2 procedures)");
+  console.log("🧗 Fall Protection:          1 (with 2 equipment logs)");
+  console.log("👷 Competent Persons:        2");
+  console.log("🚪 Confined Space:           1 (with 1 closed permit)");
+  console.log("🩸 BBP Program:              1 (with 3 vaccination records)");
+  console.log("💼 Workers Comp Claims:      2");
+  console.log("📈 EMR History:              3 years");
+  console.log("🚛 DOT Driver:               1 (with drug test + 2 inspections)");
+  console.log("🔬 IH Programs:              2 (noise + silica, with 3 samples)");
+  console.log("🛡️  Insurance Policies:      3");
   console.log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
   console.log("\n📝 Test login credentials:");
   console.log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");

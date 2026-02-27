@@ -1,0 +1,71 @@
+---
+description: Enforce schema-first Prisma usage — always verify field names before querying
+globs: src/**/*.ts,src/**/*.tsx
+alwaysApply: true
+---
+
+# Prisma Schema-First Rule
+
+**Before writing any Prisma query, verify the exact field names in `prisma/schema.prisma`.**  
+Never guess field names — always grep the schema first.
+
+## Common mistakes to avoid
+
+```typescript
+// ❌ WRONG — field name not verified
+prisma.audit.count({ where: { tenantId, plannedDate: ... } })
+prisma.managementReview.count({ where: { date: ... } })
+prisma.emergencyActionPlan.count({ where: { isActive: true } })
+prisma.goal.count({ where: { status: "IN_PROGRESS" } })
+prisma.workersCompClaim.create({ data: { employeeName: ... } })
+
+// ✅ CORRECT — verified against schema
+prisma.audit.count({ where: { tenantId, scheduledDate: ... } })        // Audit.scheduledDate
+prisma.managementReview.count({ where: { reviewDate: ... } })          // ManagementReview.reviewDate
+prisma.emergencyActionPlan.count({ where: { tenantId } })              // EAP has no isActive
+prisma.goal.count({ where: { status: "ACTIVE" } })                     // GoalStatus enum: ACTIVE
+prisma.workersCompClaim.create({ data: { claimantName: ... } })        // schema field name
+```
+
+## Key verified field names (hmsnovaeng)
+
+| Model | Field | Notes |
+|---|---|---|
+| `Audit` | `scheduledDate` | not `plannedDate` |
+| `ManagementReview` | `reviewDate` | not `date` |
+| `Goal` | `status: "ACTIVE"` | GoalStatus enum: ACTIVE / ACHIEVED / AT_RISK / CANCELLED |
+| `EmergencyActionPlan` | no `isActive` | use `.count({ where: { tenantId } })` |
+| `LotoProgram` | no `isActive` | |
+| `FallProtectionProgram` | no `isActive` | |
+| `BloodbornePathogenProgram` | no `isActive` | |
+| `WorkersCompClaim` | `claimantName`, `carrierName`, `reserveAmount` | not `employeeName` / `insuranceCarrier` |
+| `BbpVaccinationRecord` | `userId`, `status`, `offeredAt` | HepBVaccineStatus: **OFFERED / ACCEPTED / DECLINED / COMPLETED** — no `employeeName` field, use `userId` |
+| `EmrHistory` | `emrValue` | not `emr` — no `annualPremium` field |
+| `WorkersCompClaim` | `claimantName`, `carrierName`, `paidAmount`, `reserveAmount` | no `employeeName`, `injuryType`, `totalCost`, no `DENIED` status |
+| `WorkersCompStatus` enum | `OPEN`, `CLOSED`, `DISPUTED`, `SETTLED` | no `DENIED` |
+| `CompetentPerson` | `userId`, `designation`, `oshaStandard`, `effectiveDate`, `expiresAt` | no `employeeName`, `jobTitle`, `oshaStandards`, `designatedAt`, `designationExpires` |
+| `ConfinedSpace` | `permitRequired`, `entryPermits` (relation), `hazards` (JSON) | not `isPermitRequired`, `permits`, `knownHazards` |
+
+## Next.js 15 — async params in route handlers
+
+```typescript
+// ❌ WRONG (Next.js 14 pattern)
+export async function POST(req: NextRequest, { params }: { params: { id: string } }) {
+  const id = params.id;
+}
+
+// ✅ CORRECT (Next.js 15)
+export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+}
+```
+
+## Server actions — use actual exported names
+
+Always check exported function names with grep before importing:
+```bash
+grep "^export async function" src/server/actions/<file>.actions.ts
+```
+
+BBP actions: `createBbpProgram`, `updateBbpProgram`, `recordHepBVaccination`  
+Workers' Comp actions: `createWorkersCompClaim`, `recordEmr` (not `recordEmrHistory`)

@@ -24,18 +24,32 @@ import {
   ShieldCheck,
   FileBarChart,
   Calendar,
-  Shield,
   Leaf,
   Layers,
   HeartPulse,
   LifeBuoy,
   MessageSquare,
-  ThumbsUp,
   Sparkles,
   Zap,
   ListChecks,
   Clock,
   Scale,
+  HardHat,
+  Flame,
+  Lock,
+  Users,
+  DoorOpen,
+  Droplets,
+  Stethoscope,
+  TrendingUp,
+  ClipboardSignature,
+  ShieldAlert,
+  BookOpen,
+  Truck,
+  FlaskConical,
+  MapPin,
+  ShieldCheck as ShieldCheckIcon,
+  BarChart3,
 } from "lucide-react";
 import { usePermissions } from "@/hooks/use-permissions";
 import { getRoleDisplayName } from "@/lib/permissions";
@@ -46,36 +60,55 @@ import { useSimpleMenuConfig } from "@/hooks/use-simple-menu-config";
 import { TenantSwitcher } from "@/components/auth/tenant-switcher";
 
 const navItems = [
-  // === CORE EHS (always visible) ===
-  { href: "/dashboard", label: "nav.dashboard", icon: LayoutDashboard, permission: "dashboard" as const, simple: true },
-  { href: "/dashboard/documents", label: "nav.documents", icon: FileText, permission: "documents" as const, simple: true },
-  { href: "/dashboard/juridisk-register", label: "nav.legalRegister", icon: Scale, permission: "legalRegister" as const, simple: true },
-  { href: "/dashboard/incidents", label: "nav.incidents", icon: AlertCircle, permission: "incidents" as const, simple: true },
-  { href: "/dashboard/inspections", label: "nav.inspections", icon: ShieldCheck, permission: "inspections" as const, simple: true },
-  { href: "/dashboard/training", label: "nav.training", icon: GraduationCap, permission: "training" as const, simple: true },
-  { href: "/dashboard/actions", label: "nav.actions", icon: ListTodo, permission: "actions" as const, simple: true },
-  { href: "/dashboard/chemicals", label: "nav.chemicals", icon: Beaker, permission: "chemicals" as const, simple: true },
-  
-  // === ADVANCED (only in advanced mode) ===
-  { href: "/dashboard/forms", label: "nav.forms", icon: ClipboardList, permission: "forms" as const, simple: false },
-  { href: "/dashboard/risks", label: "nav.risks", icon: AlertTriangle, permission: "risks" as const, simple: false },
-  { href: "/dashboard/risk-register", label: "nav.riskRegister", icon: Layers, permission: "risks" as const, simple: false },
-  { href: "/dashboard/security", label: "nav.security", icon: Shield, permission: "security" as const, simple: false },
-  { href: "/dashboard/wellbeing", label: "nav.wellbeing", icon: HeartPulse, permission: "forms" as const, simple: true }, // Psychosocial = mandatory for all
-  { href: "/dashboard/complaints", label: "nav.complaints", icon: MessageSquare, permission: "incidents" as const, simple: false },
-  { href: "/dashboard/feedback", label: "nav.feedback", icon: ThumbsUp, permission: "feedback" as const, simple: false },
-  { href: "/dashboard/environment", label: "nav.environment", icon: Leaf, permission: "environment" as const, simple: false },
-  { href: "/dashboard/bcm", label: "nav.bcm", icon: LifeBuoy, permission: "audits" as const, simple: false },
-  { href: "/dashboard/audits", label: "nav.audits", icon: ClipboardCheck, permission: "audits" as const, simple: false },
-  { href: "/dashboard/management-reviews", label: "nav.managementReviews", icon: FileBarChart, permission: "managementReviews" as const, simple: false },
-  { href: "/dashboard/annual-hms-plan", label: "nav.annualHmsPlan", icon: ListChecks, permission: "annualHmsPlan" as const, simple: true },
-  { href: "/dashboard/meetings", label: "nav.meetings", icon: Calendar, permission: "meetings" as const, simple: false },
-  { href: "/dashboard/time-registration", label: "nav.timeRegistration", icon: Clock, permission: "timeRegistration" as const, simple: true },
-  { href: "/dashboard/whistleblowing", label: "nav.whistleblowing", icon: Shield, permission: "whistleblowing" as const, simple: false },
-  { href: "/dashboard/goals", label: "nav.goals", icon: Target, permission: "goals" as const, simple: false },
-  
-  // === SETTINGS (always visible) ===
-  { href: "/dashboard/settings", label: "nav.settings", icon: Settings, permission: "settings" as const, simple: true },
+  // === CORE EHS (simple mode) ===
+  { href: "/dashboard",                       label: "nav.dashboard",            icon: LayoutDashboard,   permission: "dashboard"         as const, simple: true },
+  { href: "/dashboard/incidents",             label: "nav.incidents",            icon: AlertCircle,       permission: "incidents"         as const, simple: true },
+  { href: "/dashboard/inspections",           label: "nav.inspections",          icon: ShieldCheck,       permission: "inspections"       as const, simple: true },
+  { href: "/dashboard/actions",               label: "nav.actions",              icon: ListTodo,          permission: "actions"           as const, simple: true },
+  { href: "/dashboard/training",              label: "nav.training",             icon: GraduationCap,     permission: "training"          as const, simple: true },
+  { href: "/dashboard/chemicals",             label: "nav.chemicals",            icon: Beaker,            permission: "chemicals"         as const, simple: true },
+  { href: "/dashboard/documents",             label: "nav.documents",            icon: FileText,          permission: "documents"         as const, simple: true },
+
+  // === OSHA COMPLIANCE (simple mode) ===
+  { href: "/dashboard/osha",                  label: "nav.oshaRecordkeeping",    icon: ClipboardSignature,permission: "incidents"         as const, simple: true },
+  { href: "/dashboard/eap",                   label: "nav.eap",                  icon: LifeBuoy,          permission: "audits"            as const, simple: true },
+  { href: "/dashboard/ppe",                   label: "nav.ppe",                  icon: HardHat,           permission: "incidents"         as const, simple: true },
+  { href: "/dashboard/toolbox-talks",         label: "nav.toolboxTalks",         icon: BookOpen,          permission: "incidents"         as const, simple: true },
+
+  // === SAFETY PROGRAMS (advanced) ===
+  { href: "/dashboard/loto",                  label: "nav.loto",                 icon: Lock,              permission: "audits"            as const, simple: false },
+  { href: "/dashboard/fall-protection",       label: "nav.fallProtection",       icon: ShieldAlert,       permission: "audits"            as const, simple: false },
+  { href: "/dashboard/competent-person",      label: "nav.competentPerson",      icon: Users,             permission: "audits"            as const, simple: false },
+  { href: "/dashboard/confined-space",        label: "nav.confinedSpace",        icon: DoorOpen,          permission: "audits"            as const, simple: false },
+  { href: "/dashboard/bloodborne-pathogen",   label: "nav.bloodbornePathogen",   icon: Droplets,          permission: "audits"            as const, simple: false },
+
+  // === EHS MANAGEMENT (advanced) ===
+  { href: "/dashboard/risks",                 label: "nav.risks",                icon: AlertTriangle,     permission: "risks"             as const, simple: false },
+  { href: "/dashboard/risk-register",         label: "nav.riskRegister",         icon: Layers,            permission: "risks"             as const, simple: false },
+  { href: "/dashboard/forms",                 label: "nav.forms",                icon: ClipboardList,     permission: "forms"             as const, simple: false },
+  { href: "/dashboard/audits",                label: "nav.audits",               icon: ClipboardCheck,    permission: "audits"            as const, simple: false },
+  { href: "/dashboard/goals",                 label: "nav.goals",                icon: Target,            permission: "goals"             as const, simple: false },
+  { href: "/dashboard/annual-safety-program", label: "nav.annualSafetyProgram",  icon: ListChecks,        permission: "annualHmsPlan"     as const, simple: true },
+  { href: "/dashboard/management-reviews",    label: "nav.managementReviews",    icon: FileBarChart,      permission: "managementReviews" as const, simple: false },
+  { href: "/dashboard/safety-committee",      label: "nav.safetyCommittee",      icon: Calendar,          permission: "meetings"          as const, simple: false },
+  { href: "/dashboard/regulatory-register",   label: "nav.regulatoryRegister",   icon: Scale,             permission: "legalRegister"     as const, simple: false },
+
+  // === PHASE 3 — ENTERPRISE (advanced) ===
+  { href: "/dashboard/dot",                   label: "nav.dotCompliance",        icon: Truck,             permission: "audits"            as const, simple: false },
+  { href: "/dashboard/industrial-hygiene",    label: "nav.industrialHygiene",    icon: FlaskConical,      permission: "audits"            as const, simple: false },
+  { href: "/dashboard/insurance",             label: "nav.insurance",            icon: ShieldCheckIcon,   permission: "audits"            as const, simple: false },
+  { href: "/dashboard/state-requirements",    label: "nav.stateRequirements",    icon: MapPin,            permission: "legalRegister"     as const, simple: false },
+  { href: "/dashboard/safety-insights",       label: "nav.safetyInsights",       icon: BarChart3,         permission: "dashboard"         as const, simple: false },
+
+  // === OPERATIONS (advanced) ===
+  { href: "/dashboard/workers-comp",          label: "nav.workersComp",          icon: Stethoscope,       permission: "incidents"         as const, simple: false },
+  { href: "/dashboard/environment",           label: "nav.environment",          icon: Leaf,              permission: "environment"       as const, simple: false },
+  { href: "/dashboard/wellbeing",             label: "nav.wellbeing",            icon: HeartPulse,        permission: "forms"             as const, simple: false },
+  { href: "/dashboard/whistleblowing",        label: "nav.whistleblowing",       icon: MessageSquare,     permission: "whistleblowing"    as const, simple: false },
+  { href: "/dashboard/time-registration",     label: "nav.timeRegistration",     icon: Clock,             permission: "timeRegistration"  as const, simple: false },
+
+  // === SETTINGS ===
+  { href: "/dashboard/settings",              label: "nav.settings",             icon: Settings,          permission: "settings"          as const, simple: true },
 ];
 
 export function DashboardNav() {
@@ -161,7 +194,7 @@ export function DashboardNav() {
                 className={cn(
                   "flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-colors",
                   isActive
-                    ? "bg-primary text-primary-foreground"
+                    ? "bg-green-600 text-white font-medium"
                     : "hover:bg-accent"
                 )}
               >
