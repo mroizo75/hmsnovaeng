@@ -1,12 +1,12 @@
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import { redirect } from "next/navigation";
-import { Home, FileText, AlertCircle, Beaker, ClipboardList, GraduationCap, Clock } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import { prisma } from "@/lib/db";
 import { LogoutButton } from "@/components/ansatt/logout-button";
 import { NotificationBell } from "@/components/notifications/notification-bell";
+import { BottomNav } from "@/components/ansatt/bottom-nav";
 
 export default async function EmployeeLayout({
   children,
@@ -94,66 +94,7 @@ export default async function EmployeeLayout({
       </main>
 
       {/* Bottom Navigation - Mobil */}
-      <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-lg z-50">
-        <div className="flex justify-around items-center h-16">
-          <Link
-            href="/ansatt"
-            className="flex flex-col items-center justify-center flex-1 h-full hover:bg-gray-50 transition-colors"
-          >
-            <Home className="h-5 w-5 text-gray-600" />
-            <span className="text-xs mt-1 text-gray-600">Hjem</span>
-          </Link>
-          
-          <Link
-            href="/ansatt/dokumenter"
-            className="flex flex-col items-center justify-center flex-1 h-full hover:bg-gray-50 transition-colors"
-          >
-            <FileText className="h-5 w-5 text-gray-600" />
-            <span className="text-xs mt-1 text-gray-600">Dokumenter</span>
-          </Link>
-          
-          <Link
-            href="/ansatt/avvik"
-            className="flex flex-col items-center justify-center flex-1 h-full hover:bg-gray-50 transition-colors"
-          >
-            <AlertCircle className="h-5 w-5 text-gray-600" />
-            <span className="text-xs mt-1 text-gray-600">Avvik</span>
-          </Link>
-          
-          <Link
-            href="/ansatt/stoffkartotek"
-            className="flex flex-col items-center justify-center flex-1 h-full hover:bg-gray-50 transition-colors"
-          >
-            <Beaker className="h-5 w-5 text-gray-600" />
-            <span className="text-xs mt-1 text-gray-600">Stoffer</span>
-          </Link>
-          
-          <Link
-            href="/ansatt/skjemaer"
-            className="flex flex-col items-center justify-center flex-1 h-full hover:bg-gray-50 transition-colors"
-          >
-            <ClipboardList className="h-5 w-5 text-gray-600" />
-            <span className="text-xs mt-1 text-gray-600">Skjemaer</span>
-          </Link>
-          
-          <Link
-            href="/ansatt/opplaering"
-            className="flex flex-col items-center justify-center flex-1 h-full hover:bg-gray-50 transition-colors"
-          >
-            <GraduationCap className="h-5 w-5 text-gray-600" />
-            <span className="text-xs mt-1 text-gray-600">Training</span>
-          </Link>
-          {tenant?.timeRegistrationEnabled && (
-            <Link
-              href="/ansatt/timeregistrering"
-              className="flex flex-col items-center justify-center flex-1 h-full hover:bg-gray-50 transition-colors"
-            >
-              <Clock className="h-5 w-5 text-gray-600" />
-              <span className="text-xs mt-1 text-gray-600">Timer</span>
-            </Link>
-          )}
-        </div>
-      </nav>
+      <BottomNav timeRegistrationEnabled={tenant?.timeRegistrationEnabled ?? false} />
     </div>
   );
 }

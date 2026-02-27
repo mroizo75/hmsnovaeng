@@ -48,31 +48,20 @@ export default async function NyttAvvik() {
         </CardContent>
       </Card>
 
-      {/* Help */}
-      <Card className="border-l-4 border-l-blue-500 bg-blue-50">
-        <CardHeader className="pb-3">
-          <CardTitle className="text-lg">💡 What should I report?</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-2 text-sm">
-          <div>
-            <strong>✅ Always report:</strong>
-            <ul className="list-disc list-inside mt-1 space-y-1 text-muted-foreground ml-2">
-              <li>Accidents and personal injuries</li>
-              <li>Near misses (could have resulted in injury)</li>
-              <li>Dangerous situations</li>
-              <li>Defective equipment or tools</li>
-              <li>Missing safety equipment</li>
-              <li>Pollution or spills</li>
-            </ul>
-          </div>
-          
-          <div className="pt-2">
-            <strong>📝 Remember:</strong>
-            <p className="text-muted-foreground mt-1">
-              The more details you provide, the better we can prevent similar incidents.
-              All reports are handled confidentially.
-            </p>
-          </div>
+      {/* OSHA compliance notice */}
+      <Card className="border-l-4 border-l-blue-500 bg-blue-50 border-blue-200">
+        <CardContent className="p-4 space-y-3 text-sm">
+          <p className="font-semibold text-blue-900">What must be reported? (OSHA 29 CFR 1904)</p>
+          <ul className="space-y-1.5 text-blue-800">
+            <li className="flex items-start gap-2"><span className="text-green-600 font-bold flex-shrink-0">✓</span> Work-related injuries requiring medical treatment beyond first aid</li>
+            <li className="flex items-start gap-2"><span className="text-green-600 font-bold flex-shrink-0">✓</span> Near misses — could have caused injury</li>
+            <li className="flex items-start gap-2"><span className="text-green-600 font-bold flex-shrink-0">✓</span> Dangerous conditions or equipment failures</li>
+            <li className="flex items-start gap-2"><span className="text-green-600 font-bold flex-shrink-0">✓</span> Chemical spills or HazCom exposures</li>
+            <li className="flex items-start gap-2"><span className="text-green-600 font-bold flex-shrink-0">✓</span> Missing or defective PPE</li>
+          </ul>
+          <p className="text-xs text-blue-700">
+            All injury reports are logged to OSHA 300 Log and OSHA 301 Incident Report. Reports are handled confidentially.
+          </p>
         </CardContent>
       </Card>
     </div>
